@@ -1,0 +1,160 @@
+    <!-- Beginning of compulsory code below -->
+
+    <link href="/static/css/dropdown/dropdown.limited.css" media="screen" rel="stylesheet" type="text/css"/>
+    <link href="/static/css/dropdown/default.css" media="screen" rel="stylesheet" type="text/css"/>
+
+    <div class="row border-bottom white-bg">
+        <nav class="navbar navbar-static-top" role="navigation">
+            <ul id="nav" class="dropdown dropdown-horizontal navbar-nav" style="margin-top:9px;margin-left: 10px;">
+
+                <li class="active">
+                    <a aria-expanded="false" role="button" href="/monitor/global/index"><font style="color:#1ab394">返回首页</font> </a>
+                </li>
+
+                <li class="dropdown-toggle dropdown">
+                    <a aria-expanded="false" role="button" href="#" class="dropdown-toggle hover-primary" data-toggle="dropdown"> 系统性能
+                        <span class="caret"></span></a>
+                    <ul>
+                        <li><a href="/monitor/graph/cpu/list">cpu</a></li>
+                        <li><a href="/monitor/graph/memory/list">内存</a></li>
+                        <li><a href="/monitor/graph/swap/list">swap</a></li>
+                        <li><a href="/monitor/graph/disk/list">磁盘</a></li>
+                        <li><a href="/monitor/graph/loadavg/list">平均负载</a></li>
+                        <li><a href="/monitor/graph/traffic/list">流量</a></li>
+                        <li><a href="/monitor/graph/all/index?ip=10.10.20.20">其他</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown-toggle dropdown">
+                    <a aria-expanded="false" role="button" href="#" class="dropdown-toggle hover-primary" data-toggle="dropdown"> 监控分析
+                        <span class="caret"></span></a>
+                    <ul>
+                        <li><a href="/monitor/global/Index">监控全局</a>
+                        </li>
+                        <li class="dir">平台数据
+                               <ul>
+                                   <li><a href="/monitor/platform/server/list">服务器列表</a>
+                                   </li>
+                                   <li><a href="/monitor/platform/alarm/list">报警处理状态</a>
+                                   </li>
+                                   <li><a href="/monitor/index/alarm/list">指标报警配置</a></li>
+                                </ul>
+                        </li>
+                        <!--li><a href="/monitor/data/list">监控日志</a-->
+                        </li>
+                        <li class="dir"><a href="">监控报表</a>
+                            <ul>
+                                <li><a href="/monitor/reports/reportMonthGroupsNameIndexNameList">监控指标报警报表</a>
+                                </li>
+                                <li><a href="/monitor/report/messages">报警次数报表</a>
+                                </li>
+                                <li><a href="/monitor/report/auto/list">性能指标自动通知</a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li class="dir"><a href="">监控配置</a>
+                            <ul>
+                                <li><a href="/monitor/scripts/list">系统数据上报配置</a>
+                                </li>
+                                <li><a href="/monitor/configure/quartz/list">任务计划配置</a>
+                                </li>
+                                <li class="dir"><a href="/monitor/configure/configure/list">监控配置</a>
+                                    <ul>
+                                        <li><a href="/monitor/configure/script/list">监控脚本配置</a>
+                                        </li>
+                                        <li><a href="/monitor/configure/item/list">监控项目配置</a>
+                                        </li>
+                                        <li><a href="/monitor/configure/template/list">监控模板配置</a>
+                                        </li>
+                                        <li><a href="/monitor/configure/groups/list">监控组配置</a>
+                                        </li>
+                                        <li><a href="/monitor/configure/configure/list">监控配置</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="dir"><a>告警发送配置</a>
+                                    <ul>
+                                        <li><a href="/monitor/configure/contacts/list">监控联系人配置</a>
+                                        </li>
+                                        <li><a href="/monitor/configure/contactGroup/list">监控联系组配置</a>
+                                        </li>
+                                        <li><a href="/monitor/configure/messages/list">消息通道配置</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li><a href="/monitor/configure/index/list">监控指标配置</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="/monitor/configure/messages/record">报警记录</a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="dropdown-toggle">
+                    <a aria-expanded="false" role="button" href="#" class="dropdown-toggle" data-toggle="dropdown"> 资源信息
+                        <span class="caret"></span></a>
+
+                    <ul>
+                        <li><a href="/resource/data/index">机柜信息</a>
+
+                        </li>
+                        <li class="dir"><a href="./">资源配置</a>
+                            <ul>
+                                <li><a href="/resource/configure/floor/list">机房配置</a>
+                                </li>
+                                <li><a href="/resource/configure/cabinet/list">机柜配置</a>
+                                </li>
+                                <li><a href="/resource/configure/network/list">网络地址管理</a>
+                                </li>
+                                <li><a href="/resource/configure/entname/list">环境配置</a>
+                                </li>
+                                <li><a href="/resource/configure/groups/list">业务线配置</a>
+                                </li>
+                                <li><a href="/resource/configure/user/list">管理员配置</a>
+                                </li>
+                                <li><a href="/resource/configure/serverType/list">服务器类型配置</a>
+                                </li>
+                                <li><a href="/resource/configure/service/list">服务类型配置</a>
+                                </li>
+                                <li><a href="/resource/configure/osType/list">系统类型配置</a>
+                                </li>
+                                <li><a href="/resource/configure/server/list">服务器配置</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li><a href="/resource/report/index">资产报表</a></li>
+                        <li><a href="/resource/report/network">网络地址报表</a></li>
+                        <li><a href="/resource/configure/server/list">服务器配置</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <ul class="nav navbar-top-links navbar-right">
+                <button aria-controls="navbar" aria-expanded="false" data-target="#navbar" data-toggle="collapse"
+                        class="navbar-toggle collapsed" type="button">
+
+                </button>
+                <a href="/authority/pages/list" class="navbar-brand" > <i class="fa fa-bar-chart"></i>&nbsp;Asura监控系统<span id="loginuserid"></span></a>
+                <li style="margin-right: 10px;margin-left: -10px;" id="loginuserlogin">
+                    <a href="/loginOut.do" id="islogin" style="display: none;">
+                        <i class="fa fa-sign-out"></i> 退出
+                    </a>
+                        <a href="/loginPage.do" id="isnotlogin" style="display: none;">
+                            <i class="fa fa-user"></i> 登陆
+                        </a>
+                </li>
+            </ul>
+    </div>
+    </div>
+    <script src="/static/js/public.js"></script>
+    <script>
+        result = post({},"/user")
+        if(result){
+            result = "<a href='/reset/password'>"+result+"</a>"
+            $('#islogin').show()
+            $('#loginuserid').html(result)
+        }else{
+            $('#islogin').hide()
+            $('#isnotlogin').show()
+        }
+
+    </script>
+

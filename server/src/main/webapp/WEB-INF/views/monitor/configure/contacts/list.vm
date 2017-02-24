@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>监控联系人管理</title><body class="gray-bg top-navigation">
+    #include("/index/include.vm")
+
+<div id="">
+    <div id="page-wrapper" class="gray-bg">
+        #include("/index/header.vm")
+<div id="addConfig"></div>
+<body>
+<div class="modal fade" id="show_cache" tabindex="-1"
+     role="dialog" style="background-color: #FfFfFf; margin-top: 16px;"
+     data-backdrop="false">
+    <div class="modal-dialog"
+         style="margin-top: 0px; width: 50%; ">
+        <div class="modal-content"
+             style="height: auto; overflow-y:scroll;width: 100%; ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title">&nbsp;&nbsp;缓存数据查看</h4>
+            </div>
+            <div  id="show_cache_detail_html"  rows="15" style="margin-bottom: 0px;width: 100%;">
+                加载中...
+            </div>
+            <div style="margin-top:12px;">&nbsp;</div>
+        </div>
+    </div>
+</div>
+
+
+<div class=" animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <button class="btn btn-success " type="button"
+                            onclick="addConfig();">
+                        <i class="fa fa-upload"></i>&nbsp;&nbsp;<span class="bold">添加</span>
+                    </button>
+                    <button class="btn btn-outline btn-primary " type="button"
+                            onclick="window.location='/monitor/configure/contactGroup/list'">
+                        <i class="fa fa-group"></i>&nbsp;&nbsp;<span class="bold">组配置</span>
+                    </button>
+                </div>
+                <div class="ibox-content" style="overflow:scroll;">
+                    <table id="listTable"
+                           class="table  table-bordered table-hover dataTables-example">
+                        <thead>
+                        <tr nowrap="nowrap" role="rows">
+                            <th>姓名</th>
+                            <th>手机</th>
+                            <th>邮箱</th>
+                            <th>工号</th>
+                            <th>缓存</th>
+                            <th>最近修改人</th>
+                            <th>最近修改时间</th>
+                            <th>编辑/删除</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var site = "contacts"
+    function addConfig(id){
+        if(!id){
+            id=0;
+        }
+        url = "/monitor/configure/"+site+"/add";
+        html = post({id:id}, url);
+        $('#addConfig').html(html);
+        $('#add_getui_config').modal('toggle');
+    }
+
+    function deleteConfig(id){
+
+        url = "/monitor/configure/"+site+"/delete";
+        parent.layer.confirm("点击同意后,将删除数据", {
+            btn: ['同意','不同意'], //按钮
+            shade: false//不显示遮罩
+        }, function(){
+            result = post({id:id}, url);
+            parent.layer.msg(JSON.stringify(result),  {icon:1})
+            location.reload();
+        }, function(){
+            parent.layer.msg("取消操作",  {icon:2})
+        });
+
+    }
+    // 查看模板的缓存信息
+    function show_cache(name){
+        url = "/monitor/configure/"+site+"/getCache";
+        html = post({name:name}, url);
+        $('#show_cache_detail_html').html(syntaxHighlight(JSON.stringify(html)));
+        $('#show_cache').modal("toggle")
+    }
+    function saveConfig(id){
+        data = get_form_data();
+        if(id){
+            data["contactsId"] = id;
+        }
+        if(!parseInt(data["mobile"]) || !data["mobile"].length==11){
+            parent.layer.msg("手机号格式错误",  {icon:2});
+            return;
+        }
+        if(data["mail"].indexOf("@")==-1||data["mail"].indexOf(".")==-1||data["mail"].length<5){
+            parent.layer.msg("邮箱格式错误",  {icon:2});
+            return;
+        }
+        url = "/monitor/configure/"+site+"/save";
+        result = post(data, url);
+        parent.layer.msg(JSON.stringify(result),  {icon:1});
+        //$('#add_getui_config').modal('toggle');
+        $('#listTable').dataTable().fnReloadAjax();
+    }
+    function loadData(){
+        $("#listTable").dataTable({
+            "filter": true,//去掉搜索框
+            "ordering": false, // 是否允许排序
+            "paginationType": "full_numbers", // 页码类型
+            "destroy": true,
+            "processing": true,
+            "serverSide": true,
+            "scrollX": true, // 是否允许左右滑动
+            "displayLength": 10, // 默认长度
+            "ajax": { // 请求地址
+                "url": "/monitor/configure/"+site+"/listData?t=" + new Date().getTime(),
+                "type": 'post'
+            },
+
+            "columns": [ // 数据映射
+                {"data": "memberName"},
+                {"data": "mobile"},
+                {"data": "mail"},
+                {"data": "no"},
+                {"sWidth": "150px", "data": "contactsId", "mRender": function(data, type, full) {
+                    return '<a  onclick="show_cache(\''+data+'\',\'item\')"><i style="margin-left: 25px;" class="fa fa-heart-o"></i></a>';
+                }
+                },
+                {"data": "lastModifyUser"},
+                {"data": "lastModifyTime","mRender":function (data) {
+                    var date2 = new Date(data);
+                    var localeString = date2.toLocaleString();
+                    return localeString;
+                }},
+                {"sWidth": "150px", "data": "contactsId", "mRender": function(data, type, full) {
+                    return '<button type="button" onclick="addConfig('+data+')" class="btn btn-sm btn-warning">编辑</button>&nbsp;'+
+                           '<button type="button" onClick="deleteConfig('+data+')" class="btn btn-sm btn-danger">删除</button>';
+                }
+                },
+            ],
+            "fnRowCallback": function (row, data) { // 每行创建完毕的回调
+                $(row).data('recordId', data.recordId);
+            }
+        });
+    }
+
+    loadData();
+
+</script>
+</body>
+</html>

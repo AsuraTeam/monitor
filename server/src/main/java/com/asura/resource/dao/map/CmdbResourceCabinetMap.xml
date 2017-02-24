@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.resource.dao.CmdbResourceCabinetDao">
+    <sql id="sqlId">
+             cabinet_id as cabinetId,
+            cabinet_name as cabinetName,
+            a.floor_id as floorId,
+            floor_address as floorAddress,
+            floor_name as floorName,
+            cabinet_scope as cabinetScope,
+            number,
+            a.create_time as createTime,
+            a.create_user as createUser,
+            a.last_modify_time as lastModifyTime,
+            a.last_modify_user as lastModifyUser
+   </sql>
+
+    <select id="selectByAll" parameterType="map" resultType="com.asura.resource.entity.CmdbResourceCabinetEntity">
+        select
+        <include refid="sqlId"/>
+        from cmdb_resource_cabinet a, cmdb_resource_floor b
+        where a.floor_id = b.floor_id
+        <if test="cabinetScope != null">
+            and a.cabinet_scope = #{cabinetScope}
+        </if>
+        <if test="cabinetName != null">
+            and a.cabinet_name=#{cabinetName}
+        </if>
+        <!--  排除空机柜 -->
+        <if test="nullCabinet" >
+            and  cabinet_id  in (select distinct cabinet_id from cmdb_resource_server where cabinet_id>1 )
+        </if>
+        <!-- 获取搜索的设备的机柜-->
+        <if test="search != null">
+            and  cabinet_id  in (select cabinet_id from cmdb_resource_server where ip_address like concat('%',#{search},'%'))
+        </if>
+
+        <!--  排除空机柜 -->
+        <if test="isOff != null" >
+            and  cabinet_id  in (select distinct cabinet_id from cmdb_resource_server where cabinet_id>1 and status=0 )
+        </if>
+    </select>
+
+    <select id="selectCabinetName" resultType="com.asura.resource.entity.CmdbResourceCabinetEntity">
+        select
+           distinct cabinet_scope as cabinetScope
+        from cmdb_resource_cabinet where cabinet_id!=1
+        <if test="cabinetScope != null">
+            and cabinet_scope=#{cabinetScope}
+        </if>
+        <if test="cabinetName != null ">
+            and cabinet_name=#{cabinetName}
+        </if>
+        <!--  排除空机柜 -->
+        <if test="nullCabinet" >
+            and  cabinet_id  in (select distinct cabinet_id from cmdb_resource_server where cabinet_id>1 )
+        </if>
+    </select>
+
+    <select id="findById" resultType="com.asura.resource.entity.CmdbResourceCabinetEntity">
+        select
+        <include refid="sqlId"/>
+        from cmdb_resource_cabinet a, cmdb_resource_floor b
+        where a.floor_id = b.floor_id
+        and cabinet_id=#{cabinetId}
+    </select>
+
+    <insert id="save" parameterType="com.asura.resource.entity.CmdbResourceCabinetEntity">
+        insert into cmdb_resource_cabinet(
+            cabinet_id,
+            cabinet_name,
+            floor_id,
+            create_time,
+            create_user,
+             number,
+             cabinet_scope,
+            last_modify_user
+        ) 
+        values(        
+            #{cabinetId},
+            #{cabinetName},
+            #{floorId},
+            #{createTime},
+            #{createUser},
+            #{number},
+            #{cabinetScope},
+            #{lastModifyUser}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.resource.entity.CmdbResourceCabinetEntity">
+        update cmdb_resource_cabinet set   
+            cabinet_id=#{cabinetId},
+            cabinet_name=#{cabinetName},
+            floor_id=#{floorId},
+            create_time=#{createTime},
+            create_user=#{createUser},
+            number=#{number},
+            cabinet_scope=#{cabinetScope},
+            last_modify_user=#{lastModifyUser}
+         where cabinet_id=#{cabinetId}
+    </update>
+
+
+</mapper>
+

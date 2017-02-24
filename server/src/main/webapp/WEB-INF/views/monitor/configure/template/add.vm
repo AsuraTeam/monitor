@@ -1,0 +1,225 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<body xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+<div class="modal fade" id="add_getui_config" tabindex="-1"
+     role="dialog" style="background-color: #FfFfFf; margin-top: 16px;"
+     data-backdrop="false">
+    <div class="modal-dialog"
+         style="margin-top: 0px; width: 60%; ">
+        <div class="modal-content"
+             style=" width: 100%; height: 800px;;">
+            <form>
+            <div class="modal-header" >
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title">&nbsp;&nbsp;监控模板配置</h4>
+            </div>
+            <div class="">
+                    <div class="col-md-12" style="margin-top: 15px;">
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">模板名称:</label>
+                            <div class="col-sm-9" style="float: left">
+                                <input type="text" name="templateName" placeholder="模板,一个好区别的名称" id="templateName"
+                                       class="form-control" style="float: left;width: 60%;margin-left: -18%;"
+                                       value="$!{configs.templateName}">
+                                    <select name="itemId"  style="float: left;width: 40%;margin-left: 5px;"  id="templateName"  class="form-control"  onchange="$('#templateName').val($(this).val())">
+                                        #if($configs.templateName) <option value="$configs.templateName">${configs.templateName}</option>
+                                        #else
+                                            <option value="">请选择</option>
+                                        #end
+                                        #foreach($s in $templates)
+                                            <option value="${s.templateName}">${s.templateName}</option>
+                                        #end
+                                    </select>
+                            </div>
+                        </div>
+                    </div>
+                <div class="col-md-12" style="margin-top: 5px;"></div>
+                <div class="col-md-12" style="margin-top: 5px;"></div>
+                <div class="col-md-12" style="margin-top: 15px;"></div>
+
+
+                <div class="col-md-12">
+                    <label class="col-sm-3 control-label">可选择监控项目</label>
+                    <label class="col-sm-3"><input placeholder="搜索监控项目" onkeyup="search($(this).val(),'item')" class="fa-border form-control" style="margin-top:-5px;margin-left:0%;"></label>
+                    <label class="col-sm-3 control-label">已选择监控项目</label>
+                </div>
+                <div class="col-md-12" style="margin-top: 5px;"></div>
+                <div class="col-md-12" style="margin-top: 5px;">
+                    <div class="col-xs-5">
+                        <select name="from" id="undo_redo" class="form-control" size="10" multiple="multiple">
+                        </select>
+                    </div>
+
+                    <div class="col-xs-2">
+                        <button type="button" id="undo_redo_undo" class="btn btn-primary btn-block">undo</button>
+                        <!--button type="button" id="undo_redo_rightAll" class="btn btn-default btn-block"><i class="glyphicon glyphicon-forward"></i></button-->
+                        <button type="button" id="undo_redo_rightSelected" class="btn btn-default btn-block"><i class="glyphicon glyphicon-chevron-right"></i></button>
+                        <button type="button" id="undo_redo_leftSelected" class="btn btn-default btn-block"><i class="glyphicon glyphicon-chevron-left"></i></button>
+                        <!--button type="button" id="undo_redo_leftAll" class="btn btn-default btn-block"><i class="glyphicon glyphicon-backward"></i></button-->
+                        <button type="button" id="undo_redo_redo" class="btn btn-warning btn-block">redo</button>
+                    </div>
+
+                    <div class="col-xs-5">
+                        <select name="to" id="undo_redo_to" class="form-control" size="10" multiple="multiple"></select>
+                    </div>
+                </div>
+
+                <div class="col-md-12" style="margin-top: 25px;"></div>
+                <div class="col-md-12">
+                    <label class="col-sm-3 control-label">可选择模板</label>
+                    <label class="col-sm-3"><input placeholder="搜索模板项目" onkeyup="search($(this).val(),'template')" class="fa-border form-control" style="margin-top:-5px;mar
+gin-left:-60%;"></label>
+                    <label class="col-sm-3 control-label">已选择模板项目</label>
+                </div>
+                <div class="col-md-12" style="margin-top: 5px;"></div>
+                <div class="col-md-12" style="margin-top: 5px;">
+                    <div class="col-xs-5">
+                        <select name="from" id="undo2_redo" class="form-control" size="10" multiple="multiple">
+                        </select>
+                    </div>
+
+                    <div class="col-xs-2">
+                        <button type="button" id="undo2_redo_undo" class="btn btn-primary btn-block">undo</button>
+                        <!--button type="button" id="undo2_redo_rightAll" class="btn btn-default btn-block"><i class="glyphicon glyphicon-forward"></i></button-->
+                        <button type="button" id="undo2_redo_rightSelected" class="btn btn-default btn-block"><i class="glyphicon glyphicon-chevron-right"></i></button
+                        >
+                        <button type="button" id="undo2_redo_leftSelected" class="btn btn-default btn-block"><i class="glyphicon glyphicon-chevron-left"></i></button>
+                        <!--button type="button" id="undo2_redo_leftAll" class="btn btn-default btn-block"><i class="glyphicon glyphicon-backward"></i></button-->
+                        <button type="button" id="undo2_redo_redo" class="btn btn-warning btn-block">redo</button>
+                    </div>
+
+                    <div class="col-xs-5">
+                        <select name="to" id="undo2_redo_to" class="form-control" size="10" multiple="multiple"></select>
+                    </div>
+                </div>
+                </div>
+                <div class="col-md-12" style="margin-top: 5px;"></div>
+            <div class="col-md-12" style="margin-top: 5px;"></div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">是否有效:</label>
+                    <div class="col-sm-4">
+                        <div class="checkbox checkbox-primary checkbox-inline" >
+                            <input type="checkbox" onchange="change(this)" name="isValid"
+                                   id="checkbox5"
+                                   class="form-control" #if( $configs.isValid == "1" )
+                                   checked   #end
+                                   value="#if($configs.isValid)$!{configs.isValid}#else 1 #end">
+                            <label for="checkbox5 control-label">&nbsp;</label></strong>
+                        </div>
+                    </div>
+                </div>
+                </div>
+                <div class="col-md-12" style="margin-top: 15px;"></div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">描述信息:</label>
+                        <div class="col-sm-6" style="margin-left: -17%;">
+                            <input type="text" name="description" class="form-control" id="script_description"
+                                   value="$!{configs.description}">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12" style="margin-top: 15px;"></div>
+                <button style="margin-left: 87%;margin-top: 5px;margin-bottom: 10px;"
+                        onclick="saveConfig($!{configs.templateId});" class="btn btn-primary btn-lg" type="button">
+                    <i class="fa fa-check"></i>&nbsp;保存
+                </button>
+        </div>
+        </form>
+    </div>
+
+</div>
+</div>
+<script type="text/javascript">
+
+    function change(obj) {
+        value = $(obj).val();
+        if (value == 0) {
+            console.log(1);
+            $(obj).val(1);
+        } else {
+            console.log(0)
+            $(obj).val(0);
+        }
+    }
+    function  setTo(html_id, type) {
+        id = "$!{configs.templateId}"
+        if(id.length<1){
+            id=0
+            return
+        }
+        url = "/monitor/configure/template/getTemplateData?id="+id+"&type="+type;
+        result = post({},url);
+        data = eval(result);
+        html = ""
+        for(i=0;i<data.length;i++){
+            html += '<option value='+data[i]["id"]+'>'+data[i]["name"]+"</option>";
+        }
+        $('#'+html_id).html(html);
+    }
+
+    function setFrom(id,html_id,key) {
+        if(!key){
+            key=""
+        }
+
+        url = "/monitor/configure/item/listData?id="+id;
+        result = post({key:key,"draw":1,"length":100000,"start":1},url);
+        result = eval(result);
+        data = result["data"]
+        html = ""
+        for(i=0;i<data.length;i++){
+            html += '<option value='+data[i]["itemId"]+'>'+data[i]["itemName"]+"</option>";
+        }
+        $('#'+html_id).html(html);
+    }
+
+    function setFromTemplate(id,html_id,key) {
+        if(!key){
+            key=""
+        }
+        url = "/monitor/configure/template/listData?id="+id;
+        result = post({key:key,"draw":1,"length":100000,"start":1},url);
+        result = eval(result);
+        data = result["data"]
+        html = ""
+        for(i=0;i<data.length;i++){
+            html += '<option value='+data[i]["templateId"]+'>'+data[i]["templateName"]+"</option>";
+        }
+        $('#'+html_id).html(html);
+    }
+    setFromTemplate("","undo2_redo")
+
+
+    setFrom(0,"undo_redo");
+    setTo("undo_redo_to", "item");
+    setTo("undo2_redo_to","template")
+
+    function search(value, type) {
+        if(type=="item"){
+            setFrom(0,"undo_redo",value);
+        }else{
+            setFromTemplate("","undo2_redo",value)
+        }
+    }
+
+    jQuery(document).ready(function($) {
+        $('#undo_redo').multiselect({
+            keepRenderingSort: true
+        });
+    });
+
+    jQuery(document).ready(function($) {
+        $('#undo2_redo').multiselect({
+            keepRenderingSort: true
+        });
+    });
+
+
+</script>
+</body>

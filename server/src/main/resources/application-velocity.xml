@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation=" http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd">
+
+    <!-- classpath load configurer -->
+    <bean id="velocityConfigurer"
+          class="org.springframework.web.servlet.view.velocity.VelocityConfigurer">
+        <property name="configLocation">
+            <value>classpath:velocity.properties</value>
+        </property>
+        <!-- spring 这里用的其实的FileResourceLoader 写死在类里面了 -->
+        <property name="resourceLoaderPath">
+            <value>WEB-INF/views/</value>
+        </property>
+    </bean>
+
+    <!-- file Load -->
+    <bean id="velocityEngine" factory-bean="velocityConfigurer" factory-method="createVelocityEngine"/>
+
+</beans>

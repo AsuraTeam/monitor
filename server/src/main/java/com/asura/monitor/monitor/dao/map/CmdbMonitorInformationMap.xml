@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.monitor.monitor.dao.MonitorInformationDao">
+    <select id="selectByAll" resultType="com.asura.monitor.monitor.entity.CmdbMonitorInformationEntity">
+        select 
+            a.id as id,
+            ip as ip,
+            a.check_command as checkCommand,
+            last_time as lastTime,
+            next_time as nextTime,
+            status as status,
+            info as info,
+            notice_number as noticeNumber,
+            a.groups as groups,
+            site as site,
+            b.alias as name
+         from cmdb_monitor_information a, cmdb_ent b
+        where
+         b.sadd like concat("%",a.ip,"%")
+         <if test="status != null">
+             and status=#{status}
+         </if>
+        <if test="noStatus != null">
+            and status!=#{noStatus}
+        </if>
+        <if test="info != null">
+            and ip like concat('%',#{info},'%')
+            or info like concat('%',#{info},'%')
+            or check_command like concat('%',#{info},'%')
+        </if>
+
+        <if test="groups != null">
+            and a.groups=#{groups}
+        </if>
+
+        </select>
+
+    <select id="selectAlarmCount" resultType="com.asura.monitor.monitor.entity.CmdbMonitorInformationEntity">
+            select status ,count(*) as noticeNumber from cmdb_monitor_information
+            <where>
+                <if test="groups != null">
+                    groups = #{groups}
+                </if>
+            </where>
+            group by status;
+    </select>
+
+
+    <!--今日监控异常数据，从报警信息里面获取 -->
+    <select id="selectDayMonitor" resultType="com.asura.monitor.monitor.entity.CmdbMonitorInformationEntity">
+        select status ,count(*) as noticeNumber
+        from cmdb_monitor_information
+        <where>
+            <if test="groups != null">
+                and   a.groups = #{groups}
+            </if>
+        </where>
+         group by status;
+    </select>
+
+    <select id="selectCheckCommandCount"  parameterType="map" resultType="com.asura.monitor.monitor.entity.CmdbMonitorInformationEntity">
+    select  a.status,
+            b.monitor_name as name,
+            count(*) as noticeNumber from
+             cmdb_monitor_information a,
+             cmdb_monitor_item b
+       where a.check_command = b.file_name
+        <!--业务线查询-->
+       <if test="groups != null">
+           and   a.groups = #{groups}
+       </if>
+       group by b.monitor_name,a.status;
+    </select>
+
+    <insert id="save" parameterType="com.asura.monitor.monitor.entity.CmdbMonitorInformationEntity">
+        insert into cmdb_monitor_information(
+            id,
+            ip,
+            name,
+            check_command,
+            last_time,
+            next_time,
+            status,
+            info,
+            notice_number,
+            groups,
+            site
+        )
+        values(
+            #{id},
+            #{ip},
+            #{name},
+            #{checkCommand},
+            #{lastTime},
+            #{nextTime},
+            #{status},
+            #{info},
+            #{noticeNumber},
+            #{groups},
+            #{site}
+        )
+    </insert>
+
+
+
+    <!-- 获取某个部门的报警信息 -->
+    <select id="selectGroupsMonitorInfo" resultType="com.asura.monitor.monitor.entity.CmdbMonitorInformationEntity">
+        select a.groups,
+        a.last_time,
+        a.ip,
+        status,
+        info,
+        b.alias as name,
+        c.monitor_name as monitorName
+        from
+        cmdb_monitor_information a,
+        cmdb_ent b,
+        cmdb_monitor_item c
+        where c.file_name=a.check_command
+        and b.sadd like concat("%",a.ip,"%")
+        and a.status!="正常"
+        and a.groups=#{groups}
+    </select>
+
+
+    <!-- 获取没有描述信息的 -->
+    <select id="selectGroupsMonitorInfoNoComm" resultType="com.asura.monitor.monitor.entity.CmdbMonitorInformationEntity">
+        select a.groups,
+        a.last_time,
+        a.ip,
+        status,
+        info,
+        b.comm as name,
+        c.monitor_name as monitorName
+        from
+        cmdb_monitor_information a,
+        cmdb_monitor_configure b,
+        cmdb_monitor_item c
+        where c.file_name=a.check_command
+        and a.status!="正常"
+        and b.host like concat("%",a.ip,"%")
+        and a.groups=#{groups}
+        and a.check_command = b.check_command
+    </select>
+</mapper>
+

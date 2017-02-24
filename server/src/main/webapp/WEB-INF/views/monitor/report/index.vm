@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    #include("/index/include.vm")
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>监控报表</title>
+
+
+</head>
+
+<body class="gray-bg top-navigation">
+
+<div id="">
+    <div id="page-wrapper" class="gray-bg">
+        #include("/index/header.vm")
+        <div class=" wrapper-content" style="padding:0px;">
+            <div class="container" style="width:100%;">
+                <div class="row" style="margin-left:-15px;">
+                    <div class="col-md-4" style="width: 20%;padding: 5px;" onClick="window.open('/monitor/report/dayMonitorReport?groups=$!{groups}')">
+                        <div class="ibox float-e-margins">
+                            <div class="ibox-title">
+                                <span class="label label-success pull-right"></span>
+                                <h5>监控总数 &nbsp;&nbsp;$!{groups}</h5>
+                            </div>
+                            <div class="ibox-content">
+                                <h1 class="no-margins">${totle}</h1>
+                                <div class="stat-percent font-bold text-success">100% <i class="fa fa-bolt"></i>
+                                </div>
+                                <small>总计监控数量</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2" style="width: 20%;padding: 5px;" onClick="window.open('/monitor/report/dayMonitorReport?groups=$!{groups}')">
+                        <div class="ibox float-e-margins">
+                            <div class="ibox-title">
+                                <span class="label label-info pull-right"></span>
+                                <h5>正常</h5>
+                            </div>
+                            <div class="ibox-content">
+                                <h1 class="no-margins">${ok}</h1>
+                                <div class="stat-percent font-bold text-info">${okP}% <i class="fa fa-level-up"></i>
+                                </div>
+                                <small>状态正常</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2" style="width: 20%;padding: 5px;" onClick="window.open('/monitor/report/dayMonitorReport?groups=$!{groups}')">
+                        <div class="ibox float-e-margins">
+                            <div class="ibox-title">
+                                <span class="label label-info pull-right"></span>
+                                <h5>危险</h5>
+                            </div>
+                            <div class="ibox-content">
+                                <h1 class="no-margins">${danger}</h1>
+                                <div class="stat-percent font-bold text-danger">${dangerP}% <i class="fa fa-level-up"></i>
+                                </div>
+                                <small>状态危险</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2" style="width: 20%;padding: 5px;">
+                        <div class="ibox float-e-margins">
+                            <div class="ibox-title">
+                                <span class="label label-info pull-right"></span>
+                                <h5>警告</h5>
+                            </div>
+                            <div class="ibox-content">
+                                <h1 class="no-margins">${warning}</h1>
+                                <div class="stat-percent font-bold text-warning">${warningP}% <i class="fa fa-level-up"></i>
+                                </div>
+                                <small>状态警告</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2" style="width: 20%;padding: 5px;">
+                        <div class="ibox float-e-margins">
+                            <div class="ibox-title">
+                                <span class="label label-info pull-right"></span>
+                                <h5>未知</h5>
+                            </div>
+                            <div class="ibox-content">
+                                <h1 class="no-margins">${unknown}</h1>
+                                <div class="stat-percent font-bold text-navy">${unknownP}% <i class="fa fa-level-up"></i>
+                                </div>
+                                <small>状态未知</small>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <div class="col-lg-5" style="margin-left:-2%;padding-right: 0px;margin-top:-20px;">
+                           <script>
+                               result = post({},"/monitor/report/checkCount?groups=$!{groups}");
+                               document.write(result);
+                           </script>
+                </div>
+
+                    <div class="col-sm-3" style="margin-top:-20px;">
+                        <div class="ibox float-e-margins" >
+                            <div class="ibox-title" style="margin-right: -20px;">
+                                <h5>监控状态分布</h5>
+                            </div>
+                            <div class="ibox-content" style="margin-right: -20px;">
+                                <div class="flot-chart" style="margin-right: -20px;">
+                                    <div class="flot-chart-content" id="flot-pie-chart" width="100px" height="100px" width="200px;height:200px;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4 " style="margin-top:-20px;">
+                        <div class="ibox float-e-margins">
+                            <div class="ibox-title" style="margin-right: -30px;">
+                                <h5>监控状态数据</h5>
+                            </div>
+                            <div class="ibox-content" style="margin-right: -30px;">
+                                <div class="flot-chart">
+                                    <div id="morris-bar-chart"   class="flot-chart-content"></>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <script>
+                        result = post({},"/monitor/report/dangerData?groups=$!{groups}");
+                        document.write(result);
+                    </script>
+
+                </div>
+            </div>
+
+        </div>
+    #include("/index/footer.vm")
+
+    </div>
+</div>
+
+
+
+<!-- Morris -->
+<script src="/static/js/plugins/morris/raphael-2.1.0.min.js"></script>
+<script src="/static/js/plugins/morris/morris.js"></script>
+
+<!-- Flot -->
+<script src="/static/js/plugins/flot/jquery.flot.js"></script>
+<script src="/static/js/plugins/flot/jquery.flot.tooltip.min.js"></script>
+<script src="/static/js/plugins/flot/jquery.flot.resize.js"></script>
+<script src="/static/js/plugins/flot/jquery.flot.pie.js"></script>
+
+
+
+
+
+<script>
+
+
+    //Flot Pie Chart
+    $(function() {
+
+        var data = [{
+            label: "正常",
+            data: ${okP},
+            color: "#1ab394",
+        }, {
+            label: "危险",
+            data: ${dangerP},
+            color: "#ed5565",
+        }, {
+            label: "未知",
+            data: ${unknownP},
+            color: "#79d2c0",
+        }, {
+            label: "警告",
+            data: ${warningP},
+            color: "#f8ac59",
+        }];
+
+        var plotObj = $.plot($("#flot-pie-chart"), data, {
+            series: {
+                show: true,
+                pie: {
+                    show: true,
+                    radius: 1,
+                    label: {
+                        show: true,
+                        formatter: function (label, series) {
+                            return '<div style="font-size:8pt;text-align:center;padding:1px;"><b>' + label + '</b><br/>' + series.data[0][1] + '</div>';
+                        },
+                    }
+                }
+            },
+            grid: {
+                hoverable: true
+            },
+
+            tooltip: true,
+            tooltipOpts: {
+                content: "%p.0%, %s", // show percentages, rounding to 2 decimal places
+                shifts: {
+                    x: 20,
+                    y: 0
+                },
+                defaultTheme: false
+            }
+        });
+
+    });
+
+    Morris.Bar({
+        element: 'morris-bar-chart',
+        data: [{
+            y: '正常',
+            a: ${ok},
+            b:0,
+            c:0,
+            d:0,
+        }, {
+            y: '危险',
+            a: 0,
+            b:${danger},
+            c:0,
+            d:0,
+        }, {
+            y: '警告',
+            a: 0,
+            b:0,
+            c:${warning},
+            d:0,
+        }, {
+            y: '未知',
+            a: 0,
+            b:0,
+            c:0,
+            d:${unknown},
+        }],
+        tooltip: true,
+        xkey: 'y',
+        ykeys: ['a', 'b','c','d'],
+        labels: ['正常', '危险','警告','未知'],
+        hideHover: 'auto',
+        resize: true,
+        barColors: ['#1ab394', '#cacaca','#ed5565','#79d2c0'],
+    });
+</script>
+
+
+</body>
+
+</html>

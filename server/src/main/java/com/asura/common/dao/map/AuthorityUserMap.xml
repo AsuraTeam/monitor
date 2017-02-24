@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.common.dao.AuthorityUserDao">
+    <select id="selectByAll" resultType="com.asura.common.entity.AuthorityUserEntity">
+        select 
+            user_id as userId,
+            username as username,
+            last_login as lastLogin,
+            login_faild_count as loginFaildCount
+         from authority_user  where 1=1
+         <if test="username != null">
+             and username = #{username}
+         </if>
+         <if test="password != null ">
+             and password = #{password}
+         </if>
+         <if test="key != null">
+             and username like concat("%",#{key},"%")
+         </if>
+        </select>
+
+    <delete id="delete" parameterType="com.asura.common.entity.AuthorityUserEntity">
+        DELETE from authority_user where username=#{username} and username != "admin"
+    </delete>
+
+    <insert id="save" parameterType="com.asura.common.entity.AuthorityUserEntity">
+        insert into authority_user(
+            username,
+            password,
+            last_login,
+            login_faild_count
+        ) 
+        values(        
+            #{username},
+            #{password},
+            #{lastLogin},
+            #{loginFaildCount}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.common.entity.AuthorityUserEntity">
+        update authority_user set   
+           <if test="username != null">
+              username=#{username},
+           </if>
+            <if test="password != null">
+                password=#{password},
+            </if>
+            last_login=#{lastLogin},
+            login_faild_count=#{loginFaildCount}
+         where   username=#{username}
+    </update>
+
+</mapper>
+

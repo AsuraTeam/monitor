@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    #include("/index/include.vm")
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="/static/js/highcharts.js"></script>
+    <title>平均负载使用状态展示</title>
+
+
+</head>
+
+<body class="top-navigation" style="background-color: #FeFeFe">
+
+<div id="wrappe1r">
+    <div id="page-wrapper" class="gray-bg">
+        #include("/index/header.vm")
+        </div>
+        <div class="ibox-title" style="margin-top: 0px;border: solid 1px #f0f0f0">
+            <div class="col-md-4" style="float:left;">
+                <strong>$!{ip}&nbsp;&nbsp;系统平均负载&nbsp;&nbsp;
+                </strong>
+            </div>
+            <div class="input-group col-sm-6 pull-right" style="margin-top: -8px;" >
+                <span class="input-group-addon">时间(<font color="red">单天选择</font>)：</span>
+                <input type="text" class="form-control" id="startSendTime"  name="startSendTime">
+                <span class="input-group-addon">-</span>
+                <input type="text" class="form-control" id="endSendTime"  name="endSendTime">
+
+            </div>
+            <div class="col-md-5 pull-right">
+                <div class="form-group  ">
+                    <div class="col-sm-3 pull-right">
+                        <select class="form-control" STYLE="float:left;margin-top:-26px;">
+                            <option value="60">1h</option>
+                            <option value="720">12H</option>
+                            <option value="1440">1d</option>
+                            <option value="">3d</option>
+                            <option value="">7d</option>
+                            <option value="">1m</option>
+                            <option value="">0.5y</option>
+                            <option value="">1y</option>
+                        </select>
+                    </div>
+                    <label class="col-sm-2  control-label pull-right" style="margin-top:-15px;">时间段:</label>
+                </div>
+            </div>
+            </div>
+            <br>
+            <div class="" style="padding:6px;margin-top: 0px;">
+
+                <div id="allLoadavgBorder" class="col-md-4" style="border:solid 1px #f0f0f0;width: 100%;padding: 15px;margin-left:10px;">
+                    <div class="ibox float-e-margins">
+                        <div class="">
+                            <span class="default pull-right" onclick="loadAll(1);"><i class="fa fa-search-plus" style="font-size:19px;margin-top:-4px;"></i></span>
+                            <h5 align="center">1,5,15分钟平均负载趋势图</h5>
+                        </div>
+                        <input type="hidden" id="allLoadavgBorderWidth" value="49">
+                        <div id="allLoadavg" style="width: 100%;height: 340px;margin-bottom:-40px;"></div>
+                    </div>
+                </div>
+
+
+                <div id="usedBorder" class="col-md-4" style="border:solid 1px #f0f0f0;width: 49%;padding: 15px;margin-left:10px;">
+                    <div class="ibox float-e-margins">
+                        <div class="">
+                            <span class="default pull-right" onclick="loadUse(1);"><i class="fa fa-search-plus" style="font-size:19px;margin-top:-4px;"></i></span>
+                            <h5 align="center">1分钟平均负载趋势图</h5>
+                        </div>
+                        <input type="hidden" id="usedBorderWidth" value="49">
+                        <div id="used" style="width: 100%;height: 340px;margin-bottom:-40px;"></div>
+                    </div>
+                </div>
+
+
+
+                <div id="bufferBorder" class="col-md-4"
+                     style="border:solid 1px #f0f0f0;width: 49%;maring-top:25px;padding: 15px;margin-left:10px;">
+                    <div class="ibox float-e-margins">
+                        <div class="">
+                            <span class="default pull-right" onclick="loadBuffer(1);"><i class="fa fa-search-plus" style="font-size:19px;margin-top:-4px;"></i></span>
+                            <h5 align="center">5分钟平均负载趋势图</h5>
+                        </div>
+                        <input type="hidden" id="bufferBorderWidth" value="49">
+                        <div id="buffer" style="width: 100%;height: 340px;margin-bottom:-40px;"></div>
+                    </div>
+                </div>
+
+
+                <div id="cacheBorder" class="col-md-4"
+                     style="border:solid 1px #f0f0f0;width: 49%;padding: 15px;margin-left:10px;maring-top:15px;">
+                    <div class="ibox float-e-margins">
+                        <div class="">
+                            <span class="default pull-right" onclick="loadCache(1);"><i class="fa fa-search-plus" style="font-size:19px;margin-top:-4px;"></i></span>
+                            <h5 align="center">15分钟平均负载趋势图</h5>
+                        </div>
+                        <input type="hidden" id="cacheBorderWidth" value="49">
+                        <div id="cache" style="width: 100%;height: 340px;margin-bottom:-40px;"></div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+</div>
+
+<input type="hidden" id="selectGroups">
+
+
+<script>//Flot Multiple Axes Line Chart
+
+
+  
+
+
+function graphAll() {
+    startT= $('#startSendTime').val()
+    endT = $('#endSendTime').val()
+    if(!startT){
+        startT = ""
+    }
+    if(!endT){
+        endT = ""
+    }
+    Highcharts.setOptions({
+        global: {
+            useUTC: false
+        }
+    });
+   t = "&startT="+startT+"&endT="+endT;
+    $('#allLoadavg').highcharts({
+        chart: {
+            type: 'line',
+        },
+
+        colors: ["#1ab394","#f8ac59","#1f90d8"],
+        title: {
+            text: ''
+        },
+        xAxis: {
+            type: 'datetime',
+            tickPixelInterval: 110,
+
+        },
+        yAxis: {
+            title: {
+                text: "1,5,15分钟负载"
+            },
+        },
+        plotOptions: {
+            line: {
+                lineWidth: 3,
+                states: {
+                    hover: {
+                        lineWidth: 5
+                    }
+                },
+                marker: {
+                    enabled: false
+                },
+                pointInterval: 3600000, // one hour
+            }
+        },
+        tooltip: {
+            formatter: function () {
+                return '<b>' + this.series.name + '</b><br/>' +
+                        Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +
+                        Highcharts.numberFormat(this.y, 2);
+            }
+        },
+        legend: {
+            enabled: false
+        },
+        exporting: {
+            enabled: false
+        },
+        series: [
+            {
+            name: "1分钟负载",
+            data: eval(post({}, "/monitor/graph/historyData?ip=${ip}&name=system.load.1&type=loadavg"+t)),
+            },
+            {
+                name: "5分钟负载",
+                data: eval(post({}, "/monitor/graph/historyData?ip=${ip}&name=system.load.5&type=loadavg"+t)),
+            },
+            {
+                name: "15分钟负载",
+                data: eval(post({}, "/monitor/graph/historyData?ip=${ip}&name=system.load.15&type=loadavg"+t)),
+            },
+        ]
+    });
+}
+
+
+
+function  loadAll(zoom) {
+    if(zoom){
+        setWidth("allLoadavg")
+    }
+    graphAll()
+}
+
+
+function  loadUse(zoom) {
+    if(zoom){
+        setWidth("used")
+    }
+    graph("1ab394", "used", "'1分钟负载'", "1分钟负载", "/monitor/graph/historyData?ip=${ip}&name=system.load.1&type=loadavg")
+}
+
+function  loadBuffer(zoom) {
+    if (zoom) {
+        setWidth("buffer")
+    }
+    graph("f8ac59", "buffer", "5分钟负载", "5分钟负载", "/monitor/graph/historyData?ip=${ip}&name=system.load.5&type=loadavg")
+}
+
+
+function  loadCache(zoom) {
+    if (zoom) {
+        setWidth("cache")
+    }
+    graph("1f90d8", "cache", "15分钟负载", "15分钟负载", "/monitor/graph/historyData?ip=${ip}&name=system.load.15&type=loadavg")
+}
+
+function loadimg() {
+    loadCache()
+    loadBuffer();
+    loadUse()
+    graphAll()
+}
+timePulush(loadimg)
+loadimg();
+setTimeout(function () {
+    window.location.reload();
+},300000)
+</script>
+</body>
+

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.monitor.configure.dao.MonitorContactsDao">
+   <sql id="baseSql">
+         select
+            contacts_id as contactsId,
+            member_name as memberName,
+            mobile as mobile,
+            mail as mail,
+            no as no,
+            last_modify_user as lastModifyUser,
+            last_modify_time as lastModifyTime
+         from monitor_contacts
+   </sql>
+    <select id="selectByAll" resultType="com.asura.monitor.configure.entity.MonitorContactsEntity">
+           <include refid="baseSql"/>
+        WHERE 1=1
+        <if test="member !=null">
+            and contacts_id in
+            <foreach collection="member" item="item" separator="," open="(" close=")"  index="index">
+                #{item}
+            </foreach>
+        </if>
+        <if test="key != null">
+            and member_name like concat("%",#{key},"%")
+            or mail like concat("%",#{key},"%")
+            or mobile like concat("%",#{key},"%")
+            or no like concat("%",#{key},"%")
+        </if>
+        ORDER by  contacts_id desc
+        </select>
+
+    <select id="findById" resultType="com.asura.monitor.configure.entity.MonitorContactsEntity">
+        <include refid="baseSql"/>
+        where contacts_id=#{contactsId}
+    </select>
+
+
+    <insert id="save" parameterType="com.asura.monitor.configure.entity.MonitorContactsEntity">
+        insert into monitor_contacts(
+            contacts_id,
+            member_name,
+            mobile,
+            mail,
+            no,
+            last_modify_user,
+            last_modify_time
+        ) 
+        values(        
+            #{contactsId},
+            #{memberName},
+            #{mobile},
+            #{mail},
+            #{no},
+            #{lastModifyUser},
+            #{lastModifyTime}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.monitor.configure.entity.MonitorContactsEntity">
+        update monitor_contacts set   
+            contacts_id=#{contactsId},
+            member_name=#{memberName},
+            mobile=#{mobile},
+            mail=#{mail},
+            no=#{no},
+            last_modify_user=#{lastModifyUser},
+            last_modify_time=#{lastModifyTime}
+         where contacts_id=#{contactsId}
+    </update>
+
+</mapper>
+

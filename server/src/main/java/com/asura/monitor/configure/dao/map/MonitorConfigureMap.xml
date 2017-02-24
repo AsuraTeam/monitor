@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.monitor.configure.dao.MonitorConfigureDao">
+    <sql id="baseSql">
+        select 
+            configure_id as configureId,
+            host_id as hostId,
+            description as description,
+            monitor_time as monitorTime,
+            alarm_count as alarmCount,
+            alarm_interval as alarmInterval,
+            script_id as scriptId,
+            a.is_valid as isValid,
+            a.last_modify_time as lastModifyTime,
+            a.last_modify_user as lastModifyUser,
+            template_id as templateId,
+            a.groups_id as groupsId,
+            b.groups_name as groupsName,
+            retry as retry,
+            monitor_configure_tp as monitorConfigureTp,
+            monitor_hosts_tp as monitorHostsTp,
+            hosts as hosts,
+            arg1 as arg1,
+            arg2 as arg2,
+            arg3 as arg3,
+            arg4 as arg4,
+            arg5 as arg5,
+            arg6 as arg6,
+            arg7 as arg7,
+            arg8 as arg8,
+            check_interval as checkInterval,
+            is_mobile as isMobile,
+            is_email as isEmail,
+            is_ding as isDing,
+            is_weixin as isWeixin,
+            weixin_groups as weixinGroups,
+            ding_groups as dingGroups,
+            mobile_groups as mobileGroups,
+            email_groups as emailGroups,
+            all_groups as allGroups,
+            item_id as itemId,
+            gname as gname
+         from monitor_configure a,
+         cmdb_resource_groups b
+         where a.groups_id = b.groups_id
+        </sql>
+    <select id="selectByAll" resultType="com.asura.monitor.configure.entity.MonitorConfigureEntity">
+        <include refid="baseSql"/>
+        <if test="isValid != null">
+            and a.is_valid = #{isValid}
+        </if>
+        <if test="groupsName != null">
+            and b.groups_name = #{groupsName}
+        </if>
+        <if test="description != null">
+            and a.description LIKE concat("%", #{description}, "%")
+        </if>
+        ORDER BY a.last_modify_time desc
+    </select>
+
+    <select id="findById" parameterType="int" resultType="com.asura.monitor.configure.entity.MonitorConfigureEntity">
+        <include refid="baseSql"/>
+        and configure_id=#{configureId}
+    </select>
+
+    <select id="selectMaxId" parameterType="int" resultType="com.asura.monitor.configure.entity.MonitorConfigureEntity">
+        select max(configure_id) as configureId from monitor_configure
+    </select>
+
+
+    <insert id="save" parameterType="com.asura.monitor.configure.entity.MonitorConfigureEntity">
+        insert into monitor_configure(
+            configure_id,
+            host_id,
+            description,
+            monitor_time,
+            alarm_count,
+            alarm_interval,
+            script_id,
+            is_valid,
+            last_modify_time,
+            last_modify_user,
+            template_id,
+            groups_id,
+            retry,
+            monitor_configure_tp,
+            monitor_hosts_tp,
+            hosts,
+            arg1,
+            arg2,
+            arg3,
+            arg4,
+            arg5,
+            arg6,
+            arg7,
+            arg8,
+            check_interval,
+            is_mobile,
+            is_email,
+            is_ding,
+            is_weixin,
+            weixin_groups,
+            ding_groups,
+            mobile_groups,
+            email_groups,
+            all_groups,
+            item_id,
+            gname
+        ) 
+        values(        
+            #{configureId},
+            #{hostId},
+            #{description},
+            #{monitorTime},
+            #{alarmCount},
+            #{alarmInterval},
+            #{scriptId},
+            #{isValid},
+            #{lastModifyTime},
+            #{lastModifyUser},
+            #{templateId},
+            #{groupsId},
+            #{retry},
+            #{monitorConfigureTp},
+            #{monitorHostsTp},
+            #{hosts},
+            #{arg1},
+            #{arg2},
+            #{arg3},
+            #{arg4},
+            #{arg5},
+            #{arg6},
+            #{arg7},
+            #{arg8},
+            #{checkInterval},
+            #{isMobile},
+            #{isEmail},
+            #{isDing},
+            #{isWeixin},
+            #{weixinGroups},
+            #{dingGroups},
+            #{mobileGroups},
+            #{emailGroups},
+            #{allGroups},
+            #{itemId},
+            #{gname}
+        )
+    </insert>
+
+    <delete id="delete" parameterType="com.asura.monitor.configure.entity.MonitorConfigureEntity">
+           DELETE from monitor_configure where  configure_id=#{configureId}
+    </delete>
+
+    <update id="update" parameterType="com.asura.monitor.configure.entity.MonitorConfigureEntity">
+        update monitor_configure set   
+            configure_id=#{configureId},
+            host_id=#{hostId},
+            description=#{description},
+            monitor_time=#{monitorTime},
+            alarm_count=#{alarmCount},
+            alarm_interval=#{alarmInterval},
+            script_id=#{scriptId},
+            is_valid=#{isValid},
+            last_modify_time=#{lastModifyTime},
+            last_modify_user=#{lastModifyUser},
+            template_id=#{templateId},
+            groups_id=#{groupsId},
+            retry=#{retry},
+            monitor_configure_tp=#{monitorConfigureTp},
+            monitor_hosts_tp=#{monitorHostsTp},
+            hosts=#{hosts},
+            arg1=#{arg1},
+            arg2=#{arg2},
+            arg3=#{arg3},
+            arg4=#{arg4},
+            arg5=#{arg5},
+            arg6=#{arg6},
+            arg7=#{arg7},
+            arg8=#{arg8},
+            check_interval=#{checkInterval},
+            is_mobile=#{isMobile},
+            is_email=#{isEmail},
+            is_ding=#{isDing},
+            is_weixin=#{isWeixin},
+            weixin_groups=#{weixinGroups},
+            ding_groups=#{dingGroups},
+            mobile_groups=#{mobileGroups},
+            email_groups=#{emailGroups},
+            all_groups=#{allGroups},
+            item_id=#{itemId},
+            gname=#{gname}
+         where  configure_id=#{configureId}
+    </update>
+
+</mapper>
+

@@ -1,0 +1,133 @@
+<div class="modal fade" id="add_getui_config" tabindex="-1"
+     role="dialog" style="background-color: #FfFfFf; margin-top: 16px;"
+     data-backdrop="false">
+    <div class="modal-dialog"
+         style="margin-top: 0px; width: 80%; ">
+        <div class="modal-content"
+             style=" width: 100%; ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title">${configs.item}&nbsp;$!{start}&nbsp;$!{end}&nbsp;历史趋势图表 </h4>
+            </div>
+            <div class="animated fadeInRight">
+##            <div class="col-md-12" style="border:solid 1px #f0f0f0;padding: 15px;">
+##                <div class="ibox float-e-margins">
+##                    <div class="">
+##                        <span class="label label-primary pull-right">PV</span>
+##                        <h5>PV</h5>
+##                    </div>
+##                    <div id="pv" class="col-sm-9" style="height: 210px;margin-bottom:-40px;"></div>
+##                </div>
+##            </div>
+##            <div class="col-md-12" style="border:solid 1px #f0f0f0;padding: 15px;">
+##                <div class="ibox float-e-margins">
+##                    <div class="">
+##                        <span class="label label-primary pull-right">UV</span>
+##                        <h5>UV</h5>
+##                    </div>
+##                    <div id="uv" class="col-sm-9"  style="height: 210px;margin-bottom:-40px;"></div>
+##                </div>
+##            </div>
+##                <div class="col-md-12" style="border:solid 1px #f0f0f0;padding: 15px;">
+##                    <div class="ibox float-e-margins">
+##                        <div class="">
+##                            <span class="label label-primary pull-right">流量</span>
+##                            <h5></h5>
+##                        </div>
+##                        <div id="traffic" class="col-sm-9"  style="height: 210px;margin-bottom:-40px;"></div>
+##                    </div>
+##                </div>
+             <div class="col-md-12" style="border:solid 1px #f0f0f0;padding: 15px;">
+                <div class="ibox float-e-margins">
+                    <div class="">
+                        <span class="label label-primary pull-right">pv uv 流量</span>
+                        <h5>pv uv 流量 </h5>
+                    </div>
+                    <div id="code" class="col-sm-9"  style="height: 510px;margin-bottom:-40px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+##    graph("1ab394", "pv", "", "pv","/log/pvuv/historyData?types=pv&item=$!{configs.item}", "line","","") ;
+##    graph("f8ac59", "uv", "", "uv","/log/pvuv/historyData?types=uv&item=$!{configs.item}", "line","","") ;
+##    graph("f4aca9", "traffic", "", "traffic","/log/pvuv/historyData?types=traffic&item=$!{configs.item}", "line","","") ;
+    var datas_time = {}
+    datas_time["startTime"] = "$!{start}";
+    datas_time["endTime"] = "$!{end}";
+    $(function () {
+        $(document).ready(function () {
+            Highcharts.setOptions({
+                global: {
+                    useUTC: false
+                }
+            });
+
+            var data1 = getRandomData(331);
+            var data2 = getRandomData(331);
+            $('#code').highcharts({
+                chart: {
+                    type: 'spline',
+                    animation: Highcharts.svg, // don't animate in old IE
+                    marginRight: 10  ,
+                },
+                colors :["#f8ac59", "#1cc09f",
+                "#1f90d8", "#99389f", "#1cc09f", "#3c763d", "#99389f", "#017ebc"],
+                title: {
+                    text: ''
+                },
+                xAxis: {
+                    type: 'datetime',
+                    tickPixelInterval: 150
+                },
+                yAxis: {
+                    title: {
+                        text: '',
+                    },
+                    plotLines: [{
+                        value: 0,
+                        width: 1,
+                        color: '#1ab394'
+                    }]
+                },
+                tooltip: {
+                    formatter: function () {
+                        return '<b>' + this.series.name + '</b><br/>' +
+                                Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +
+                                Highcharts.numberFormat(this.y, 2);
+                    }
+                },
+                legend: {
+                    enabled: true
+                },
+                exporting: {
+                    enabled: false
+                },
+                series: [{
+                    name: 'pv',
+                    data: eval(post(datas_time, "/log/pvuv/historyData?types=pv&item=$!{configs.item}")),
+                },
+                    {
+                        name: 'uv',
+                        data: eval(post(datas_time, "/log/pvuv/historyData?types=uv&item=$!{configs.item}")),
+                    },
+                    {
+                        name: '总量',
+                        data: eval(post(datas_time, "/log/pvuv/historyData?types=totle&item=$!{configs.item}")),
+                    },
+                    {
+                        name: '流量',
+                        data: eval(post(datas_time, "/log/pvuv/historyData?types=traffic&item=$!{configs.item}")),
+                    },
+                ]
+            });
+        });
+    });
+
+</script>
+    </div>
+</div>

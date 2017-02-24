@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<script src="/static/js/jquery.min.js?v=2.1.4"></script>
+<script>
+    var getActed = false;
+</script>
+<style>
+    .title{
+        z-index:111111;width: 100%;margin-top: -60px;
+    }
+    .title1{
+        z-index:111111;width: 100%;margin-top: -10px;;
+    }
+</style>
+<body class="top-navigation" style="background-color: #FeFeFe" >
+<input value="0" id="loadid" type="hidden">
+<div style="background:rgba(250,0,0,0);position:absolute;width:100%;margin-bottom: -20px;display: none;" onclick="changeLoad()" onmousemove="changeLoad()" >&nbsp;1</div>
+<div id="autoloaddiv1"  class="autoload title"  >
+        <iframe height="30000px;" src="/monitor/global/index"   name="imgiframe" id="iframepage1" frameborder="0" width="100%" scrolling="no" marginheight="0" marginwidth="0" ></iframe>
+</div>
+<div id="autoloaddiv2"   class="autoload title" >
+    <iframe height="30000px;" src="/resource/report/index"   name="imgiframe" id="iframepage1" frameborder="0" width="100%" scrolling="no" marginheight="0" marginwidth="0" ></iframe>
+</div>
+<div id="autoloaddiv3"   class="autoload title"  >
+    <iframe height="30000px;" src="/monitor/graph/loadavg/uptime?ip=10.16.26.60"   name="imgiframe" id="iframepage1" frameborder="0" width="100%" scrolling="no" marginheight="0" marginwidth="0" ></iframe>
+</div>
+<div id="autoloaddiv4"   class="autoload title" >
+    <iframe height="30000px;" src="/logstash/pvuv/pv"   name="imgiframe" id="iframepage1" frameborder="0" width="100%" scrolling="no" marginheight="0" marginwidth="0" ></iframe>
+</div>
+<div id="autoloaddiv5"   class="autoload title" >
+    <iframe height="30000px;" src="/monitor/global/Index"   name="imgiframe" id="iframepage1" frameborder="0" width="100%" scrolling="no" marginheight="0" marginwidth="0" ></iframe>
+</div>
+<div id="autoloaddiv6"   class="autoload title" >
+    <iframe height="30000px;" src="/monitor/graph/all/index?ip=10.16.35.236&select=Nginx|%E8%AF%BB%E5%8F%96%E8%AF%B7%E6%B1%82_Reading,Nginx|Active_connections,Nginx|%E7%90%86%E8%AF%B7%E6%B1%82%E5%92%8C%E5%8F%91%E9%80%81%E5%93%8D%E5%BA%94_Writing,Nginx|%E6%8C%81%E4%B9%85%E9%93%BE%E6%8E%A5_Waiting&width=48
+"   name="imgiframe" id="iframepage1" frameborder="0" width="100%" scrolling="no" marginheight="0" marginwidth="0" ></iframe>
+</div>
+</body>
+</div>
+</div>
+</div>
+<input id="isselectid" value="false" type="hidden">
+
+<script type="text/javascript" language="javascript">
+
+    function sleep(n) {
+        var start = new Date().getTime();
+        while(true)  if(new Date().getTime()-start > n) break;
+    }
+
+    function changeLoad() {
+        console.log("鼠标在动")
+        $('#isselectid').val("true")
+    }
+    list = ["autoloaddiv1",
+        "autoloaddiv2",
+        "autoloaddiv3",
+        "autoloaddiv4",
+        "autoloaddiv5",
+        "autoloaddiv6",
+    ]
+
+    function setTitleCss(add, remove) {
+        for(i=0;i<list.length;i++){
+            $('#'+list[i]).removeClass(remove)
+            $('#'+list[i]).addClass(add)
+        }
+    }
+
+    $(document).mousemove(function(e){
+        getActed = true;
+        setTitleCss("title1", "title")
+    }).keydown(function(){
+        getActed = true;
+        setTitleCss("title1", "title")
+    });
+
+    setInterval(function() {
+        $('#isselectid').val("false")
+        setTitleCss("title", "title1")
+    }, 35000);
+
+
+
+    setInterval(function () {
+        console.log($('#isselectid').val())
+        if($('#isselectid').val()=="true"){
+                 return;
+        }else{
+            setTitleCss("title", "title1");
+        }
+        id = $('#loadid').val()
+        id = parseInt(id)
+        if(id>4){
+            id=0;
+        }
+        $('.autoload').hide();
+        $('#'+list[id]).show();
+        if(id>=4){
+            $('#loadid').val(0);
+        }else {
+            $('#loadid').val(id+1);
+        }
+    },30000)
+
+
+</script>
+
+
+
+</body>
+

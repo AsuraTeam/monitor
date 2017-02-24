@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ip地址详情</title><body class="gray-bg top-navigation">
+    #include("/index/include.vm")
+
+<div id="">
+    <div id="page-wrapper" class="gray-bg">
+        #include("/index/header.vm")
+<div id="addConfig"></div>
+<body>
+<div class=" animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-content" style="overflow:scroll;">
+                    <table id="listTable"
+                           class="table table-striped table-bordered table-hover dataTables-example">
+                        <thead>
+                        <tr nowrap="nowrap" role="rows">
+                            <th>网络前缀</th>
+                            <th>网络后缀</th>
+                            <th>状态</th>
+                            <th>最近检查时间</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var site = "networkAddress"
+
+    function loadData(){
+        $("#listTable").dataTable({
+            "filter": false,//去掉搜索框
+            "ordering": false, // 是否允许排序
+            "paginationType": "full_numbers", // 页码类型
+            "destroy": true,
+            "processing": true,
+            "serverSide": true,
+            "scrollX": true, // 是否允许左右滑动
+            "displayLength": 10, // 默认长度
+            "ajax": { // 请求地址
+                "url": "/resource/configure/"+site+"/listData?t=" + new Date().getTime(),
+                "type": 'post'
+            },
+
+            "columns": [ // 数据映射
+                {"data": "networkPrefix"},
+                {"data": "networkSubffix"},
+                {"data": "status"},
+                {"data": "lastModifyTime"},
+                {"sWidth": "150px", "data": "entId", "mRender": function(data, type, full) {
+                    return '<button type="button" onclick="updateConfig('+data+')" class="btn btn-sm btn-warning">编辑</button>&nbsp;'+
+                           '<button type="button" onClick="deleteConfig('+data+')" class="btn btn-sm btn-danger">删除</button>';
+                }
+                },
+            ],
+            "fnRowCallback": function (row, data) { // 每行创建完毕的回调
+                $(row).data('recordId', data.recordId);
+            }
+        });
+    }
+
+    loadData();
+
+</script>
+</body>
+</html>

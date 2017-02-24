@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.monitor.platform.dao.MonitorPlatformServerDao">
+
+    <select id="selectByAll" resultType="com.asura.monitor.platform.entity.MonitorPlatformServerEntity">
+        select
+        ip as ip,
+        <if test="ip == null">
+            hostname as hostname,
+            platform_id as platformId,
+            show_key as showKey,
+            a.last_modify_time as lastModifyTime,
+        </if>
+        c.groups_name as groupsName
+        from monitor_platform_server a, cmdb_resource_server b, cmdb_resource_groups c
+        WHERE a.ip = b.ip_address and b.groups_id=c.groups_id
+        <if test="key != null">
+            and (ip LIKE concat("%",#{key},"%")
+            or hostname like concat("%",#{key},"%")
+            )
+        </if>
+        <if test="groups != null">
+            and c.groups_name = #{groups}
+        </if>
+        <if test="groupsId != null">
+            and c.groups_id = #{groupsId}
+        </if>
+        <if test="ip != null">
+            and ip LIKE concat("%",#{ip},"%")
+        </if>
+    </select>
+
+    <insert id="save" parameterType="com.asura.monitor.platform.entity.MonitorPlatformServerEntity">
+        insert into monitor_platform_server(
+            platform_id,
+            ip,
+            hostname,
+            show_key,
+            last_modify_time
+        ) 
+        values(        
+            #{platformId},
+            #{ip},
+            #{hostname},
+            #{showKey},
+            #{lastModifyTime}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.monitor.platform.entity.MonitorPlatformServerEntity">
+        update monitor_platform_server set   
+            hostname=#{hostname},
+            show_key=#{showKey},
+            last_modify_time=#{lastModifyTime}
+         where     ip=#{ip}
+    </update>
+
+</mapper>
+

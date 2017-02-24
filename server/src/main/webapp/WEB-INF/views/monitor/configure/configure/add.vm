@@ -1,0 +1,999 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<body xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+<div class="modal fade" id="add_getui_config" tabindex="-1"
+     role="dialog" style="background-color: #FfFfFf; margin-top: 16px;"
+     data-backdrop="false">
+    <div class="modal-dialog"
+         style="margin-top: 0px; width: 70%; ">
+        <div class="modal-content"
+             style=" width: 100%; height: auto;">
+            <form>
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                    </button>
+                    <h4 class="modal-title">&nbsp;&nbsp;监控配置</h4>
+                </div>
+                <div class="">
+                    <div class="col-md-12" style="margin-top: 15px;">
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">监控方式选择:</label>
+                            <div class="col-sm-8" style="float: left">
+                                <select style="margin-left: 3px;"
+                                        name="monitorConfigureTp" id="configureType" class="form-control"
+                                        onchange="changeConfigureType($(this).val())">
+                                    #if($configs.monitorConfigureTp == "template")
+                                        <option value="template" title="使用已经配置好的模板">模板配置</option>
+                                    #end
+                                    #if($configs.monitorConfigureTp.equals("item"))
+                                        <option value="item" title="使用已经配置好的监控项目，单个项目">监控项配置</option>
+                                    #end
+                                    <option value="">--请选择--</option>
+                                    <option value="template" title="使用已经配置好的模板">模板配置</option>
+                                    <option value="item" title="使用已经配置好的监控项目，单个项目">监控项配置</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6"></div>
+                    <div class="col-md-6" style="margin-top: 5px;">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">业务线选择:</label>
+                            <div class="col-md-8 multiple">
+                                <select id="selectGroupsId" class="selectpicker bla bla bli form-control" name="groupsId" data-live-search="true" onchange="changeGroupsId()">
+                                    <option value="">请选择</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6"></div>
+                    <div class="col-md-12" style="margin-top: 5px;"></div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">主机方式选择:</label>
+                            <div class="col-sm-8" style="float: left">
+                                <select name="monitorHostsTp" style="margin-left: 0px;"  id="host_select_type" class="form-control" onchange="changeHosts($(this).val())">
+                                    #if($configs.monitorHostsTp)
+                                        <option value="${configs.monitorHostsTp}">
+                                            #if($configs.monitorHostsTp.equals("host"))单机配置 #else 组配置 #end</option>
+                                    #else
+                                        <option value="">请选择</option>
+                                    #end
+                                    <option value="">--请选择--</option>
+                                    <option value="host">单机配置</option>
+                                    <option value="groups">组配置</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div id="groups_other_show_id" style="#if($configs.gname.length()>0) #else display: none; #end">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">组名选择:</label>
+                                <div class="col-sm-8">
+                                    <select onchange="getIp($('#selectGroupsId option:selected').text())"
+                                            class="form-control" name="gname" id="selectGroupsNameId">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="groups_show_id" style="display: none;">
+
+                        <div class="col-md-6" style="margin-top: 5px;"></div>
+                        <div class="col-md-12">
+                        </div>
+                        <div class="col-md-6" style="margin-top: 15px;"></div>
+                        <div class="col-md-12">
+
+                            <label class="col-sm-3 control-label">可选择IP地址</label>
+                            <label class="col-sm-3"><input placeholder="搜索ip地址" onkeyup="searchip($(this).val())"
+                                                           class="fa-border form-control"
+                                                           style="margin-top:-5px;margin-left:-40%;"></label>
+                            <label class="col-sm-4 control-label">已选择IP地址</label>
+                        </div>
+                        <div class="col-md-12" style="margin-top: 5px;">
+                            <div class="col-xs-5">
+                                <select name="from" id="undo3_redo" class="form-control" size="10" multiple="multiple">
+                                </select>
+                            </div>
+
+                            <div class="col-xs-2">
+                                <div style="margin-top: 50px;">&nbsp;</div>
+                                <!--button type="button" id="undo3_redo_rightAll" class="btn btn-default btn-block"><i class="glyphicon glyphicon-forward"></i></button-->
+                                <button type="button" id="undo3_redo_rightSelected" class="btn btn=primary btn-block"><i
+                                        class="glyphicon glyphicon-chevron-right"></i></button>
+                                <button type="button" id="undo3_redo_leftSelected" class="btn btn-warning btn-block"><i
+                                        class="glyphicon glyphicon-chevron-left"></i></button>
+                                <!--button type="button" id="undo3_redo_leftAll" class="btn btn-default btn-block"><i class="glyphicon glyphicon-backward"></i></button-->
+                            </div>
+
+                            <div class="col-xs-5">
+                                <select name="to" id="undo3_redo_to" class="form-control" size="10"
+                                        multiple="multiple"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6" style="margin-top: 5px;"></div>
+
+                    <div class="col-md-12" style="margin-top: 5px;"></div>
+                    <div id="is_item_configure" style="#if($configs.itemId.length()>0) #else display: none; #end">
+                        <div class="col-md-12" style="margin-top: 5px;"></div>
+                        <div class="col-md-6">
+                            <label class="col-sm-4 control-label">可选择监控项目</label>
+                            <div class="col-md-8 multiple">
+                                    <select id="undo_redo" class="selectpicker bla bla bli form-control" name="itemId" data-live-search="true" onchange="changeItem($(this).val())" >
+                                         <option value="">请选择</option>
+                                    </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="is_template_configure" style="display: none;">
+                        <div class="col-md-12" style="margin-top: 5px;"></div>
+                        <div class="col-md-12">
+                            <label class="col-sm-3 control-label">可选择模板</label>
+                            <label class="col-sm-3"><input placeholder="搜索模板项目"
+                                                           onkeyup="search($(this).val(),'template')"
+                                                           class="fa-border form-control"
+                                                           style="margin-top:-5px;margin-left:-40%;"></label>
+                            <label class="col-sm-3 control-label">已选择模板项目</label>
+                        </div>
+                        <div class="col-md-12" style="margin-top: 5px;"></div>
+                        <div class="col-md-12" style="margin-top: 5px;">
+                            <div class="col-xs-5">
+                                <select name="from" id="undo2_redo" class="form-control" size="10" multiple="multiple">
+                                </select>
+                            </div>
+
+                            <div class="col-xs-2">
+                                <div style="margin-top: 50px;">&nbsp;</div>
+                                <!--button type="button" id="undo2_redo_rightAll" class="btn btn-default btn-block"><i class="glyphicon glyphicon-forward"></i></button-->
+                                <button type="button" id="undo2_redo_rightSelected" class="btn btn-primary btn-block"><i
+                                        class="glyphicon glyphicon-chevron-right"></i></button
+                                >
+                                <button type="button" id="undo2_redo_leftSelected" class="btn btn-warning btn-block"><i
+                                        class="glyphicon glyphicon-chevron-left"></i></button>
+                                <!--button type="button" id="undo2_redo_leftAll" class="btn btn-default btn-block"><i class="glyphicon glyphicon-backward"></i></button-->
+                            </div>
+
+                            <div class="col-xs-5">
+                                <select name="to" id="undo2_redo_to" class="form-control" size="10"
+                                        multiple="multiple"></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="is_host_configure" style="#if($configs.scriptId)
+                #else display:none; #end">
+                    <!--div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">脚本名称:</label>
+                            <div class="col-sm-8">
+                                <select name="scriptId" id="scriptId" class="form-control"
+                                        onchange="changeScript($(this).val())">
+                                    #if($configs.scriptId)
+                                        <option value="${configs.scriptId}">$!{fileName}</option>
+                                    #else
+                                        <option value="">请选择</option>
+                                    #end
+                                    #foreach($s in $scripts)
+                                        <option title="${s.monitorName} <${s.description}>"
+                                                value="${s.scriptsId}">${s.fileName}</option>
+                                    #end
+
+                                </select>
+                            </div>
+                        </div>
+                    </div-->
+
+                    <div id="argsId"></div>
+                    <div class="col-md-12" style="margin-top: 15px; border-top:1px solid #f0f0f0;"></div>
+                    <div class="col-md-6" style="margin-top: 15px;">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">检查间隔(秒钟):</label>
+                            <div class="col-sm-8">
+                                <input type="number" min="30"
+                                       onchange="checkInput(30,1800,120,'checkInterval',$(this).val())"
+                                       id="checkInterval" name="checkInterval" title="检查间隔，调用监控脚本执行的间隔"
+                                       class="form-control"
+                                       value="#if($configs.checkInterval)$!{configs.checkInterval}#else 60 #end">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6" style="margin-top: 15px;">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">报警间隔(分钟):</label>
+                            <div class="col-sm-8">
+                                <input type="number" onchange="checkInput(10,50,15,'alarmInterval',$(this).val())"
+                                       min="10" id="alarmInterval" name="alarmInterval" title="报警间隔，2次报警的间隔"
+                                       class="form-control"
+                                       value="#if($configs.alarmInterval)$!{configs.alarmInterval}#else 15 #end">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12" style="margin-top: 5px;"></div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">报警次数(次):</label>
+                            <div class="col-sm-8">
+                                <input type="number" onchange="checkInput(1,10,3,'alarmCount',$(this).val())" max="10"
+                                       id="alarmCount" name="alarmCount" title="报警后发送报警的次数"
+                                       class="form-control"
+                                       value="#if($configs.alarmCount)$!{configs.alarmCount}#else 3 #end">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">重试次数(次):</label>
+                            <div class="col-sm-8">
+                                <input onchange="checkInput(1,10,6,'retry',$(this).val())" type="number" max="10"
+                                       id="retry" name="retry" title="失败后重试几次发送报警" class="form-control"
+                                       value="#if($configs.retry)$!{configs.retry}#else 5 #end">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8" style="margin-top: 15px;">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">报警方式选择:</label>&nbsp;&nbsp;
+                        <div class="checkbox  checkbox-inline">
+                            <input type="checkbox" name="isMobile" id="inlineCheckbox1"
+                                   onchange="change(this)" #if( $configs.isMobile == "1" )
+                                   checked   #end
+                                   value="#if($configs.isMobile)$!{configs.isMobile}#else 1 #end">
+                            <label for="inlineCheckbox1"> 手机 </label>
+                        </div>
+                        <div class="checkbox checkbox-success checkbox-inline">
+                            <input type="checkbox" name="isEmail" id="inlineCheckbox2"
+                                   onchange="change(this)"  #if( $configs.isEmail == "1" )
+                                   checked   #end
+                                   value="#if($configs.isEmail)$!{configs.isEmail}#else 1 #end">
+                            <label for="inlineCheckbox2"> 邮件 </label>
+                        </div>
+                        <div class="checkbox checkbox-danger checkbox-inline">
+                            <input type="checkbox" name="isDing" id="inlineCheckbox3"
+                                   onchange="change(this)" #if( $configs.isDing == "1" )
+                                   checked   #end
+                                   value="#if($configs.isDing)$!{configs.isDing}#else 1 #end">
+                            <label for="inlineCheckbox3"> 钉钉 </label>
+                        </div>
+                        <div class="checkbox checkbox-warning checkbox-inline">
+                            <input type="checkbox" name="isWeixin" id="inlineCheckbox4"
+                                   onchange="change(this)" #if( $configs.isWeixin == "1" )
+                                   checked   #end
+                                   value="#if($configs.isWeixin)$!{configs.isWeixin}#else 1 #end">
+                            <label for="inlineCheckbox4"> 微信 </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12" style="margin-top: 5px;"></div>
+
+                <div id="show_all_contact_id">
+                    <div class="col-md-12">
+                        <div class="col-md-12">
+                            <label class="col-sm-3 control-label" style="margin-left: -12px;">报警成员配置</label>
+                            <label class="col-sm-3"><input placeholder="搜索报警组"
+                                                           onkeyup="searchAlarmMember($(this).val(),'undo_contact_all_redo')"
+                                                           class="fa-border form-control"
+                                                           style="margin-top:-5px;margin-left:-40%;"></label>
+                            <label class="col-sm-3 control-label">已选报警组</label>
+                        </div>
+                        <div class="col-md-12" style="margin-top: 5px;"></div>
+                        <div class="col-xs-5">
+                            <select name="from" id="undo_contact_all_redo" class="form-control" size="10"
+                                    multiple="multiple">
+                            </select>
+                        </div>
+
+                        <div class="col-xs-2">
+                            <div style="margin-top: 50px;">&nbsp;</div>
+                            <button type="button" id="undo_contact_all_redo_rightSelected"
+                                    class="btn btn-primary btn-block"><i
+                                    class="glyphicon glyphicon-chevron-right"></i></button
+                            >
+                            <button type="button" id="undo_contact_all_redo_leftSelected"
+                                    class="btn btn-warning btn-block"><i
+                                    class="glyphicon glyphicon-chevron-left"></i></button>
+                        </div>
+
+                        <div class="col-xs-5">
+                            <select name="to" id="undo_contact_all_redo_to" class="form-control" size="10"
+                                    multiple="multiple"></select>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div id="show_mobile_contact_id" style="display: none;">
+                    <div class="col-md-12" style="margin-top: 10px;">&nbsp;</div>
+                    <div class="col-md-12">
+                        <label class="col-sm-3 control-label">手机报警组配置</label>
+                        <label class="col-sm-3"><input placeholder="搜索报警组"
+                                                       onkeyup="searchAlarmMember($(this).val(),'undo_contact_group_mobile_redo')"
+                                                       class="fa-border form-control"
+                                                       style="margin-top:-5px;margin-left:-40%;"></label>
+                        <label class="col-sm-3 control-label">已选择手机报警组</label>
+                    </div>
+                    <div class="col-md-12" style="margin-top: 5px;"></div>
+                    <div class="col-md-12" style="margin-top: 5px;">
+                        <div class="col-xs-5">
+                            <select name="from" id="undo_contact_group_mobile_redo" class="form-control" size="10"
+                                    multiple="multiple">
+                            </select>
+                        </div>
+
+                        <div class="col-xs-2">
+                            <div style="margin-top: 50px;">&nbsp;</div>
+                            <button type="button" id="undo_contact_group_mobile_redo_rightSelected"
+                                    class="btn btn-primary btn-block"><i
+                                    class="glyphicon glyphicon-chevron-right"></i></button>
+                            <button type="button" id="undo_contact_group_mobile_redo_leftSelected"
+                                    class="btn btn-warning btn-block"><i
+                                    class="glyphicon glyphicon-chevron-left"></i></button>
+                        </div>
+
+                        <div class="col-xs-5">
+                            <select name="to" id="undo_contact_group_mobile_redo_to" class="form-control" size="10"
+                                    multiple="multiple"></select>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div id="show_email_contact_id" style="display: none">
+                    <div class="col-md-12" style="margin-top: 5px;">&nbsp;</div>
+                    <div class="col-md-12">
+                        <div class="col-md-12">
+                            <label class="col-sm-3 control-label" style="margin-left: -12px;">邮件报警组配置</label>
+                            <label class="col-sm-3"><input placeholder="搜索报警组"
+                                                           onkeyup="searchAlarmMember($(this).val(),'undo_contact_group_redo')"
+                                                           class="fa-border form-control"
+                                                           style="margin-top:-5px;margin-left:-40%;"></label>
+                            <label class="col-sm-3 control-label">已选邮箱报警组</label>
+                        </div>
+                        <div class="col-md-12" style="margin-top: 5px;"></div>
+                        <div class="col-xs-5">
+                            <select name="from" id="undo_contact_group_redo" class="form-control" size="10"
+                                    multiple="multiple">
+                            </select>
+                        </div>
+
+                        <div class="col-xs-2">
+                            <div style="margin-top: 5px;">&nbsp;</div>
+                            <button type="button" id="undo_contact_group_redo_rightSelected"
+                                    class="btn btn-primary btn-block"><i
+                                    class="glyphicon glyphicon-chevron-right"></i></button
+                            >
+                            <button type="button" id="undo_contact_group_redo_leftSelected"
+                                    class="btn btn-warning btn-block"><i
+                                    class="glyphicon glyphicon-chevron-left"></i></button>
+                        </div>
+
+                        <div class="col-xs-5">
+                            <select name="to" id="undo_contact_group_redo_to" class="form-control" size="10"
+                                    multiple="multiple"></select>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div id="show_ding_contact_id" style="display: none;">
+                    <div class="col-md-12" style="margin-top: 10px;">&nbsp;</div>
+                    <div class="col-md-12">
+                        <label class="col-sm-3 control-label">钉钉报警组配置</label>
+                        <label class="col-sm-3"><input placeholder="搜索报警组"
+                                                       onkeyup="searchAlarmMember($(this).val(),'undo_contact_ding_mobile_redo')"
+                                                       class="fa-border form-control"
+                                                       style="margin-top:-5px;margin-left:-40%;"></label>
+                        <label class="col-sm-3 control-label">已选择钉钉报警组</label>
+                    </div>
+                    <div class="col-md-12" style="margin-top: 5px;"></div>
+                    <div class="col-md-12" style="margin-top: 5px;">
+                        <div class="col-xs-5">
+                            <select name="from" id="undo_contact_ding_mobile_redo" class="form-control" size="10"
+                                    multiple="multiple">
+                            </select>
+                        </div>
+
+                        <div class="col-xs-2">
+                            <div style="margin-top: 50px;">&nbsp;</div>
+                            <button type="button" id="undo_contact_ding_mobile_redo_rightSelected"
+                                    class="btn btn-primary btn-block"><i
+                                    class="glyphicon glyphicon-chevron-right"></i></button>
+                            <button type="button" id="undo_contact_ding_mobile_redo_leftSelected"
+                                    class="btn btn-warning btn-block"><i
+                                    class="glyphicon glyphicon-chevron-left"></i></button>
+                        </div>
+
+                        <div class="col-xs-5">
+                            <select name="to" id="undo_contact_ding_mobile_redo_to" class="form-control" size="10"
+                                    multiple="multiple"></select>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div id="show_weixin_contact_id" style="display: none;">
+                    <div class="col-md-12" style="margin-top: 10px;">&nbsp;</div>
+                    <div class="col-md-12">
+                        <label class="col-sm-3 control-label">微信报警组配置</label>
+                        <label class="col-sm-3"><input placeholder="搜索报警组"
+                                                       onkeyup="searchAlarmMember($(this).val(),'undo_contact_weixin_mobile_redo')"
+                                                       class="fa-border form-control"
+                                                       style="margin-top:-5px;margin-left:-40%;"></label>
+                        <label class="col-sm-3 control-label">已选择微信报警组</label>
+                    </div>
+                    <div class="col-md-12" style="margin-top: 5px;"></div>
+                    <div class="col-md-12" style="margin-top: 5px;">
+                        <div class="col-xs-5">
+                            <select name="from" id="undo_contact_weixin_mobile_redo" class="form-control" size="10"
+                                    multiple="multiple">
+                            </select>
+                        </div>
+
+                        <div class="col-xs-2">
+                            <div style="margin-top: 50px;">&nbsp;</div>
+                            <button type="button" id="undo_contact_weixin_mobile_redo_rightSelected"
+                                    class="btn btn-primary btn-block"><i
+                                    class="glyphicon glyphicon-chevron-right"></i></button>
+                            <button type="button" id="undo_contact_weixin_mobile_redo_leftSelected"
+                                    class="btn btn-warning btn-block"><i
+                                    class="glyphicon glyphicon-chevron-left"></i></button>
+                        </div>
+
+                        <div class="col-xs-5">
+                            <select name="to" id="undo_contact_weixin_mobile_redo_to" class="form-control" size="10"
+                                    multiple="multiple"></select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-12" style="margin-top: 10px;">&nbsp;</div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">是否有效:</label>
+                        <div class="col-sm-4">
+                            <div class="checkbox checkbox-primary checkbox-inline">
+                                <input type="checkbox" onchange="change(this)" name="isValid"
+                                       id="checkbox5"
+                                       class="form-control" #if( $configs.isValid == "1" )
+                                       checked   #end
+                                       value="#if($configs.isValid)$!{configs.isValid}#else 1 #end">
+                                <label for="checkbox5 control-label">&nbsp;</label></strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12" style="margin-top: 15px;"></div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">描述信息:</label>
+                        <div class="col-sm-6" style="margin-left: -18%;">
+                            <input type="text" name="description" class="form-control" id="script_description"
+                                   value="$!{configs.description}">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12" style="margin-top: 15px;"></div>
+                <button style="margin-left: 87%;margin-top: 5px;margin-bottom: 10px;"
+                        onclick="saveConfig($!{configs.configureId});" class="btn btn-primary btn-lg" type="button">
+                    <i class="fa fa-check"></i>&nbsp;保存
+                </button>
+        </div>
+        </form>
+    </div>
+
+</div>
+</div>
+<textarea style="display: none" id="ip_address"></textarea>
+
+<textarea style="display: none" id="contact_groups_id"></textarea>
+
+<script type="text/javascript">
+
+    function selectContactGroupss() {
+        url = "/monitor/configure/contactGroup/listData?draw=1&start=1&length=10000"
+        result = eval(post({}, url))["data"];
+        html = ""
+        select = ""
+        for (i = 0; i < result.length; i++) {
+            html += "<option value=" + result[i]["groupId"] + ">" + result[i]["groupName"] + "</option>\n"
+        }
+        $('#contact_groups_id').val(select + html)
+    }
+
+    v = $('#contact_groups_id').val()
+    if (!v) {
+        selectContactGroupss();
+        $('#undo_contact_all_redo').html(html)
+    }
+
+    // 设置所有报警组的选择项
+    function setAlarmTo(ids, html_id) {
+        html = ""
+        url = "/monitor/configure/contactGroup/listData?draw=1&start=1&length=10000"
+        result = eval(post({groupsId: ids}, url))["data"];
+        html = ""
+        select = ""
+        for (i = 0; i < result.length; i++) {
+            html += "<option value=" + result[i]["groupId"] + ">" + result[i]["groupName"] + "</option>\n"
+        }
+        $('#' + html_id).html(html)
+    }
+
+    htmls = $('#contact_groups_id').val()
+
+    // 所有的
+        #if($configs.allGroups.length()>0)
+          setAlarmTo("${configs.allGroups}", "undo_contact_all_redo_to");
+          $('#undo_contact_all_redo').html(htmls)
+          $('#undo_contact_all_redo_to').show()
+        #end
+
+    // 微信的
+        #if($configs.weixinGroups.length()>0)
+            setAlarmTo("${configs.weixinGroups}", "undo_contact_weixin_mobile_redo_to");
+            $('#undo_contact_weixin_mobile_redo').html(htmls)
+            $('#show_weixin_contact_id').show()
+            $('#show_all_contact_id').hide()
+        #end
+
+    // 手机的
+        #if($configs.mobileGroups.length()>0)
+            $('#show_mobile_contact_id').show()
+            $('#undo_contact_group_mobile_redo').html(htmls)
+            $('#show_all_contact_id').hide()
+            setAlarmTo("${configs.mobileGroups}", "undo_contact_group_mobile_redo_to");
+        #end
+
+    // 钉钉的
+        #if($configs.dingGroups.length()>0)
+           $('#show_ding_contact_id').show()
+           $('#show_all_contact_id').hide()
+           $('#undo_contact_ding_mobile_redo').html(htmls)
+           setAlarmTo("${configs.dingGroups}", "undo_contact_ding_mobile_redo_to");
+        #end
+
+    // 邮件的
+        #if($configs.emailGroups.length()>0)
+            $('#show_email_contact_id').show()
+            $('#show_all_contact_id').hide()
+            $('#undo_contact_group_redo').html(htmls)
+            setAlarmTo("${configs.emailGroups}", "undo_contact_group_redo_to");
+        #end
+
+    function changeAlarmType() {
+        all = true;
+        for (i = 1; i < 5; i++) {
+            if (!$('#inlineCheckbox' + i).is(":checked")) {
+                all = false;
+            }
+        }
+        html = $('#contact_groups_id').val()
+        if (all) {
+            $('#show_all_contact_id').show();
+            $('#undo_contact_all_redo').html(html)
+            $('#show_mobile_contact_id').hide()
+            $('#show_email_contact_id').hide()
+            $('#show_ding_contact_id').hide()
+            $('#show_weixin_contact_id').hide()
+//            $('#undo_contact_group_mobile_redo_to').html("")
+//            $('#undo_contact_group_redo_to').html("")
+//            $('#undo_contact_ding_mobile_redo_to').html("")
+//            $('#undo_contact_weixin_mobile_redo_to').html("")
+        } else {
+            $('#show_all_contact_id').hide();
+//            $('#undo_contact_all_redo_to').html("")
+            $('#show_mobile_contact_id').show()
+            $('#show_email_contact_id').show()
+            $('#show_ding_contact_id').show()
+            $('#show_weixin_contact_id').show()
+            for (i = 1; i < 5; i++) {
+                if (!$('#inlineCheckbox' + i).is(":checked")) {
+                    if (i == 1) {
+                        $('#show_mobile_contact_id').hide()
+//                        $('#undo_contact_group_mobile_redo_to').html("")
+                    }
+                    if (i == 2) {
+                        $('#show_email_contact_id').hide()
+//                        $('#undo_contact_group_redo_to').html("")
+                    }
+                    if (i == 3) {
+                        $('#show_ding_contact_id').hide()
+//                        $('#undo_contact_ding_mobile_redo_to').html("")
+                    }
+                    if (i == 4) {
+                        $('#show_weixin_contact_id').hide()
+//                        $('#undo_contact_weixin_mobile_redo_to').html("")
+                    }
+                } else {
+
+                    if (i == 1) {
+                        $('#undo_contact_group_mobile_redo').html(html)
+                    }
+                    if (i == 2) {
+                        $('#undo_contact_group_redo').html(html)
+                    }
+                    if (i == 3) {
+                        $('#undo_contact_ding_mobile_redo').html(html)
+                    }
+                    if (i == 4) {
+                        $('#undo_contact_weixin_mobile_redo').html(html)
+                    }
+                }
+            }
+        }
+    }
+
+    function setFrom(id, html_id, key) {
+        if (!key) {
+            key = ""
+        }
+        url = "/monitor/configure/item/listData?id=" + id;
+        result = post({key: key, "draw": 1, "length": 100000, "start": 1}, url);
+        result = eval(result);
+        data = result["data"]
+        html = ""
+        select = ""
+        for (i = 0; i < data.length; i++) {
+            if(id==data[i]["itemId"]){
+                select = '<option value=' + data[i]["itemId"] + '>' + data[i]["itemName"] + "</option>";
+            }
+            html += '<option value=' + data[i]["itemId"] + '>' + data[i]["itemName"] + "</option>";
+       }
+       $('#' + html_id).html(select +"<option>--请选择--</option>"+ html);
+    }
+
+
+    function getIp(groupsName, key, id, hosts) {
+        if (!groupsName) {
+            groupsName = $('#groups_hidden').val()
+        } else {
+            $('#groups_hidden').val(groupsName);
+        }
+        if (!groupsName) {
+            return;
+        }
+        url = "/resource/configure/server/listData?length=100000&start=1&draw=1";
+        result = post({groupsName: groupsName.trim(), key, key, hosts: hosts}, url);
+        data = result["data"];
+
+        html = ""
+        for (i = 0; i < data.length; i++) {
+            html += "<option value=" + data[i]["serverId"] + ">" + data[i]["ipAddress"] + "</option>\n"
+        }
+        if (!id) {
+            $('#ip_address').val(html)
+            $('#undo3_redo').html(html)
+        } else {
+            $('#undo3_redo_to').html(html)
+        }
+    }
+
+    function searchip(ip) {
+        temp = ""
+        data = $('#ip_address').val().split("\n")
+        for (i = 0; i < data.length; i++) {
+            if (data[i].indexOf(ip) != -1) {
+                temp += data[i] + "\\n"
+            }
+        }
+        $('#undo3_redo').html(temp)
+    }
+    // 报警人搜索
+    function searchAlarmMember(val, id) {
+        console.log(id)
+        console.log(val)
+        temp = ""
+        data = $('#contact_groups_id').val().split("\n")
+        for (i = 0; i < data.length; i++) {
+            if (data[i].indexOf(val) != -1) {
+                temp += data[i]
+            }
+        }
+        $('#' + id).html(temp)
+    }
+
+
+    function changeConfigureType(value) {
+        if (value == "item") {
+            $('#is_item_configure').show();
+            setFrom(0, "undo_redo");
+            $('.selectpicker').selectpicker('refresh');
+            $('#is_template_configure').hide();
+            $('#is_host_configure').show();
+        }
+        if (value == "template") {
+            $('#is_template_configure').show();
+            setFromTemplate("", "undo2_redo")
+            $('#is_item_configure').hide();
+            $('#is_host_configure').hide();
+        }
+    }
+
+    // 修改选项为模板配置时的数据设置
+    #if($configs.monitorConfigureTp.equals("template"))
+        $('#is_template_configure').show();
+        setFromTemplate("", "undo2_redo")
+        setFromTemplate('$configs.template_id', "undo2_redo_to")
+    #end
+
+
+    function changeHosts(value) {
+        if (value == "host") {
+            $('#groups_show_id').show();
+            $('#groups_other_show_id').hide();
+//            selectGroups();
+            getIp($('#selectGroupsId option:selected').text())
+        }
+        if (value == "groups") {
+            $('#groups_other_show_id').show();
+            $('#groups_show_id').hide();
+            selectGroupsName();
+        }
+    }
+
+    // 修改业务线
+    function changeGroupsId() {
+        type = $('#host_select_type').val();
+        if(!type){
+            return;
+        }
+        if(type=="host"){
+            groupsName = $('#selectGroupsId option:selected').text();
+            getIp(groupsName)
+        }
+        if(type=="groups"){
+            groupsName = $('#selectGroupsId option:selected').val();
+            getIp(groupsName)
+        }
+    }
+
+    function selectGroupsName() {
+        url = "/monitor/configure/groups/listData?draw=1&start=1&length=10000"
+        result = eval(post({}, url))["data"];
+        html = ""
+        select = ""
+
+        html += "<option value=''>--</option>"
+        for (i = 0; i < result.length; i++) {
+            console.log("$!{configs.gname}")
+            if (result[i]["groupsId"] == parseInt("$!{configs.gname}")) {
+                select = "<option value=" + result[i]["groupsId"] + ">" + result[i]["gname"] + result[i]["otherName"] + "</option>"
+                $('#groups_hidden').val(result[i]["gname"]);
+            }
+            html += "<option value=" + result[i]["groupsId"] + ">" + result[i]["gname"] + result[i]["otherName"] + "</option>"
+        }
+        $('#selectGroupsNameId').html(select + html)
+    }
+
+    function selectGroups() {
+        url = "/resource/configure/groups/listData?draw=1&start=1&length=10000"
+        result = eval(post({}, url))["data"];
+        html = ""
+        select = ""
+        html += "<option value=''>--</option>"
+        for (i = 0; i < result.length; i++) {
+            if (result[i]["groupsId"] == "$!{configs.groupsId}") {
+                select = "<option value=" + result[i]["groupsId"] + ">" + result[i]["groupsName"] + "</option>"
+                $('#groups_hidden').val(result[i]["groupsName"]);
+            }
+            html += "<option value=" + result[i]["groupsId"] + ">" + result[i]["groupsName"] + "</option>"
+        }
+        #if($configs.groupsId)
+            $('#selectGroupsId').html(select)
+            return;
+        #end
+        $('#selectGroupsId').html(select + html)
+    }
+
+    #if($configs.gname)
+      selectGroupsName()
+    #end
+
+##    #if($configs.groupsId)
+        selectGroups();
+##    #end
+
+
+    // 设置选择的主机数据
+    #if($configs.hosts.length()>0)
+         getIp($('#selectGroupsId option:selected').text())
+         getIp($('#selectGroupsId option:selected').text(),"",1,"${configs.hosts.replace("\n","")}");
+         $('#groups_show_id').show()
+    #end
+
+    function change(obj) {
+        value = $(obj).val();
+        if (value == 0) {
+            $(obj).val(1);
+        } else {
+            $(obj).val(0);
+        }
+        changeAlarmType()
+    }
+    function setTo(html_id, type) {
+        id = "$!{configs.templateId}"
+        if (id.length < 1) {
+            id = 0
+            return
+        }
+        url = "/monitor/configure/template/getTemplateData?id=" + id + "&type=" + type;
+        result = post({}, url);
+        data = eval(result);
+        html = ""
+        for (i = 0; i < data.length; i++) {
+            html += '<option value=' + data[i]["id"] + '>' + data[i]["name"] + "</option>";
+        }
+        $('#' + html_id).html(html);
+    }
+
+    function setFromTemplate(id, html_id, key) {
+        if (!key) {
+            key = ""
+        }
+        url = "/monitor/configure/template/listData?id=" + id;
+        result = post({key: key, "draw": 1, "length": 100000, "start": 1}, url);
+        result = eval(result);
+        data = result["data"]
+        html = ""
+        for (i = 0; i < data.length; i++) {
+            html += '<option value=' + data[i]["templateId"] + '>' + data[i]["templateName"] + "</option>";
+        }
+        $('#' + html_id).html(html);
+    }
+
+
+//    setTo("undo_redo_to", "item");
+    setTo("undo2_redo_to", "template")
+
+    function search(value, type) {
+        if (type == "item") {
+            setFrom(0, "undo_redo", value);
+        } else {
+            setFromTemplate("", "undo2_redo", value)
+        }
+    }
+
+    searchList = [
+        "undo_contact_group_redo",
+        "undo_contact_group_mobile_redo",
+        "undo_contact_weixin_mobile_redo",
+        "undo2_redo",
+        "undo3_redo",
+        "undo_contact_all_redo",
+        "undo_contact_ding_mobile_redo"]
+
+    for (i = 0; i < searchList.length; i++) {
+        jQuery(document).ready(function ($) {
+            $('#' + searchList[i]).multiselect({
+                keepRenderingSort: true
+            });
+        });
+    }
+    /**
+     * 修改脚本获取的参数
+     * @param id
+     * @param t
+     * @param p
+     */
+    function changeScript(id, t, p) {
+
+        if (!id) {
+            return;
+        }
+        if (p == "1") {
+            arg1 = "$!{configs.arg1}"
+            arg2 = "$!{configs.arg2}"
+            arg3 = "$!{configs.arg3}"
+            arg4 = "$!{configs.arg4}"
+            arg5 = "$!{configs.arg5}"
+            arg6 = "$!{configs.arg6}"
+            arg7 = "$!{configs.arg7}"
+            arg8 = "$!{configs.arg8}"
+            data = [arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8]
+            console.log(data)
+            html = "<div class='col-md-12'></div>"
+            for (i = 0; i <= 7; i++) {
+                if (!data[i]) {
+                    break;
+                }
+                arg = i + 1
+                html += '<div id="addArg' + arg + '" >' +
+                        '     <div class="col-md-6" style="margin-top: 5px;">' +
+                        '         <div class="form-group">' +
+                        '             <label class="col-sm-4 control-label">参数' + arg + ':</label>' +
+                        '             <div class="col-sm-8">' +
+                        '                 <textarea type="text" name="arg' + arg + '" class="form-control" placeholder="给脚本传递的第' + arg + '个参数"' +
+                        '                        >'+data[i]+'</textarea>' +
+                        '             </div>' +
+                        '         </div>' +
+                        '     </div>' +
+                        '</div>'
+            }
+            $('#argsId').html(html)
+            return;
+        }
+
+        if (!t) {
+            url = "/monitor/configure/script/listData?draw=1&start=1&length=2"
+            result = post({scriptsId: id}, url)
+        } else {
+            url = "/monitor/configure/item/listData?draw=1&start=1&length=2"
+            result = post({itemId: id}, url)
+        }
+
+        data = result["data"]
+        data = data[0]
+        html = ""
+        for (i = 1; i <= 8; i++) {
+            if (!data["arg" + i]) {
+                break;
+            }
+            html += '<div id="addArg' + i + '">' +
+                    '     <div class="col-md-12" style="margin-top: 5px;">' +
+                    '     </div>' +
+                    '     <div class="col-md-6">' +
+                    '         <div class="form-group">' +
+                    '             <label class="col-sm-4 control-label">参数' + i + ':</label>' +
+                    '             <div class="col-sm-8">' +
+                    '                 <textarea type="text" name="arg' + i + '" class="form-control" placeholder="给脚本传递的第二个参数"' +
+                    '                        value="' + data["arg" + i] + '">'+data["arg"+i]+'</textarea>' +
+                    '             </div>' +
+                    '         </div>' +
+                    '     </div>' +
+                    '     <div class="col-md-6">' +
+                    '         <div class="form-group">' +
+                    '             <label class="col-sm-4 control-label">参数' + i + '描述:</label>' +
+                    '             <div class="col-sm-8">' +
+                    '                 <input type="text" style="border:none;background-color:#ffffff;" readonly name="arg' + i + 'comm" class="form-control"' +
+                    '                        placeholder="给脚本传递的第' + i + '个参数的描述信息"' +
+                    '                        value="' + data["arg" + i + "comm"] + '">' +
+                    '             </div>' +
+                    '         </div>' +
+                    '     </div>' +
+                    '</div>'
+        }
+        $('#argsId').html(html)
+    }
+
+    // 选择为项目时的数据设置
+        #if($configs.monitorConfigureTp.equals("item"))
+           setFrom("${configs.itemId}", "undo_redo");
+           changeScript("${configs.itemId}", 1, 1);
+            $('#is_host_configure').show()
+        #end
+
+
+    function changeItem(id) {
+        if(!id){
+            return;
+        }
+//        id = $('#undo_redo').val()
+        url = "/monitor/configure/item/listData?id=" + id;
+        result = post({"draw": 1, "length": 2, "start": 1}, url);
+        result = eval(result);
+        data = result["data"]
+        data = data[0]
+        changeScript(id, 1);
+        $('#retry').val(data["retry"])
+        $('#alarmCount').val(data["alarmCount"])
+        $('#alarmInterval').val(data["alarmInterval"])
+        $('#checkInterval').val(data["checkInterval"])
+    }
+    $('.selectpicker').selectpicker({
+        'selectedText': 'cat'
+    });
+
+</script>
+</body>

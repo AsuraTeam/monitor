@@ -1,0 +1,49 @@
+@charset "UTF-8";
+
+/**
+ * Horizontal Limited CSS Drop-Down Menu Component
+ *
+ * @file		dropdown.limited.css
+ * @package		Dropdown
+ * @version		0.1.1
+ * @type		Transitional
+ * @requires	dropdown.css
+ * @browsers	Windows: IE5+, Opera7+, Firefox1+
+ *				Mac OS: Safari2+, Firefox2+
+ *
+ * @link		http://www.lwis.net/
+ * @copyright	2006-2008 Live Web Institute. All Rights Reserved.
+ *
+ */
+
+@import "dropdown.css";
+
+* html ul.dropdown li {
+ height: 1px;
+}
+
+ul.dropdown ul li,
+ul.dropdown-vertical {
+ margin-left: -16px;
+ mar\gin-left: 0;
+}
+
+ul.dropdown ul,
+ul.dropdown li:hover ul ul,
+ul.dropdown li:hover ul ul ul,
+ul.dropdown li:hover ul ul ul ul,
+ul.dropdown li:hover ul ul ul ul ul {
+ visibility: hidden;
+}
+
+ul.dropdown li:hover ul,
+ul.dropdown ul li:hover ul,
+ul.dropdown ul ul li:hover ul,
+ul.dropdown ul ul ul li:hover ul,
+ul.dropdown ul ul ul ul li:hover ul {
+ visibility: visible;
+}
+
+ul.dropdown ul ul ul ul ul ul {
+ visibility: hidden !important;
+}

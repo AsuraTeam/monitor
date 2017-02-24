@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.monitor.configure.dao.MonitorItemDao">
+    <sql id="baseSql">      select
+        a.item_id as itemId,
+        a.item_name as itemName,
+        a.description as description,
+        a.monitor_time as monitorTime,
+        a.check_interval as checkInterval,
+        a.alarm_count as alarmCount,
+        a.alarm_interval as alarmInterval,
+        a.script_id as scriptId,
+        a.is_recover as isRecover,
+        a.is_merge as isMerge,
+        a.alarm_messages as alarmMessages,
+        a.resend,
+        a.is_admin as isAdmin,
+        a.is_default as isDefault,
+        a.recover_messages as recoverMessages,
+        a.arg1 as arg1,
+        a.arg2 as arg2,
+        a.arg3 as arg3,
+        a.arg4 as arg4,
+        a.is_valid as isValid,
+        a.last_modify_time as lastModifyTime,
+        a.last_modify_user as lastModifyUser,
+        a.template_id as templateId,
+        a.arg5 as arg5,
+        a.arg6 as arg6,
+        a.arg7 as arg7,
+        a.arg8 as arg8,
+        a.retry as retry,
+        b.arg8comm as arg8comm,
+        b.arg7comm as arg7comm,
+        b.arg6comm as arg6comm,
+        b.arg5comm as arg5comm,
+        b.arg4comm as arg4comm,
+        b.arg3comm as arg3comm,
+        b.arg2comm as arg2comm,
+        b.arg1comm as arg1comm,
+        b.file_name as fileName
+        from monitor_item a, monitor_scripts b
+         where a.script_id = b.scripts_id
+         </sql>
+
+    <select id="selectByAll" resultType="com.asura.monitor.configure.entity.MonitorItemEntity">
+        <include refid="baseSql"/>
+        <if test="items != null">
+            and item_id in
+            <foreach collection="items" item="item" separator="," open="(" close=")"  index="index">
+                #{item}
+            </foreach>
+        </if>
+        <if test="key !=null">
+            and (
+            a.item_name like concat("%",#{key},"%") or
+            a.description like concat("%",#{key},"%") or
+            b.file_name like concat("%",#{key},"%")
+            )
+        </if>
+        <if test="itemId != null">
+            and a.item_id = #{itemId}
+        </if>
+        </select>
+
+    <select id="findById" resultType="com.asura.monitor.configure.entity.MonitorItemEntity">
+        <include refid="baseSql"/>
+        and  a.item_id=#{itemId}
+    </select>
+
+    <select id="selectMaxId" parameterType="int" resultType="com.asura.monitor.configure.entity.MonitorItemEntity">
+        select max(item_id) as itemId from monitor_item
+    </select>
+
+    <insert id="save" parameterType="com.asura.monitor.configure.entity.MonitorItemEntity">
+        insert into monitor_item(
+           is_recover,
+           alarm_messages ,
+           recover_messages,
+           resend,
+            item_id,
+            item_name,
+            description,
+            monitor_time,
+            check_interval,
+            alarm_count,
+            alarm_interval,
+            script_id,
+            arg1,
+            arg2,
+            arg3,
+            arg4,
+            is_valid,
+            last_modify_time,
+            last_modify_user,
+            template_id,
+            arg5,
+            arg6,
+            arg7,
+            arg8,
+            retry,
+            is_merge,
+            is_admin,
+            is_default
+        ) 
+        values(
+              #{isRecover},
+              #{alarmMessages},
+             #{recoverMessages},
+             #{resend},
+            #{itemId},
+            #{itemName},
+            #{description},
+            #{monitorTime},
+            #{checkInterval},
+            #{alarmCount},
+            #{alarmInterval},
+            #{scriptId},
+            #{arg1},
+            #{arg2},
+            #{arg3},
+            #{arg4},
+            #{isValid},
+            #{lastModifyTime},
+            #{lastModifyUser},
+            #{templateId},
+            #{arg5},
+            #{arg6},
+            #{arg7},
+            #{arg8},
+            #{retry},
+            #{isMerge},
+            #{isAdmin},
+            #{isDefault}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.monitor.configure.entity.MonitorItemEntity">
+        update monitor_item set
+            is_recover=#{isRecover},
+            alarm_messages=#{alarmMessages},
+            recover_messages=#{recoverMessages},
+            resend=#{resend},
+            item_id=#{itemId},
+            item_name=#{itemName},
+            is_merge=#{isMerge},
+            description=#{description},
+            monitor_time=#{monitorTime},
+            check_interval=#{checkInterval},
+            alarm_count=#{alarmCount},
+            alarm_interval=#{alarmInterval},
+            script_id=#{scriptId},
+            arg1=#{arg1},
+            arg2=#{arg2},
+            arg3=#{arg3},
+            arg4=#{arg4},
+            is_valid=#{isValid},
+            last_modify_time=#{lastModifyTime},
+            last_modify_user=#{lastModifyUser},
+            template_id=#{templateId},
+            arg5=#{arg5},
+            arg6=#{arg6},
+            arg7=#{arg7},
+            arg8=#{arg8},
+            retry=#{retry},
+            is_admin = #{isAdmin},
+            is_default = #{isDefault}
+         where    item_id=#{itemId}
+    </update>
+
+</mapper>
+

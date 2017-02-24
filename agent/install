@@ -1,0 +1,6 @@
+# 1、使用mvn打包
+# 2、程序运行环境在tools/monitor.tar.bz2, 解压到 /home/runtime/目录
+# 3、将tools里面的jdk7解压到 /home/runtime/monitor/java/ 目录
+# 4、修改agent配置文件，将所有v.asura.com替换为你的服务端的地址，不要使用带端口的
+     修改redis服务器和server端一致
+# 5、启动 cd /home/runtime/monitor/bin; sh agent start

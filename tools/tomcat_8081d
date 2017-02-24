@@ -1,0 +1,50 @@
+#!/bin/bash
+#
+#
+# chkconfig: 2345 55 25
+# processname: tomcat_8081d
+# pidfile: /var/run/tomcat_8081.pid
+
+# source function library
+. /etc/rc.d/init.d/functions
+
+RETVAL=0
+prog="tomcat_8081"
+lockfile=/var/lock/subsys/$prog
+
+# Some functions to make the below more readable
+PID_FILE=/var/run/tomcat_8081d.pid
+
+cd /home/runtime/tomcat_8081/bin/ 
+CMD="sh restart.sh"
+start()
+{
+	echo -n $"Starting $prog: "
+	$CMD && success || failure
+	RETVAL=$?
+	[ $RETVAL -eq 0 ] && touch $lockfile
+	echo
+	return $RETVAL
+}
+
+stop()
+{
+	echo -n $"Stopping $prog: "
+        sh restart.sh stop
+	RETVAL=$?
+	[ $RETVAL -eq 0 ] && rm -f $lockfile
+	echo
+}
+
+case "$1" in
+	start)
+		start
+		;;
+	stop)
+		stop
+		;;
+	*)
+		echo $"Usage: $0 {start|stop}"
+		RETVAL=2
+esac
+exit $RETVAL

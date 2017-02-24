@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.resource.dao.CmdbResourceFloorDao">
+    <sql id="sqlId">
+           floor_id as floorId,
+            floor_name as floorName,
+            floor_address as floorAddress,
+            create_time as createTime,
+            last_modify_time as lastModifyTime,
+            create_user as createUser,
+            last_modify_user as lastModifyUser
+    </sql>
+    <select id="selectByAll" resultType="com.asura.resource.entity.CmdbResourceFloorEntity">
+        select 
+         <include refid="sqlId"/>
+         from cmdb_resource_floor 
+        </select>
+
+    <select id="findById" resultType="com.asura.resource.entity.CmdbResourceFloorEntity">
+        select
+        <include refid="sqlId"/>
+        from cmdb_resource_floor
+        <where>
+            floor_id=#{floorId}
+        </where>
+    </select>
+
+    <insert id="save" parameterType="com.asura.resource.entity.CmdbResourceFloorEntity">
+        insert into cmdb_resource_floor(
+            floor_id,
+            floor_name,
+            floor_address,
+            create_time,
+            create_user,
+            last_modify_user
+        ) 
+        values(        
+            #{floorId},
+            #{floorName},
+            #{floorAddress},
+            #{createTime},
+            #{createUser},
+            #{lastModifyUser}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.resource.entity.CmdbResourceFloorEntity">
+        update cmdb_resource_floor set   
+            floor_id=#{floorId},
+            floor_name=#{floorName},
+            floor_address=#{floorAddress},
+            create_time=#{createTime},
+            create_user=#{createUser},
+            last_modify_user=#{lastModifyUser}
+         where floor_id=#{floorId}
+    </update>
+
+</mapper>
+

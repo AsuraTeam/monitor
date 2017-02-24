@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.monitor.configure.dao.MonitorContactGroupDao">
+    <sql id="baseSql">
+            select
+            group_id as groupId,
+            group_name as groupName,
+            description as description,
+            member as member,
+            ismail as ismail,
+            ismobile as ismobile,
+            status as status,
+            last_modify_time as lastModifyTime,
+            last_modify_user as lastModifyUser,
+            is_admin as isAdmin
+         from monitor_contact_group
+    </sql>
+    <select id="selectByAll" resultType="com.asura.monitor.configure.entity.MonitorContactGroupEntity">
+       <include refid="baseSql"/>
+        WHERE 1=1
+        <if test="groupId != null">
+            and group_id=#{groupId}
+        </if>
+        <if test="groupsIds != null">
+            and group_id in
+            <foreach collection="groupsIds" item="item" close=")" open="(" index="index" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        <if test="key != null">
+            and group_name like concat("%",#{key},"%")
+        </if>
+        ORDER  by group_id DESC
+        </select>
+    <select id="findById" resultType="com.asura.monitor.configure.entity.MonitorContactGroupEntity">
+        <include refid="baseSql"/>
+        where group_id=#{groupId}
+    </select>
+
+    <insert id="save" parameterType="com.asura.monitor.configure.entity.MonitorContactGroupEntity">
+        insert into monitor_contact_group(
+            group_id,
+            group_name,
+            is_admin,
+            description,
+            member,
+            ismail,
+            ismobile,
+            status,
+            last_modify_time,
+            last_modify_user
+        ) 
+        values(        
+            #{groupId},
+            #{groupName},
+            #{isAdmin},
+            #{description},
+            #{member},
+            #{ismail},
+            #{ismobile},
+            #{status},
+            #{lastModifyTime},
+            #{lastModifyUser}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.monitor.configure.entity.MonitorContactGroupEntity">
+        update monitor_contact_group set   
+            group_id=#{groupId},
+            group_name=#{groupName},
+            description=#{description},
+            member=#{member},
+            ismail=#{ismail},
+            is_admin=#{isAdmin},
+            ismobile=#{ismobile},
+            status=#{status},
+            last_modify_time=#{lastModifyTime},
+            last_modify_user=#{lastModifyUser}
+         where group_id=#{groupId}
+    </update>
+
+</mapper>
+

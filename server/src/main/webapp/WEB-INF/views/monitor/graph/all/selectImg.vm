@@ -1,0 +1,72 @@
+<div class="modal fade in" id="show_graph_imgages" tabindex="-1"
+     role="dialog" style="background-color: #FfFfFf; margin-top: 16px;"
+     data-backdrop="false">
+    <div class="modal-dialog"
+         style="margin-top: 0px; width: 90%; ">
+    <div class="modal-content"
+         style="height: 500px; width: 100%;">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">
+                <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+            </button>
+            <h4 class="modal-title">图像指标选择  <i class="fa fa-line-chart"></i>
+                <button style="margin-left: 86%;margin-top: -24px;margin-bottom: 0px;"
+                        onclick="getCheckValue(1);" class="btn btn-primary btn-lg"
+                        type="button">
+                    <i class="fa fa-area-chart"></i>&nbsp;看图去
+                </button>
+            </h4>
+        </div>
+
+    <div style=" overflow-x: scroll;overflow-y:visible;height:450px;">
+
+        #foreach($name in $names)
+            <table class="table table-bordered table-hover" style="margin:20px;width: 96%;margin-right: 30px;">
+                <tbody>
+                <tr>
+                    <th colspan="4" style="border:solid 0px #ffffff;">
+                        <div style="margin-left: 5px;"><strong>
+                            <div class="checkbox checkbox-primary checkbox-inline">
+                                <input type="checkbox" value="1" onclick="checkBoxAll('${name.replace("/","_").replace(".","_")}')" class="${name.replace("/","_").replace(".","_")}All" id="checkbox3${name.replace("/","").replace(".","")}">
+                                <label for="checkbox3${name.replace("/","").replace(".","")}">${name}</label></strong>
+                        </div>
+        </div>
+        </div>
+            </th>
+            </tr>
+
+            #set($count = 0)
+            #foreach($n in $types.get($name))
+                #if($count==0)
+                <tr class="rows">
+                #end
+                #if($count%4==0)
+                    #if($count>8)
+                    </tr>
+                    #end
+                <tr class="rows">
+                #end
+                <td>
+                    <div class="checkbox checkbox-primary checkbox-inline" style="margin-left:5px;margin-top:0px;margin-bottom: 0px;">
+                        <input type="checkbox" id="checkbox3"  name="isAction" class="form-control ${name.replace("/","_").replace(".","_")}"
+                               value="${name}|${n}">
+
+                        <label for="checkbox3">${n.replace('---',' ').replace("SLASH","/")}</label>
+                    </div>
+                </td>
+                #set($count =$count+ 1)
+            #end
+        </tr>
+            </tbody>
+            </table>
+        #end
+
+        <br>
+        <br>
+        <br>
+        <br>
+
+    </div>
+</div>
+</div>
+</div>

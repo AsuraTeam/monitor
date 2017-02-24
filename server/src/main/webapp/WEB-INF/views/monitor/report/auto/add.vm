@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<body>
+<div class="modal fade" id="add_getui_config" tabindex="-1"
+     role="dialog" style="background-color: #FfFfFf; margin-top: 16px;"
+     data-backdrop="false">
+    <div class="modal-dialog"
+         style="margin-top: 0px; width: 50%; ">
+        <div class="modal-content"
+             style="height: 520px; width: 100%; ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title">&nbsp;&nbsp;性能报警发送通知人配置</h4>
+            </div>
+            <div class="animated fadeInRight">
+                <form>
+                    <div class="col-md-12">
+                        <p>&nbsp;
+                        </p>
+                    </div>
+                    <div class="col-md-12" style="margin-top: 5px;">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">业务线选择:</label>
+                            <div class="col-md-9 multiple">
+                                <select id="selectGroupsId" class="selectpicker bla bla bli form-control" name="groupsId" data-live-search="true" onchange="changeGroupsId()">
+                                    <option value="">请选择</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <p>&nbsp;
+                        </p>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">通知人:</label>
+                            <div class="col-sm-9">
+                                <textarea type="text"  rows="12" name="emails" class="form-control"
+                                >$!{configs.emails}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <div class="col-md-12">
+                    <p>
+                    <p>
+                </div>
+
+            </div>
+            <div class="modal-footer" style="border:solid 1px #e0e0e0">
+            </div>
+            <button style="margin-left: 77%;margin-top: 15px;"
+                    onclick="saveConfig($!{configs.sendId});" class="btn btn-primary btn-lg"
+                    type="button">
+                <i class="fa fa-check"></i>&nbsp;提交
+            </button>
+        </div>
+
+    </div>
+</div>
+<script type="">
+    function selectGroups() {
+        url = "/resource/configure/groups/listData?draw=1&start=1&length=10000"
+        result = eval(post({}, url))["data"];
+        html = ""
+        select = ""
+        html += "<option value=''>--</option>"
+        for (i = 0; i < result.length; i++) {
+            if (result[i]["groupsId"] == "$!{configs.groupsId}") {
+                select = "<option value=" + result[i]["groupsId"] + ">" + result[i]["groupsName"] + "</option>"
+                $('#groups_hidden').val(result[i]["groupsName"]);
+            }
+            html += "<option value=" + result[i]["groupsId"] + ">" + result[i]["groupsName"] + "</option>"
+        }
+        #if($configs.groupsId)
+            $('#selectGroupsId').html(select)
+            return;
+        #end
+        $('#selectGroupsId').html(select + html)
+    }
+    selectGroups();
+    $('.selectpicker').selectpicker({
+        'selectedText': 'cat'
+    });
+</script>
+</body>

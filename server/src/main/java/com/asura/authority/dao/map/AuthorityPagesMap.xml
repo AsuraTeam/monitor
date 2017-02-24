@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.authority.dao.AuthorityPagesDao">
+
+    <sql id="baseSql">
+                select
+            pages_id as pagesId,
+            pages_url as pagesUrl,
+            pages_name as pagesName,
+            last_modify_user as lastModifyUser,
+            create_time as createTime,
+            last_modify_time as lastModifyTime,
+            is_valid as isValid,
+            model_name as modelName
+         from authority_pages where 1=1
+    </sql>
+
+    <select id="selectByAll" resultType="com.asura.authority.entity.AuthorityPagesEntity">
+        <include refid="baseSql" />
+        <if test="search != null">
+            and ( pages_url like concat("%",#{search},"%") OR
+            pages_name like concat("%",#{search},"%") OR
+            last_modify_user like concat("%",#{search},"%")
+            )
+        </if>
+     </select>
+
+    <select id="findAllModelName" resultType="com.asura.authority.entity.AuthorityPagesEntity">
+        select
+        DISTINCT model_name as modelName
+        from authority_pages
+    </select>
+
+    <select id="findAllPage" resultType="com.asura.authority.entity.AuthorityPagesEntity">
+         select
+            pages_id as pagesId,
+            pages_url as pagesUrl,
+            model_name as modelName,
+            pages_name as pagesName
+         from authority_pages
+    </select>
+
+    <select id="findById" resultType="com.asura.authority.entity.AuthorityPagesEntity">
+        <include refid="baseSql" />
+        and pages_id=#{pagesId}
+    </select>
+
+    <insert id="save" parameterType="com.asura.authority.entity.AuthorityPagesEntity">
+        insert into authority_pages(
+            pages_url,
+            pages_name,
+            last_modify_user,
+            create_time,
+            last_modify_time,
+            is_valid,
+               model_name
+        ) 
+        values(        
+            #{pagesUrl},
+            #{pagesName},
+            #{lastModifyUser},
+            #{createTime},
+            #{lastModifyTime},
+            #{isValid},
+            #{modelName}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.authority.entity.AuthorityPagesEntity">
+        update authority_pages set   
+            pages_url=#{pagesUrl},
+            pages_name=#{pagesName},
+            last_modify_user=#{lastModifyUser},
+            create_time=#{createTime},
+            last_modify_time=#{lastModifyTime},
+            is_valid=#{isValid},
+            model_name = #{modelName}
+         where  pages_id=#{pagesId}
+    </update>
+
+</mapper>
+

@@ -1,0 +1,218 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>业务线指标报警报表</title>
+<body class="graay-bg top-navigation">
+    #include("/index/include.vm")
+<script type="">
+
+    function loadData(groupsName, start, end) {
+        $("#listTable" + groupsName).dataTable({
+            "filter": false,//去掉搜索框
+            "ordering": false, // 是否允许排序
+            "paginationType": "full_numbers", // 页码类型
+            "destroy": true,
+            "processing": true,
+            "serverSide": true,
+            "scrollX": true, // 是否允许左右滑动
+            "displayLength": 10, // 默认长度
+            "ajax": { // 请求地址
+                "url": "/monitor/reports/reportMonthGroupsNameIndexName?groupsName=" + groupsName + "&startT=" + start + "&endT=" + end,
+                "type": 'post'
+            },
+            "bLengthChange": false,
+            "language": {
+                "paginate": {
+                    "last": "",
+                    "next": "",
+                    "sPrevious": "",
+                },
+                "sInfo": "",
+            },
+            "bPaginate": false,
+            "columns": [ // 数据映射
+                {"data": "groupsName"},
+                {
+                    "data": "indexName", "mRender": function (data) {
+                    return data.replace(/SLASH/g, "/")
+                }
+                },
+                {
+                    "data": "cnt", "mRender": function (data, type, full) {
+                    return "<a target='_self' href='/monitor/reports/reportMonthGroupsNameIndexNameList?groupsName=$!{groupName}&startT=$!{startT}&endT=$!{endT}&indexName=" + full["indexName"] + "'>" + data + "</a>";
+                }
+                },
+            ],
+            "fnRowCallback": function (row, data) { // 每行创建完毕的回调
+                $(row).data('recordId', data.recordId);
+            }
+        });
+    }
+</script>
+<div id="">
+<div id="page-wrapper" class="gray-bg">
+    #include("/index/header.vm")
+    <div id="addConfig"></div>
+<body>
+<script src="/static/js/plugins/highcharts.js"></script>
+<script src="/static/js/monitor/report/reportMonthGroupsNameIndexName.js"></script>
+
+<div class="page-header container col-md-12"
+     style="margin-left: 25px;margin-top:-11px;float:left;margin-bottom: -30px;">
+    <div style="float:left;"><h3><b>
+        $!{groupName}
+        业务线指标报警报表</b> <span class="alert-danger">#if($month)$!{month}#end
+        #if($start)
+            $!{start} -- $!{end}
+        #end
+       </span></h3><h6>$!{ip}&nbsp;&nbsp;$!{hostname}</h6>
+        <div class="input-group col-md-6 pull-right" style="margin-top:-50px;">
+            <span class="input-group-addon">自定义时间(<font color="red"></font>)：</span>
+            <input type="text" class="form-control" value="$!{start}" id="startSendTime" name="startSendTime">
+            <span class="input-group-addon">-</span>
+            <input type="text" class="form-control" value="$!{end}" id="endSendTime" name="endSendTime">
+        </div>
+        #if($groupsName.size()==1)
+            <button type="button"
+                    onclick="window.location.href='/monitor/reports/reportMonthGroupsNameIndexNameList'"
+                    class="btn btn-outline btn-default" style="margin-top:-51px;margin-left:40%;">显示所有业务线
+            </button>
+        #end
+    </div>
+</div>
+    #foreach($groups in $groupsName)
+    <div class="#if($groupsName.size()>1) col-sm-6
+#else #if($indexName.length()>1) col-sm-6 #else col-sm-12
+#end  #end"
+         style="#if($groupsName.size()==1) height: 450px; #else height: 600px; #end margin-top:10px;overflow-y: scroll;overflow-x: hidden;border: 1px solid #f2f2f2;">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title" style="background-color: #ffffff;border:#ffffff;">
+                <span class="label label-success pull-right"></span>
+                <b><a href="/monitor/reports/reportMonthGroupsNameIndexNameList?groupsName=$!{groups}">$!{groups}</a></b>
+            </div>
+            <div class="ibox-content">
+                <table id="listTable${groups}"
+                       class="table  table-bordered table-hover dataTables-example">
+                    <thead>
+                    <tr nowrap="nowrap" role="rows">
+                        <th>业务线名称</th>
+                        <th>报警指标</th>
+                        <th>报警次数</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+        #if($indexName.length()>1)
+        <div class="col-md-6"
+             style="height: 450px;margin-bottom:-19px;margin-top: 10px;border: 1px solid #f2f2f2;">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title" style="background-color: #ffffff;border:#ffffff;">
+                    <span class="label label-success pull-right"></span>
+                    <b><a href="/monitor/reports/reportMonthGroupsNameIndexNameList?groupsName=$!{groups}">$!{groups}</a></b>
+                </div>
+                <div class="ibox-content">
+                    <table id="listTableIndex$!{groups}"
+                           class="table  table-bordered table-hover dataTables-example">
+                        <thead>
+                        <tr nowrap="nowrap" role="rows">
+                            <th>报警时间</th>
+                            <th>服务器IP</th>
+                            <th>指标名称</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        #end
+
+        #if($groupsName.size()==1)
+        <div class="col-md-12">
+            <div class="col-md-6" style="border-right: 1px solid #f2f2f2;">
+                <div class="ibox-content">
+                    <div class="ibox-title" style="background-color: #ffffff;border:#ffffff;">
+                        <span class="label label-success pull-right"></span>
+                        <h5>各指标报警占比</h5>
+                    </div>
+                    <div style="height:auto;width: 100%;  " id="monitorReport$!{groups}"></div>
+                </div>
+            </div>
+            <div class="col-md-6" style="border-top:0px solid #f2f2f2;">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-content">
+                        <div class="ibox-title" style="background-color: #ffffff;border:#ffffff;">
+                            <span class="label label-success pull-right"></span>
+                            <h5>各指标报警趋势</h5>
+                        </div>
+                        <div style=" height:auto;width: 100%;  " id="monitorReportHistory$!{groups}">
+                            <div class="spiner-example">
+                                <div class="sk-spinner sk-spinner-chasing-dots">
+                                    <div class="sk-dot1"></div>
+                                    <div class="sk-dot2"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        #end
+    </div>
+    <script type="">
+        loadData("$!{groups}", "$!{start}", "$!{end}")
+            #if($groupsName.size()==1)
+            getPie("", "", "$!{groups}", "monitorReport$!{groups}");
+            get_monitor_report_all("monitorReportHistory$!{groups}", "$!{groupName}", "$!{indexName}", "area", "$!{start}", "$!{end}")
+            #end
+
+            #if($indexName.length()>1)
+            loadDataIndex("$!{groups}", "$!{start}", "$!{end}", "$!{indexName}")
+            #end
+
+    </script>
+    #end
+    #if($groupsName.size()==1)
+    #end
+<script>
+    // 日期插件
+    var startSendTime = {
+        elem: '#startSendTime',
+        choose: function (data) {
+            endSendTime.min = data;
+            endSendTime.start = data;
+            if ($('#endSendTime').val()) {
+                queryDate()
+            }
+        }
+    }
+    var endSendTime = {
+        elem: '#endSendTime',
+        choose: function (data) {
+            startSendTime.max = data;
+            if ($('#startSendTime').val()) {
+                queryDate()
+            }
+        }
+    }
+    laydate(startSendTime);
+    laydate(endSendTime);
+
+    function queryDate() {
+        start = $('#startSendTime').val()
+        end = $('#endSendTime').val()
+        if (start && end) {
+            window.location.href = "/monitor/reports/reportMonthGroupsNameIndexNameList?groupsName=$!{groupName}&startT=" + start + "&endT=" + end
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>报警消息记录</title><body class="gray-bg top-navigation">
+    #include("/index/include.vm")
+
+<div id="">
+    <div id="page-wrapper" class="gray-bg">
+        #include("/index/header.vm")
+<div id="addConfig"></div>
+<body>
+<div class="modal fade" id="dispaly_detail_id_1" tabindex="-1"
+     style="z-index: 12050 !important;margin-top:30px;" role="dialog" data-backdrop="true">
+    <div class="modal-dialog" style="width:80%;margin-top:-10px;">
+        <div class="modal-content" style="height: 500px;overflow: scroll;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
+                        class="sr-only">Close</span></button>
+                <h4 class="modal-title">报警信息详情</h4>
+            </div>
+            <div class="modal-body fadeInUp" id="dispaly_detail_content_1">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class=" animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins"></p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <span title="点击关闭或开启发送报警功能">
+                <button  class="btn btn-outline #if($alarm=="1") btn-danger fa fa-close
+#else btn-success fa fa-undo #end" onclick="setAlarm(${alarm})">&nbsp;#if($alarm=="1") 关闭报警 #else 开始报警#end&nbsp;&nbsp;&nbsp;</button></span>
+                <div class="ibox-content" style="overflow:scroll;">
+                    <table id="listTable"
+                           class="table  table-bordered table-hover dataTables-example">
+                        <thead>
+                        <tr nowrap="nowrap" role="rows">
+                            <th>服务器地址</th>
+                            <th>检查类型</th>
+                            <th>手机号</th>
+                            <th>钉钉号</th>
+                            <th>邮箱号</th>
+                            <th>微信号</th>
+                            <th>报警状态</th>
+                            <th>报警时间</th>
+                            <th>显示完整信息</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var site = "messages"
+
+    function setAlarm(value) {
+        if(value=="1"){
+            value = "0"
+        }else{
+            value = "1"
+        }
+        url = "/monitor/configure/"+site+"/recordSaveSetAlarm"
+        result = post({value:value}, url)
+        parent.layer.msg(JSON.stringify(result),  {icon:1});
+        sleep(1);
+        window.location.reload();
+    }
+
+    function showDetail(id){
+        url = "/monitor/configure/"+site+"/detail"
+        html = post({messagesId:id}, url);
+        $('#dispaly_detail_id_1').modal("toggle")
+        $('#dispaly_detail_content_1').html(html)
+    }
+
+    function loadData(){
+        $("#listTable").dataTable({
+            "filter": true,//去掉搜索框
+            "ordering": false, // 是否允许排序
+            "paginationType": "full_numbers", // 页码类型
+            "destroy": true,
+            "processing": true,
+            "serverSide": true,
+            "scrollX": true, // 是否允许左右滑动
+            "displayLength": 10, // 默认长度
+            "ajax": { // 请求地址
+                "url": "/monitor/configure/"+site+"/recordData?t=" + new Date().getTime(),
+                "type": 'post'
+            },
+
+            "columns": [ // 数据映射
+                {"data": "ipAddress"},
+                {"data": "monitorName"},
+                {"data": "mobile","mRender":function (data) {
+                    if(!data) {return}
+                    if (data.length > 11){
+                        return data.substring(0,11) + "...";
+                    }
+                    return data;
+                }},
+                {"data": "ding","mRender":function (data) {
+                    if(!data) {return}
+                    if (data.length > 11){
+                        return data.substring(0,11) + "...";
+                    }
+                    return data;
+                }},
+                {"data": "email","mRender":function (data) {
+                    if(!data) {return}
+                    if (data.length> 11){
+                        return data.substring(0,11) + "...";
+                    }
+                    return data;
+                }},
+                {"data": "weixin","mRender":function (data) {
+                    if(!data) {return}
+                    if (data.length > 11){
+                        return data.substring(0,11) + "...";
+                    }
+                    return data;
+                }},
+                {"data":"severtityId","mRender":function (data) {
+                    if(data=="1"){
+                        return "正常";
+                    }
+                    if(data=="2"){
+                        return "<font color='red'>危险</font>";
+                    }
+                    if(data=="3"){
+                        return "<font color='warning'>警告</font>";
+                    }
+                    if(data=="4"){
+                        return "<font color='#f5f5f5'>未知</font>";
+                    }
+                }},
+                {"data": "messagesTime","mRender":function (data) {
+                    console.log(data)
+                    return data;
+                }},
+                {"sWidth": "150px", "data": "messagesId", "mRender": function(data, type, full) {
+                    return '<button type="button" onclick="showDetail('+data+')" class="btn btn-sm btn-warning"><i class="fa fa-info">&nbsp;&nbsp;日志</i></button>';
+                }
+                },
+            ],
+            "fnRowCallback": function (row, data) { // 每行创建完毕的回调
+                $(row).data('recordId', data.recordId);
+            }
+        });
+    }
+
+    loadData();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.monitor.graph.dao.CmdbQuartzDao">
+    <select id="selectByAll" resultType="com.asura.monitor.graph.entity.CmdbQuartzEntity">
+        select 
+            quartz_id as quartzId,
+            quartz_name as quartzName,
+            quartz_url as quartzUrl,
+            quartz_time as quartzTime,
+            description as description,
+            last_modify_time as lastModifyTime,
+            last_modify_user as lastModifyUser
+         from cmdb_quartz
+        <where>
+            <if test="quartzId != null">
+                 quartz_id=#{quartzId}
+            </if>
+        </where>
+
+        </select>
+
+    <select id="findById" resultType="com.asura.monitor.graph.entity.CmdbQuartzEntity">
+        select
+        quartz_id as quartzId,
+        quartz_name as quartzName,
+        quartz_url as quartzUrl,
+        quartz_time as quartzTime,
+        description as description,
+        last_modify_time as lastModifyTime,
+        last_modify_user as lastModifyUser
+        from cmdb_quartz
+        where quartz_id=#{quartzId}
+    </select>
+
+    <insert id="save" parameterType="com.asura.monitor.graph.entity.CmdbQuartzEntity">
+        insert into cmdb_quartz(
+            quartz_name,
+            quartz_url,
+            quartz_time,
+            description,
+            last_modify_time,
+            last_modify_user
+        ) 
+        values(        
+            #{quartzName},
+            #{quartzUrl},
+            #{quartzTime},
+            #{description},
+            #{lastModifyTime},
+            #{lastModifyUser}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.monitor.graph.entity.CmdbQuartzEntity">
+        update cmdb_quartz set   
+            quartz_name=#{quartzName},
+            quartz_url=#{quartzUrl},
+            quartz_time=#{quartzTime},
+            description=#{description},
+            last_modify_time=#{lastModifyTime},
+            last_modify_user=#{lastModifyUser}
+         where  quartz_id=#{quartzId}
+    </update>
+
+</mapper>
+

@@ -1,0 +1,50 @@
+
+    #foreach($cscope in $scope)
+     <div style="width: 1000%;overflow: auto;">
+        <div class="col-sm-3" style="margin-left:-5px;mamargin-top:3PX;width: 600%;">
+                <div class="ibox-title">
+                    <h5>酒仙桥 $!{cscope}</h5>
+                </div>
+        </div>
+
+        #foreach($cname in $name.get($cscope))
+        <div class="col-sm-3" style="margin-left: -5px; margin-top: 10px;width: 400px;">
+                <div class="ibox">
+                    <div class="ibox-title">
+                        <span class="label label-primary pull-right">2016-07</span>
+                        <h5>酒仙桥 $!{cname}</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <table class="table table-bordered">
+                            <thead>
+                            <tr>
+                                <th>层</th>
+                                <th>ip</th>
+                                <th>mip</th>
+                                <th>状态</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            #foreach($data in $cabinetData.get($cname))
+                            <tr>
+                                <td>$!{data.cabinetLevel}</td>
+                                <td><span onclick="showDetail($data.serverId)">$!{data.ipAddress}</span></td>
+                                <td>$!{data.managerIp}</td>
+                                <td title="红色为ip地址不可达,灰色为没有配置设备,绿色为设备IP可达">
+                                    <button class="btn #if(  ${data.status}==1 ) btn-primary #end #if(${data.serverId}>=0 && ${data.status}==0 )
+btn-danger #end btn-circle circle" type="button">
+                                    </button>
+                                </td>
+                            </tr>
+                            #end
+                            </tbody>
+                        </table>
+                    </div>
+                </DIV>
+            </div>
+            #end
+        </div>
+     </div>
+#end
+
+</div>

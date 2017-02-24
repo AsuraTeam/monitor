@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.resource.dao.CmdbResourceServerTypeDao">
+    <sql id="sqlId">  type_id as typeId,
+        type_name as typeName,
+        create_time as createTime,
+        create_user as createUser,
+         image_path as imagePath,
+        last_modify_time as lastModifyTime,
+        depend,
+        "" as tname,
+        last_modify_user as lastModifyUser</sql>
+    <select id="selectByAll" resultType="com.asura.resource.entity.CmdbResourceServerTypeEntity">
+
+        select
+        <include refid="sqlId"/>
+        from cmdb_resource_server_type c
+        where c.depend is null
+        union all
+        select
+        a.type_id as typeId,
+        a.type_name as typeName,
+        a.create_time as createTime,
+        a.create_user as createUser,
+        a.image_path as imagePath,
+        a.last_modify_time as lastModifyTime,
+        a.depend,
+        b.type_name as tname,
+        a.last_modify_user as lastModifyUser
+        from cmdb_resource_server_type a,
+            cmdb_resource_server_type b
+        where  a.depend=b.type_id and a.depend>0;
+
+     </select>
+
+    <select id="findById" resultType="com.asura.resource.entity.CmdbResourceServerTypeEntity">
+        select
+        <include refid="sqlId"/>
+        from cmdb_resource_server_type c
+        where c.depend is null
+        and type_id=#{type_id}
+        union all
+        select
+        a.type_id as typeId,
+        a.type_name as typeName,
+        a.create_time as createTime,
+        a.create_user as createUser,
+        a.image_path as imagePath,
+        a.last_modify_time as lastModifyTime,
+        a.depend,
+        b.type_name as tname,
+        a.last_modify_user as lastModifyUser
+        from cmdb_resource_server_type a,
+        cmdb_resource_server_type b
+        where  a.depend=b.type_id and a.depend>0
+        and a.type_id=#{type_id}
+
+    </select>
+
+    <insert id="save" parameterType="com.asura.resource.entity.CmdbResourceServerTypeEntity">
+        insert into cmdb_resource_server_type(
+            type_id,
+            type_name,
+            create_time,
+            create_user,
+            image_path,
+            depend,
+            last_modify_user
+        ) 
+        values(        
+            #{typeId},
+            #{typeName},
+            #{createTime},
+            #{createUser},
+            #{imagePath},
+            #{depend},
+            #{lastModifyUser}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.resource.entity.CmdbResourceServerTypeEntity">
+        update cmdb_resource_server_type set   
+            type_id=#{typeId},
+            depend=#{depend},
+            type_name=#{typeName},
+            create_time=#{createTime},
+            create_user=#{createUser},
+             image_path=#{imagePath},
+            last_modify_user=#{lastModifyUser}
+         where    type_id=#{typeId}
+    </update>
+
+</mapper>
+

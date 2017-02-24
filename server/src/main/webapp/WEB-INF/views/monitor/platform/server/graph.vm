@@ -1,0 +1,305 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>监控服务器列表</title><body class="gray-bg1 top-navigation">
+    #include("/index/include.vm")
+
+<div id="">
+    <div id="page-wrapper" class="gray-bg">
+        #include("/index/header.vm")
+<div id="addConfig"></div>
+<body>
+<style>
+    .graph_server{
+        width: 100%;
+        height: 240px;
+        margin-bottom:5px;
+        text-align: center
+    }
+
+</style>
+
+<script src="/static/js/plugins/highcharts.js"></script>
+<div class="page-header container col-md-12" style="margin-left: 10px;margin-top:-14px;float:left;" >
+     <div style="float:left;"> <h3><b>系统概览</b> </h3><h6>$!{ip}&nbsp;&nbsp;$!{hostname}</h6>
+          <button type="button" onclick="window.open('/monitor/graph/all/index?ip=$!{ip}')" class="btn btn-outline btn-default" style="margin-top:-43px;margin-left:500%;">历史图表</button>
+    </div>
+</div>
+<div id="cpuBorder" class="col-md-4"
+     style="border:solid 1px #f0f0f0;margin-left:-20px;#if($width.length()>0) width:${width}%;
+     #else width: 68%; #end margin:5px;margin-top:-21px;">
+    <div class="ibox float-e-margins">
+        <div class="title-img">
+            <h5 align="left" style="margin-top: 10px;margin-left: 10px;">CPU使用率(%)</h5>
+        </div>
+        <input type="hidden" id="cpuBorderWidth" value="32">
+        <div class="highchar animated pulse graph_server" id="cpu"  >该视图无数据<img width="25%" height="50%;"   src="/static/images/loading.gif"></div>
+    </div>
+</div>
+
+<div id="loadavgBorder" class="col-md-4"
+     style="border:solid 1px #f0f0f0;margin-left:-20px;#if($width.length()>0) width:${width}%;
+     #else width: 30%; #end margin:5px;margin-top:-21px;">
+    <div class="ibox float-e-margins">
+        <div class="title-img">
+            <h5 align="left" style="margin-top: 10px;margin-left: 10px;">系统负载</h5>
+        </div>
+        <input type="hidden" id="loadavgBorderWidth" value="32">
+        <div  class="highchar animated pulse graph_server" id="loadavg" >该视图无数据<img width="25%" height="50%;" " src="/static/images/loading.gif"></div>
+    </div>
+</div>
+
+<div id="memoryBorder" class="col-md-4"
+     style="border:solid 1px #f0f0f0;margin-left:-20px;width: 68%; margin:5px;">
+    <div class="ibox float-e-margins">
+        <div class="title-img">
+            <h5 align="left" style="margin-top: 10px;margin-left: 10px;">内存</h5>
+        </div>
+        <input type="hidden" id="memoryBorderWidth" value="32">
+        <div  class="highchar animated pulse graph_server" id="memory"  >该视图无数据<img width="25%" height="50%;" src="/static/images/loading.gif"></div>
+    </div>
+</div>
+
+<div id="loadavgBorder" class="col-md-4"
+     style="border:solid 1px #f0f0f0;margin-left:-20px;#if($width.length()>0) width:${width}%;
+     #else width: 30%; #end margin:5px;">
+    <div class="ibox float-e-margins">
+        <div class="title-img">
+            <h5 align="left" style="margin-top: 10px;margin-left: 10px;">系统进程</h5>
+        </div>
+        <input type="hidden" id="loadavgBorderWidth" value="32">
+        <div style="width:102%;height: 610px;margin-bottom:5px;overflow-y: scroll;overflow-x:hidden;">
+
+              <table id="listTable" style="width:300px;"
+                           class="table table-bordered table-hover ">
+                        <thead>
+                        <tr>
+                            <th>进程</th>
+                            <th>用户</th>
+                            <th>CPU</th>
+                            <th>Memory</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+             </table>
+        </div>
+    </div>
+</div>
+
+<div id="diskBorder" class="col-md-4"
+     style="border:solid 1px #f0f0f0;width: 32%; margin-top: -360px;margin-left: 8px;>
+    <div class="ibox float-e-margins">
+        <div class="title-img">
+            <h5 align="left" style="margin-top: 10px;margin-left: 10px;">磁盘</h5>
+        </div>
+        <input type="hidden" id="loadavgBorderWidth" value="32">
+        <div id="disk"  class="highchar" style="width: 100%;height: 320px;margin-bottom:5px;">该视图无数据</div>
+    </div>
+</div>
+
+<div id="trafficBorder" class="col-md-4"
+     style="border:solid 1px #f0f0f0;margin-left:33%;width: 35%; margin-top: -360px;>
+    <div class="ibox float-e-margins">
+        <div class="title-img">
+            <h5 align="left" style="margin-top: 10px;margin-left: 10px;">网络流量</h5>
+        </div>
+        <input type="hidden" id="trafficBorderWidth" value="32">
+        <div id="traffic"   class="highchar" style="width: 100%;height: 320px;margin-bottom:5px;">该视图无数据</div>
+    </div>
+</div>
+
+
+<div  class="col-md-12"></p></p></p></p></p></p></div>
+
+<script>
+    /**
+     * 获取多个
+     */
+   // colors = ["#80CD98","#BEA046","#65C1FB","#1ab394","#02FF70","#787C80",
+   //     "#7FDCFE","#0074D9","#FF821B","#FEFBF8","#83144B","#FEF6FF","#FCFDFC","#FDEA74","#F9F7F9",
+    //    "#16FD7E", "#77D6CE", "#3493E1","#f8ac59","#1f90d8",
+    //],
+
+    function get_graph_all(image_id, ips,title, groups, names, chartype,     startT, endT) {
+        $('#cpu').bind('mousemove touchmove touchstart', function (e) {
+            var chart,
+                    point,
+                    i,
+                    event;
+
+            for (i = 0; i < Highcharts.charts.length; i = i + 2) {
+                chart = Highcharts.charts[i];
+                event = chart.pointer.normalize(e.originalEvent); // Find coordinates within the chart
+                point = chart.series[0].searchPoint(event, true); // Get the hovered point
+
+                if (point) {
+                    point.highlight(e);
+                }
+            }
+        });
+
+        Highcharts.Point.prototype.highlight = function (event) {
+            this.onMouseOver(); // Show the hover marker
+            this.series.chart.tooltip.refresh(this); // Show the tooltip
+            this.series.chart.xAxis[0].drawCrosshair(event, this); // Show the crosshair
+        };
+        if(!chartype){
+            chartype = "spline"
+        }
+        /**
+         * Synchronize zooming through the setExtremes event handler.
+         */
+        function syncExtremes(e) {
+            var thisChart = this.chart;
+
+            if (e.trigger !== 'syncExtremes') { // Prevent feedback loop
+                Highcharts.each(Highcharts.charts, function (chart) {
+                    if (chart !== thisChart) {
+                        if (chart.xAxis[0].setExtremes) { // It is null while updating
+                            chart.xAxis[0].setExtremes(e.min, e.max, undefined, false, {trigger: 'syncExtremes'});
+                        }
+                    }
+                });
+            }
+        }
+
+        if(!startT){
+            startT = ""
+        }
+        if(!endT){
+            endT = ""
+        }
+        ips = ips.split(",")
+        names = names.split(",")
+        data = []
+        for (i=0;i<ips.length;i++){
+            if(!ips[i]){
+                continue
+            }
+            for (j=0;j<names.length;j++) {
+
+                name = names[j]
+                if(!name){
+                    continue;
+                }
+                url = "/monitor/graph/historyData?ip=" + ips[i] + "&name=" + name + "&type=" + groups+"&startT="+startT+"&endT="+endT;
+                get_data = eval(post({}, url));
+                data_dict = {}
+                data_dict["name"] = ips[i]+" "+name;
+                data_dict["data"] = get_data;
+                data.push(data_dict)
+            }
+        }
+
+        Highcharts.setOptions({
+            global: {
+                useUTC: false
+            }
+        });
+
+
+        $('#'+image_id).highcharts({
+            chart: {
+                type: chartype,
+                zoomType: 'x',
+            },
+            title: {
+                text: ''
+            },
+   colors : ["#80CD98","#65C1FB","#BEA046","#1ab394","#02FF70","#787C80",
+   "#7FDCFE","#0074D9","#FF821B","#FEFBF8","#83144B","#FEF6FF","#FCFDFC","#FDEA74","#F9F7F9",
+    "#16FD7E", "#77D6CE", "#3493E1","#f8ac59","#1f90d8",
+    ],
+            xAxis: {
+                crosshair: true,
+                type: 'datetime',
+                tickPixelInterval: 110,
+                events: {
+                    setExtremes: syncExtremes
+                },
+            },
+            yAxis: {
+                title: {
+                    text: ""
+                },
+            },
+            plotOptions: {
+                line: {
+                    lineWidth: 3,
+                    states: {
+                        hover: {
+                            lineWidth: 2
+                        }
+                    },
+                    marker: {
+                        enabled: false
+                    },
+                    pointInterval: 3600000, // one hour
+                }
+            },
+            tooltip: {
+                formatter: function () {
+                    return '<b>' + this.series.name.replace(/SLASH/, "/") + '</b><br/>' +
+                            Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +
+                            Highcharts.numberFormat(this.y, 2);
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            exporting: {
+                enabled: false
+            },
+            series:  data
+        });
+    }
+
+    get_graph_all("cpu", "$!{ip}","", "cpu", "system.cpu.idle,system.cpu.iowait,system.cpu.system","area","$!{startT}","$!{endT}")
+    get_graph_all("loadavg", "$!{ip}","", "loadavg", "system.load.1,system.load.5,system.load.15","line","$!{startT}","$!{endT}")
+    get_graph_all("memory", "$!{ip}","", "memory", "system.mem.used,system.mem.free","line","$!{startT}","$!{endT}")
+    get_graph_all("disk", "$!{ip}","", "disk", "system.disk.used.percent.SLASH","$!{startT}","$!{endT}")
+    get_graph_all("traffic", "$!{ip}","", "traffic", "system.net.bytes.rcvd.eth0,system.net.bytes.send.eth0","$!{startT}","$!{endT}")
+
+ function loadData(){
+        $("#listTable").dataTable({
+            "filter": false,//去掉搜索框
+            "ordering": false, // 是否允许排序
+            "paginationType": "full_numbers", // 页码类型
+            "destroy": true,
+            "bLengthChange": false,
+            "processing": false,
+            "serverSide": false,
+            "displayLength": 0, // 默认长度
+            "language": {
+                     "paginate": {
+                                 "last": "",
+                                 "next": "",
+                                 "sPrevious": "",
+                               },
+                       "sInfo":"",
+                    },
+            "bPaginate" : false, 
+            "ajax": { // 请求地址
+                "url": "/monitor/platform/server/process?ip=$!{ip}&t=" + new Date().getTime(),
+                "type": 'post'
+            },
+
+            "columns": [ // 数据映射
+                { "data": "process", "mRender":function (data) {
+                   return "<div style='width:164px;word-wrap:break-word;'>" + data + "</div>";
+                }},
+                {"data": "user"},
+                {"data": "cpu"},
+                {"data": "memory"},
+            ],
+            "fnRowCallback": function (row, data) { // 每行创建完毕的回调
+                $(row).data('recordId', data.recordId);
+            }
+        });
+    }
+
+    loadData();
+</script>

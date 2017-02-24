@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>监控服务器列表</title><body class="gray-bg top-navigation">
+    #include("/index/include.vm")
+
+<div id="">
+    <div id="page-wrapper" class="gray-bg">
+        #include("/index/header.vm")
+<div id="addConfig"></div>
+<body>
+
+<div class=" animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <button class="btn btn-success " type="button"
+                            onclick="update();">
+                        <i class="fa fa-upload"></i>&nbsp;&nbsp;<span class="bold">更新数据</span>
+                    </button>
+
+                </div>
+                <div class="ibox-content" style="overflow:scroll;">
+                    <table id="listTable"
+                           class="table  table-bordered table-hover dataTables-example">
+                        <thead>
+                        <tr nowrap="nowrap" role="rows">
+                            <th>服务器IP地址</th>
+                            <th>主机名</th>
+                            <th>状态</th>
+                            <th>CPU</th>
+                            <th>IOWait</th>
+                            <th>LOAD15</th>
+                            <th>最近更新时间</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var site = "platform/server/"
+
+    function update() {
+        url = "/monitor/platform/server/update";
+        post({},url)
+        loadData();
+    }
+
+    function loadData(){
+        $("#listTable").dataTable({
+            "filter": true,//去掉搜索框
+            "ordering": false, // 是否允许排序
+            "paginationType": "full_numbers", // 页码类型
+            "destroy": true,
+            "processing": true,
+            "serverSide": true,
+            "scrollX": true, // 是否允许左右滑动
+            "displayLength": 10, // 默认长度
+            "ajax": { // 请求地址
+                "url": "/monitor/"+site+"/listData?t=" + new Date().getTime(),
+                "type": 'post'
+            },
+
+            "columns": [ // 数据映射
+                {"data": "ip", "mRender":function (data, type, full) {
+                    return "<a class='btn' onclick='window.open(\"/monitor/platform/server/graph?hostname="+full["hostname"]+"&ip="+data+"\")'>" +data + "</a>";
+                }},
+                {"data": "hostname", "mRender":function (data) {
+                    return data;
+
+                }},
+                {"data": "status","mRender":function (data) {
+                    k = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+                    if (data=="UP"){
+                        return '<span title="数据5分钟内更新正常" class="label label-primary">'+k+k+k+data+k+k+k+'</span>';
+                    }else{
+                        return '<span title="5分钟内没有接收到数据" class="label label-danger">'+k+k+k+data+k+k+'</span>';
+                    }
+                }},
+                {"data": "cpu","mRender":function (data) {
+                    css = " progress-bar"
+                    if(data>80){
+                        css = "progress-bar-danger"
+                    }
+
+                    html = '<div class="progress progress-small" title="使用'+data+'%" style="width:100%;margin:0px;height:18px;">'+
+                            '<div style="height: 18px;width: '+parseInt(data)+'%;" class="'+css+' ">' +
+                            '<font color="#000000">'+data+'%</font>' +
+                            '</div>'+
+                            '</div>'
+                    return html;
+                }},
+                {"data": "iowait","mRender":function (data) {
+                    css = " progress-bar"
+                    if(data>80){
+                        css = "progress-bar-danger"
+                    }
+                    html = '<div class="progress progress-small" title="使用'+data+'%" style="width:100%;margin:0px;height:18px;">'+
+                            '<div style="height: 18px;width: '+parseInt(data)+'%;" class="'+css+' ">' +
+                            '<font color="#000000">'+data+'%</font>' +
+                            '</div>'+
+                            '</div>'
+                    return html;
+                }},
+                {"data": "loadavg"},
+                {"data": "lastModifyTime","mRender":function (data) {
+                    return data?laydate.now(data, "YYYY-MM-DD hh:mm:ss"):"--";
+                }},
+            ],
+            "fnRowCallback": function (row, data) { // 每行创建完毕的回调
+                $(row).data('recordId', data.recordId);
+            }
+        });
+    }
+
+    loadData();
+
+</script>
+</body>
+</html>

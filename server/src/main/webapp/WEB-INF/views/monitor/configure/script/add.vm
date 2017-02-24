@@ -1,0 +1,379 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<body xmlns="http://www.w3.org/1999/html">
+<div class="modal fade" id="add_getui_config" tabindex="-1"
+     role="dialog" style="background-color: #FfFfFf; margin-top: 16px;"
+     data-backdrop="false">
+    <div class="modal-dialog"
+         style="margin-top: 0px; width: 70%; ">
+        <div class="modal-content"
+             style=" width: 100%; height: auto;">
+            <form>
+            <div class="modal-header" >
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title">&nbsp;&nbsp;监控脚本配置</h4>
+            </div>
+            <div class="">
+
+                    <div class="col-md-12" style="margin-top: 15px;">
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">脚本名称:</label>
+                            <div class="col-sm-9">
+                                <input type="text" name="fileName" placeholder="脚本文件名,不能包含特殊符号，英文,数字"
+                                       class="form-control"
+                                       value="$!{configs.fileName}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">脚本类型:</label>
+                            <div class="col-sm-9" title="agent:通过agent方式获取数据，脚本需要放到装有agent的机器上面
+proxy:通过代理方式访问监控数据,可以在指定的机器运行脚本
+local:脚本在监控主机执行,获取监控数据
+                            ">
+                                <select name="scriptType" class="form-control"
+                                        value="$!{configs.scriptType}">
+                                    <option value="1">agent</option>
+                                    <option value="3">local</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12" style="margin-top: 5px;">
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">监控名称:</label>
+                            <div class="col-sm-9">
+                                <input type="text" name="monitorName" placeholder="中文名称,比如监控磁盘大小" class="form-control"
+                                       value="$!{configs.monitorName}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12" style="margin-top: 5px;"></div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">参数1:</label>
+                            <div class="col-sm-9">
+                                <input type="text" name="arg1" class="form-control" placeholder="给脚本传递的第一个参数"
+                                       value="$!{configs.arg1}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">参数1描述:</label>
+                            <div class="col-sm-9">
+
+                                <input type="text" name="arg1comm" class="form-control" placeholder="给脚本传递的第一个参数的描述信息"
+                                       value="$!{configs.arg1comm}">
+                                <i class="fa fa-plus pull-right" id="add1" onclick="addArg(2)"
+                                   style="margin-top: -25px;">&nbsp;&nbsp;</i>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div id="addArg2" style="#if($configs.arg2.length()<1||!$configs.arg2) display: none;#end">
+                        <div class="col-md-12" style="margin-top: 5px;">
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">参数2:</label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="arg2" class="form-control" placeholder="给脚本传递的第二个参数"
+                                           value="$!{configs.arg2}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">参数2描述:</label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="arg2comm" class="form-control"
+                                           placeholder="给脚本传递的第二个参数的描述信息"
+                                           value="$!{configs.arg2comm}">
+                                    <i class="fa fa-plus pull-right" onclick="addArg(3)"
+                                       style="margin-top: -25px;margin-left: -20px;">&nbsp;&nbsp;</i>
+                                    <i class="fa fa-remove fa-pull-left " onclick="removeArg(2)"
+                                       style="margin-top: -25px;">&nbsp;&nbsp;</i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                        <div id="addArg3" style="#if($configs.arg3.length()<1||!$configs.arg3) display: none;#end">
+                        <div class="col-md-12" style="margin-top: 5px;">
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">参数3:</label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="arg3" class="form-control" placeholder="给脚本传递的第三个参数"
+                                           value="$!{configs.arg3}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">参数3描述:</label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="arg3comm" class="form-control"
+                                           placeholder="给脚本传递的第三个参数的描述信息"
+                                           value="$!{configs.arg3comm}">
+                                    <i class="fa fa-plus pull-right" id="add3" onclick="addArg(4)"
+                                       style="margin-top: -25px;">&nbsp;&nbsp;</i>
+                                    <i class="fa fa-remove fa-pull-left " onclick="removeArg(3)"
+                                       style="margin-top: -25px;">&nbsp;&nbsp;</i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="addArg4" style="#if($configs.arg4.length()<1||!$configs.arg4) display: none;#end">
+                        <div class="col-md-12" style="margin-top: 5px;">
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">参数4:</label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="arg4" class="form-control" placeholder="给脚本传递的第四个参数"
+                                           value="$!{configs.arg4}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">参数4描述:</label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="arg4comm" class="form-control"
+                                           placeholder="给脚本传递的第四个参数的描述信息"
+                                           value="$!{configs.arg4comm}">
+                                    <i class="fa fa-plus pull-right" onclick="addArg(5)" style="margin-top: -25px;">
+                                        &nbsp;&nbsp;</i>
+                                    <i class="fa fa-remove fa-pull-left " onclick="removeArg(4)"
+                                       style="margin-top: -25px;">&nbsp;&nbsp;</i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+            <div id="addArg5" style="#if($configs.arg5.length()<1||!$configs.arg5) display: none;#end">
+                <div class="col-md-12" style="margin-top: 5px;">
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">参数5:</label>
+                        <div class="col-sm-9">
+                            <input type="text" name="arg5" class="form-control" placeholder="给脚本传递的第五个参数"
+                                   value="$!{configs.arg5}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">参数5描述:</label>
+                        <div class="col-sm-9">
+                            <input type="text" name="arg5comm" class="form-control" placeholder="给脚本传递的第五个参数的描述信息"
+                                   value="$!{configs.arg5comm}">
+                            <i class="fa fa-plus pull-right" id="add5" onclick="addArg(6)" style="margin-top: -25px;">
+                                &nbsp;&nbsp;</i>
+                            <i class="fa fa-remove fa-pull-left " onclick="removeArg(5)" style="margin-top: -25px;">
+                                &nbsp;&nbsp;</i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="addArg6" style="#if($configs.arg6.length()<1||!$configs.arg6) display: none;#end">
+                <div class="col-md-12" style="margin-top: 5px;">
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">参数6:</label>
+                        <div class="col-sm-9">
+                            <input type="text" name="arg6" class="form-control" placeholder="给脚本传递的第六个参数"
+                                   value="$!{configs.arg6}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">参数6描述:</label>
+                        <div class="col-sm-9">
+                            <input type="text" name="arg6comm" class="form-control" placeholder="给脚本传递的第六个参数的描述信息"
+                                   value="$!{configs.arg6comm}">
+                            <i class="fa fa-plus pull-right" id="add6" onclick="addArg(7)" style="margin-top: -25px;">
+                                &nbsp;&nbsp;</i>
+                            <i class="fa fa-remove fa-pull-left " onclick="removeArg(6)" style="margin-top: -25px;">
+                                &nbsp;&nbsp;</i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="addArg7" style="#if($configs.arg7.length()<1||!$configs.arg7) display: none;#end">
+                <div class="col-md-12" style="margin-top: 5px;">
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">参数7:</label>
+                        <div class="col-sm-9">
+                            <input type="text" name="arg7" class="form-control" placeholder="给脚本传递的第七个参数"
+                                   value="$!{configs.arg7}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">参数7描述:</label>
+                        <div class="col-sm-9">
+                            <input type="text" name="arg7comm" class="form-control" placeholder="给脚本传递的第七个参数的描述信息"
+                                   value="$!{configs.arg7comm}">
+                            <i class="fa fa-plus pull-right" id="add7" onclick="addArg(8)" style="margin-top: -25px;">
+                                &nbsp;&nbsp;</i>
+                            <i class="fa fa-remove fa-pull-left " onclick="removeArg(7)" style="margin-top: -25px;">
+                                &nbsp;&nbsp;</i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="addArg8" style="#if($configs.arg8.length()<1||!$configs.arg8) display: none;#end">
+                <div class="col-md-12" style="margin-top: 5px;">
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">参数8:</label>
+                        <div class="col-sm-9">
+                            <input type="text" name="arg8" class="form-control" placeholder="给脚本传递的第八个参数"
+                                   value="$!{configs.arg8}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">参数8描述:</label>
+                        <div class="col-sm-9">
+                            <input type="text" name="arg8comm" class="form-control" placeholder="给脚本传递的第八个参数的描述信息"
+                                   value="$!{configs.arg8comm}">
+                            <i class="fa fa-remove fa-pull-left " onclick="removeArg(8)" style="margin-top: -25px;">
+                                &nbsp;&nbsp;</i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12" style="margin-top: 5px;"></div>
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label class="col-xs-2 control-label">脚本内容:</label>
+                    <div class="col-sm-10" style="margin-left: -5%;width: 88%;">
+                        <textarea rows="10"  id="script_content" title='#不限语言
+#脚本输出结果示例
+# 只需要将要监控的内容按照指定的输出格式编写脚本输出json格式,就完成监控
+
+# 参数说明
+groups:  数据组的名称,  比如内存的组可以叫 memory  , cpu 类型的叫 cpu
+
+name:    数据具体的名称 比如内存的totle， 就叫totle, cpu 的sys 就叫sys
+
+value:   数据产生的值   比如内存totle多大, value就写多少 一般按 mb 来统计 , cpu 的 sys使用率是多少 , value 就写 多少
+
+status: 1 2 3 4
+脚本运行后的状态， 对应monitor_severity 表的4个状态
+| severity_id | severity_name |
++-------------+---------------+
+|           1 | 正常          |
+|           2 | 危险          |
+|           3 | 警告          |
+|           4 | 未知          |
++-------------+---------------+
+
+messages:  脚本输出的信息，供参考使用
+
+command: 检查的脚本名称,就是脚本的名称, 比如memory.sh memory.py memory.pl
+
+json格式
+{"groups":"IO","name":"iowait","value":0.17,"status":1,"messages":"硬盘错误","command":"iowait.sh"}
+
+                        #脚本输出样例
+                        {"groups":"loadavg","name":"avg1","value":2,"status":0,"messages":"ok avg1 10","command":"loadavg.sh"}
+                        {"groups":"mysql","name":"maxConnect","value":7,"status":0,"messages":"ok","command":"mysql_connect.sh"}
+                        {"groups":"mysql","name":"testConnect","value":0,"status":1,"messages":"ERROR 2003 (HY000): Can (111)","command":"mysql_test_connect.sh"}
+                        {"groups":"oracle","name":"testConnect","value":0,"status":1,"messages":"connect to 10.16.123.1 port 1521 (tcp) failed: No route to host","command":"oracle_test_connect.sh"}' name="content" style="width:100%;margin:0px -48px 0px 0px;"
+                                  class="form-control">#if($configs.content)$!{configs.content}        #end
+                        </textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12" style="margin-top: 5px;"></div>
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">描述信息:</label>
+                    <div class="col-sm-10" style="margin-left: -5%;width: 88%;">
+                        <input type="text" name="description" class="form-control" id="script_description"
+                               value="$!{configs.description}">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12" style="margin-top: 5px;"></div>
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">是否有效:</label>
+                    <div class="col-sm-2">
+                        <div class="checkbox checkbox-primary checkbox-inline" style="margin-left: -30%;">
+                            <input type="checkbox" onchange="change(this)" name="isValid"
+                                   id="checkbox5"
+                                   class="form-control" #if( $configs.isValid == 1 )
+                                   checked   #end
+                                   value="#if($configs.isValid)$!{configs.isValid}#else 0 #end">
+                            <label for="checkbox5 control-label">&nbsp;</label></strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                <button style="margin-left: 87%;margin-top: 5px;margin-bottom: 10px;"
+                        onclick="saveConfig($!{configs.scriptsId});" class="btn btn-primary btn-lg" type="button">
+                    <i class="fa fa-check"></i>&nbsp;保存
+                </button>
+        </div>
+        </form>
+
+    </div>
+
+</div>
+</div>
+<script type="text/javascript">
+
+    function change(obj) {
+        value = $(obj).val();
+        if (value == 0) {
+            console.log(1);
+            $(obj).val(1);
+        } else {
+            console.log(0)
+            $(obj).val(0);
+        }
+    }
+    function addArg(id) {
+        $('#addArg' + id).show();
+    }
+    function removeArg(id) {
+        if(id<=8){
+            for(i =8;i>=id;i--){
+                $('#addArg' + i).hide();
+                $('input[name="arg'+i+'"]').val("")
+                $("input[name='arg"+i+"comm']").val("")
+            }
+        }
+    }
+</script>
+</body>

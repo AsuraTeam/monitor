@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.monitor.configure.dao.MonitorMessagesDao">
+    <sql id="baseSql">        select
+        messages_id as messagesId,
+        member as member,
+        messages_time as messagesTime,
+        a.server_id as serverId,
+        a.scripts_id as scriptsId,
+        c.monitor_name as monitorName,
+        a.groups_id as groupsId,
+        severtity_id as severtityId,
+        email as email,
+        mobile as mobile,
+        ding as ding,
+        alarm_count as alarmCount,
+        weixin as weixin,
+        messages as messages,
+        b.ip_address as ipAddress
+        from monitor_messages a,
+        cmdb_resource_server b,
+        monitor_scripts c
+        WHERE 1 = 1
+        and a.server_id = b.server_id
+        and a.scripts_id = c.scripts_id
+      </sql>
+    <select id="selectByAll" resultType="com.asura.monitor.configure.entity.MonitorMessagesEntity">
+             <include refid="baseSql" />
+        <if test="search != null">
+            and ( messages like concat("%",#{search},"%")
+            or mobile like concat("%",#{search},"%")
+            or email like concat("%",#{search},"%")
+            or weixin like concat("%",#{search},"%")
+            or ding like concat("%",#{search},"%")
+            or b.ip_address  like concat("%",#{search},"%")
+            )
+        </if>
+        order by  messages_id desc
+        </select>
+
+    <!--计算发送信息的次数-->
+    <select id="reportMessages" resultType="com.asura.monitor.configure.entity.MonitorMessagesEntity">
+        select substr(messages_time,1,10) as messagesTime ,
+           count(*) as cnt
+        from monitor_messages
+        where 1=1
+        <if test="mobile != null">
+            and  mobile != ""
+            and mobile is not NULL
+        </if>
+        <if test="ding != null">
+            and ding != ""
+            and ding is not NULL
+        </if>
+        <if test="weixin != null">
+            and weixin != ""
+            and weixin is not NULL
+        </if>
+        <if test="email != null">
+          and  email != ""
+          and email is not NULL
+        </if>
+          and messages_time &gt; #{start} and messages_time &lt; #{end}
+        group by 1 order by messages_id desc
+    </select>
+
+    <select id="findById" resultType="com.asura.monitor.configure.entity.MonitorMessagesEntity">
+        <include refid="baseSql" />
+        and  messages_id = #{messagesId}
+    </select>
+    <insert id="save" parameterType="com.asura.monitor.configure.entity.MonitorMessagesEntity">
+        insert into monitor_messages(
+            messages_id,
+            member,
+            messages_time,
+            server_id,
+            scripts_id,
+            groups_id,
+            severtity_id,
+            email,
+            mobile,
+            ding,
+            weixin,
+            alarm_count,
+            messages
+        ) 
+        values(        
+            #{messagesId},
+            #{member},
+            #{messagesTime},
+            #{serverId},
+            #{scriptsId},
+            #{groupsId},
+            #{severtityId},
+            #{email},
+            #{mobile},
+            #{ding},
+            #{weixin},
+            #{alarmCount},
+            #{messages}
+        )
+    </insert>
+
+</mapper>
+

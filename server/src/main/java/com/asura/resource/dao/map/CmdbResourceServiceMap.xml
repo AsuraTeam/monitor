@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.resource.dao.CmdbResourceServiceDao">
+    <sql id="sqlId">  service_id as serviceId,
+        service_name as serviceName,
+        create_time as createTime,
+        create_user as createUser,
+        last_modify_time as lastModifyTime,
+        last_modify_user as lastModifyUser</sql>
+    <select id="selectByAll" resultType="com.asura.resource.entity.CmdbResourceServiceEntity">
+        select
+        <include refid="sqlId"/>
+         from cmdb_resource_service 
+        </select>
+    <select id="findById" resultType="com.asura.resource.entity.CmdbResourceServiceEntity">
+        select
+        <include refid="sqlId"/>
+        from cmdb_resource_service
+        <where>
+            service_id=#{serviceId}
+        </where>
+    </select>
+
+    <insert id="save" parameterType="com.asura.resource.entity.CmdbResourceServiceEntity">
+        insert into cmdb_resource_service(
+            service_id,
+            service_name,
+            create_time,
+            create_user,
+            last_modify_user
+        ) 
+        values(        
+            #{serviceId},
+            #{serviceName},
+            #{createTime},
+            #{createUser},
+            #{lastModifyUser}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.resource.entity.CmdbResourceServiceEntity">
+        update cmdb_resource_service set   
+            service_id=#{serviceId},
+            service_name=#{serviceName},
+            create_time=#{createTime},
+            create_user=#{createUser},
+            last_modify_user=#{lastModifyUser}
+         where    service_id=#{serviceId}
+    </update>
+
+</mapper>
+

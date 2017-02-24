@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>报警处理进度</title><body class="gray-bg top-navigation">
+    #include("/index/include.vm")
+
+<div id="">
+    <div id="page-wrapper" class="gray-bg">
+        #include("/index/header.vm")
+<div id="addConfig"></div>
+<body>
+
+<div class=" animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox-title"  >
+                <div class="container">
+                    <div class="col-md-6" style="margin-left: -10%;margin-top: -10px;">
+                         <h2 >最近3小时报警处理状态</h2>
+                        </div>
+                    <div class="col-md-6" style="margin-left: 68%;margin-top: -35px;">
+                        <label class="col-sm-4 control-label" style="font-size: 18px;">任务状态选择</label>
+                        <div class="col-md-6">
+                        <select class='form-control' onchange='loadData($(this).val())'>
+                     <option value='0'>未处理</option>
+                    <option value='1'>开始处理</option>
+                    <option value='2'>处理中</option>
+                    <option value='3'>处理完成</option>
+                    <option value='4'>自动恢复</option>
+                    </select>
+                            </div>
+                    </div>
+                    </div>
+            </div>
+            <div class="ibox float-e-margins">
+                <div class="ibox-content" style="overflow:scroll;">
+                    <table id="listTable"
+                           class="table  table-bordered table-hover dataTables-example">
+                        <thead>
+                        <tr nowrap="nowrap" role="rows">
+                            <th>服务器IP地址</th>
+                            <th>指标名称</th>
+                            <th>报警状态</th>
+                            <th>持续时长</th>
+                            <th>开始时间</th>
+                            <th>处理状态</th>
+                            <th>执行处理</th>
+                            <th>处理人</th>
+                            <th>最近时间</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var site = "platform/alarm/"
+
+    function change_alarm(reportId, changeStatus) {
+        url = "/monitor/"+site+"changeAlarm";
+        post({reportId:reportId, changeStatus:changeStatus},url)
+        parent.layer.msg("已经提交操作",  {icon:1})
+        loadData("");
+    }
+    function getTime(time) {
+        return (time+"").split(".")[0]
+    }
+
+    function loadData(changeStatus){
+        $("#listTable").dataTable({
+            "filter": true,//去掉搜索框
+            "ordering": false, // 是否允许排序
+            "paginationType": "full_numbers", // 页码类型
+            "destroy": true,
+            "processing": true,
+            "serverSide": true,
+            "scrollX": true, // 是否允许左右滑动
+            "displayLength": 10, // 默认长度
+            "ajax": { // 请求地址
+                "url": "/monitor/"+site+"/listData?t=" + new Date().getTime()+"&changeStatus="+changeStatus,
+                "type": 'post'
+            },
+
+            "columns": [ // 数据映射
+                {"data": "ipAddress", "mRender":function (data, type, full) {
+                    return "<a class='text-info' onclick='window.open(\"/monitor/platform/server/graph?ip="+data+"\")'>" +data + "</a>";
+                }},
+                {"data":"indexName","mRender": function (data, type, full) {
+                    data =  data.replace(/SLASH/g, "/");
+                    ip = full["ipAddress"]
+                    index = data.split(".")
+                    groups = index[0]
+                    name = ""
+                    for (i=1;i<index.length;i++){
+                        name += index[i] +"."
+                    }
+                    name = name.substring(1, name.length-1);
+                    name = name.replace(/\//g,"SLASH")
+                    return "<a class='' onclick='window.open(\"/monitor/graph/all/index?ip="+ip+"&select="+groups+"|"+name+"&width=100\")'>" +data + "</a>";
+
+                }},
+                {"data": "severityId","mRender":function (data) {
+                    k = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+                    if (data=="3"){
+                        return '<span title="监控为警告状态" class="label label-warning">'+k+k+k+"警告"+k+k+k+'</span>';
+                    }
+                    if (data=="2"){
+                        return '<span title="监控为危险状态" class="label label-danger">'+k+k+k+"危险"+k+k+'</span>';
+                    }
+                }},
+                {"data": "reportId","mRender":function (data, type, full) {
+                            startTime = Date.parse(new Date(full["startTime"])) / 1000;
+                            alarmTime = Date.parse(new Date(full["alarmTime"])) / 1000;
+                            time = (alarmTime - startTime) / 60;
+                             if (time > 60 ){
+                                 return getTime(time / 60) + "小时" + getTime(time % 60) +  "分钟"
+                             }else{
+                                 return getTime(time) + "分钟";
+                             }
+
+                }},
+                {"data":"startTime"},
+                {"data": "changeStatus","mRender":function (data) {
+                   if (data=="1"){
+                       return "<font color='#7fffd4'>开始处理</font>";
+                   }
+                    if (data=="2"){
+                        return "<font color='#faebd7'>处理中</font>";
+                    }
+                    if (data=="3"){
+                        return "<font color='#adff2f'>处理完成</font>";
+                    }
+                    if (data=="4"){
+                        return "<font color='#7fff00'>自动恢复</font>";
+                    }
+                    return "<font color='red' ><b>未处理</b></font>"
+                }},
+                {"data": "reportId","mRender":function (data, type, full) {
+
+                       html = "<select class='form-control btn btn-outline btn-default' onchange='change_alarm("+data+",$(this).val())'>"+
+                               "<option value='1'>开始处理</option>"+
+                               "<option value='2'>处理中</option>"+
+                               "<option value='3'>处理完成</option>"+
+                               "</select>"
+                    if(full["changeStatus"] != "3" && full["changeStatus"] != "4" ){
+                        return html;
+                    }
+                     return "<span title='已处理结束' class='form-control btn btn-outline btn-primary'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;已终止&nbsp;&nbsp;&nbsp;&nbsp;</span>";
+                }},
+                {"data": "operator"},
+                {"data": "alarmTime","mRender":function (data) {
+                    return data;
+//                    return data?laydate.now(data, "YYYY-MM-DD hh:mm:ss"):"--";
+                }},
+            ],
+            "fnRowCallback": function (row, data) { // 每行创建完毕的回调
+                $(row).data('recordId', data.recordId);
+            }
+        });
+    }
+
+    loadData("");
+
+</script>
+</body>
+</html>

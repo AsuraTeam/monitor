@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登陆</title><body class="gray-b1g top-navigation">
+    #include("/index/include.vm")
+
+<div id="">
+    <div id="page-wrapper" class="gray-1bg">
+        #include("/index/header.vm")
+        <div id="addConfig"></div>
+<title>登录</title>
+    <link rel="shortcut icon" href="favicon.ico"> <link href="/static/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="/static/css/font-awesome.css?v=4.4.0" rel="stylesheet">
+
+    <link href="/static/css/animate.css" rel="stylesheet">
+    <link href="/static/css/style.css?v=4.1.0" rel="stylesheet">
+    <!-- 全局js -->
+    <script src="/static/js/jquery.min.js?v=2.1.4"></script>
+    <script src="/static/js/public.js"></script>
+    <!--[if lt IE 9]>
+    <meta http-equiv="refresh" content="0;ie.html" />
+    <![endif]-->
+    <script>if(window.top !== window.self){ window.top.location = window.location;}</script>
+</head>
+
+<body class="gray-b1g top-navigation" >
+    <div class="middle-box text-center loginscreen  animated fadeInDown" style="margin-left:60%;" >
+        <div style="margin-top:50%;">
+            <h1 class="logo-name"></h1>
+                <h2 class="">可视化平台</h2>
+            <h3>欢迎使用</h3>
+
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="用户名" required="" id="login_name">
+                </div>
+                <div class="form-group">
+                    <input type="password"  class="form-control" placeholder="密码" required="" id="login_pwd">
+                </div>
+                <div class="loginbox-forgot form-group">
+                </div>
+                <button type="submit" title="登陆" class="btn btn-primary block full-width m-b" onclick="login()">登 录</button>
+
+
+                <p class="text-muted text-center"> <a href="#"><small>使用OA用户进行登录</small></a>
+                </p>
+
+        </div>
+    </div>
+
+
+    <script>
+        //将页面写入到右面的框架里
+        function login(){
+           setTimeout(function(){
+           url = "/login.do";
+           data = {username:$("#login_name").val(),
+                   password:$("#login_pwd").val()}
+           result = post(data,url);
+           if(result==true)
+           {
+               window.location.href="/"
+           }else{
+                $(".loginbox-forgot").html("<font color=red>用户或密码错误</font>");
+           }
+           },2000)
+        }
+
+        document.onkeydown=function(event){
+            var e = event || window.event || arguments.callee.caller.arguments[0];
+            if(e && e.keyCode==27){ // 按 Esc 
+                //要做的事情
+              }
+            if(e && e.keyCode==113){ // 按 F2 
+                 //要做的事情
+               }            
+             if(e && e.keyCode==13){ // enter 键
+                   login();
+            }
+       }; 
+    </script>
+</body>
+</div>
+</html>

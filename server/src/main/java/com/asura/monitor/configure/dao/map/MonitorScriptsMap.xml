@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.monitor.configure.dao.MonitorScriptsDao">
+    <sql id="baseSql">       select
+        scripts_id as scriptsId,
+        last_modify_time as lastModifyTime,
+        last_modify_user as lastModifyUser,
+        is_valid as isValid,
+        alarm_mess as alarmMess,
+        file_name as fileName,
+        content as content,
+        recover_mess as recoverMess,
+        description as description,
+        monitor_name as monitorName,
+        arg1 as arg1,
+        arg2 as arg2,
+        arg3 as arg3,
+        arg4 as arg4,
+        arg5 as arg5,
+        arg6 as arg6,
+        arg7 as arg7,
+        arg8 as arg8,
+        arg8comm as arg8comm,
+        arg7comm as arg7comm,
+        arg6comm as arg6comm,
+        arg5comm as arg5comm,
+        arg4comm as arg4comm,
+        arg3comm as arg3comm,
+        arg2comm as arg2comm,
+        arg1comm as arg1comm,
+        anew as anew,
+        isrecover as isrecover
+        from monitor_scripts </sql>
+
+    <select id="selectByAll" resultType="com.asura.monitor.configure.entity.MonitorScriptsEntity">
+        <include refid="baseSql"/>
+        WHERE  1 = 1
+        <if test="scriptsId != null">
+           and scripts_id = #{scriptsId}
+        </if>
+        <if test="key !=null">
+            and (
+            description like concat("%",#{key},"%") or
+            file_name like concat("%",#{key},"%") or
+            monitor_name like concat("%",#{key},"%")
+            )
+        </if>
+        order by scripts_id desc
+        </select>
+
+
+    <select id="selectMaxId"  parameterType="int" resultType="com.asura.monitor.configure.entity.MonitorScriptsEntity">
+        select max(scripts_id) as scriptsId from monitor_scripts
+    </select>
+
+    <select id="findById" resultType="com.asura.monitor.configure.entity.MonitorScriptsEntity">
+        <include refid="baseSql"/>
+        where    scripts_id=#{scriptsId}
+    </select>
+
+    <insert id="save" parameterType="com.asura.monitor.configure.entity.MonitorScriptsEntity">
+        insert into monitor_scripts(
+            scripts_id,
+            last_modify_time,
+            last_modify_user,
+            is_valid,
+            alarm_mess,
+            file_name,
+            content,
+            recover_mess,
+            description,
+            monitor_name,
+            arg1,
+            arg2,
+            arg3,
+            arg4,
+            arg5,
+            arg6,
+            arg7,
+            arg8,
+            arg8comm,
+            arg7comm,
+            arg6comm,
+            arg5comm,
+            arg4comm,
+            arg3comm,
+            arg2comm,
+            arg1comm,
+            anew,
+            isrecover
+        ) 
+        values(        
+            #{scriptsId},
+            #{lastModifyTime},
+            #{lastModifyUser},
+            #{isValid},
+            #{alarmMess},
+            #{fileName},
+            #{content},
+            #{recoverMess},
+            #{description},
+            #{monitorName},
+            #{arg1},
+            #{arg2},
+            #{arg3},
+            #{arg4},
+            #{arg5},
+            #{arg6},
+            #{arg7},
+            #{arg8},
+            #{arg8comm},
+            #{arg7comm},
+            #{arg6comm},
+            #{arg5comm},
+            #{arg4comm},
+            #{arg3comm},
+            #{arg2comm},
+            #{arg1comm},
+            #{anew},
+            #{isrecover}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.monitor.configure.entity.MonitorScriptsEntity">
+        update monitor_scripts set   
+            scripts_id=#{scriptsId},
+            last_modify_time=#{lastModifyTime},
+            last_modify_user=#{lastModifyUser},
+            is_valid=#{isValid},
+            alarm_mess=#{alarmMess},
+            file_name=#{fileName},
+            content=#{content},
+            recover_mess=#{recoverMess},
+            description=#{description},
+            monitor_name=#{monitorName},
+            arg1=#{arg1},
+            arg2=#{arg2},
+            arg3=#{arg3},
+            arg4=#{arg4},
+            arg5=#{arg5},
+            arg6=#{arg6},
+            arg7=#{arg7},
+            arg8=#{arg8},
+            arg8comm=#{arg8comm},
+            arg7comm=#{arg7comm},
+            arg6comm=#{arg6comm},
+            arg5comm=#{arg5comm},
+            arg4comm=#{arg4comm},
+            arg3comm=#{arg3comm},
+            arg2comm=#{arg2comm},
+            arg1comm=#{arg1comm},
+            anew=#{anew},
+            isrecover=#{isrecover}
+         where    scripts_id=#{scriptsId}
+    </update>
+
+</mapper>
+

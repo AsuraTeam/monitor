@@ -1,0 +1,143 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>web日志访问分析配置</title><body class="gray-bg top-navigation">
+    #include("/index/include.vm")
+
+<div id="">
+    <div >
+        #include("/index/header.vm")
+<div id="addConfig"></div>
+<body>
+<div class=" animated fadeInRight">
+    <div class="row" style="background-color: #ffffff;">
+        <div class="col-sm-12" >
+            <div class="ibox float-e-margins" style="background-color:#f0f0f0; ">
+                    <div class="col-md-4 " style="margin-left: -5px;">
+            <span>#if($ip)$!{ip}#else
+                <script>
+                  url = "/resource/configure/groups/listData?draw=1&length=1000&start=1";
+                  result = post({},url);
+                  data = result["data"]
+                  html = "<select style='height: 32px;border: none;margin-top: 2px;;' id='groupsDataId' onchange='loadData()'>"
+                  html += "<option value=''>业务线选择</option>"
+                  for(i=0;i<data.length;i++){
+                      html += "<option value='"+data[i]["groupsName"]+"'>"+data[i]["groupsName"]+"</option>"
+                  }
+                  html += "</select>"
+                  document.write(html)
+              </script>
+            #end
+                &nbsp;</span>
+                    </div>
+
+                    <div class="input-group col-md-6 pull-right" >
+                        <span class="input-group-addon">时间(<font color="red">单天选择</font>)：</span>
+                        <input type="text" class="form-control" id="startSendTime" name="startSendTime">
+                        <span class="input-group-addon">-</span>
+                        <input type="text" class="form-control" id="endSendTime" name="endSendTime">
+
+                    </div>
+                </div>
+                <div class="ibox-content" style="overflow:scroll;margin-top: -40px;">
+                    <table id="listTable"
+                           class="table  table-bordered table-hover dataTables-example">
+                        <thead>
+                        <tr nowrap="nowrap" role="rows">
+                            <th>业务线</th>
+                            <th>负责人</th>
+                            <th>域名</th>
+                            <th>url</th>
+                            <th>访问时间</th>
+                            <th>总响应时间</th>
+                            <th>后端响应时间</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    site  = "/log/analyze/time/";
+
+    function loadData(){
+        start = $('#startSendTime').val()
+        end = $('#endSendTime').val()
+        groupsName = $('#groupsDataId').val()
+        if(!start){
+            start = ""
+        }
+        if(!end){
+            end = ""
+        }
+        if(!groupsName){
+            groupsName = ""
+        }
+
+
+        $("#listTable").dataTable({
+            "filter": true,//去掉搜索框
+            "ordering": false, // 是否允许排序
+            "paginationType": "full_numbers", // 页码类型
+            "destroy": true,
+            "processing": true,
+            "serverSide": true,
+            "scrollX": true, // 是否允许左右滑动
+            "displayLength": 10, // 默认长度
+            "ajax": { // 请求地址
+                "url": site + "listData?t=" + new Date().getTime()+"&startT="+start+"&endT="+end+"&groupsName="+groupsName,
+                "type": 'post'
+            },
+
+            "columns": [ // 数据映射
+                {"data": "groupsName"},
+                {"data": "userName"},
+                {"data": "domain"},
+                {"data": "url"},
+                {"data": "accessTime"},
+                {"data": "upstreamResponseTime"},
+                {"data": "requestTime"},
+            ],
+            "fnRowCallback": function (row, data) { // 每行创建完毕的回调
+                $(row).data('recordId', data.recordId);
+            }
+        });
+    }
+
+    loadData();
+    /** 时间插件
+     *
+     */
+    var startSendTime = {
+        elem: '#startSendTime',
+        choose: function (data) {
+            endSendTime.min = data;
+            endSendTime.start = data;
+            if($('#endSendTime').val()){
+                loadData();
+            }
+        }
+    }
+
+    var endSendTime = {
+        elem: '#endSendTime',
+        choose: function (data) {
+            startSendTime.max = data;
+            if($('#startSendTime').val()){
+                loadData();
+            }
+
+        }
+    }
+    laydate(startSendTime);
+    laydate(endSendTime);
+</script>
+</body>
+</html>

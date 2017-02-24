@@ -1,0 +1,246 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>指标报警配置</title><body class="gray-bg top-navigation">
+    #include("/index/include.vm")
+   <script type="application/javascript" src="/static/js/monitor.js"></script>
+<div id="">
+    <div id="page-wrapper" class="gray-bg">
+        #include("/index/header.vm")
+<div id="addConfig"></div>
+<body>
+<div class="modal fade" id="show_ip_address" tabindex="-1"
+     role="dialog" style="background-color: #FfFfFf; margin-top: 16px;"
+     data-backdrop="false">
+    <div class="modal-dialog"
+         style="margin-top: 0px; width: 50%; ">
+        <div class="modal-content"
+             style="height: auto; overflow-y:scroll;width: 100%; ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title">&nbsp;&nbsp;<span id="addressNetworkId"></span>已拥有hosts地址</h4>
+            </div>
+            <div  id="show_ip_detail_html" style="margin-bottom: 20px;">
+                加载中...
+            </div>
+            <div style="margin-top:120px;">&nbsp;</div>
+        </div>
+    </div>
+
+</div>
+
+<div class="modal fade" id="show_cache" tabindex="-1"
+     role="dialog" style="background-color: #FfFfFf; margin-top: 16px;"
+     data-backdrop="false">
+    <div class="modal-dialog"
+         style="margin-top: 0px; width: 50%; ">
+        <div class="modal-content"
+             style="height: auto; overflow-y:scroll;width: 100%; ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title">&nbsp;&nbsp;缓存数据查看</h4>
+            </div>
+            <div  id="show_cache_detail_html"  rows="15" style="margin-bottom: 0px;width: 100%;">
+                加载中...
+            </div>
+            <div style="margin-top:12px;">&nbsp;</div>
+        </div>
+    </div>
+</div>
+
+<div class=" animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <button class="btn btn-success " type="button"
+                            onclick="addConfig();">
+                        <i class="fa fa-upload"></i>&nbsp;&nbsp;<span class="bold">添加</span>
+                    </button>
+                    <button class="btn btn-outline btn-primary " type="button"
+                            onclick="window.location='/monitor/setCache'">
+                        <i class="fa fa-heart-o"></i>&nbsp;&nbsp;<span class="bold">生成缓存</span>
+                    </button>
+                </div>
+                <div class="ibox-content" style="overflow:scroll;">
+                    <table id="listTable"
+                           class="table  table-bordered table-hover dataTables-example">
+                        <thead>
+                        <tr nowrap="nowrap" role="rows">
+                            <th>指标名称</th>
+                            <th>大于</th>
+                            <th>等于</th>
+                            <th>小于</th>
+                            <th>不等于</th>
+                            <th>是否排除报警</th>
+                            <th>服务器地址</th>
+                            <th>编辑/删除</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var site = "index/alarm"
+    function addConfig(id){
+        if(!id){
+            id=0;
+        }
+        url = "/monitor/"+site+"/add";
+        html = post({id:id}, url);
+        $('#addConfig').html(html);
+        $('#add_getui_config').modal('toggle');
+        if(!id){
+            $('#inlineCheckbox1').attr("checked",true);
+            $('#inlineCheckbox2').attr("checked",true);
+            $('#inlineCheckbox3').attr("checked",true);
+            $('#inlineCheckbox4').attr("checked",true);
+            $('#checkbox5').attr("checked",true);
+        }
+    }
+
+    function deleteConfig(id){
+
+        url = "/monitor/"+site+"/delete";
+        parent.layer.confirm("点击同意后,将删除数据", {
+            btn: ['同意','不同意'], //按钮
+            shade: false//不显示遮罩
+        }, function(){
+            result = post({id:id}, url);
+            parent.layer.msg(JSON.stringify(result),  {icon:1})
+            location.reload();
+        }, function(){
+            parent.layer.msg("取消操作",  {icon:2})
+        });
+
+    }
+
+    /**
+     * 获取多选的值
+     */
+    function getMutilSelect(id,t) {
+        to = $('#'+id).html().replace(/<option value="/g,"");
+        to = to.replace(/<\/option>/g," ");
+        to = to.replace(/"/g,"")
+        to = to.replace(/>/g," ")
+        to_hosts = to.split(" ")
+        hosts_ip = ""
+        hosts = ""
+        for(i=0;i<to_hosts.length;i++){
+            if(t) {
+                if (to_hosts[i].indexOf(".") != -1) {
+                    hosts_ip += to_hosts[i] + ",";
+                } else {
+                    hosts += to_hosts[i] + ",";
+                }
+            }else{
+                if(!isNaN(to_hosts[i])) {
+                    hosts += to_hosts[i] + ",";
+                }
+            }
+        }
+        hosts_ip = hosts_ip.substring(0,hosts_ip.length-1)
+        hosts = hosts.substring(0,hosts.length-2)
+        return [hosts.replace(/[\r\n]/g,"").trim().replace(/[ ]/g,"").replace(/\ +/), hosts_ip]
+    }
+
+    function saveConfig(id){
+        data = get_form_data();
+        if(id){
+            data["alarmId"] = id;
+        }
+
+        // 处理报警接收人的数据
+        if(data["isWeixin"].trim()=="1" && data["isDing"].trim() == "1" && data["isMobile"].trim() == "1" && data["isEmail"].trim() == "1"){
+            $('#undo_contact_weixin_mobile_redo_to').html("")
+            $('#undo_contact_group_mobile_redo_to').html("")
+            $('#undo_contact_group_redo_to').html("")
+            $('#undo_contact_ding_mobile_redo_to').html("")
+        }else{
+            $('#undo_contact_all_redo_to').html("")
+        }
+
+        data["weixinGroups"] = getMutilSelect("undo_contact_weixin_mobile_redo_to")[0]
+        data["mobileGroups"] = getMutilSelect("undo_contact_group_mobile_redo_to")[0]
+        data["emailGroups"] = getMutilSelect("undo_contact_group_redo_to")[0]
+        data["dingGroups"] = getMutilSelect("undo_contact_ding_mobile_redo_to")[0]
+        data["allGroups"] = getMutilSelect("undo_contact_all_redo_to")[0]
+
+
+        url = "/monitor/"+site+"/save";
+        result = post(data, url);
+        parent.layer.msg(JSON.stringify(result),  {icon:1});
+        $('#listTable').dataTable().fnReloadAjax();
+    }
+
+    function loadData(groupsName){
+        if(!groupsName){
+            groupsName = ""
+        }
+        $("#listTable").dataTable({
+            "filter": true,//去掉搜索框
+            "ordering": false, // 是否允许排序
+            "paginationType": "full_numbers", // 页码类型
+            "destroy": true,
+            "processing": true,
+            "serverSide": true,
+            "scrollX": true, // 是否允许左右滑动
+            "displayLength": 10, // 默认长度
+            "ajax": { // 请求地址
+                "url": "/monitor/"+site+"/listData?t=" + new Date().getTime()+"&groupsName="+groupsName,
+                "type": 'post'
+            },
+
+            "columns": [ // 数据映射
+                {"data": "indexName","mRender":function (data) {
+                  return data.replace(/SLASH/g,"/");
+                }},
+                {"data": "gtValue"},
+                {"data": "eqValue"},
+                {"data": "ltValue"},
+                {"data": "notEqValue"},
+                {"data": "isAlarm","mRender":function (data) {
+                    if(data=="0"){
+                        return "<span style='color:green'>是</span>";
+                    }else {
+                        return "<span style='color:red'>否</span>";
+                        "";
+                    }
+                }},
+                {"data": "ipAddress"},
+                {"sWidth": "150px", "data": "alarmId", "mRender": function(data, type, full) {
+                    return '<button type="button" onclick="addConfig('+data+')" class="btn btn-sm btn-warning">编辑</button>&nbsp;'+
+                           '<button type="button" onClick="deleteConfig('+data+')" class="btn btn-sm btn-danger">删除</button>';
+                }
+                },
+            ],
+            "fnRowCallback": function (row, data) { // 每行创建完毕的回调
+                $(row).data('recordId', data.recordId);
+            }
+        });
+    }
+
+    loadData();
+    // 查看模板的缓存信息
+    function show_cache(name){
+        url = "/monitor/"+site+"/getCache";
+        html = post({name:name}, url);
+        $('#show_cache_detail_html').html(syntaxHighlight(JSON.stringify(html)));
+        $('#show_cache').modal("toggle")
+    }
+
+</script>
+</body>
+</html>

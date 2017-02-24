@@ -1,0 +1,141 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>流量信息</title>
+
+    #include("/index/include.vm")
+
+    <style>
+        table th {
+            word-break: keep-all;
+            white-space: nowrap;
+        }
+
+        table td {
+            word-break: keep-all;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body class="top-navigation">
+<div id="wrapp11er">
+    <div id="page-wrapp1er" class="gray-bg">
+        #include("/index/header.vm")
+        <div class="w1rapper" style="padding: 0px;">
+                <div class="row" style="margin-left: -15px;margin-right: -26px;">
+                    <div class="col-sm-4">
+                        <div class=" float-e-margins">
+                            <div class="ibox-title" style="margin-left: 0px;border-style:none">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">业务线选择：</span>
+                                        <select onchange="loadData($(this).val())" name="status" id="status"
+                                                class="form-control">
+                                            <option value="">#if($status)$status#else 请选择 #end </option>
+                                            #foreach( $conf in $groups )
+                                                <option
+                                                        value='$!{conf.groupsName}'>
+                                                    $!{conf.groupsName}
+                                                </option>
+                                            #end
+                                        </select>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                </div>
+        </div>
+
+            <div class="col-sm-12" style="margin-top:10px">
+                                <table id="listTable"
+                                       class="table  table-bordered table-hover dataTables-example">
+                                    <thead>
+                                    <tr role="rows">
+                                        <th >所属业务线</th>
+                                        <th >主机名</th>
+                                        <th >ip地址</th>
+                                        <th >接收</th>
+                                        <th >发送</th>
+                                        <th >最近修改时间</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+
+                function loadData(groups, name,ip) {
+                    if (!groups) {
+                        groups = "";
+                    }else{
+                        $('#status').val(groups);
+                    }
+                    if (!name) {
+                        name = "";
+                    }
+                    if (!ip) {
+                        ip = "";
+                    }
+                    $("#listTable").dataTable({
+                        "filter": true,//去掉搜索框
+                        "ordering": false, // 是否允许排序
+                        "paginationType": "full_numbers", // 页码类型
+                        "destroy": true,
+                        "processing": false,
+                        "serverSide": true,
+                        "scrollX": true, // 是否允许左右滑动
+                        "displayLength": 10, // 默认长度
+                        "ajax": { // 请求地址
+                            "url": "/monitor/platform/server/serverData?datas=traffic|system.net.bytes.rcvd.eth0,traffic|system.net.bytes.send.eth0&t=" + new Date().getTime() + "&groups="+groups+"&name=" + name+"&ip="+ip,
+                            "type": 'post'
+                        },
+
+                        "columns": [ // 数据映射
+                            {"data": "groupsName","mRender":function (data) {
+                                return '<span onclick="loadData(\''+data+'\',\'\',\'\')">'+data+'</span>'
+                            }},
+                            {"data": "hostname","mRender":function (data) {
+                                return '<span onclick="loadData(\''+data+'\',\'\',\'\')">'+data+'</span>'
+                            }},
+                            {"data": "ip","mRender":function (data) {
+                                return '<span onclick="loadData(\'\',\'\',\''+data+'\')">'+data+'</span><span title="点击到报表页面" style="margin-left:10px;" onClick="window.open(\'/monitor/graph/all/index?select=traffic|system.net.bytes.rcvd.eth0,traffic|system.net.bytes.send.eth0&ip='+data+'\')" class="close-link"><i style="color:#BEBEBE;margin-top:-3px;font-size:15px;" class="fa fa-line-chart"></i> </span>'
+                            }},
+                            {"data": "data1","mRender":function (data) {
+                                return data;
+                            }},
+                            {"data": "data2","mRender":function (data) {
+                               return data;
+                            }},
+                            {"data": "lastModifyTime","mRender":function (data) {
+                                return data?laydate.now(data, "YYYY-MM-DD hh:mm:ss"):"--";
+                            }},
+                        ],
+                        "fnRowCallback": function (row, data) { // 每行创建完毕的回调
+                            $(row).data('recordId', data.recordId);
+                        }
+                    });
+                }
+
+                loadData();
+
+
+                function changeView(roleId) {
+
+                }
+
+            </script>
+            </div>
+        </div>
+    </div>
+</body>
+#include("/index/footer.vm")
+</html>
+

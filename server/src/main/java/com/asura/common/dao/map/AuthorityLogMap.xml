@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.common.dao.AuthorityLogDao">
+    <select id="selectByAll" resultType="com.asura.common.entity.AuthorityLogEntity">
+        select 
+            log_id as logId,
+            ip as ip,
+            user as user,
+            time as time,
+            info as info
+         from authority_log 
+        </select>
+
+    <insert id="save" parameterType="com.asura.common.entity.AuthorityLogEntity">
+        insert into authority_log(
+            ip,
+            user,
+            time,
+            info
+        ) 
+        values(        
+            #{ip},
+            #{user},
+            #{time},
+            #{info}
+        )
+    </insert>
+
+</mapper>
+

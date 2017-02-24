@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.monitor.configure.dao.MonitorMessageChannelDao">
+    <sql id="baseSql">
+                select
+            channel_id as channelId,
+            channel_tp as channelTp,
+            channel_script as channelScript,
+            last_modify_time as lastModifyTime,
+            last_modify_user as lastModifyUser,
+            is_valid as isValid,
+            smtp_server as smtpServer,
+            smtp_user as smtpUser,
+            smtp_pass as smtpPass,
+            smtp_auth as smtpAuth,
+            mail_template as mailTemplate,
+            smtp_sender as smtpSender,
+            ding_corp_id as dingCorpId,
+            ding_secret_id as dingSecretId,
+            ding_agent_id as dingAgentId,
+            weixin_corp_id as weixinCorpId,
+            weixin_secret_id as weixinSecretId,
+            weixin_encoding_AESKey as weixinEncodingAESKey,
+            weixin_wechat_token as weixinWechatToken,
+            weixin_app_secret as weixinAppSecret,
+            weixin_app_id as weixinAppId
+         from monitor_message_channel
+    </sql>
+    <select id="selectByAll" resultType="com.asura.monitor.configure.entity.MonitorMessageChannelEntity">
+      <include refid="baseSql"/>
+    </select>
+
+    <select id="findById" resultType="com.asura.monitor.configure.entity.MonitorMessageChannelEntity">
+        <include refid="baseSql"/>
+        WHERE
+        channel_id = #{channel_id}
+    </select>
+
+    <insert id="save" parameterType="com.asura.monitor.configure.entity.MonitorMessageChannelEntity">
+        insert into monitor_message_channel(
+            channel_tp,
+            channel_script,
+            last_modify_time,
+            last_modify_user,
+            is_valid,
+            smtp_server,
+            smtp_user,
+            smtp_pass,
+            smtp_auth,
+            mail_template,
+            smtp_sender,
+            ding_corp_id,
+            ding_secret_id,
+            ding_agent_id,
+            weixin_corp_id,
+            weixin_secret_id,
+            weixin_encoding_AESKey,
+            weixin_wechat_token,
+            weixin_app_secret,
+            weixin_app_id
+        ) 
+        values(        
+            #{channelTp},
+            #{channelScript},
+            #{lastModifyTime},
+            #{lastModifyUser},
+            #{isValid},
+            #{smtpServer},
+            #{smtpUser},
+            #{smtpPass},
+            #{smtpAuth},
+            #{mailTemplate},
+            #{smtpSender},
+            #{dingCorpId},
+            #{dingSecretId},
+            #{dingAgentId},
+            #{weixinCorpId},
+            #{weixinSecretId},
+            #{weixinEncodingAESKey},
+            #{weixinWechatToken},
+            #{weixinAppSecret},
+            #{weixinAppId}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.monitor.configure.entity.MonitorMessageChannelEntity">
+        update monitor_message_channel set   
+
+            channel_tp=#{channelTp},
+            channel_script=#{channelScript},
+            last_modify_time=#{lastModifyTime},
+            last_modify_user=#{lastModifyUser},
+            is_valid=#{isValid},
+            smtp_server=#{smtpServer},
+            smtp_user=#{smtpUser},
+            smtp_pass=#{smtpPass},
+            smtp_auth=#{smtpAuth},
+            mail_template=#{mailTemplate},
+            smtp_sender=#{smtpSender},
+            ding_corp_id=#{dingCorpId},
+            ding_secret_id=#{dingSecretId},
+            ding_agent_id=#{dingAgentId},
+            weixin_corp_id=#{weixinCorpId},
+            weixin_secret_id=#{weixinSecretId},
+            weixin_encoding_AESKey=#{weixinEncodingAESKey},
+            weixin_wechat_token=#{weixinWechatToken},
+            weixin_app_secret=#{weixinAppSecret},
+            weixin_app_id=#{weixinAppId}
+         where          channel_id=#{channelId}
+    </update>
+
+</mapper>
+

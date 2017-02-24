@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.monitor.report.dao.MonitorReportSendDao">
+    <sql id="baseSql">
+            select
+            send_id as sendId,
+            a.groups_id as groupsId,
+            b.groups_name as groupsName,
+            emails as emails,
+            a.last_modify_user as lastModifyUser,
+            a.last_modify_time as lastModifyTime
+         from monitor_report_send a, cmdb_resource_groups b
+         where a.groups_id=b.groups_id
+    </sql>
+
+    <select id="selectByAll" resultType="com.asura.monitor.report.entity.MonitorReportSendEntity">
+      <include refid="baseSql" />
+        <if test="key != null">
+            and (
+            b.groups_name like concat ("%",#{key},"%") OR
+            emails like concat ("%",#{key},"%")
+            )
+        </if>
+        <if test="groupsId != null">
+            and a.groups_id = #{groupsId}
+        </if>
+    </select>
+
+    <select id="findById" resultType="com.asura.monitor.report.entity.MonitorReportSendEntity">
+        <include refid="baseSql" />
+        and a.send_id=#{sendId}
+    </select>
+
+    <insert id="save" parameterType="com.asura.monitor.report.entity.MonitorReportSendEntity">
+        insert into monitor_report_send(
+            groups_id,
+            emails,
+            last_modify_user,
+            last_modify_time
+        ) 
+        values(        
+            #{groupsId},
+            #{emails},
+            #{lastModifyUser},
+            #{lastModifyTime}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.monitor.report.entity.MonitorReportSendEntity">
+        update monitor_report_send set   
+            groups_id=#{groupsId},
+            emails=#{emails},
+            last_modify_user=#{lastModifyUser},
+            last_modify_time=#{lastModifyTime}
+         where   send_id=#{sendId}
+    </update>
+
+</mapper>
+

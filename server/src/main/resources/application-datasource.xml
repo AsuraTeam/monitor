@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+       <!--数据源配置 -->
+       <bean id="monitor.druid" abstract="true">
+              <property name="initialSize" value="${jdbc.initialSize}"/>
+              <property name="minIdle" value="${jdbc.minIdle}"/>
+              <property name="maxActive" value="${jdbc.maxActive}"/>
+              <property name="removeAbandoned" value="${jdbc.removeAbandoned}"/>
+              <property name="removeAbandonedTimeout" value="${jdbc.removeAbandonedTimeout}"/>
+              <property name="maxWait" value="${jdbc.maxWait}"/>
+              <property name="validationQuery" value="${jdbc.validationQuery}"/>
+              <property name="testOnBorrow" value="${jdbc.testOnBorrow}"/>
+       </bean>
+
+
+       <bean id="monitor.datasource.M" parent="monitor.druid" class="com.alibaba.druid.pool.DruidDataSource" init-method="init"
+             destroy-method="close">
+              <property name="filters" value="slf4j"/>
+              <property name="driverClassName" value="${jdbc.mysql.driverClassName}"/>
+              <property name="url" value="${jdbc.mysql.monitor.url.master}"/>
+              <property name="username" value="${jdbc.mysql.monitor.username.master}"/>
+              <property name="password" value="${jdbc.mysql.monitor.password.master}"/>
+       </bean>
+
+       <bean id="monitor.datasource.S" parent="monitor.druid" class="com.alibaba.druid.pool.DruidDataSource" init-method="init"
+             destroy-method="close">
+              <property name="filters" value="slf4j"/>
+              <property name="driverClassName" value="${jdbc.mysql.driverClassName}"/>
+              <property name="url" value="${jdbc.mysql.monitor.url.slave}"/>
+              <property name="username" value="${jdbc.mysql.monitor.username.slave}"/>
+              <property name="password" value="${jdbc.mysql.monitor.password.slave}"/>
+       </bean>
+
+
+       <bean id="monitor.sqlSessionFactory.M" class="org.mybatis.spring.SqlSessionFactoryBean">
+              <property name="dataSource" ref="monitor.datasource.M"/>
+              <property name="mapperLocations" value="classpath*:com/asura/**/dao/map/*.xml"/>
+              <property name="configLocation" value="classpath:mybatis-config.xml"></property>
+       </bean>
+
+       <bean id="monitor.sqlSessionFactory.S" class="org.mybatis.spring.SqlSessionFactoryBean">
+              <property name="dataSource" ref="monitor.datasource.S"/>
+              <property name="mapperLocations" value="classpath*:com/asura/**/dao/map/*.xml"/>
+              <property name="configLocation" value="classpath:mybatis-config.xml"></property>
+       </bean>
+
+
+       <bean id="monitor.writeSqlSessionTemplate.M" class="org.mybatis.spring.SqlSessionTemplate" scope="prototype">
+              <constructor-arg index="0" ref="monitor.sqlSessionFactory.M"/>
+       </bean>
+
+       <bean id="monitor.readSqlSessionTemplate.S" class="org.mybatis.spring.SqlSessionTemplate" scope="prototype">
+              <constructor-arg index="0" ref="monitor.sqlSessionFactory.S"/>
+       </bean>
+
+       <bean id="monitor.MybatisDaoContext" class="com.asura.framework.dao.mybatis.base.MybatisDaoContext">
+              <property name="writeSqlSessionTemplate" ref="monitor.writeSqlSessionTemplate.M"></property>
+              <property name="readSqlSessionTemplate" ref="monitor.readSqlSessionTemplate.S"></property>
+       </bean>
+
+
+       <bean id="monitor.transactionManager"
+             class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+              <property name="dataSource" ref="monitor.datasource.M"/>
+       </bean>
+
+</beans>

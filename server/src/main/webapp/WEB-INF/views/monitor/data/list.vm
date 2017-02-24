@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>监控数据信息</title>
+
+    #include("/index/include.vm")
+
+    <style>
+        table th {
+            word-break: keep-all;
+            white-space: nowrap;
+        }
+
+        table td {
+            word-break: keep-all;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body class="gray-bg top-navigation">
+<div id="wrapp1er">
+    <div id="page-wrapper" class="gray-bg">
+        #include("/index/header.vm")
+        <div class="wrapper" style="padding: 0px;">
+                <div class="row" style="margin-left: -15px;margin-right: -26px;">
+                    <div class="col-sm-12">
+                        <div class=" float-e-margins">
+                            <div class="ibox-title" style="margin-left: 0px;border-style:none">
+                                <div class="col-sm-3">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">状态选择：</span>
+                                        <select onchange="loadData($(this).val())" name="status" id="status"
+                                                class="form-control">
+                                            <option value="">#if($status)$status#else 请选择 #end </option>
+                                            <option value="正常">正常</option>
+                                            <option value="危险">危险</option>
+                                            <option value="警告">警告</option>
+                                            <option value="未知">未知</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-4" style="margin-bottom: 15px;">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">模糊匹配：</span>
+                                        <input onkeyup="loadData('',$(this).val())" type="text" id="searchKey"
+                                               name="key" class="form-control" placeholder="可查询机器,业务线,监控输出信息">
+                                    </div>
+                                </div>
+
+                                                <table style="width: 120%;overflow: scroll;"  class="table  table-bordered table-hover dataTables-example"        id="selectAlarmInformation" >
+                                                    <thead>
+                                                    <tr>
+                                                        <th>ip地址</th>
+                                                        <th>状态</th>
+                                                        <th>指标名称</th>
+                                                        <th>输出信息</th>
+                                                        <th>监控类型</th>
+                                                        <th>时间</th>
+                                                        <th>历史图</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    </tbody>
+                                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                function selectAlarmInformation(groupsId, status, groupsName) {
+
+                    $('#alarmInformationId').modal("toggle")
+                    $("#selectAlarmInformation").dataTable({
+                        "filter": false,//去掉搜索框
+                        "ordering": false, // 是否允许排序
+                        "paginationType": "full_numbers", // 页码类型
+                        "destroy": true,
+                        "processing": false,
+                        "serverSide": true,
+                        "scrollX": true, // 是否允许左右滑动
+                        "displayLength": 10, // 默认长度
+                        "bLengthChange": false, // 下啦选择每页显示
+//            "language": {
+//                "paginate": {
+//                    "last": "",
+//                    "next": "",
+//                    "sPrevious": "",
+//                    "sInfo":"",
+//                    "sFirst":"",
+//                },
+////             /   "sInfo":"",
+//                "sInfoEmpty":"",
+//            },
+                        "ajax": { // 请求地址
+                            "url": "/monitor/global/messages?t=" + new Date().getTime()+"&status="+status+"&groupsId="+groupsId+"&groupsName="+groupsName,
+                            "type": 'post'
+                        },
+                        "columns": [ // 数据映射
+                            {"data":"server"},
+                            {"data":"status","mRender":function (data) {
+                                if(data=="1"){
+                                    return "正常";
+                                }
+                                if(data=="2"){
+                                    return "<font color='red'>危险</font>";
+                                }
+                                if(data=="3"){
+                                    return "<font color='warning'>警告</font>";
+                                }
+                                if(data=="4"){
+                                    return "<font color='#f5f5f5'>未知</font>";
+                                }
+                            }},
+                            {"data":"name","mRender":function (data) {
+                                return data.replace("SLASH", "/");
+                            }},
+                            {"data":"messages"},
+                            {"data":"command"},
+                            {"data": "time","mRender":function (data) {
+                                if (data.indexOf("000") == -1){
+                                    data = data +"000"
+                                }
+                                return data?laydate.now(data, "YYYY-MM-DD hh:mm:ss"):"--";
+                            }},
+                            {"data":"id", "mRender":function (data,type,full) {
+                                if (full["name"] == "agent") {
+                                    return "<span onclick='window.open(\"/monitor/graph/all/index?ip=" + full["server"]+"\")'><i class='fa fa-area-chart'></i></span>";
+                                } else {
+                                    name = full["groups"] + "|" + full["name"].replace(/\//g, "---")
+                                    return "<span onclick='window.open(\"/monitor/graph/all/index?ip=" + full["server"] + "&select=" + name + "&width=100\")'><i class='fa fa-area-chart'></i></span>";
+                                }
+                            }}
+                        ],
+                        "fnRowCallback": function (row, data) { // 每行创建完毕的回调
+                            $(row).data('recordId', data.recordId);
+                        }
+                    });
+                }
+                selectAlarmInformation("$!{groups}","$!{status}","$!{groupsName}")
+            </script>
+            </div>
+        </div>/
+    </div>
+</body>
+</html>
+

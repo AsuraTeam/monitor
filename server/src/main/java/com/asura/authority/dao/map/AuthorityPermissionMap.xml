@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.authority.dao.AuthorityPermissionDao">
+
+    <sql id="baseSql">
+                select
+            permission_id as permissionId,
+            a.pages_id as pagesId,
+            user,
+            b.pages_url as pagesUrl,
+            b.pages_name as pagesName,
+            a.last_modify_user as lastModifyUser,
+            a.last_modify_time as lastModifyTime,
+            a.is_valid as isValid
+         from authority_permission a,
+         authority_pages b
+         where a.pages_id=b.pages_id
+    </sql>
+
+    <select id="selectByAll" resultType="com.asura.authority.entity.AuthorityPermissionEntity">
+        <include refid="baseSql" />
+     </select>
+
+    <select id="findAllUser" resultType="com.asura.authority.entity.AuthorityPermissionEntity">
+              select
+                DISTINCT user
+             FROM authority_permission
+    </select>
+
+
+    <select id="findUserPages" resultType="com.asura.authority.entity.AuthorityPermissionEntity">
+        select
+        pages_id as pagesId
+        FROM authority_permission where user=#{user}
+    </select>
+
+    <select id="findUserPermission" resultType="com.asura.authority.entity.AuthorityPermissionEntity">
+        select
+        pages_id as pagesId
+        FROM authority_permission WHERE user=#{user}
+    </select>
+
+    <select id="findById" resultType="com.asura.authority.entity.AuthorityPermissionEntity">
+        <include refid="baseSql" />
+        and permission_id=#{permissionId}
+    </select>
+
+    <insert id="save" parameterType="com.asura.authority.entity.AuthorityPermissionEntity">
+        insert into authority_permission(
+            pages_id,
+            last_modify_user,
+            last_modify_time,
+            is_valid,
+            user
+        ) 
+        values(        
+            #{pagesId},
+            #{lastModifyUser},
+            #{lastModifyTime},
+            #{isValid},
+            #{user}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.authority.entity.AuthorityPermissionEntity">
+        update authority_permission set   
+
+            pages_id=#{pagesId},
+            last_modify_user=#{lastModifyUser},
+            last_modify_time=#{lastModifyTime},
+            is_valid=#{isValid},
+            user=#{user}
+         where     permission_id=#{permissionId}
+    </update>
+
+    <update id="delete" parameterType="com.asura.authority.entity.AuthorityPermissionEntity">
+       DELETE FROM authority_permission
+            WHERE user=#{user}
+    </update>
+
+</mapper>
+

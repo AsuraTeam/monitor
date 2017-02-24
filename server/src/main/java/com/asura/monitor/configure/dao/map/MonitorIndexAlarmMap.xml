@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.monitor.configure.dao.MonitorIndexAlarmDao">
+    <sql id="baseSql">
+            select
+            a.index_id as indexId,
+            a.server_id as serverId,
+            all_groups as allGroups,
+            alarm_count as alarmCount,
+            alarm_interval as alarmInterval,
+            gt_value as gtValue,
+            lt_value as ltValue,
+            eq_value as eqValue,
+            is_mobile as isMobile,
+            is_email as isEmail,
+            is_ding as isDing,
+            is_weixin as isWeixin,
+            a.last_modify_time as lastModifyTime,
+            a.last_modify_user as lastModifyUser,
+            a.status_id as statusId,
+            weixin_groups as weixinGroups,
+            ding_groups as dingGroups,
+            mobile_groups as mobileGroups,
+            email_groups as emailGroups,
+            alarm_id as alarmId,
+            b.ip_address as ipAddress,
+            c.index_name as indexName,
+            is_alarm as isAlarm,
+            not_eq_value as notEqValue
+            from monitor_index_alarm a,
+            cmdb_resource_server  b,
+            monitor_index_from_scripts c
+            where a.index_id = c.index_id
+            and a.server_id = b.server_id
+    </sql>
+
+    <select id="selectByAll" resultType="com.asura.monitor.configure.entity.MonitorIndexAlarmEntity">
+        <include refid="baseSql" />
+        order by alarm_id DESC
+    </select>
+
+    <select id="findById" resultType="com.asura.monitor.configure.entity.MonitorIndexAlarmEntity">
+        <include refid="baseSql" />
+        and alarm_id = #{alarmId}
+    </select>
+
+    <insert id="save" parameterType="com.asura.monitor.configure.entity.MonitorIndexAlarmEntity">
+        insert into monitor_index_alarm(
+        index_id,
+        server_id,
+        gt_value,
+        lt_value,
+        eq_value,
+        last_modify_time,
+        last_modify_user,
+        status_id,
+        weixin_groups,
+        ding_groups,
+        mobile_groups,
+        email_groups,
+        is_mobile,
+        is_email,
+        is_ding,
+        is_weixin,
+        not_eq_value,
+        is_alarm,
+        all_groups,
+            alarm_count ,
+            alarm_interval
+        )
+        values(
+        #{indexId},
+        #{serverId},
+        #{gtValue},
+        #{ltValue},
+        #{eqValue},
+        #{lastModifyTime},
+        #{lastModifyUser},
+        #{statusId},
+        #{weixinGroups},
+        #{dingGroups},
+        #{mobileGroups},
+        #{emailGroups},
+        #{isMobile},
+        #{isEmail},
+        #{isDing},
+        #{isWeixin},
+        #{notEqValue},
+        #{isAlarm},
+        #{allGroups},
+        #{alarmCount},
+        #{alarmInterval}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.monitor.configure.entity.MonitorIndexAlarmEntity">
+        update monitor_index_alarm set
+            index_id=#{indexId},
+            server_id=#{serverId},
+            gt_value=#{gtValue},
+            lt_value=#{ltValue},
+            eq_value=#{eqValue},
+            is_mobile=#{isMobile},
+            is_email=#{isEmail},
+            is_ding=#{isDing},
+            is_weixin=#{isWeixin},
+            last_modify_time=#{lastModifyTime},
+            last_modify_user=#{lastModifyUser},
+            status_id=#{statusId},
+            weixin_groups=#{weixinGroups},
+            ding_groups=#{dingGroups},
+            mobile_groups=#{mobileGroups},
+            not_eq_value= #{notEqValue},
+            is_alarm = #{isAlarm},
+            email_groups=#{emailGroups},
+            all_groups=#{allGroups},
+            alarm_count=#{alarmCount},
+            alarm_interval=#{alarmInterval}
+         where  alarm_id=#{alarmId}
+    </update>
+
+</mapper>
+

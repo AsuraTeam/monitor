@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    #include("/index/include.vm")
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>机柜数据展示</title>
+    <script src="/static/js/plugins/iCheck/icheck.min.js"></script>
+</head>
+
+<style>
+    .circle {
+        width: 15px;
+        height: 15px;
+    }
+</style>
+<body class="gray-bg top-navigation">
+
+<div id="page-wrapper" class="gray-bg">
+    #include("/index/header.vm")
+</div>
+
+<div class="modal fade" id="dispaly_detail_id" tabindex="-1" style="z-index: 12050 !important;margin-top:30px;" role="dialog"  data-backdrop="true">
+    <div class="modal-dialog" style="width:80%;margin-top:-10px;">
+        <div class="modal-content" style="height: 500px;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">设备详情</h4>
+            </div>
+            <div class="modal-body fadeInUp" id="dispaly_detail_content" >
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="ibox-tools" style="width:100px;">
+
+    <a class="dropdown-toggle" data-toggle="dropdown" style="height:400px;overflow-x: auto">
+        <i class="fa fa-server">机柜名称</i>
+    </a>
+
+    <ul class="dropdown-menu dropdown-user" style="height:400px;overflow-x: auto">
+     #foreach($cscope in $scope)
+        #foreach($cname in $name.get($cscope))
+        <li><a onclick="loadpage('','$cname')">$cname</a>
+        </li>
+        #end
+     #end
+    </ul>
+
+</div>
+<div class="ibox-tools" style="width:100px;">
+
+    <a class="dropdown-toggle" data-toggle="dropdown" style="width:150px;">
+        <i class="fa fa-group">机柜区域</i>
+    </a>
+
+    <ul class="dropdown-menu dropdown-user" style=";">
+        #foreach($cscope in $scope)
+            <li><a onclick="loadpage('$cscope','')">$cscope</a>
+            </li>
+        #end
+    </ul>
+</div>
+<div class="ibox-tools" style="width:130px;">
+
+    <a class="dropdown-toggle"  onclick="loadpage('','','',1)" data-toggle="dropdown" style="width:150px;">
+        <i class="fa fa-remove">不显示空机柜</i>
+    </a>
+</div>
+<div class="ibox-tools" style="width:130px;">
+
+    <a class="dropdown-toggle" data-toggle="dropdown" style="width:150px;">
+        <i class="fa fa-remove">显示空机柜</i>
+    </a>
+</div>
+
+<div class="ibox-tools" style="width:100px;">
+    <a class="dropdown-toggle" onclick="loadpage('','','','','1')" data-toggle="dropdown" style="width:150px;">
+        <i class="fa fa-power-off" >关机状态</i>
+    </a>
+</div>
+
+<div class="ibox-tools" style="width:220px;">
+    <a class="dropdown-toggle" data-toggle="dropdown" style="width:150px;">
+        <i class="fa fa-search">搜索&nbsp;<input onkeyup="loadpage('','',$(this).val())" class="no-borders"></i>
+
+
+    </a>
+
+</div>
+</div>
+
+<div id="display_content" >
+
+</div>
+
+<script>
+    function showDetail(id){
+       url = "/resource/configure/server/detail?detail=1"
+       result = post({id:id},url)
+        $("#dispaly_detail_id").modal("toggle");
+        $('#dispaly_detail_content').html(result);
+
+    }
+
+    function loadpage(scope,name,search,nullCabinet,isOff) {
+        if(search){
+            if(search.length<5){
+                return
+            }
+        }
+        if(!isOff){
+            isOff=0
+        }
+        url = "/resource/data/indexSub"
+        result = post({cabinetNameGet:name,cabinetScope:scope,search:search,nullCabinet:nullCabinet,isOff},url)
+        $('#display_content').html(result);
+    }
+    loadpage("","");
+</script>
+</body>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.resource.dao.CmdbResourceUserDao">
+    <sql id="sqlId">   user_id as userId,
+        user_name as userName,
+        a.groups_id as groupsId,
+        email,
+        mobile,
+        b.groups_name as groupsName,
+        a.create_time as createTime,
+        a.create_user as createUser,
+        a.last_modify_time as lastModifyTime,
+        a.last_modify_user as lastModifyUser</sql>
+    <select id="selectByAll" resultType="com.asura.resource.entity.CmdbResourceUserEntity">
+        select
+        <include refid="sqlId"/>
+        from cmdb_resource_user a, cmdb_resource_groups b WHERE
+        a.groups_id = b.groups_id
+    </select>
+    <select id="findById" resultType="com.asura.resource.entity.CmdbResourceUserEntity">
+        select
+        <include refid="sqlId"/>
+        from cmdb_resource_user a, cmdb_resource_groups b WHERE
+        a.groups_id = b.groups_id
+        and user_id=#{userId}
+    </select>
+
+    <insert id="save" parameterType="com.asura.resource.entity.CmdbResourceUserEntity">
+        insert into cmdb_resource_user(
+            user_id,
+            user_name,
+            groups_id,
+            create_time,
+            create_user,
+            last_modify_user,
+            email,
+            mobile
+        ) 
+        values(        
+            #{userId},
+            #{userName},
+            #{groupsId},
+            #{createTime},
+            #{createUser},
+            #{lastModifyUser},
+            #{email},
+            #{mobile}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.resource.entity.CmdbResourceUserEntity">
+        update cmdb_resource_user set   
+            user_id=#{userId},
+            user_name=#{userName},
+            groups_id=#{groupsId},
+            create_time=#{createTime},
+            create_user=#{createUser},
+            email=#{email},
+            mobile=#{mobile},
+            last_modify_user=#{lastModifyUser}
+         where  user_id=#{userId}
+    </update>
+
+</mapper>
+

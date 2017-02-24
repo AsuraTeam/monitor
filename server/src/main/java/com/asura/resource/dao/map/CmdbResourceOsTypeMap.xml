@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.resource.dao.CmdbResourceOsTypeDao">
+    <sql id="sqlId">   os_id as osId,
+        os_name as osName,
+        create_time as createTime,
+        image_path as imagePath,
+        create_user as createUser,
+        last_modify_time as lastModifyTime,
+        last_modify_user as lastModifyUser</sql>
+    <select id="selectByAll" resultType="com.asura.resource.entity.CmdbResourceOsTypeEntity">
+        select
+        <include refid="sqlId"/>
+         from cmdb_resource_os_type 
+        </select>
+
+    <select id="findById" resultType="com.asura.resource.entity.CmdbResourceOsTypeEntity">
+        select
+        <include refid="sqlId"/>
+        from cmdb_resource_os_type
+        <where>
+            os_id=#{osId}
+        </where>
+    </select>
+
+    <insert id="save" parameterType="com.asura.resource.entity.CmdbResourceOsTypeEntity">
+        insert into cmdb_resource_os_type(
+            os_id,
+            os_name,
+            create_time,
+            create_user,
+            image_path,
+            last_modify_user
+        ) 
+        values(        
+            #{osId},
+            #{osName},
+            #{createTime},
+            #{createUser},
+            #{imagePath},
+            #{lastModifyUser}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.resource.entity.CmdbResourceOsTypeEntity">
+        update cmdb_resource_os_type set   
+            os_id=#{osId},
+            os_name=#{osName},
+            create_time=#{createTime},
+            create_user=#{createUser},
+             image_path=#{imagePath},
+            last_modify_user=#{lastModifyUser}
+         where    os_id=#{osId}
+    </update>
+
+</mapper>
+

@@ -1,0 +1,210 @@
+
+            <div class="animated fadeInRight">
+                <form>
+                    <div class="col-md-12">
+                        <p>
+                        <p>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label">业务线:</label>
+                            <div class="col-sm-7">
+                               ${configs.groupsName}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label">环境:</label>
+                            <div class="col-sm-7">
+                                ${configs.entName}
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <p>
+                        <p>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label">服务器类型:</label>
+                            <div class="col-sm-7">
+                                ${configs.typeName}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label">系统类型:</label>
+                            <div class="col-sm-7">
+                                 ${configs.osName}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <p>
+                        <p>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label">服务:</label>
+                            <div class="col-sm-7">
+                              ${configs.serviceName}
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label">用户:</label>
+                            <div class="col-sm-7">
+                              ${configs.userName}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <p>
+                        <p>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label">内存(GB):</label>
+                            <div class="col-sm-7">
+                                   $!{configs.memory}
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label">cpu(个):</label>
+                            <div class="col-sm-7">
+                                       $!{configs.cpu}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <p>
+                        <p>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label">硬盘大小(GB):</label>
+                            <div class="col-sm-7">
+                                      $!{configs.diskSize}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label">域名:</label>
+                            <div class="col-sm-7">
+                                      $!{configs.domainName}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <p>
+                        <p>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label">ip地址:</label>
+                            <div class="col-sm-7">
+                                      $!{configs.ipAddress}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label">远程管理卡地址:</label>
+                            <div class="col-sm-6">
+                                    $!{configs.managerIp}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <p>
+                        <p>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label">宿主机:</label>
+                            <div class="col-sm-7">
+                               ${configs.hostIpAddress}
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <p>
+                        <p>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label">机柜:</label>
+                            <div class="col-sm-7">
+                             $!{configs.cabinetName}
+
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label">机柜层级:</label>
+                            <div class="col-sm-7">
+                                    $!{configs.cabinetLevel}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <p>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label">过保时间:</label>
+                            <div class="col-sm-7">
+                                      $!{configs.expire}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label">设备编码:</label>
+                            <div class="col-sm-7">
+                                       $!{configs.assetCoding}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <p>
+                    </div>
+
+                    <div class="col-md-6" >
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label">描述信息:</label>
+                            <div class="col-sm-7">
+                                       $!{configs.description}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <p>&nbsp;
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+

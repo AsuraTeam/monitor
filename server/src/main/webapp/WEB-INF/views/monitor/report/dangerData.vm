@@ -1,0 +1,56 @@
+<div id="flotTip" style="display: none;position: absolute;z-index: 9999999"></div>
+<div id="toast-container" class="toast-top-right" aria-live="polite" role="alert">
+    <div class="toast toast-success">
+        <div class="toast-title">
+
+        </div>
+    </div>
+</div>
+
+
+<div class="col-lg-12 " style="margin-top:-20px;margin-left: -85%;width: 188%;">
+    <div class="ibox float-e-margins">
+        <div class="ibox-title" style="margin-right: -30px;">
+            <h5>监控异常数据<code>异常数据${check.size()}条</code></h5>
+        </div>
+        <div class="ibox-content" style="margin-right: -30px;">
+            <div class="row">
+                <div class="col-xs-3">
+                    <small class="stats-label"><B>检查类型</B></small>
+                    #foreach($cc in $check)
+                        <h6>${cc.checkCommand}</h6>
+                    #end
+                </div>
+                <div class="col-xs-2">
+                    <small class="stats-label"><B>异常ip</B></small>
+                    #foreach($c in $check)
+                        <h6>${c.ip}</h6>
+                    #end
+                </div>
+                <div class="col-xs-3">
+                    <small class="stats-label"><B>状态</B></small>
+                    #foreach($c in $check)
+                        <h6 title="${c.info}" onclick="showMax('${c.info}')"><font color="#ed5565">${c.status}</font></h6>
+                    #end
+                </div>
+
+                <div class="col-xs-3">
+                    <small class="stats-label"><B>最近检查时间</B></small>
+                    #foreach($c in $check)
+                        <h6>${c.lastTime}</h6>
+                    #end
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Toastr script -->
+<script src="/static/js/plugins/toastr/toastr.min.js"></script>
+<script>
+    function showMax(data) {
+        // Display a success toast, with a title
+        toastr.success(data, '异常信息')
+
+
+    }
+</script>

@@ -1,0 +1,192 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>访问占比分析</title>
+<body class="gray-bg top-navigation">
+    #include("/index/include.vm")
+
+<div id="">
+    <div>
+        #include("/index/header.vm")
+        <div id="addConfig"></div>
+        <body>
+        <div class=" animated fadeInRight">
+            <div class="row" style="background-color: #ffffff;">
+                <div class="col-sm-12">
+                    <div class="ibox float-e-margins" style="background-color:#f0f0f0; ">
+                        <div class="col-md-2 " style="margin-left: -5px;margin-top: 5px;">
+            <span>#if($ip)$!{ip}#else
+                <script>
+                  url = "/resource/configure/groups/listData?draw=1&length=1000&start=1";
+                  result = post({}, url);
+                  data = result["data"]
+                  html = "<select style='height: 32px;border: none;margin-top: 2px;;' id='groupsDataId' onchange='loadData()'>"
+                  html += "<option value=''>业务线选择</option>"
+                  for (i = 0; i < data.length; i++) {
+                      html += "<option value='" + data[i]["groupsName"] + "'>" + data[i]["groupsName"] + "</option>"
+                  }
+                  html += "</select>"
+                  document.write(html)
+              </script>
+            #end
+                &nbsp;</span>
+            </div>
+           <div class="col-md-2 "  style="margin-top: 5px;">
+            <span>#if($ip)$!{ip}#else
+                <script>
+                  url = "/log/analyze/system/listData?draw=1&length=1000&start=1";
+                  result = post({}, url);
+                  data = result["data"]
+                  html = "<select style='height: 32px;border: none;margin-top: 2px;;' id='domainId' onchange='loadData()'>"
+                  html += "<option value=''>域名选择</option>"
+                  for (i = 0; i < data.length; i++) {
+                      html += "<option value='" + data[i]["domain"] + "'>" + data[i]["domain"] + "</option>"
+                  }
+                  html += "</select>"
+                  document.write(html)
+              </script>
+            #end
+                &nbsp;</span>
+                        </div>
+                        <div class="input-group col-md-6 pull-right" style="margin-top: 5px;">
+                            <span class="input-group-addon">时间(<font color="red">单天选择</font>)：</span>
+                            <input type="text" class="form-control" id="startSendTime" name="startSendTime">
+                            <span class="input-group-addon">-</span>
+                            <input type="text" class="form-control" id="endSendTime" name="endSendTime">
+
+                        </div>
+                    </div>
+                    <div class="ibox-content" style="overflow:scroll;margin-top: -40px;">
+                        <table id="listTable"
+                               class="table  table-bordered table-hover dataTables-example">
+                            <thead>
+                            <tr nowrap="nowrap" role="rows">
+                                <th>业务线</th>
+                                <th>域名</th>
+                                <th>计时(秒)</th>
+                                <th>超时url占比</th>
+                                <th>超时访问量占比</th>
+                                <th>超时数量</th>
+                                <th>总访问量</th>
+                                <th>超时url</th>
+                                <th>总url</th>
+                                <th>总吞吐</th>
+                                <th>独立IP</th>
+                                <th>分析时间</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/plugins/sparkline/jquery.sparkline.min.js"></script>
+    <script>
+
+        site = "/log/analyze/dayUrlNumber/";
+
+        function loadData(url) {
+            start = $('#startSendTime').val()
+            end = $('#endSendTime').val()
+            groupsName = $('#groupsDataId').val()
+            domain = $('#domainId').val()
+            if (!start) {
+                start = ""
+            }else{
+                start = Date.parse(new Date(start))/1000
+            }
+            if (!end) {
+                end = ""
+            }else{
+                end = Date.parse(new Date(end))/1000
+            }
+            if (!groupsName) {
+                groupsName = ""
+            }
+            if(!domain){
+                domain = ""
+            }
+           if(!url){
+               url = ""
+           }
+
+            console.log(end)
+            $("#listTable").dataTable({
+                "filter": true,//去掉搜索框
+                "ordering": false, // 是否允许排序
+                "paginationType": "full_numbers", // 页码类型
+                "destroy": true,
+                "processing": true,
+                "serverSide": true,
+                "scrollX": true, // 是否允许左右滑动
+                "displayLength": 10, // 默认长度
+                "ajax": { // 请求地址
+                    "url": site + "listData?t=" + new Date().getTime() + "&startT=" + start + "&endT=" + end + "&groupsName=" + groupsName+"&domain="+domain+"&url="+url,
+                    "type": 'post'
+                },
+
+                "columns": [ // 数据映射
+                    {"data": "groupsName"},
+                    {"data": "domain"},
+                    {"data": "gtTime"},
+                    {"data": "gtUrlPercent","mRender":function (data,type,full) {
+                        return data;
+                    }},
+                    {"data": "gtPercent","mRender":function (data,type,full) {
+                      return data;
+                    }},
+                    {"data": "gtNumber", "mRender":function (data,type,full) {
+                        return "<a target='_blank' href='/log/analyze/timeNumber/list?start=1&startT="+full["changeTime"]+"&length=10&draw=1&domain="+full["domain"]+"'>"+data+"</a>";
+                    }},
+                    {"data": "accessNumber"},
+                    {"data": "gtUrlNumber"},
+                    {"data": "urlNumber"},
+                    {"data": "accessLogNumber"},
+                    {"data": "ipNumber"},
+                    {"data": "changeTime","mRender":function (data) {
+                        data = data + "000";
+                        return data?laydate.now(data, "YYYY-MM-DD"):"--";
+                    }},
+                ],
+                "fnRowCallback": function (row, data) { // 每行创建完毕的回调
+                    $(row).data('recordId', data.recordId);
+                }
+            });
+        }
+
+        loadData();
+        /** 时间插件
+         *
+         */
+        var startSendTime = {
+            elem: '#startSendTime',
+            choose: function (data) {
+                endSendTime.min = data;
+                endSendTime.start = data;
+                if ($('#endSendTime').val()) {
+                    loadData();
+                }
+            }
+        }
+
+        var endSendTime = {
+            elem: '#endSendTime',
+            choose: function (data) {
+                startSendTime.max = data;
+                if ($('#startSendTime').val()) {
+                    loadData();
+                }
+
+            }
+        }
+        laydate(startSendTime);
+        laydate(endSendTime);
+    </script>
+</body>
+</html>
