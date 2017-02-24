@@ -51,6 +51,12 @@
         a.status,
         a.description</sql>
 
+    <select id="selectByIp" parameterType="map" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
+        select server_id as serverId from cmdb_resource_server
+        WHERE
+        ip_address like concat("%",#{ipAddress},"%")
+    </select>
+
     <select id="selectByAll" parameterType="map" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
         select
         <include refid="sqlId"/>

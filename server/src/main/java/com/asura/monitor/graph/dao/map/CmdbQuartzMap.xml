@@ -62,5 +62,9 @@
          where  quartz_id=#{quartzId}
     </update>
 
+    <delete id="delete" parameterType="com.asura.monitor.graph.entity.CmdbQuartzEntity">
+        DELETE from cmdb_quartz where quartz_id=#{quartzId}
+    </delete>
+
 </mapper>
 

@@ -35,7 +35,7 @@
                             <th>页面url</th>
                             <th>最近修改人</th>
                             <th>最近修改时间</th>
-                            <th>编辑/删除</th>
+                            <th>编辑权限</th>
                         </tr>
                         </thead>
                         <tbody>

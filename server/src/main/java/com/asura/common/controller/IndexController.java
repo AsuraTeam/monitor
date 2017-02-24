@@ -145,6 +145,14 @@ public class IndexController {
         return "/index/islogin";
     }
 
+    /**
+     * 没有权限
+     * @return
+     */
+    @RequestMapping(value = "/noPermissions", produces = {"application/json;charset=utf-8"})
+    public String noPermissions(){
+        return "/index/noPermissions";
+    }
 
     /**
      * 获取登陆的用户
@@ -205,7 +213,7 @@ public class IndexController {
         AuthorityUserEntity entity = new AuthorityUserEntity();
         entity.setLastLogin(DateUtil.getDate(DateUtil.TIME_FORMAT));
         PagingResult<AuthorityUserEntity> result = userService.findAll(searchMap, PageResponse.getPageBounds(0,1), "selectByAll");
-        if ( result.getTotal() > 0 && result.getRows().get(0)!=null){
+        if (result.getTotal() >0  && result.getRows().get(0)!=null){
             entity.setLoginFaildCount(0);
             userService.update(entity);
             loginFlag = true;
@@ -214,7 +222,7 @@ public class IndexController {
             SearchMap searchMap2 = new SearchMap();
             searchMap2.put("username", username);
             PagingResult<AuthorityUserEntity> result2 = userService.findAll(searchMap2, PageResponse.getPageBounds(1,1), "selectByAll");
-            if ( result2.getTotal() > 0 && result2.getRows().get(0) !=  null ){
+            if (result2.getTotal() > 0 && result2.getRows().get(0) !=  null ){
                 entity.setUsername(username);
                 entity.setLoginFaildCount(result2.getRows().get(0).getLoginFaildCount() + 1);
                 userService.update(entity);
@@ -254,7 +262,7 @@ public class IndexController {
             entity.setTime(String.valueOf(DateUtil.getTimeStamp()));
             logService.save(entity);
         }catch (Exception e){
-
+             e.printStackTrace();
         }
         return "ok";
     }

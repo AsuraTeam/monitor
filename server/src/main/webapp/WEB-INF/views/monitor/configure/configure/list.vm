@@ -83,6 +83,10 @@
                             onclick="window.location='/monitor/configure/configure/setCache'">
                         <i class="fa fa-heart-o"></i>&nbsp;&nbsp;<span class="bold">生成缓存</span>
                     </button>
+                    <button class="btn btn-outline btn-primary " type="button"
+                            onclick="window.location='/monitor/configure/contacts/list'">
+                        <i class="fa fa-user"></i>&nbsp;&nbsp;<span class="bold">联系人配置</span>
+                    </button>
                     <div class="col-md-2 multiple pull-right">
                         <select class="btn selectpicker bla bla bli form-control"  data-live-search="true" onchange="loadData($(this).val())" >
                             <option value="">请选择业务线</option>
@@ -146,7 +150,6 @@
     }
 
     function deleteConfig(id){
-
         url = "/monitor/configure/"+site+"/delete";
         parent.layer.confirm("点击同意后,将删除数据", {
             btn: ['同意','不同意'], //按钮
@@ -157,7 +160,6 @@
         }, function(){
             parent.layer.msg("取消操作",  {icon:2})
         });
-
     }
 
     /**
@@ -326,7 +328,12 @@
                     return '<a  onclick="show_cache(\''+data+'\',\'item\')"><i style="margin-left: 25px;" class="fa fa-heart-o"></i></a>';
                 }
                 },
-                {"data": "description"},
+                {"data": "description", "mRender":function (data) {
+                    if (data.length>30){
+                        return  "<span title='"+data+"'>"+data.substring(1,30)+"</span>"
+                    }
+                    return data;
+                }},
                 {"data": "configureId", "mRender": function(data, type, full) {
                     return '<button type="button" onclick="addConfig('+data+')" class="btn btn-sm btn-warning">编辑</button>&nbsp;'+
                            '<button type="button" onClick="deleteConfig('+data+')" class="btn btn-sm btn-danger">删除</button>';

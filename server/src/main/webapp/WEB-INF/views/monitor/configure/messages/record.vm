@@ -32,8 +32,17 @@
             <div class="ibox float-e-margins"></p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <span title="点击关闭或开启发送报警功能">
                 <button  class="btn btn-outline #if($alarm=="1") btn-danger fa fa-close
-#else btn-success fa fa-undo #end" onclick="setAlarm(${alarm})">&nbsp;#if($alarm=="1") 关闭报警 #else 开始报警#end&nbsp;&nbsp;&nbsp;</button></span>
+#else btn-success fa fa-undo #end" onclick="setAlarm(${alarm})">&nbsp;#if($alarm=="1") 关闭报警 #else 开始报警#end&nbsp;&nbsp;&nbsp;</button>
+                         <div class="input-group col-md-6 pull-right" style="margin-top:-5px;margin-right: 10px;">
+                        <span class="input-group-addon">时间选择：</span>
+                        <input type="text" class="form-control" id="startSendTime" name="startSendTime">
+                        <span class="input-group-addon">-</span>
+                        <input type="text" class="form-control" id="endSendTime" name="endSendTime">
+                    </div>
+                </span>
+
                 <div class="ibox-content" style="overflow:scroll;">
+
                     <table id="listTable"
                            class="table  table-bordered table-hover dataTables-example">
                         <thead>
@@ -82,6 +91,14 @@
     }
 
     function loadData(){
+        startTime = $('#startSendTime').val()
+        endTime = $('#endSendTime').val()
+        if(!startTime){
+            startTime = ""
+        }
+        if(!endTime){
+            endTime = ""
+        }
         $("#listTable").dataTable({
             "filter": true,//去掉搜索框
             "ordering": false, // 是否允许排序
@@ -92,7 +109,7 @@
             "scrollX": true, // 是否允许左右滑动
             "displayLength": 10, // 默认长度
             "ajax": { // 请求地址
-                "url": "/monitor/configure/"+site+"/recordData?t=" + new Date().getTime(),
+                "url": "/monitor/configure/"+site+"/recordData?startTime=" + startTime +"&endTime=" + endTime ,
                 "type": 'post'
             },
 
@@ -157,6 +174,26 @@
     }
 
     loadData();
+    var startSendTime = {
+        elem: '#startSendTime',
+        choose: function (data) {
+            if ($('#endSendTime').val()) {
+                loadData();
+            }
+        }
+    }
+
+    var endSendTime = {
+        elem: '#endSendTime',
+        choose: function (data) {
+            if ($('#startSendTime').val()) {
+                loadData();
+            }
+        }
+    }
+    laydate(startSendTime);
+    laydate(endSendTime);
+
 
 </script>
 </body>

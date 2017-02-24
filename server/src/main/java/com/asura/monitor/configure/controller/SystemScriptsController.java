@@ -6,14 +6,16 @@ import com.asura.framework.dao.mybatis.paginator.domain.PageBounds;
 import com.google.gson.Gson;
 import com.asura.common.response.PageResponse;
 import com.asura.common.response.ResponseVo;
+import com.asura.monitor.configure.conf.MonitorCacheConfig;
 import com.asura.monitor.configure.entity.MonitorScriptsEntity;
-import com.asura.monitor.configure.service.MonitorScriptsService;
 import com.asura.monitor.configure.entity.MonitorSystemScriptsEntity;
+import com.asura.monitor.configure.service.MonitorScriptsService;
 import com.asura.monitor.configure.service.MonitorSystemScriptsService;
 import com.asura.monitor.graph.util.FileRender;
 import com.asura.monitor.graph.util.FileWriter;
 import com.asura.util.DateUtil;
 import com.asura.util.PermissionsCheck;
+import com.asura.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -44,13 +46,14 @@ import static com.asura.monitor.graph.util.FileWriter.separator;
 public class SystemScriptsController {
 
     @Autowired
-    private MonitorScriptsService monitorScriptsService;
-
-    @Autowired
     private MonitorSystemScriptsService scriptsService;
 
     @Autowired
     private PermissionsCheck permissionsCheck;
+
+    @Autowired
+    private MonitorScriptsService monitorScriptsService;
+
     /**
      * 脚本配置
      * @return
@@ -106,13 +109,12 @@ public class SystemScriptsController {
         return ResponseVo.responseOk(null);
     }
 
-
     /**
      *
      * @param os
      * @return
      * @throws Exception
-    */
+     */
     @RequestMapping(value = "api/scripts", produces = {"application/json;charset=UTF-8"})
     @ResponseBody
     public String getScripts(String os, String force, String scriptsId) throws Exception{
@@ -132,8 +134,17 @@ public class SystemScriptsController {
             return data;
         }else{
             int scriptId = Integer.valueOf(scriptsId.trim());
-            MonitorScriptsEntity scriptsEntity = monitorScriptsService.findById(scriptId, MonitorScriptsEntity.class);
-            return new Gson().toJson(scriptsEntity);
+            RedisUtil redisUtil = new RedisUtil();
+            String key = MonitorCacheConfig.cacheScriptIdKey+scriptsId;
+            String result = redisUtil.get(key);
+            if (result != null && result.contains("scriptsId")){
+                 return result;
+            }else {
+                MonitorScriptsEntity scriptsEntity = monitorScriptsService.findById(scriptId, MonitorScriptsEntity.class);
+                String data = new Gson().toJson(scriptsEntity);
+                redisUtil.setex(key, 600, data);
+                return data;
+            }
         }
     }
 

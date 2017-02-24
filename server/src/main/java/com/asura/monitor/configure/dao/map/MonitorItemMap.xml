@@ -61,6 +61,7 @@
         <if test="itemId != null">
             and a.item_id = #{itemId}
         </if>
+        ORDER  by  a.item_id DESC
         </select>
 
     <select id="findById" resultType="com.asura.monitor.configure.entity.MonitorItemEntity">
@@ -168,5 +169,8 @@
          where    item_id=#{itemId}
     </update>
 
+    <delete id="delete" parameterType="com.asura.monitor.configure.entity.MonitorItemEntity">
+        delete from  monitor_item where item_id=#{itemId}
+    </delete>
 </mapper>
 

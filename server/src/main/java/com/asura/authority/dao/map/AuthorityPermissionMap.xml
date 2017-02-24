@@ -17,6 +17,12 @@
          where a.pages_id=b.pages_id
     </sql>
 
+    <select id="selectByUserPermission" resultType="com.asura.authority.entity.AuthorityPermissionEntity">
+        <include refid="baseSql" />
+        and b.pages_url=#{pagesUrl}
+        and user=#{username}
+    </select>
+
     <select id="selectByAll" resultType="com.asura.authority.entity.AuthorityPermissionEntity">
         <include refid="baseSql" />
      </select>

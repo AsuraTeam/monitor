@@ -24,6 +24,8 @@ import com.asura.monitor.configure.service.MonitorItemService;
 import com.asura.monitor.configure.service.MonitorMessageChannelService;
 import com.asura.monitor.configure.service.MonitorScriptsService;
 import com.asura.monitor.configure.service.MonitorTemplateService;
+import com.asura.resource.entity.CmdbResourceServerEntity;
+import com.asura.resource.service.CmdbResourceServerService;
 import com.asura.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -56,15 +58,11 @@ import java.util.Map;
 @RequestMapping("/monitor/configure/")
 public class ListDataController {
 
-
     @Autowired
     private com.asura.monitor.configure.service.MonitorInformationService informationService;
 
     @Autowired
     private MonitorItemService itemService;
-
-    @Autowired
-    private MonitorConfigureService configureService;
 
     @Autowired
     private MonitorGroupsService groupsService;
@@ -73,20 +71,28 @@ public class ListDataController {
     private MonitorScriptsService scriptsService;
 
     @Autowired
-    private MonitorContactGroupService contactGroupService;
-
-    @Autowired
     private MonitorContactsService contactsService;
 
     @Autowired
     private MonitorTemplateService templateService;
+
+    @Autowired
+    private MonitorConfigureService configureService;
+
     @Autowired
     private MonitorMessageChannelService channelService;
+
+    @Autowired
+    private MonitorContactGroupService contactGroupService;
+
+    @Autowired
+    private CmdbResourceServerService serverService;
 
     @Autowired
     private com.asura.monitor.configure.service.MonitorMessagesService messagesService;
 
     private Gson gson = new Gson();
+
     private RedisUtil redisUtil = new RedisUtil();
 
     /**
@@ -162,7 +168,7 @@ public class ListDataController {
         PageBounds pageBounds = PageResponse.getPageBounds(length, start);
         SearchMap searchMap = new SearchMap();
         String search = request.getParameter("search[value]");
-        if(search!=null&&search.length()>0){
+        if (search != null && search.length() > 0) {
             searchMap.put("key", search);
         }
         PagingResult<MonitorContactsEntity> result = contactsService.findAll(searchMap, pageBounds, "selectByAll");
@@ -224,7 +230,7 @@ public class ListDataController {
             searchMap.put("groupsIds", groups);
         }
         String search = request.getParameter("search[value]");
-        if(search!=null&&search.length()>0){
+        if (search != null && search.length() > 0) {
             searchMap.put("key", search);
         }
         PagingResult<MonitorContactGroupEntity> result = contactGroupService.findAll(searchMap, pageBounds, "selectByAll");
@@ -259,7 +265,7 @@ public class ListDataController {
             searchMap.put("scriptsId", Integer.valueOf(scriptsId));
         }
         String search = request.getParameter("search[value]");
-        if(search!=null&&search.length()>0){
+        if (search != null && search.length() > 0) {
             searchMap.put("key", search);
         }
         PagingResult<MonitorScriptsEntity> result = scriptsService.findAll(searchMap, pageBounds, "selectByAll");
@@ -299,7 +305,7 @@ public class ListDataController {
             searchMap.put("itemId", itemId);
         }
         String search = request.getParameter("search[value]");
-        if(search!=null&&search.length()>0){
+        if (search != null && search.length() > 0) {
             searchMap.put("key", search);
         }
         PagingResult<MonitorItemEntity> result = itemService.findAll(searchMap, pageBounds, "selectByAll");
@@ -378,12 +384,16 @@ public class ListDataController {
      */
     @RequestMapping(value = "messages/recordData", produces = {"application/json;charset=UTF-8"})
     @ResponseBody
-    public String recordData(int draw, int start, int length, HttpServletRequest request) {
+    public String recordData(int draw, int start, int length, HttpServletRequest request, String startTime, String endTime) {
         PageBounds pageBounds = PageResponse.getPageBounds(length, start);
         SearchMap searchMap = new SearchMap();
         String search = request.getParameter("search[value]");
         if (search != null && search.length() > 1) {
             searchMap.put("search", search);
+        }
+        if (startTime != null && startTime.length() > 1) {
+            searchMap.put("startT", startTime);
+            searchMap.put("endT", endTime);
         }
         PagingResult<MonitorMessagesEntity> result = messagesService.findAll(searchMap, pageBounds, "selectByAll");
         return PageResponse.getMap(result, draw);
@@ -417,6 +427,22 @@ public class ListDataController {
     }
 
     /**
+     * 看监控配置是否有搜索IP地址
+     *
+     * @param key
+     *
+     * @return
+     */
+    boolean checkIpSearch(String key) {
+        for (int i = 0; i < 9; i++) {
+            if (key.contains(String.valueOf(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * 监控配置
      *
      * @return
@@ -430,16 +456,39 @@ public class ListDataController {
             searchMap.put("groupsName", groupsName);
         }
         String description = request.getParameter("search[value]");
+        List<String> ips = new ArrayList<>();
         if (description != null && description.length() > 1) {
             searchMap.put("description", description);
+            if (checkIpSearch(description)) {
+                searchMap.put("ipAddress", description);
+                List<CmdbResourceServerEntity> serverIdsEntity = serverService.getDataList(searchMap, "selectByIp");
+                for (CmdbResourceServerEntity entity : serverIdsEntity) {
+                    ips.add(String.valueOf(entity.getServerId()));
+                }
+            }
         }
         PagingResult<MonitorConfigureEntity> result = configureService.findAll(searchMap, pageBounds, "selectByAll");
+        boolean isData;
+        List<MonitorConfigureEntity> list = new ArrayList<>();
+        if (result.getTotal() < 1) {
+            for (String ip : ips) {
+                searchMap = new SearchMap();
+                searchMap.put("ip", ip);
+                result = configureService.findAll(searchMap, pageBounds, "selectByAll");
+                if (result != null && result.getTotal() > 0) {
+                    for (MonitorConfigureEntity configureEntity:result.getRows()) {
+                        list.add(configureEntity);
+                    }
+                }
+            }
+            return PageResponse.getList(list, draw);
+        }
         return PageResponse.getMap(result, draw);
     }
 
     /**
-     *
      * @param name
+     *
      * @return
      */
     @RequestMapping(value = "configure/getCache", produces = {"application/json;charset=UTF-8"})
@@ -447,7 +496,6 @@ public class ListDataController {
     public String getConfigureCache(String name) {
         return redisUtil.get(MonitorCacheConfig.cacheConfigureKey + name);
     }
-
 
 
 }

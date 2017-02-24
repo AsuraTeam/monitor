@@ -58,8 +58,12 @@
             index_name=#{indexName},
             scripts_id=#{scriptsId},
             last_modify_time=#{lastModifyTime},
-            last_modify_user=#{lastModifyUser},
-            description=#{description},
+            <if test="lastModifyUser != null ">
+                last_modify_user=#{lastModifyUser},
+            </if>
+            <if test="description != null ">
+                description=#{description},
+            </if>
             unit=#{unit}
          where index_id=#{indexId}
     </update>

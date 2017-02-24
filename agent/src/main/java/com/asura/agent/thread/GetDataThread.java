@@ -3,12 +3,10 @@ package com.asura.agent.thread;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.asura.agent.entity.PushEntity;
+import com.asura.agent.util.CommandUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,17 +26,9 @@ import java.util.List;
 public class GetDataThread extends Thread{
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
-
     private ArrayList<PushEntity> entities;
     private String script;
-    private InputStream is;
-    private InputStreamReader isr;
     private static Gson gson = new Gson();
-
-    private String line;
-    private BufferedReader br;
-
-    private static Runtime runtime = Runtime.getRuntime();
 
     /**
      * 将所有的数据封装到一个集合，统一发送，减少调用接口次数
@@ -55,14 +45,7 @@ public class GetDataThread extends Thread{
      */
     public  ArrayList exec() {
         try {
-            String result = "";
-            Process process = runtime.exec(this.script);
-            is = process.getInputStream();
-            isr = new InputStreamReader(is);
-            br = new BufferedReader(isr);
-            while ((line = br.readLine()) != null) {
-                result += line;
-            }
+            String result = CommandUtil.runScript(script);
             // 判断是数组还是单个对象
             if (result.startsWith("[")) {
                 Type type = new TypeToken<ArrayList<PushEntity>>() {
@@ -75,8 +58,6 @@ public class GetDataThread extends Thread{
                 // 单个实体
                 if (result != "") {
                     entities.add(gson.fromJson(result, PushEntity.class));
-
-
                 }
             }
         }catch (Exception e){

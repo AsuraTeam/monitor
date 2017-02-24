@@ -220,6 +220,9 @@
                 url = "/resource/configure/" + site + "/save";
                 result = post(data, url);
                 parent.layer.msg(JSON.stringify(result), {icon: 1});
+                setTimeout(function () {
+                    post_get({}, "/monitor/configure/cache/all");
+                },1000)
                 //$('#add_getui_config').modal('toggle');
                 //  $('#listTable').dataTable().fnReloadAjax();
             }

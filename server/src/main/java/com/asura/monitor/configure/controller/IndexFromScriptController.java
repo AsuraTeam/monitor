@@ -3,11 +3,12 @@ package com.asura.monitor.configure.controller;
 import com.asura.framework.base.paging.PagingResult;
 import com.asura.framework.base.paging.SearchMap;
 import com.asura.framework.dao.mybatis.paginator.domain.PageBounds;
-import com.google.gson.Gson;
+import com.asura.common.controller.IndexController;
 import com.asura.common.response.PageResponse;
 import com.asura.common.response.ResponseVo;
 import com.asura.monitor.configure.conf.MonitorCacheConfig;
 import com.asura.monitor.configure.entity.MonitorIndexFromScriptsEntity;
+import com.asura.monitor.configure.entity.MonitorScriptsEntity;
 import com.asura.monitor.configure.service.MonitorIndexFromScriptsService;
 import com.asura.monitor.configure.service.MonitorScriptsService;
 import com.asura.monitor.graph.util.FileRender;
@@ -25,7 +26,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.asura.monitor.graph.util.FileWriter.dataDir;
 import static com.asura.monitor.graph.util.FileWriter.separator;
@@ -49,10 +52,12 @@ public class IndexFromScriptController {
 
     @Autowired
     private PermissionsCheck permissionsCheck;
-    private Gson gson = new Gson();
 
      @Autowired
      private MonitorIndexFromScriptsService indexService;
+
+    @Autowired
+    private IndexController indexController;
 
     @Autowired
     private MonitorScriptsService scriptsService;
@@ -67,7 +72,8 @@ public class IndexFromScriptController {
             MonitorIndexFromScriptsEntity result = indexService.findById(id,MonitorIndexFromScriptsEntity.class);
             model.addAttribute("configs",result);
         }
-        model.addAttribute("scripts", scriptsService.findAll(new SearchMap(),new PageBounds(),"selectByAll").getRows());
+        List<MonitorScriptsEntity> result = scriptsService.getDataList(new SearchMap(), "selectByAll");
+        model.addAttribute("scripts", result);
         return "monitor/configure/index/add";
     }
 
@@ -77,30 +83,49 @@ public class IndexFromScriptController {
      */
     @RequestMapping("index/getIndex")
     @ResponseBody
-    public String getIndex(){
+    public String getIndex( MonitorIndexFromScriptsService indexServices){
+        if (indexService == null){
+            indexService = indexServices;
+        }
+        RedisUtil redisUtil = new RedisUtil();
+        String lock = redisUtil.get(MonitorCacheConfig.updateIndexNameLock);
+        if (lock!=null && lock.equals("1")){
+            return "get Index is lock";
+        }else{
+            redisUtil.setex(MonitorCacheConfig.updateIndexNameLock, 600, "1");
+        }
+        Map indexMap = new HashMap();
         SearchMap searchMap = new SearchMap();
-        PageBounds pageBounds = PageResponse.getPageBounds(1000000,1);
+        PageBounds pageBounds = PageResponse.getPageBounds(1000000, 1);
         List indexList = new ArrayList<>();
         PagingResult<MonitorIndexFromScriptsEntity> result = indexService.findAll(searchMap, pageBounds, "selectByAll");
         for (MonitorIndexFromScriptsEntity entity: result.getRows()){
             indexList.add(entity.getIndexName());
+            indexMap.put(entity.getIndexName(), entity.getScriptsId());
         }
         String dir = dataDir + separator + "graph" + separator +"index" +separator;
         File file = new File(dir);
         File[] list = file.listFiles();
         for (File files:list){
            String index =  files.getName();
-            if (!indexList.contains(index)){
-                try {
-                    MonitorIndexFromScriptsEntity scriptsEntity = new MonitorIndexFromScriptsEntity();
-                    scriptsEntity.setIndexName(index);
-                    scriptsEntity.setLastModifyTime(DateUtil.getTimeStamp());
-                    String scriptId = FileRender.readLastLine(dir + index+ separator + "id");
-                    scriptsEntity.setScriptsId(Integer.valueOf(scriptId.replace("\n","")));
+            MonitorIndexFromScriptsEntity scriptsEntity = new MonitorIndexFromScriptsEntity();
+            scriptsEntity.setIndexName(index);
+            scriptsEntity.setLastModifyTime(DateUtil.getTimeStamp());
+            String scriptId = FileRender.readLastLine(dir + index+ separator + "id");
+            if (scriptId==null){
+                continue;
+            }
+            scriptsEntity.setScriptsId(Integer.valueOf(scriptId.replace("\n","")));
+            try {
+                if (!indexList.contains(index)) {
                     indexService.save(scriptsEntity);
-                }catch (Exception e){
-                      e.printStackTrace();
+                } else {
+                    if (indexMap.get(index).equals(scriptId.trim())) {
+                        indexService.update(scriptsEntity);
+                    }
                 }
+            }catch (Exception e){
+                e.printStackTrace();
             }
         }
         return "ok";
@@ -167,4 +192,22 @@ public class IndexFromScriptController {
         return ResponseVo.responseOk(null);
     }
 
+    /**
+     * 删除指标名称
+     * @param id
+     * @return
+     */
+    @RequestMapping("deleteSave")
+    @ResponseBody
+    public String deleteSave(int id, HttpServletRequest request){
+        MonitorIndexFromScriptsEntity entity = indexService.findById(id,MonitorIndexFromScriptsEntity.class);
+        String dir = dataDir + separator + "graph" + separator +"index" +separator +  FileRender.replace(entity.getIndexName());
+        try {
+            File file = new File(dir);
+            file.delete();
+        }catch (Exception e){
+        }
+        indexController.logSave(request, "删除指标名称 " + entity.getIndexName());
+        return "ok";
+    }
 }

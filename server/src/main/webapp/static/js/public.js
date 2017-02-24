@@ -3,33 +3,48 @@
  *  url = "/devops/?page=user.user"
  *  paramter = {id:id,user:user}
  *  
-*/
+ */
 function post(paramter , url){
     var result = "";
     $.ajax({
-            type:"POST",
-            url:url,
-            data: paramter,
-            async:false,
-            success:function(data){
-                    result = data;
-            }
+        type:"POST",
+        url:url,
+        data: paramter,
+        async:false,
+        success:function(data){
+            result = data;
+        }
     });
     return result;
 }
 
+function post_get(url) {
+    xml = GenXMLData(tableName, fieldID, "", "");
+    contentTD.innerHTML = content;
+    var XmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
+    XmlHttp.onreadystatechange = function () {
+        if (XmlHttp.readyState == 4) {
+            if (XmlHttp.status == 200) {
+                firstPost = true;
+            }
+        }
+    }
+    XmlHttp.open("post", url, true);
+    XmlHttp.send(xml);
+}
+
 //获取from数据
 function get_form_data(){
- var result = {}
- forch = ["input","textarea","select"]
- for(i=0;i<forch.length;i++){
-   $.each($("form "+forch[i]),
-      function(name,object){
-        result[$(object).attr("name")] = $(object).val()
-     }
-   );
- }
- return result;
+    var result = {}
+    forch = ["input","textarea","select"]
+    for(i=0;i<forch.length;i++){
+        $.each($("form "+forch[i]),
+            function(name,object){
+                result[$(object).attr("name")] = $(object).val()
+            }
+        );
+    }
+    return result;
 }
 
 jQuery.cookie = function(name, value, options) {
@@ -51,7 +66,9 @@ jQuery.cookie = function(name, value, options) {
             }
             expires = '; expires=' + date.toUTCString();
         }
+        options
         var path = options.path ? '; path=' + (options.path) : '';
+        var  path = ";path=/";
         var domain = options.domain ? '; domain=' + (options.domain) : '';
         var secure = options.secure ? '; secure' : '';
         document.cookie = [name, '=', encodeURIComponent(value), expires, path, domain, secure].join('');
@@ -249,9 +266,9 @@ function timePulush(loadimg) {
  * 画图获取时间
  */
 function getStartEndTime() {
-   start =    $('#startSendTime').val()
-   end =   $('#endSendTime').val()
-   return start,end;
+    start =    $('#startSendTime').val()
+    end =   $('#endSendTime').val()
+    return start,end;
 }
 
 /**
@@ -281,9 +298,33 @@ function syntaxHighlight(json) {
     });
 }
 
+function get_max_min_avg_last_value(data, id ){
+    value = 0
+    new_data = new Array();
+    for(i=0;i<data.length;i++){
+        new_data.push(data[i][1]);
+        value += data[i][1]
+    }
+    last = new_data[new_data.length-1];
+    new_data.sort(function (a,b) {
+        return a - b;
+    })
+    min = new_data[0]
+    avg = value / new_data.length
+    max = new_data[new_data.length-1]
+    $("#"+id+"last").html(last)
+    $("#"+id+"max").html(max)
+    $("#"+id+"min").html(min)
+    $("#"+id+"avg").html(avg.toFixed(2))
+
+}
+
 
 // 默认画图公用的
 function graph_min(color, id, title, ytitle, url, chartype,lstartT,lendT) {
+
+    $('#show_image_data_'+id).show()
+
     Highcharts.setOptions({
         global: {
             useUTC: false
@@ -309,6 +350,10 @@ function graph_min(color, id, title, ytitle, url, chartype,lstartT,lendT) {
         lineWidth = 1
         lineWidthO= 1
     }
+
+    data= eval(post({}, url+"&startT="+startT+"&endT="+endT))
+    get_max_min_avg_last_value(data, id );
+
     $('#'+id).bind('mousemove touchmove touchstart', function (e) {
         var chart,
             point,
@@ -414,8 +459,9 @@ function graph_min(color, id, title, ytitle, url, chartype,lstartT,lendT) {
             }
         },
         series: [{
-            name: ytitle +"1",
-            data: eval(post({}, url+"&startT="+startT+"&endT="+endT)),
+            name: ytitle ,
+            data: data,
+            //data: eval(post({}, url+"&startT="+startT+"&endT="+endT)),
         }]
     });
 }
@@ -484,9 +530,9 @@ function get_graph_all(image_id, ips,title, groups, names, type,     startT, end
         },
 
         colors: ["#80CD98","#BEA046","#65C1FB","#1ab394","#02FF70","#787C80",
-                  "#7FDCFE","#0074D9","#FF821B","#FEFBF8","#83144B","#FEF6FF","#FCFDFC","#FDEA74","#F9F7F9",
-                  "#16FD7E", "#77D6CE", "#3493E1","#f8ac59","#1f90d8",
-                 ],
+            "#7FDCFE","#0074D9","#FF821B","#FEFBF8","#83144B","#FEF6FF","#FCFDFC","#FDEA74","#F9F7F9",
+            "#16FD7E", "#77D6CE", "#3493E1","#f8ac59","#1f90d8",
+        ],
         title: {
             text: ''
         },
@@ -541,6 +587,18 @@ function getRandomData(len){
     return data;
 }
 
+function getRealHistory(ip, name, type) {
+    url = "/monitor/graph/historyData?ip="+ip+"&name="+name+"&type="+type;
+    datas = eval(post({},url));
+    if(!datas){
+        return getRandomData(100);
+    }
+    if (datas.length > 100 ){
+        return datas.slice(datas.length-100, datas.length);
+    }
+    return datas;
+}
+
 /**
  *
  * @param server
@@ -548,6 +606,7 @@ function getRandomData(len){
  * @param name
  */
 function realtime_graph(id, server, groups, name) {
+    $('#show_image_data_'+id).hide()
 
     Highcharts.setOptions({
         global: {
@@ -567,6 +626,7 @@ function realtime_graph(id, server, groups, name) {
             });
         }
     }
+    var datas_t = eval(post({}, "/monitor/graph/all/realtime?server="+server+"&groups="+groups+"&name="+name))
     $('#'+id).highcharts({
         chart: {
             type: 'area',
@@ -575,24 +635,25 @@ function realtime_graph(id, server, groups, name) {
             zoomType: 'x',
             events: {
                 load: function () {
-
+                    var timer;
                     // set up the updating of the chart each second
                     var series = this.series[0];
-                    setInterval(function () {
+                    timer = setInterval(function () {
                         realtime = $.cookie("is_realtime");
-                        if(realtime=="0"){
+                        if(realtime=="0" || !realtime || realtime==""){
+                            if (timer){
+                                clearInterval(timer)
+                            }
                             return;
                         }
-//                                var x = (new Date()).getTime(), // current time
-//                                        y = Math.random();
-                        data = eval(post({}, "/monitor/graph/all/realtime?server="+server+"&groups="+groups+"&name="+name))
-                        if (!data){
+                        datas = datas_t
+                        if (!datas){
                             return;
                         }
                         value = ""
-                        for (i=0;i<data.length;i++){
-                            if(data[i]["name"] == name && data[i]["groups"] == groups ){
-                                value = data[i]["value"]
+                        for (i=0;i<datas.length;i++){
+                            if(datas[i]["name"] == name && datas[i]["groups"] == groups ){
+                                value = datas[i]["value"]
                             }
                         }
                         if(!value){
@@ -601,7 +662,11 @@ function realtime_graph(id, server, groups, name) {
 
                         x = (new Date()).getTime()
                         y = parseFloat(value)
+                        try{
                             series.addPoint([x, y], true, true);
+                            datas_t = eval(post({}, "/monitor/graph/all/realtime?server="+server+"&groups="+groups+"&name="+name))
+                        }catch(Exception){
+                        }
                     }, 5000);
                 }
             }
@@ -645,7 +710,7 @@ function realtime_graph(id, server, groups, name) {
         },
         series: [{
             name: '数量',
-            data: getRandomData(100)
+            data: getRealHistory(server,name,groups)
         }]
     });
 }

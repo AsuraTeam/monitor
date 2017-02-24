@@ -313,12 +313,6 @@
                         <version>${mybatis.generator.version}</version>
                 </dependency>
 
-                <!-- 添加oracle jdbc driver -->
-                <dependency>
-                        <groupId>org.ojdbc6</groupId>
-                        <artifactId>ojdbc6</artifactId>
-                        <version>6.0</version>
-                </dependency>
 
                 <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-email -->
                 <dependency>

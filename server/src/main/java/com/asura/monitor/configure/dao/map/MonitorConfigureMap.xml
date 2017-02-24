@@ -43,7 +43,8 @@
          from monitor_configure a,
          cmdb_resource_groups b
          where a.groups_id = b.groups_id
-        </sql>
+   </sql>
+
     <select id="selectByAll" resultType="com.asura.monitor.configure.entity.MonitorConfigureEntity">
         <include refid="baseSql"/>
         <if test="isValid != null">
@@ -53,7 +54,20 @@
             and b.groups_name = #{groupsName}
         </if>
         <if test="description != null">
-            and a.description LIKE concat("%", #{description}, "%")
+            and (
+               a.description LIKE concat("%", #{description}, "%") OR
+               a.arg1 LIKE concat("%", #{description}, "%") OR
+               a.arg2 LIKE concat("%", #{description}, "%") OR
+               a.arg3 LIKE concat("%", #{description}, "%") OR
+               a.arg4 LIKE concat("%", #{description}, "%") OR
+               a.arg5 LIKE concat("%", #{description}, "%") OR
+               a.arg6 LIKE concat("%", #{description}, "%") OR
+               a.arg7 LIKE concat("%", #{description}, "%") OR
+               a.arg8 LIKE concat("%", #{description}, "%")
+            )
+        </if>
+        <if test="ip != null">
+            and a.hosts LIKE concat("%", #{ip}, "%")
         </if>
         ORDER BY a.last_modify_time desc
     </select>
@@ -148,8 +162,8 @@
     </insert>
 
     <delete id="delete" parameterType="com.asura.monitor.configure.entity.MonitorConfigureEntity">
-           DELETE from monitor_configure where  configure_id=#{configureId}
-    </delete>
+        DELETE from monitor_configure where  configure_id=#{configureId}
+   </delete>
 
     <update id="update" parameterType="com.asura.monitor.configure.entity.MonitorConfigureEntity">
         update monitor_configure set   

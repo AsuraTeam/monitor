@@ -89,7 +89,9 @@ public class AccessLogInterceptor extends HandlerInterceptorAdapter {
         long startTime = (long) request.getAttribute(REQUEST_PRE_HANDLE_MILLSECOND);
         long useTime = System.currentTimeMillis() - startTime;
         if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("{url:{},ip:{},use:{} ms }", requestUrl, ipAddr, useTime);
+            if (useTime > 500) {
+                LOGGER.info("{url:{},ip:{},use:{} ms }", requestUrl, ipAddr, useTime);
+            }
         }
         super.afterCompletion(request, response, handler, ex);
     }

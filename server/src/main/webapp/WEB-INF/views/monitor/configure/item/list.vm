@@ -111,14 +111,14 @@
 
     function deleteConfig(id){
 
-        url = "/monitor/configure/"+site+"/delete";
+        url = "/monitor/configure/"+site+"/deleteSave";
         parent.layer.confirm("点击同意后,将删除数据", {
             btn: ['同意','不同意'], //按钮
             shade: false//不显示遮罩
         }, function(){
             result = post({id:id}, url);
             parent.layer.msg(JSON.stringify(result),  {icon:1})
-            location.reload();
+            $('#listTable').dataTable().fnReloadAjax();
         }, function(){
             parent.layer.msg("取消操作",  {icon:2})
         });
@@ -203,8 +203,13 @@
                     }
                     return "否"
                 }},
-                {"data": "description"},
-                {"sWidth": "150px", "data": "itemId", "mRender": function(data, type, full) {
+                {"data": "description","mRender":function (data) {
+                    if (data.length>30){
+                        return "<span title='"+data+"'>"+data.substring(0,30)+"</span>"
+                    }
+                    return data;
+                }},
+                {"data": "itemId", "mRender": function(data, type, full) {
                     return '<a  onclick="show_cache(\''+data+'\',\'item\')"><i style="margin-left: 25px;" class="fa fa-heart-o"></i></a>';
                 }
                 },

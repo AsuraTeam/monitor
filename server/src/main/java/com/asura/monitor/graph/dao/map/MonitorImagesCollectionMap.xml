@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.monitor.graph.dao.MonitorImagesCollectionDao">
+    <sql id="baseSql">
+                select
+            collection_id as collectionId,
+            images as images,
+            create_time as createTime,
+            user as user,
+            ip,
+            description as description,
+            last_modify_time as lastModifyTime
+         from monitor_images_collection
+    </sql>
+
+    <select id="selectByAll" resultType="com.asura.monitor.graph.entity.MonitorImagesCollectionEntity">
+        <include refid="baseSql" />
+        WHERE 1=1
+        <if test="user != null">
+            and user=#{user}
+        </if>
+        <if test="key != null">
+            and (images like concat("%",#{key},"%") or
+            description like concat("%",#{key},"%") or
+            ip like concat("%",#{key},"%")
+            )
+        </if>
+        ORDER by collection_id DESC
+    </select>
+
+    <select id="findById" resultType="com.asura.monitor.graph.entity.MonitorImagesCollectionEntity">
+        <include refid="baseSql" />
+        WHERE collection_id=#{collectionId}
+    </select>
+
+    <insert id="save" parameterType="com.asura.monitor.graph.entity.MonitorImagesCollectionEntity">
+        insert into monitor_images_collection(
+            images,
+            create_time,
+            user,
+            description,
+            ip,
+            last_modify_time
+        ) 
+        values(        
+            #{images},
+            #{createTime},
+            #{user},
+            #{description},
+            #{ip},
+            #{lastModifyTime}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.monitor.graph.entity.MonitorImagesCollectionEntity">
+        update monitor_images_collection set   
+            images=#{images},
+            create_time=#{createTime},
+            user=#{user},
+            ip=#{ip},
+            description=#{description},
+            last_modify_time=#{lastModifyTime}
+         where collection_id=#{collectionId}
+    </update>
+
+    <delete id="delete" parameterType="com.asura.monitor.graph.entity.MonitorImagesCollectionEntity">
+           DELETE  from monitor_images_collection where  collection_id=#{collectionId}
+           and    user=#{user}
+    </delete>
+</mapper>
+

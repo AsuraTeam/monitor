@@ -223,4 +223,14 @@ public class DateUtil {
 		SimpleDateFormat sdf = new SimpleDateFormat(format);
 		return sdf.format(new Date(Long.valueOf(seconds)));
 	}
+
+	/**
+	 * 获取最近N天的时间
+	 * @return
+	 */
+	public static String getLastNDay(int number){
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.DATE,-number);
+		return new SimpleDateFormat("yyyy-MM-dd").format(cal.getTime());
+	}
 }

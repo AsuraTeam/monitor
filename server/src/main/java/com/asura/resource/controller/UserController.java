@@ -5,12 +5,12 @@ import com.asura.framework.base.paging.SearchMap;
 import com.asura.framework.dao.mybatis.paginator.domain.PageBounds;
 import com.asura.common.response.PageResponse;
 import com.asura.common.response.ResponseVo;
-import com.asura.util.DateUtil;
-import com.asura.util.PermissionsCheck;
 import com.asura.resource.entity.CmdbResourceGroupsEntity;
 import com.asura.resource.entity.CmdbResourceUserEntity;
 import com.asura.resource.service.CmdbResourceGroupsService;
 import com.asura.resource.service.CmdbResourceUserService;
+import com.asura.util.DateUtil;
+import com.asura.util.PermissionsCheck;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -127,7 +127,10 @@ public class UserController {
      * @return
      */
     @RequestMapping("delete")
-    public ResponseVo delete(){
+    @ResponseBody
+    public ResponseVo delete(int id){
+        CmdbResourceUserEntity result = service.findById(id,CmdbResourceUserEntity.class);
+        service.delete(result);
         return ResponseVo.responseOk(null);
     }
 }

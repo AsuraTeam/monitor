@@ -52,7 +52,7 @@ public class FileIoUtil {
                 BufferedReader bufferedReader = new BufferedReader(read);
                 String lineTxt = null;
                 while ((lineTxt = bufferedReader.readLine()) != null) {
-                    if (lineTxt.length() < 10) {
+                    if (lineTxt.length() < 1) {
                         continue;
                     }
                     arr.add(lineTxt);
@@ -147,7 +147,7 @@ public class FileIoUtil {
                 BufferedReader bufferedReader = new BufferedReader(read);
                 String lineTxt = null;
                 while ((lineTxt = bufferedReader.readLine()) != null) {
-                    if (lineTxt.length() < 10) {
+                    if (lineTxt.length() < 1) {
                         continue;
                     }
                     result += lineTxt;
@@ -161,4 +161,5 @@ public class FileIoUtil {
         }
         return result;
     }
+
 }

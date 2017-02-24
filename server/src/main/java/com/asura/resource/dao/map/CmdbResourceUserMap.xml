@@ -61,5 +61,8 @@
          where  user_id=#{userId}
     </update>
 
+    <delete id="delete" parameterType="com.asura.resource.entity.CmdbResourceUserEntity">
+        DELETE from cmdb_resource_user where   user_id=#{userId}
+    </delete>
 </mapper>
 

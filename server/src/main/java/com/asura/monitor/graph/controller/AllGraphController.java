@@ -31,6 +31,7 @@ import static com.asura.monitor.graph.util.FileRender.getDirFiles;
 import static com.asura.monitor.graph.util.FileRender.getSubDir;
 import static com.asura.monitor.graph.util.FileRender.readHistory;
 import static com.asura.monitor.graph.util.FileRender.separator;
+import static com.asura.monitor.graph.util.FileWriter.dataDir;
 
 /**
  * <p></p>
@@ -59,7 +60,7 @@ public class AllGraphController {
      * @param select
      * @param width
      * @param model
-     *
+     * 2017-02-05
      * @return
      */
     @RequestMapping("index")
@@ -70,9 +71,37 @@ public class AllGraphController {
         if (type != null && type.equals("bind")) {
             model.addAttribute("bind", "&type=bind");
         }
+
         return "/monitor/graph/all/index";
     }
 
+    /**
+     * 时间段图像显示
+     * @param ip
+     * @param groups
+     * @param name
+     * @param model
+     * @return
+     */
+    @RequestMapping("listImg")
+    public String sub(String ip, String groups, String name, Model model) {
+        model.addAttribute("name", name);
+        model.addAttribute("n", groups);
+        ArrayList arrayList = new ArrayList();
+        arrayList.add(3);
+        arrayList.add(7);
+        arrayList.add(15);
+        arrayList.add(30);
+        arrayList.add(60);
+        arrayList.add(90);
+        arrayList.add(120);
+        arrayList.add(180);
+        arrayList.add(240);
+        arrayList.add(360);
+        model.addAttribute("days", arrayList);
+        model.addAttribute("ip", ip);
+        return "/monitor/graph/all/listImg";
+    }
 
     /**
      * 所有图像入口
@@ -83,26 +112,32 @@ public class AllGraphController {
      * @param endT
      * @param type
      * @param width
+     * @param dayNumber
      * @param model
-     *
+     * @param ips
+     * @param isAll
+     * @param mline
      * @return
      */
     @RequestMapping("sub")
-    public String sub(String ip, String select, String startT, String endT, String type, String width, Model model) {
-        ArrayList dir = new ArrayList();
+    public String sub(String ip, String select, String startT, String endT, String type, String width, Model model, String dayNumber, String isAll, String ips, String mline) {
+        ArrayList dir ;
         // 获取默认数据
         if (ip == null || ip.length() < 1) {
             return "/monitor/graph/all/sub";
         }
+        if (dayNumber!=null&&dayNumber.length()>0){
+            model.addAttribute("dayNumber", dayNumber);
+        }
         dir = getSubDir(ip);
 
         // 获取所有的类型
-        Map map = FileRender.getGraphName(dir, ip);
+        Map<String, ArrayList> map = FileRender.getGraphName(dir, ip);
         Map tempMap = new HashMap();
         if (select != null && select.length() > 5) {
             model.addAttribute("select", select);
             String[] selectList = select.split(",");
-            String[] types = new String[2];
+            String[] types ;
             for (String s : selectList) {
                 ArrayList<String> tempArr = new ArrayList();
                 types = s.split("\\|");
@@ -113,7 +148,6 @@ public class AllGraphController {
                         tempArr.add(tname);
                     }
                 }
-
                 if (tempMap.get(types[0]) != null) {
                     ArrayList newTemp = (ArrayList) tempMap.get(types[0]);
                     for (String ns : tempArr) {
@@ -132,6 +166,17 @@ public class AllGraphController {
             model.addAttribute("types", tempMap);
         } else {
             model.addAttribute("types", map);
+            // 取消空选择时选择所有数据,只选择前10个
+            int count= 0;
+            for (Map.Entry<String, ArrayList> entry : map.entrySet()) {
+                ArrayList names = entry.getValue();
+                tempMap.put(entry.getKey(), names);
+                count += names.size();
+                if (count>10){
+                    break;
+                }
+            }
+            model.addAttribute("types", tempMap);
         }
         if (width != null && width.length() > 0) {
             model.addAttribute("width", width);
@@ -139,9 +184,21 @@ public class AllGraphController {
         model.addAttribute("startT", startT);
         model.addAttribute("endT", endT);
         model.addAttribute("ip", ip);
-        if (type != null && type.equals("bind")) {
-            return "/monitor/graph/all/subbind";
+
+        if (ips != null) {
+            model.addAttribute("ips", ips.split(","));
+        }else{
+            model.addAttribute("ips", ip.split(","));
         }
+
+        if(mline != null && mline.equals("1")) {
+            return "/monitor/graph/all/mline";
+        }
+
+        if(isAll != null && isAll.equals("1")) {
+            return "/monitor/graph/all/merger";
+        }
+
         if (type == null) {
             return "/monitor/graph/all/sub";
         } else {
@@ -166,6 +223,7 @@ public class AllGraphController {
         model.addAttribute("types", map);
         return "/monitor/graph/all/selectImg";
     }
+
 
     /**
      * 数据写入
@@ -312,13 +370,30 @@ public class AllGraphController {
     }
 
     /**
-     * 多图绑定
      *
+     * @param key
+     * @param result
+     * @param name
+     * @param groups
      * @return
      */
-    @RequestMapping("bind")
-    public String bind() {
-        return "/monitor/graph/all/subbind";
+    String getRealData(String key, String result, String name, String groups, Gson gson){
+        Map map = new HashMap();
+        List datas = new ArrayList();
+        if (result.length()> key.length()) {
+            Type type = new TypeToken<ArrayList<PushEntity>>() {
+            }.getType();
+            List<PushEntity> list = new Gson().fromJson(result, type);
+            for (PushEntity entity : list) {
+                if (entity.getGroups().equals(groups) && entity.getName().equals(name)) {
+                    map.put("name", name);
+                    map.put("groups", groups);
+                    map.put("value", entity.getValue());
+                }
+            }
+            datas.add(map);
+        }
+        return gson.toJson(datas);
     }
 
     /**
@@ -337,11 +412,15 @@ public class AllGraphController {
         if (indexMap==null){
             indexMap = new HashMap<>();
         }
+
         if (hostIdMap.containsKey(server)) {
             serverId = (String) hostIdMap.get(server).get("serverId");
             port = (String) hostIdMap.get(server).get("port");
         } else {
             serverId = redisUtil.get(MonitorCacheConfig.hostsIdKey + server);
+            if (serverId == null ){
+                return "[]";
+            }
             String portData = redisUtil.get(MonitorCacheConfig.cacheAgentServerInfo + serverId);
             if (portData.length() > 0) {
                 Map serverMap = gson.fromJson(portData, HashMap.class);
@@ -354,14 +433,22 @@ public class AllGraphController {
         String  key = groups + "." + name;
         String scriptId;
         if (!indexMap.containsKey(key)) {
-            scriptId = redisUtil.get(MonitorCacheConfig.cacheIndexScript + key);
+            // 拼接文件目录
+            String dir = dataDir + separator + "graph" + separator +"index" +separator;
+            dir = dir + key + separator + "id";
+            dir = FileRender.replace(dir);
+            scriptId = FileRender.readLastLine(dir);
             indexMap.put(key, scriptId);
         }else{
             scriptId = indexMap.get(key);
         }
         String url = "http://" + server + ":" + port + "/api/realtime?scriptId=" + scriptId;
-        System.out.println(url);
-        return HttpUtil.sendPost(url, "scriptId=12");
+        String result = HttpUtil.sendGet(url);
+        if (result.length()> key.length()){
+            return getRealData(key, result, name, groups, gson);
+        }else{
+            return "[]";
+        }
     }
 
     /**

@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.asura.agent.configure.Configure;
 import com.asura.agent.entity.PushEntity;
 import com.asura.agent.thread.GetDataThread;
+import com.asura.agent.util.CommandUtil;
 import com.asura.agent.util.FileIoUtil;
 import com.asura.agent.util.HttpUtil;
 import com.asura.agent.util.Md5Util;
@@ -114,13 +115,12 @@ public class AgentController {
         scripts = null;
     }
 
+
     /**
      * 执行脚本，任务计划调用
-     *
      * @return
      */
     public String execCommand() {
-
 
         String url = Configure.getUrl();
         if(url==null||url.length()<3){

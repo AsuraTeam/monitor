@@ -18,7 +18,7 @@ package com.asura.monitor.configure.conf;
 public class MonitorCacheConfig {
 
     // 存放每个主机对应的在cmdb的id
-    public static String hostsIdKey = "_cache_hosts_id_";
+    public static String hostsIdKey = "cache_hosts_id_";
 
     // 存放有配置的主机的配置信息
     public static String cacheConfigureHostsListKey = "cache_configure_hosts_list";
@@ -37,6 +37,9 @@ public class MonitorCacheConfig {
 
     // 存放脚本的信息的key cache_script_scriptId
     public static String cacheScriptKey = "cache_script_";
+
+    // 存放脚本的信息的key cache_script_scriptId
+    public static String cacheScriptIdKey = "cache_script_id_";
 
     // 联系组的缓存key，存放报警联系组的 cache_contact_group_groupId
     public static String cacheContactGroupKey = "cache_contact_group_";
@@ -136,4 +139,14 @@ public class MonitorCacheConfig {
 
     // 存放主机是否存活 cache_host_is_update_id Long 类型
     public static String cacheHostIsUpdate = "cache_host_is_update_";
+
+    // 画图使用存放机器的队列
+    public static String mergerDataQueue = "cache_merger_data_queue_";
+
+    // 图片合并任务计划锁
+    public static String mergerDataLock = "cache_merger_data_lock";
+
+    // index名称刷新锁
+    public static String updateIndexNameLock = "cache_update_index_name_lock";
+
 }

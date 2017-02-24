@@ -3,25 +3,29 @@ package com.asura.agent.util;
 import org.slf4j.Logger;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 
 public class HttpUtil {
 
     private static Logger logger = org.slf4j.LoggerFactory.getLogger(HttpUtil.class);
 
+    public static String sendPost(String url, String param){
+        for (int i=0 ; i < 3; i++) {
+            String result = sendPost(url, param, ""+i);
+            if (result != null){
+                return result;
+            }
+        }
+        return "";
+    }
     /**
      * 向指定 URL 发送POST方法的请求
      *
@@ -32,7 +36,8 @@ public class HttpUtil {
      *
      * @return 所代表远程资源的响应结果
      */
-    public static String sendPost(String url, String param) {
+    public static String sendPost(String url, String param, String tid) {
+        logger.info(tid);
         PrintWriter out = null;
         BufferedReader in = null;
         String result = "";
@@ -61,8 +66,8 @@ public class HttpUtil {
                 result += line;
             }
         } catch (Exception e) {
+            result = null;
             System.out.println("发送 POST 请求出现异常！" + e);
-            e.printStackTrace();
         }
         //使用finally块来关闭输出流、输入流
         finally {
@@ -74,62 +79,12 @@ public class HttpUtil {
                     in.close();
                 }
             } catch (IOException ex) {
+                result = null;
                 ex.printStackTrace();
             }
         }
         return result;
     }
-
-    /**
-     * post方式请求服务器(http协议)
-     *
-     * @param url
-     *         请求地址
-     * @param content
-     *         参数
-     * @param charset
-     *         编码
-     *
-     * @return
-     *
-     * @throws NoSuchAlgorithmException
-     * @throws KeyManagementException
-     * @throws IOException
-     */
-    public static byte[] post(String url, String content, String charset) throws Exception {
-        URL console = new URL(url);
-        HttpURLConnection conn = (HttpURLConnection) console.openConnection();
-
-        //conn.setHostnameVerifier(new TrustAnyHostnameVerifier());
-
-        conn.setDoOutput(true);
-        conn.setConnectTimeout(4000);
-        conn.setReadTimeout(4000);
-        conn.setAllowUserInteraction(true);
-        conn.setRequestMethod("POST");
-        // System.out.println(conn.getRequestMethod());
-        conn.setUseCaches(false);
-        conn.connect();
-        DataOutputStream out = new DataOutputStream(conn.getOutputStream());
-        out.write(content.getBytes(charset));
-        // 刷新、关闭
-        out.flush();
-        out.close();
-        InputStream is = conn.getInputStream();
-        if (is != null) {
-            ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-            byte[] buffer = new byte[1024];
-            int len = 0;
-            while ((len = is.read(buffer)) != -1) {
-                outStream.write(buffer, 0, len);
-            }
-            is.close();
-            return outStream.toByteArray();
-        }
-        conn.disconnect();
-        return null;
-    }
-
 
     /**
      * @param urls

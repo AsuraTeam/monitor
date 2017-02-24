@@ -69,5 +69,9 @@
          where contacts_id=#{contactsId}
     </update>
 
+    <delete id="delete" parameterType="com.asura.monitor.configure.entity.MonitorContactsEntity">
+          delete from  monitor_contacts where   contacts_id=#{contactsId}
+    </delete>
+
 </mapper>
 

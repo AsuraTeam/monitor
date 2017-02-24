@@ -46,6 +46,10 @@
                             onclick="window.location='/monitor/configure/contactGroup/list'">
                         <i class="fa fa-group"></i>&nbsp;&nbsp;<span class="bold">组配置</span>
                     </button>
+                    <button class="btn btn-outline btn-primary " type="button"
+                            onclick="window.location='/monitor/configure/configure/list'">
+                        <i class="fa fa-eye"></i>&nbsp;&nbsp;<span class="bold">监控配置</span>
+                    </button>
                 </div>
                 <div class="ibox-content" style="overflow:scroll;">
                     <table id="listTable"
@@ -85,14 +89,14 @@
 
     function deleteConfig(id){
 
-        url = "/monitor/configure/"+site+"/delete";
+        url = "/monitor/configure/"+site+"/deleteSave";
         parent.layer.confirm("点击同意后,将删除数据", {
             btn: ['同意','不同意'], //按钮
             shade: false//不显示遮罩
         }, function(){
             result = post({id:id}, url);
             parent.layer.msg(JSON.stringify(result),  {icon:1})
-            location.reload();
+            $('#listTable').dataTable().fnReloadAjax();
         }, function(){
             parent.layer.msg("取消操作",  {icon:2})
         });

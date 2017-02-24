@@ -28,6 +28,7 @@ import com.asura.resource.service.CmdbResourceServerTypeService;
 import com.asura.resource.service.CmdbResourceServiceService;
 import com.asura.resource.service.CmdbResourceUserService;
 import com.asura.util.DateUtil;
+import com.asura.util.LdapAuthenticate;
 import com.asura.util.PermissionsCheck;
 import com.asura.util.RedisUtil;
 import com.asura.util.network.ThreadPing;
@@ -242,7 +243,6 @@ public class ServerController {
             searchMap.put("isOff",isOff);
         }
         PagingResult<CmdbResourceServerEntity> result;
-        System.out.println(hostIp);
         result = service.findAll(searchMap, pageBounds, "selectByAll");
         if(hostIp !=null && result.getTotal()<1){
             searchMap.remove("hostIp");
@@ -332,7 +332,6 @@ public class ServerController {
         // 获取每个id对应的ip地址
         jedis.set(app+"_"+MonitorCacheConfig.cacheHostIdToIp+ c.getServerId(), c.getIpAddress());
         jedis.close();
-        cacheController.makeAllHostKey();
         indexController.logSave(request,"保存资产数据 " + entity.getIpAddress());
         return ResponseVo.responseOk(null);
     }
@@ -383,7 +382,7 @@ public class ServerController {
     /**
      * 删除资产数据
      * @return
-    */
+     */
     @RequestMapping(value = "delete", produces = {"application/json;charset=UTF-8"})
     @ResponseBody
     public String delete(int id, HttpServletRequest request) {
@@ -392,7 +391,7 @@ public class ServerController {
             return "请登陆后操作";
         }
         String dept = ldapAuthenticate.getSignUserInfo("department", "sAMAccountName=" + user);
-        CmdbResourceServerEntity resourceServerEntity = service.findById(id,CmdbResourceServerEntity.class);
+        CmdbResourceServerEntity resourceServerEntity = service.findById(id, CmdbResourceServerEntity.class);
         if (! user.equals("admin") && ! dept.contains("运维")){
             return "no permissions";
         }
@@ -402,6 +401,7 @@ public class ServerController {
         redisUtil.del(MonitorCacheConfig.cacheHostIdToIp+id);
         service.delete(resourceServerEntity);
         indexController.logSave(request,"删除资产数据 " + gson.toJson(resourceServerEntity));
+        cacheController.cacheGroups();
         return "ok";
     }
 
@@ -499,11 +499,15 @@ public class ServerController {
             SearchMap map = new SearchMap();
             map.put("status", 1);
             map.put("hosts", upList);
-            service.updatePing(map);
+            if (upList.size() > 0 ) {
+                service.updatePing(map);
+            }
             SearchMap downMap = new SearchMap();
             downMap.put("status", 0);
             downMap.put("hosts", downList);
-            service.updatePing(downMap);
+            if (downList.size()>0) {
+                service.updatePing(downMap);
+            }
         }
         return "ok";
     }

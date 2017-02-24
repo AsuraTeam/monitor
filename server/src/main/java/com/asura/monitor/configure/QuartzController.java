@@ -107,7 +107,9 @@ public class QuartzController {
      * @return
      */
     @RequestMapping("delete")
-    public ResponseVo delete(){
+    public ResponseVo delete(int id){
+        CmdbQuartzEntity result = service.findById(id,CmdbQuartzEntity.class);
+        service.delete(result);
         return ResponseVo.responseOk(null);
     }
 }

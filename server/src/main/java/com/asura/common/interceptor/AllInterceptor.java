@@ -1,6 +1,8 @@
 package com.asura.common.interceptor;
 
+import com.asura.util.PermissionsCheck;
 import com.asura.util.RedisUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
@@ -17,6 +19,8 @@ import java.util.ArrayList;
 @Component
 public class AllInterceptor extends HandlerInterceptorAdapter {
 
+	@Autowired
+	private PermissionsCheck permissionsCheck;
 
 	@Value("#{'${monitor.nocheck.url}'.trim()}")
 	private String urls;
@@ -51,19 +55,20 @@ public class AllInterceptor extends HandlerInterceptorAdapter {
 			RedisUtil redisUtil = new RedisUtil();
 			String value = redisUtil.get(sessionId);
 			if (value!=null && value.contains("username")) {
-				return super.preHandle(request,reponse,handler);
+				boolean checkPermission = permissionsCheck.checkPagePermission(permissionsCheck.getLoginUser(request.getSession()), url);
+				if( checkPermission) {
+					return super.preHandle(request, reponse, handler);
+				}else{
+					reponse.sendRedirect(request.getContextPath()+"/noPermissions");
+					return false;
+				}
 			}else {
 				reponse.sendRedirect(request.getContextPath()+"/islogin");
 				return false;
 			}
 
-//			// 检查权限
-//			if(!PermissionsCheck.checkUserPermissions(PermissionsCheck.getLoginUser(sessionId),url)){
-//			    reponse.sendRedirect(request.getContextPath()+"/noPermissions.do");
-//				return false;
-//			}
-
 		} catch (Exception e) {
+			e.printStackTrace();
 			reponse.sendRedirect(request.getContextPath()+"/loginPage.do");
 			return false;
 		}

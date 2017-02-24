@@ -1,0 +1,233 @@
+#include("/index/include.vm")
+<script src="/static/js/plugins/highcharts.js"></script>
+<div id="image_all_id" style="  margin-top: 20px;">
+
+</div>
+<div id="image_all_id_realtime" style="margin-top: 20px;">
+</div>
+
+<div id="no_image_all_select">
+
+    #foreach($ipadd in $ips)
+        #foreach($name in $names)
+            #if($types.get($name))
+                <div id="${ipadd.replace(".", "_")}${name.replace('---','').replace(".","_").replace(" ","")}Border" class="col-md-4"
+                     style="border:solid 1px #f0f0f0;margin-left:-20px;#if($width.length()>0) width:${width}%;
+                     #else width: 49%; #end margin:5px;">
+                    <div class="ibox float-e-margins">
+                        <div class="title-img">
+                        <span class="default pull-right" title="加载大图显示" onclick="load${ipadd.replace(".", "_")}${name.replace("-", "")}(1);"><i
+                                class="fa fa-search-plus" style="font-size:19px;margin-top:10px;margin-right: 10px;"></i></span>
+                            <h5 align="center" style="margin-top: 10px;margin-left: 10px;">${ipadd} ${name}&nbsp;</h5>
+                        </div>
+                        <input type="hidden" id="${ipadd.replace(".", "_")}${name.replace('---','').replace(".","_").replace(" ","")}BorderWidth" value="32">
+                        <div class="animated pulse" id="${ipadd.replace(".", "_")}${name.replace('---','').replace(".","_").replace(" ","")}"
+                             style="width: 100%;height: 240px;margin-bottom:5px;text-align:center;"><img width="20%" height="50%;" src="/static/images/loading.gif"></div>
+                        <div style="margin-left:10px;margin-top:10px;display:none;" id="show_image_data_${ipadd.replace(".", "_")}${name.replace('---','').replace(".","_").replace(" ","")}">
+                            <table class="table  table-bordered table-hover dataTables-example" style="font-size:4px;padding:2px;">
+                                <tr>
+                                    <th></th>
+                                    <th>last</th>
+                                    <th>min</th>
+                                    <th>avg</th>
+                                    <th>max</th>
+                                </tr>
+                                <tr>
+                                    <th><span><span class="label-primary"><span style="margin-left:9px;">&nbsp;</span></span></span></th>
+                                    <th id="${ipadd.replace(".", "_")}${name.replace('---','').replace(".","_").replace(" ","")}last">1.1</th>
+                                    <th id="${ipadd.replace(".", "_")}${name.replace('---','').replace(".","_").replace(" ","")}min">1.1</th>
+                                    <th id="${ipadd.replace(".", "_")}${name.replace('---','').replace(".","_").replace(" ","")}avg">1.1</th>
+                                    <th id="${ipadd.replace(".", "_")}${name.replace('---','').replace(".","_").replace(" ","")}max">1.1</th>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            #end
+        #end
+    #end
+
+</div>
+<script>//Flot Multiple Axes Line Chart
+
+function reload_day_img(name, groups, ip) {
+    url = "/monitor/graph/all/listImg?ip="+ip+"&name="+name+"&groups="+groups;
+    window.location.href = url;
+}
+
+function getDatas(ip) {
+    var name_datas = set_datas()
+    datas = new Array();
+    for(var i in name_datas){
+        names = name_datas[i]
+        for(var j = 0; j <names.length ; j ++){
+            name = names[j]
+            d = {}
+            d["name"] = name;
+            d["data"] = eval(post({}, "/monitor/graph/historyData?ip="+ip+"&name="+name+"&type="+i));
+            datas.push(d)
+        }
+    }
+    console.log(datas)
+    return datas;
+}
+
+/**
+ * Synchronize zooming through the setExtremes event handler.
+ */
+function syncExtremes(e) {
+    var thisChart = this.chart;
+
+    if (e.trigger !== 'syncExtremes') { // Prevent feedback loop
+        Highcharts.each(Highcharts.charts, function (chart) {
+            if (chart !== thisChart) {
+                if (chart.xAxis[0].setExtremes) { // It is null while updating
+                    chart.xAxis[0].setExtremes(e.min, e.max, undefined, false, {trigger: 'syncExtremes'});
+                }
+            }
+        });
+    }
+}
+
+
+function graphAll(ip, images_id) {
+    colors =  ['#fe235b', '#7328BF', '#aaeeee', '#ff0066', '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee', '#2b908f', '#90ee7e'];
+    startT = $('#startSendTime').val()
+    endT = $('#endSendTime').val()
+    if (!startT) {
+        startT = ""
+    }
+    if (!endT) {
+        endT = ""
+    }
+    Highcharts.setOptions({
+        global: {
+            useUTC: false
+        }
+    });
+    t = "&startT=" + startT + "&endT=" + endT;
+    $('#'+images_id).highcharts({
+        chart: {
+            type: "line",
+            zoomType: 'x',
+        },
+        colors: colors,
+        title: {
+            text: '',
+        },
+        xAxis: {
+            crosshair: true,
+            type: 'datetime',
+            tickPixelInterval: 110,
+            events: {
+                setExtremes: syncExtremes
+            },
+        },
+        yAxis: {
+            title: {
+                text: ""
+            },
+            plotLines: [{
+                value: 0,
+                width: 1,
+                color: '#1ab394',
+                marker: {
+                    enabled: false
+                },
+                shadow: false,
+            }
+            ]
+        },
+
+        legend: {
+            enabled:false,
+            verticalAlign: 'top',
+            //floating: true,
+            y: 1,
+            align: "left",
+            borderWidth: 0
+        },
+
+        tooltip: {
+            shared: true,
+            crosshairs: true
+        },
+
+        plotOptions: {
+            series: {
+                cursor: 'pointer',
+                point: {
+                    events: {
+                        click: function (e) {
+                            hs.htmlExpand(null, {
+                                pageOrigin: {
+                                    x: e.pageX || e.clientX,
+                                    y: e.pageY || e.clientY
+                                },
+                                headingText: this.series.name,
+                                maincontentText: Highcharts.dateFormat('%A, %b %e, %Y', this.x) + ':<br/> ' +
+                                this.y + ' visits',
+                                width: 200
+                            });
+                        }
+                    }
+                },
+                marker: {
+                    lineWidth: 1
+                }
+            }
+        },
+        exporting: {
+            enabled: false
+        },
+        series: getDatas(ip)
+    });
+}
+
+
+// 获取当期的组和名称
+function set_datas(){
+    var names = {}
+    #foreach($name in $names)
+        #if($types.get($name))
+            names["${name}"] = new Array();
+            #foreach($n in $types.get($name))
+                names["${name}"].push("${n}")
+            #end
+        #end
+    #end
+    return names
+}
+
+
+
+
+    #foreach($ipadd in $ips)
+        #foreach($name in $names)
+            #if($types.get($name))
+            function load${ipadd.replace(".", "_")}${name.replace("-", "")}(zoom) {
+                if (zoom) {
+                    setWidthMin('${ipadd.replace(".", "_")}${name.replace('---','').replace(".","_").replace(" ","")}',1)
+                }
+                graphAll("${ipadd}", "${ipadd.replace(".", "_")}${name.replace('---','').replace(".","_").replace(" ","")}")
+            }
+            #end
+        #end
+    #end
+
+
+function loadimg() {
+
+    #foreach($ipadd in $ips)
+        #foreach($name in $names)
+            #if($types.get($name))
+                setTimeout(function () {
+                    load${ipadd.replace(".", "_")}${name.replace("-", "")}()
+                },Math.round(Math.random()*10)*500)
+            #end
+        #end
+    #end
+
+}
+loadimg()
+</script>

@@ -4,6 +4,7 @@
 <beans>
     <!-- 要调用的工作类 -->
     <bean id="quartzJob" class="com.asura.monitor.graph.quartz.MakeDataQuartz"></bean>
+    <bean id="quartzJobMergerData" class="com.asura.monitor.graph.quartz.MergerDataQuartz"></bean>
     <!-- 定义调用对象和调用对象的方法 -->
     <bean id="jobtask" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
         <!-- 调用的类 -->
@@ -15,6 +16,20 @@
             <value>start</value>
         </property>
     </bean>
+
+    <!-- 定义调用对象和调用对象的方法 -->
+    <bean id="jobTaskMergerData" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <!-- 调用的类 -->
+        <property name="targetObject">
+            <ref bean="quartzJobMergerData"/>
+        </property>
+        <!-- 调用类中的方法 -->
+        <property name="targetMethod">
+            <value>start</value>
+        </property>
+    </bean>
+
+
     <!-- 定义触发时间 -->
     <bean id="doTime" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
         <property name="jobDetail">
@@ -25,12 +40,24 @@
             <value>0 */59 * * * ?</value>
         </property>
     </bean>
+    <!-- 数据合并功能使用 -->
+    <bean id="doMergerData" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail">
+            <ref bean="jobTaskMergerData"/>
+        </property>
+        <!-- cron表达式 -->
+        <property name="cronExpression">
+            <value>0 */5 * * * ?</value>
+        </property>
+    </bean>
+
     <!-- 总管理类 如果将lazy-init='false'那么容器启动就会执行调度程序  -->
     <bean id="startQuertz" lazy-init="false" autowire="no"
           class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="triggers">
             <list>
                 <ref bean="doTime"/>
+                <ref bean="doMergerData"/>
             </list>
         </property>
     </bean>

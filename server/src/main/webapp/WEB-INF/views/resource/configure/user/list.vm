@@ -68,7 +68,7 @@
                 }, function(){
                     result = post({id:id}, url);
                     parent.layer.msg(JSON.stringify(result),  {icon:1})
-                    location.reload();
+                    $('#listTable').dataTable().fnReloadAjax();
                 }, function(){
                     parent.layer.msg("取消操作",  {icon:2})
                 });

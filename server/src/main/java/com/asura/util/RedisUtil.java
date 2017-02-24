@@ -1,28 +1,28 @@
 package com.asura.util;
 
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PropertiesLoaderUtils;
-
-import java.io.IOException;
-import java.util.Properties;
-
 import com.asura.monitor.configure.conf.MonitorCacheConfig;
 import com.asura.resource.entity.CmdbResourceServerEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PropertiesLoaderUtils;
 import redis.clients.jedis.Jedis;
+
+import java.io.IOException;
+import java.util.Properties;
 
 /**
  * @author zy
  * @Date 2016-06-21 redis工具
  */
+@ComponentScan
 public class RedisUtil  {
 
     private static  final  Logger LOGGER = LoggerFactory.getLogger(RedisUtil.class);
-
-    private static String url; 
     public static  String app = "monitor";
+    private  String url ;
     private int port = 6379;
 
     public RedisUtil(){
@@ -102,6 +102,7 @@ public class RedisUtil  {
 
         Jedis jedis = new Jedis(url, port);
         String r = "";
+        LOGGER.info(url +" " + port);
         try {
             LOGGER.info("get "+ app + "_" + key);
             r = jedis.get(app + "_" + key);

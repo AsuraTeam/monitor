@@ -8,7 +8,7 @@
             <ul id="nav" class="dropdown dropdown-horizontal navbar-nav" style="margin-top:9px;margin-left: 10px;">
 
                 <li class="active">
-                    <a aria-expanded="false" role="button" href="/monitor/global/index"><font style="color:#1ab394">返回首页</font> </a>
+                    <a aria-expanded="false" role="button" href="/monitor/global/Index"><font style="color:#1ab394">返回首页</font> </a>
                 </li>
 
                 <li class="dropdown-toggle dropdown">
@@ -86,6 +86,8 @@
                             </ul>
                         </li>
                         <li><a href="/monitor/configure/messages/record">报警记录</a>
+                        </li>
+                        <li><a href="/monitor/configure/configure/list">监控配置</a>
                         </li>
                     </ul>
                 </li>

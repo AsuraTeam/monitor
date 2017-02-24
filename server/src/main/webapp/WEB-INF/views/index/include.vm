@@ -27,9 +27,15 @@
 
 
 <script src="/static/js/multiselect.min.js"></script>
-<link rel="stylesheet" href="/static/css/blueimp-gall">
 
 <script>
+    var isChrome = navigator.userAgent.toLowerCase().match(/chrome/) != null;//判断是否是谷歌浏览器
+
+    if(isChrome){
+    }else{
+        alert("请使用谷歌浏览器");
+    }
+
     jQuery.extend({
         browser: function()
         {

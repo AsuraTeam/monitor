@@ -75,20 +75,19 @@
     }
 
     function deleteConfig(id){
-
-        url = "/monitor/configure/"+site+"/delete";
+        url = "/monitor/configure/"+site+"/deleteSave";
         parent.layer.confirm("点击同意后,将删除数据", {
             btn: ['同意','不同意'], //按钮
             shade: false//不显示遮罩
         }, function(){
             result = post({id:id}, url);
             parent.layer.msg(JSON.stringify(result),  {icon:1})
-            location.reload();
+            $('#listTable').dataTable().fnReloadAjax();
         }, function(){
             parent.layer.msg("取消操作",  {icon:2})
         });
-
     }
+
     function saveConfig(id){
         data = get_form_data();
         data["description"] = $('#description').val()

@@ -23,6 +23,9 @@
             last_modify_user like concat("%",#{search},"%")
             )
         </if>
+        <if test="pagesUrl != null">
+           and pages_url = #{pagesUrl}
+        </if>
      </select>
 
     <select id="findAllModelName" resultType="com.asura.authority.entity.AuthorityPagesEntity">

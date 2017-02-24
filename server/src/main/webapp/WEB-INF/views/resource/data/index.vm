@@ -84,15 +84,19 @@
     </a>
 </div>
 
+
+<style>
+    input.no-borders:focus{
+        outline: none;
+    }
+</style>
 <div class="ibox-tools" style="width:220px;">
     <a class="dropdown-toggle" data-toggle="dropdown" style="width:150px;">
-        <i class="fa fa-search">搜索&nbsp;<input onkeyup="loadpage('','',$(this).val())" class="no-borders"></i>
-
-
+        <i class="fa fa-search"></i><input onkeyup="loadpage('','',$(this).val())" class="no-borders" placeholder="搜索">
     </a>
+</div>
+</div>
 
-</div>
-</div>
 
 <div id="display_content" >
 

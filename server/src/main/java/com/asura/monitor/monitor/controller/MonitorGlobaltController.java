@@ -481,7 +481,7 @@ public class MonitorGlobaltController {
     static Map<String, String> getGroupsMap(){
         String groups = redisUtil.get(MonitorCacheConfig.cacheGroupName);
         Map<String, String> groupMap;
-        if(groups.length()>0) {
+        if(groups != null && groups.length()>0) {
             groupMap = gson.fromJson(groups, HashMap.class);
         }else {
             groupMap = new HashMap<>();

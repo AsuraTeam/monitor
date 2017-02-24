@@ -79,5 +79,9 @@
          where group_id=#{groupId}
     </update>
 
+    <delete id="delete" parameterType="com.asura.monitor.configure.entity.MonitorContactGroupEntity">
+        delete from  monitor_contact_group where  group_id=#{groupId}
+    </delete>
+
 </mapper>
 

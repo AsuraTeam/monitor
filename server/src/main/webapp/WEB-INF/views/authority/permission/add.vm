@@ -56,7 +56,7 @@
                             <div class="col-sm-10">
 #foreach($model in $models)
 <div class="col-sm-12" style="margin-left: -30px;padding: 5px;">
-    <label class="col-sm-2 control-label">${model.modelName}</label>
+    <label class="col-sm-8 control-label">${model.modelName}</label>
     </div>
     #foreach($page in $pages)
                                         #if($model.modelName.equals($page.modelName))

@@ -664,6 +664,11 @@
         if (!groupsName) {
             return;
         }
+        if (hosts){
+            if(hosts.indexOf(",") == -1 ){
+                hosts += ","
+            }
+        }
         url = "/resource/configure/server/listData?length=100000&start=1&draw=1";
         result = post({groupsName: groupsName.trim(), key, key, hosts: hosts}, url);
         data = result["data"];
@@ -902,7 +907,6 @@
             arg7 = "$!{configs.arg7}"
             arg8 = "$!{configs.arg8}"
             data = [arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8]
-            console.log(data)
             html = "<div class='col-md-12'></div>"
             for (i = 0; i <= 7; i++) {
                 if (!data[i]) {

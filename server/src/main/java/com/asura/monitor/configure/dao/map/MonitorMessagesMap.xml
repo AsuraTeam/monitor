@@ -35,6 +35,9 @@
             or b.ip_address  like concat("%",#{search},"%")
             )
         </if>
+        <if test="startT != null">
+            and messages_time &gt;= #{startT} and messages_time &lt;= #{endT}
+        </if>
         order by  messages_id desc
         </select>
 

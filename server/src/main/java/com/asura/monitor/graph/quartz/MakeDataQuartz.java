@@ -4,6 +4,8 @@ import com.asura.framework.base.paging.PagingResult;
 import com.asura.framework.base.paging.SearchMap;
 import com.asura.framework.dao.mybatis.paginator.domain.PageBounds;
 import com.asura.common.response.PageResponse;
+import com.asura.monitor.configure.controller.IndexFromScriptController;
+import com.asura.monitor.configure.service.MonitorIndexFromScriptsService;
 import com.asura.monitor.graph.entity.CmdbGraphQuartzEntity;
 import com.asura.monitor.graph.entity.CmdbQuartzEntity;
 import com.asura.monitor.graph.service.CmdbGraphQuartzService;
@@ -44,6 +46,11 @@ public class MakeDataQuartz {
 
     @Autowired
     private CmdbQuartzService quartzService = new CmdbQuartzService();
+
+    private IndexFromScriptController scriptController = new IndexFromScriptController();
+
+    @Autowired
+    MonitorIndexFromScriptsService indexService = new  MonitorIndexFromScriptsService();
 
     /**
      * 保存任务计划
@@ -117,7 +124,9 @@ public class MakeDataQuartz {
      * @throws Exception
      */
     public void start() throws Exception{
-
+        LOGGER.info("开始执行index获取任务计划");
+        scriptController.getIndex(indexService);
+        LOGGER.info("执行index获取任务计划完成");
         SearchMap searchMap = new SearchMap();
         PageBounds pageBounds = PageResponse.getPageBounds(1000000,1);
         PagingResult<CmdbQuartzEntity> entity = quartzService.findAll(searchMap,pageBounds,"selectByAll");
