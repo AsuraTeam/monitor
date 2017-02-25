@@ -257,6 +257,11 @@
                       <button type="button" style="margin-left: 5px;" onclick="imageSelect(1);" class="btn btn-outline btn-success">多维度选择</button>
                       <button type="button" style="margin-left: 5px;" onclick="imageSelect('','1');" class="btn btn-outline btn-default">实时查看</button>
                   </span>
+                 <span class="pull-right" style="margin-left:10px;">
+                        <button type="button" onclick="legend_setting()"  class="btn btn-outline btn-danger">
+                            <span id="legend_setting_title">显示图例</span>
+                        </button>
+                  </span>
                    <span class="pull-right" id="my_collection_graph" style="margin-left:10px;display:none;">
                      <button type="button" onclick="to_my_collection()"  class="btn btn-outline btn-success">我的收藏:<span id="my_collection_graph_number"></span></button>
                   </span>
@@ -279,6 +284,21 @@
 <input type="hidden" id="select_ip_address">
 <input type="hidden" id="img_type">
 <script type="text/javascript" language="javascript">
+
+    is_all_select = $.cookie("legend_show", "0")
+    //  设置图例
+    function legend_setting(){
+        show_legend = $('#legend_setting_title').html()
+        if(show_legend == "显示图例"){
+            is_all_select = $.cookie("legend_show", "1")
+            $('#legend_setting_title').html("关闭图例")
+        }else{
+            is_all_select = $.cookie("legend_show", "0")
+            $('#legend_setting_title').html("显示图例")
+        }
+        loadiframe();
+    }
+
     function set_my_collection() {
         result = post({},"/user")
         if(result){
@@ -397,8 +417,15 @@
         if ("$!{select}"){
             chk_value = "$!{select}"
         }
+        is_last_ip = false;
         allip = get_all_ip();
-        if (allip.indexOf("${ip}")==-1){
+        allips = allip.split(",")
+        for (i =0 ;i <allips.length; i++ ){
+            if ( "${ip}" == allips[i]){
+                is_last_ip = true;
+            }
+        }
+        if(!is_last_ip){
             allip = "${ip}";
             $.cookie("select_all_ip_textarea", "")
         }

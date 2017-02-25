@@ -60,9 +60,9 @@ function reload_day_img(name, groups, ip) {
 
 realtime = $.cookie("is_realtime");
 is_range = $.cookie("is_range");
-    #foreach($ipadd in $ips)
-        #foreach($name in $names)
-            #foreach($n in $types.get($name))
+#foreach($ipadd in $ips)
+    #foreach($name in $names)
+        #foreach($n in $types.get($name))
             function load${ipadd.replace(".", "_")}${name.replace("-", "")}${n.replace('---','').replace(".","_").replace(" ","").replace("-","")}(zoom) {
                 if (zoom) {
                     setWidthMin('${ipadd.replace(".", "_")}${name}${n.replace('---','').replace(".","_").replace(" ","")}',1)
@@ -76,9 +76,9 @@ is_range = $.cookie("is_range");
                     graph_min("1ab394", '${ipadd.replace(".", "_")}${name}${n.replace('---','').replace(" ","").replace(".","_")}', "${name} ${n.replace("SLASH","/").replace('---',' ')}", "${name} ${n.replace("SLASH","/").replace('---',' ')}", "/monitor/graph/historyData?ip=${ipadd}&name=${n}&dayNumber=$!{dayNumber}&type=$name","","$!{startT}","$!{endT}")
                 }
             }
-            #end
-        #end
-    #end
+          #end
+     #end
+#end
 
 
 function loadimg() {

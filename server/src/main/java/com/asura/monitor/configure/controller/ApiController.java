@@ -4,7 +4,6 @@ import com.asura.framework.base.paging.PagingResult;
 import com.asura.framework.base.paging.SearchMap;
 import com.asura.framework.dao.mybatis.paginator.domain.PageBounds;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.asura.common.response.PageResponse;
 import com.asura.common.response.ResponseVo;
 import com.asura.monitor.configure.conf.MonitorCacheConfig;
@@ -22,6 +21,7 @@ import com.asura.monitor.graph.util.FileWriter;
 import com.asura.monitor.monitor.controller.MonitorGlobaltController;
 import com.asura.monitor.report.entity.MonitorReportDayEntity;
 import com.asura.monitor.report.service.MonitorReportDayService;
+import com.asura.monitor.util.MonitorUtil;
 import com.asura.util.Base64Util;
 import com.asura.util.DateUtil;
 import com.asura.util.RedisUtil;
@@ -37,15 +37,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static com.asura.monitor.configure.util.MessagesChannelUtil.getChannelEntity;
 import static com.asura.monitor.configure.util.MessagesChannelUtil.getEmailEntity;
-import static com.asura.monitor.graph.util.FileWriter.dataDir;
+import static com.asura.monitor.util.MonitorUtil.getPushEntity;
 
 /**
  * <p></p>
@@ -467,23 +465,7 @@ public class ApiController {
         }
     }
 
-    /**
-     *
-     * @param lentity
-     * @param request
-     */
-    void writePush(String lentity, HttpServletRequest request, String writeType){
-        if( lentity!=null ){
-            Type type = new TypeToken<ArrayList<PushEntity>>() {}.getType();
-            List<PushEntity> list = new Gson().fromJson(lentity, type);
-            for(PushEntity entity1:list){
-                if(entity1==null){
-                    continue;
-                }
-                pushMonitorData(entity1,request, writeType);
-            }
-        }
-    }
+
 
 
     /**
@@ -514,19 +496,6 @@ public class ApiController {
         }
     }
 
-    /**
-     * 记录每个指标的服务器地址
-     * @param entity
-     * @param ip
-     */
-    void writeIndexHosts(PushEntity entity,String ip){
-        // 拼接文件目录
-        String dir = dataDir + separator + "graph" + separator +"index" +separator;
-        dir = dir + entity.getGroups()+"."+entity.getName()+separator;
-        dir = FileRender.replace(dir);
-        FileWriter.makeDirs(dir);
-        FileWriter.writeFile(dir+"id", entity.getScriptId(), false);
-    }
 
     /**
      * 通过报警指标配置的报警发送
@@ -610,28 +579,35 @@ public class ApiController {
     }
 
     /**
+     *
+     * @param lentity
+     * @param request
+     */
+    void writePush(String lentity, HttpServletRequest request, String writeType){
+            List<PushEntity> list = getPushEntity(lentity);
+            for(PushEntity entity1:list) {
+                if (entity1 == null) {
+                    continue;
+                }
+                pushMonitorData(entity1, request, writeType);
+            }
+    }
+
+    /**
      * 数据写入
      * @param entity
      * @param request
      */
-    public void pushMonitorData(PushEntity entity, HttpServletRequest request, String writeType) {
-
+     void pushMonitorData(PushEntity entity, HttpServletRequest request, String writeType) {
         if (entity.getStatus().equals("0")){
             entity.setServer("1");
-         }
+        }
         try {
             writeReportDayData(entity);
         }catch (Exception e){
             e.printStackTrace();
         }
         String ipAddr;
-        String historyName = FileRender.replace(entity.getName());
-        String name = FileRender.replace(entity.getScriptId() +"_"
-                + FileRender.replace(entity.getStatus())) + "_"
-                + entity.getGroups()+ "_"+entity.getName();
-
-        String groups = FileRender.replace(entity.getGroups());
-        String value = entity.getValue();
         // 获取客户端IP
         if (entity.getIp() == null || entity.getIp().length() < 10) {
             ipAddr = RequestClientIpUtil.getIpAddr(request);
@@ -640,18 +616,7 @@ public class ApiController {
         }
         // 报警发送处理
         alarmSet(entity, ipAddr);
-        // 记录每个指标的服务器地址
-        writeIndexHosts(entity, ipAddr);
-
-        // 只将数据写入到文件
-        if (name != null && value != null && value.length() > 0) {
-            // 画图数据生成
-            FileWriter.writeHistory(groups, ipAddr, historyName, value);
-
-            if(writeType.equals("success")) {
-                // 监控历史数据生成
-                FileWriter.writeMonitorHistory( FileRender.replace(entity.getServer()), name, entity);
-            }
-        }
+        entity.setIp(ipAddr);
+        MonitorUtil.pushMonitorData(entity, writeType, ipAddr);
     }
 }

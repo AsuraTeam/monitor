@@ -149,4 +149,7 @@ public class MonitorCacheConfig {
     // index名称刷新锁
     public static String updateIndexNameLock = "cache_update_index_name_lock";
 
+    // 缓存push服务器的地址,多个用逗号分隔
+    public static String cachePushServer = "cache_push_server";
+
 }

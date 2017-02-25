@@ -18,6 +18,10 @@
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
 
+    <listener>
+        <listener-class>com.asura.monitor.socket.InitListener</listener-class>
+    </listener>
+
     <!--default servlet-->
     <servlet>
         <servlet-name>dispatcherServlet</servlet-name>

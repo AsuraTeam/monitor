@@ -47,6 +47,18 @@ function get_form_data(){
     return result;
 }
 
+/**
+ * 获取是否需要显示图例
+ */
+function get_legend_status() {
+    value  = $.cookie("legend_show")
+    if(value=="1"){
+        return true;
+    }else{
+        return false;
+    }
+}
+
 jQuery.cookie = function(name, value, options) {
     if (typeof value != 'undefined') {
         options = options || {};
@@ -219,7 +231,7 @@ function graph(color, id, title, ytitle, url, chartype,lstartT,lendT) {
             }
         },
         legend: {
-            enabled: false
+            enabled: get_legend_status(),
         },
         exporting: {
             enabled: false
@@ -446,7 +458,7 @@ function graph_min(color, id, title, ytitle, url, chartype,lstartT,lendT) {
             }
         },
         legend: {
-            enabled: false
+            enabled: get_legend_status(),
         },
         exporting: {
             enabled: false
@@ -568,7 +580,7 @@ function get_graph_all(image_id, ips,title, groups, names, type,     startT, end
             }
         },
         legend: {
-            enabled: true
+            enabled: get_legend_status(),
         },
         exporting: {
             enabled: false
@@ -703,7 +715,7 @@ function realtime_graph(id, server, groups, name) {
             }
         },
         legend: {
-            enabled: false
+            enabled: get_legend_status(),
         },
         exporting: {
             enabled: false
@@ -713,5 +725,7 @@ function realtime_graph(id, server, groups, name) {
             data: getRealHistory(server,name,groups)
         }]
     });
+
+
 }
 

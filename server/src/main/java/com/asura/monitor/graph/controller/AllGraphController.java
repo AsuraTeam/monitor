@@ -465,7 +465,6 @@ public class AllGraphController {
         String endT = DateUtil.getDay();
         Map<String, ArrayList> maps = new HashMap<>();
         ArrayList timeList = new ArrayList();
-//        ArrayList result =  readHistory(ip,type,name,startT,endT,totle);
         // 获取所有的类型
         boolean isTime = false;
         Map<String, ArrayList> map = FileRender.getGraphName(dir, ip);
