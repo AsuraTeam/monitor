@@ -1,5 +1,9 @@
 package com.asura.agent.thread;
 
+import com.asura.agent.util.SocketSendUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -20,6 +24,8 @@ import java.net.InetAddress;
 
 public class SocketThread extends Thread {
 
+    public static final Logger logger = LoggerFactory.getLogger(SocketThread.class);
+
     // 要发送的数据
     private String data;
     // 接收数据服务端
@@ -39,7 +45,7 @@ public class SocketThread extends Thread {
      * @param address
      * @param port
      */
-    public static void sendData(String datas, InetAddress address, int port){
+    public static boolean sendData(String datas, InetAddress address, int port){
         try {
             byte[] data = datas.getBytes();//将字符串转换为字节数组
             //创建数据报
@@ -49,13 +55,28 @@ public class SocketThread extends Thread {
             //向服务器端发送数据报
             socket.send(packet);
             socket.close();
+            return true;
         }catch (Exception e){
             e.printStackTrace();
+            return false;
         }
     }
 
     public void run(){
-        sendData(data, server, port);
-        this.interrupt();
+        boolean isSendOk = sendData(data, server, port);
+        if (isSendOk) {
+            this.interrupt();
+        }else{
+            InetAddress inetAddress;
+            inetAddress = server;
+            for (int i=0; i < SocketSendUtil.getServerListSize(); i++) {
+                inetAddress = SocketSendUtil.getServer(inetAddress);
+                isSendOk = sendData(data, inetAddress, port);
+                if (isSendOk){
+                    logger.info("重试Socket发送" + inetAddress.toString() + " ok ");
+                    break;
+                }
+            }
+        }
     }
 }

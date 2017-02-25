@@ -2,7 +2,6 @@ package com.asura.monitor.graph.quartz;
 
 import com.asura.monitor.configure.conf.MonitorCacheConfig;
 import com.asura.monitor.graph.thread.MergerThread;
-import com.asura.monitor.socket.server.UDPServer;
 import com.asura.resource.entity.CmdbResourceServerEntity;
 import com.asura.util.RedisUtil;
 import org.slf4j.Logger;
@@ -76,15 +75,6 @@ public class MergerDataQuartz {
     }
 
     void startQuartz(RedisUtil redisUtil) {
-        try {
-            LOGGER.info("执行设置push服务任务计划开始");
-            UDPServer.setPushServer();
-            LOGGER.info("执行设置push服务任务计划完成");
-        }catch (Exception e){
-            LOGGER.error("设置pushServer失败", e);
-        }
-
-
         ArrayList<Integer> arrayList = getDays();
         List<CmdbResourceServerEntity> ips;
         CmdbResourceServerEntity cmdbResourceServerEntity;

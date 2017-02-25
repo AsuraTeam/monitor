@@ -83,10 +83,19 @@ public class SocketSendUtil {
      * 随机链接服务器
      * @return
      */
-    static InetAddress getServer(){
+    public static InetAddress getServer(InetAddress address){
         if (serverList.size() > 0) {
-            int id = random.nextInt(serverList.size());
-            return serverList.get(id);
+            if (address == null ) {
+                int id = random.nextInt(serverList.size());
+                return serverList.get(id);
+            }else{
+                // 去除坏了的连接
+                for (int i = 0; i < serverList.size(); i++) {
+                    if ( serverList.get(i) != address){
+                        return serverList.get(i);
+                    }
+                }
+            }
         }
         return null;
     }
@@ -108,8 +117,10 @@ public class SocketSendUtil {
                 try {
                     InetAddress address =  InetAddress.getByName(entity.getIp());
                     if (!serverList.contains(address)) {
-                        logger.info("获取到PUSH服务器地址" + entity.getIp());
-                        serverList.add(address);
+                        if(SocketThread.sendData("[{}]", address, 50329)) {
+                            logger.info("获取到PUSH服务器地址" + entity.getIp());
+                            serverList.add(address);
+                        }
                     }
                 }catch (Exception e){
                 }
@@ -145,12 +156,12 @@ public class SocketSendUtil {
      */
     public static void sendData(String data) {
         init();
-        server = getServer();
+        server = getServer(null);
         if (server == null){
             logger.error("获取push服务失败..");
             return;
         }
-        port = ports.get(random.nextInt(199));
+        port = ports.get(random.nextInt(299));
         SocketThread thread = new SocketThread(data, server, port);
         thread.start();
         long start = System.currentTimeMillis() / 1000;

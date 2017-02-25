@@ -600,7 +600,7 @@ public class MonitorController {
             SocketSendUtil.setServer();
             PUSH_SERVER_SET_TIME = DateUtil.getCurrTime();
         }
-        if (DateUtil.getCurrTime() - PUSH_SERVER_SET_TIME >= 600) {
+        if (DateUtil.getCurrTime() - PUSH_SERVER_SET_TIME >= 120) {
             PUSH_SERVER_SET_TIME = DateUtil.getCurrTime();
             SocketSendUtil.setServer();
         }
@@ -1792,7 +1792,6 @@ public class MonitorController {
                 return;
             }
             // 发送监控数据
-
             if (status){
                 // 前30次走http方式发送数据
                 if (udpSendNumber > 20) {

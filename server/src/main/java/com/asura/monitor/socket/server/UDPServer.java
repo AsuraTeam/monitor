@@ -64,7 +64,7 @@ public class UDPServer {
             RedisUtil redisUtil = new RedisUtil();
             String key = MonitorCacheConfig.cachePushServer;
             String  addrs = redisUtil.get(key);
-            if (addrs != null && addrs.length()>8){
+            if (addrs != null && addrs.length() > 8){
                 Type type = new TypeToken<ArrayList<PushServerEntity>>() {
                 }.getType();
                 List<PushServerEntity> list = new Gson().fromJson(addrs, type);
@@ -72,7 +72,7 @@ public class UDPServer {
                 for (PushServerEntity entity: list){
                     update = entity.getUpdate();
                     // 排除5分钟没有更新的机器
-                    if (System.currentTimeMillis() / 1000 - update > 300){
+                    if (System.currentTimeMillis() / 1000 - update > 30){
                         continue;
                     }
                     if (entity.getIp().equals(addr)){
