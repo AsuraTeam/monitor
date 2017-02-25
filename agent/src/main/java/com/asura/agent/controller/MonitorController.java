@@ -22,6 +22,7 @@ import com.asura.agent.util.HttpUtil;
 import com.asura.agent.util.IpUtil;
 import com.asura.agent.util.MonitorUtil;
 import com.asura.agent.util.RedisUtil;
+import com.asura.agent.util.SocketSendUtil;
 import com.asura.agent.util.network.Ping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,7 +96,8 @@ public class MonitorController {
     // 获取临时文件目录
     public static final String separator = System.getProperty("file.separator");
     private static final String tempDir = System.getProperty("java.io.tmpdir") + separator + "monitor" + separator;
-
+    // 存放使用udp发送数据开关
+    private static Long udpSendNumber;
     // 报警的开关
     private static boolean IS_MONITOR = false;
     // 存放本机的IP地址
@@ -180,6 +182,8 @@ public class MonitorController {
     private static Long UPDATE_SERVER_TIME;
     private static Long PUSH_SERVER_INFO_TIME;
     private static Long AGENT_CHECK_TIME;
+    // 存储push服务器获取时间
+    private static Long PUSH_SERVER_SET_TIME;
     // 存放自己是否是分布式检查AGENT的机器
     private static boolean CACHE_CHECK_MONITOR_LOCK;
     // 存放每个脚本对应的ITEM配置
@@ -240,6 +244,9 @@ public class MonitorController {
         SCRIPT_TO_ITEM = new HashMap<>();
         CACHE_CHECK_MONITOR_LOCK = false;
         IS_DEFAULT = false;
+        if (udpSendNumber == null){
+            udpSendNumber = 1L;
+        }
         if (CLEAR_MONITOR_TIME == null) {
             CLEAR_MONITOR_TIME = DateUtil.getCurrTime();
         }
@@ -508,10 +515,10 @@ public class MonitorController {
             runScript(time, success, faild);
         }
         if (faild.size() > 0) {
-            pushMonitor(faild, faildApiUrl);
+            pushMonitor(faild, faildApiUrl, false);
         }
         if (success.size() > 0) {
-            pushMonitor(success, successApiUrl);
+            pushMonitor(success, successApiUrl, true);
 
         }
         MONITOR_LOCK.remove("locked");
@@ -584,6 +591,20 @@ public class MonitorController {
         }
     }
 
+    /**
+     * 每10分钟获取一次push服务器信息
+     */
+    @Scheduled(cron = "*/59 * * * * ?")
+    void setPushServer() {
+        if (PUSH_SERVER_SET_TIME == null) {
+            SocketSendUtil.setServer();
+            PUSH_SERVER_SET_TIME = DateUtil.getCurrTime();
+        }
+        if (DateUtil.getCurrTime() - PUSH_SERVER_SET_TIME >= 600) {
+            PUSH_SERVER_SET_TIME = DateUtil.getCurrTime();
+            SocketSendUtil.setServer();
+        }
+    }
 
     /**
      * 报警重试和发送报警
@@ -1184,10 +1205,10 @@ public class MonitorController {
         hostConfigs = setHostGroupsConfigs(MonitorCacheConfig.cacheHostConfigKey, HOST_IDS, hostConfigs);
         for (String id : GROUPS_IDS) {
             groupsConfigs = setHostGroupsConfigs(MonitorCacheConfig.cacheGroupConfigKey, id, groupsConfigs);
-        }
-    }
+     }
+     }
 
-    /**
+     /**
      * 设置默认配置
      * @return
      */
@@ -1744,11 +1765,20 @@ public class MonitorController {
     }
 
     /**
+     *
+     * @param url
+     * @param data
+     */
+    void pushData(String url, String data){
+        info(sendPost(url, "lentity=" + Base64Util.encode(data)));
+    }
+
+    /**
      * 上报监控结果
      *
      * @param entity
      */
-    void pushMonitor(ArrayList<PushEntity> entity, String url) {
+    void pushMonitor(ArrayList<PushEntity> entity, String url, boolean status) {
         ArrayList ok = new ArrayList();
         ArrayList faild = new ArrayList();
         ArrayList unknown = new ArrayList();
@@ -1756,13 +1786,33 @@ public class MonitorController {
 
         info(entity.size() + "");
         if (entity.size() > 0) {
-            String data = Base64Util.encode(gson.toJson(entity));
+            String data = gson.toJson(entity);
             if (data.length() < 5) {
                 info("获取到数据为空，退出pushMonitor");
                 return;
             }
             // 发送监控数据
-            info(sendPost(url, "lentity=" + data));
+
+            if (status){
+                // 前30次走http方式发送数据
+                if (udpSendNumber > 20) {
+                    if (SocketSendUtil.getServerListSize() > 0 ) {
+                        info("通过udp的socket端口上传数据 ");
+                        SocketSendUtil.sendData(data);
+                    }else {
+                        pushData(url, data);
+                    }
+                }else{
+                    udpSendNumber += 1;
+                    pushData(url, data);
+                }
+                if (udpSendNumber > 50 ){
+                    udpSendNumber = 21L;
+                }
+            }else{
+                // 发送失败的数据
+                pushData(url, data);
+            }
             info("entity size: " + entity.size());
 
             for (PushEntity pushEntity : entity) {

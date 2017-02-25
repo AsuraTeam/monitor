@@ -28,7 +28,7 @@ import static org.aspectj.bridge.MessageUtil.info;
 
 public class CommandUtil {
 
-    public static Logger logger = LoggerFactory.getLogger(CommandUtil.class);
+    public static final Logger logger = LoggerFactory.getLogger(CommandUtil.class);
     private static final Runtime runtime = Runtime.getRuntime();
 
     public static String execScript(String command){
@@ -68,6 +68,9 @@ public class CommandUtil {
                 if (list.get(0).equals("00")) {
                     list.remove(0);
                 }
+                break;
+            }
+            if (!thread.isAlive()) {
                 break;
             }
             if (System.currentTimeMillis() / 1000 - start > 8) {

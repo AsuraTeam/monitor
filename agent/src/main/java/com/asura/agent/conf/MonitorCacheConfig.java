@@ -133,4 +133,6 @@ public class MonitorCacheConfig {
     // 存放启动的端口, 主机名, cache_agent_server_info_hostid
     public static String cacheAgentServerInfo = "cache_agent_server_info_";
 
+    // 缓存push服务器的地址,多个用逗号分隔
+    public static String cachePushServer = "cache_push_server";
 }

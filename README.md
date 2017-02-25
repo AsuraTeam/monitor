@@ -8,7 +8,9 @@
 3、历史数据查询, 可以秒级返回全年数据趋势图， 多个指标数据, 趋势图更明晰:<br>
    3天 7天，15天，30天，60天，90天，120天，180天，240天，360天时间段趋势<br>
 4、架构设计高可用: 整个系统无核心单点，所涉及到的 <br>
-   负载均衡(nginx, haproxy, lvs)都可以用来负载server端， mysql(无数据压力，不做数据存储), redis(需要高可用配置), 共享存储设备(本地磁盘，nfs等).<br>
+   负载均衡(nginx, haproxy, lvs)都可以用来负载server端， mysql(无数据压力，不做数据存储),<br>
+    redis(需要高可用配置,推荐使用Codis),<br> 
+   共享存储设备(本地磁盘，nfs,mfs等).<br>
 5、任何数据图像实时查看,历史查看功能<br>
 6、针对统一系统,基础监控无需添加配置,自动添加(比如cpu,负载,磁盘使用率,网络流量,ss状态信息等,都可以自定义实现)<br>
 7、报警组配置,支持微信，钉钉，手机，邮件功能(微信,钉钉需要单独处理,不是人都有的)<br>
@@ -62,10 +64,6 @@
 <br>
 ![image](https://github.com/AsuraTeam/monitor/blob/master/images/img14.png)
 <br>
-<b>更多时间段图像(缩小后的)</b></br>
-<br>
-![image](https://github.com/AsuraTeam/monitor/blob/master/images/img10.png)
-<br>
 <b>系统概览</b></br>
 <br>
 ![image](https://github.com/AsuraTeam/monitor/blob/master/images/img4.png)
@@ -107,11 +105,13 @@
 <h3>准备工作:</h3><br>
    1、mysql准备好，将cmdb.sql 导入到数据库<br>
      对需要链接的服务器进行授权<br>
+     mysql>source cmdb.sql
      mysql>grant select,update,insert,delete on cmdb.* to monitor@你的ip地址 identified by "aZkl299feM";<br>
      mysql>flush privileges;<br>
    2、准备一个redis服务<br>
    3、修改对应的环境变量<br>
-   4、本系统强制依赖时间，请保证所有服务器时间一致<br>
+   4、绑定本机hostname到你的ip地址
+   5、本系统强制依赖时间，请保证所有服务器时间一致<br>
  
 <h4> 安装步骤:</h4><br>
    1、安装mysql数据库<br>
@@ -127,12 +127,15 @@
     
 <h1>agent安装配置</h1>
 <h3>6、安装agent</h3><br>
-      1、使用mvn打包<br>
+      1、使用mvn打包, 打包完成后,将agent.jar 记录，稍后会用到<br>
       2、程序运行环境在tools/monitor.tar.bz2, 解压到 /home/runtime/目录<br>
       3、将tools里面的jdk7解压并改名为 /home/runtime/monitor/java/ 目录<br>
-      4、修改agent配置文件，将所有v.asura.com替换为你的服务端的地址，不要使用带端口的<br>
+      4、修改agent配置文件，将所有v.asura.com替换为你的服务端的地址，为方便后期负载,尽量使用nginx等负载设备, 使用域名形式配置<br>
          修改redis.server 和server端使用的redis一致<br>
-      5、启动 cd /home/runtime/monitor/bin; sh agent start<br>
+      5、将刚才的 agent.jar 复制到 /home/runtime/monitor/lib/ 目录<br>
+         cp -v agent.jar /home/runtime/monitor/lib/
+      6、启动 cd /home/runtime/monitor/bin; sh agent start<br>
+      7、查看日志 tail -f /home/runtime/monitor/logs/agent.log
  
 <br>
 系统登录
@@ -144,6 +147,12 @@
  
 <br>
 <h1>配置流程</h1> 
+<br>
+因系统调用了hostname, 所以请将你的主机名和ip地址做下绑定<br>
+示例:<br>
+cat /etc/hosts<br>
+10.1.1.1 localhost.localhost<br>
+10.1.1.1 web_xx_xx<br>
 <br>
 1、配置资源信息<br>
    点击 资源信息->资源配置 配置下列资源数据<br>
