@@ -422,6 +422,8 @@ function graph_min(color, id, title, ytitle, url, chartype,lstartT,lendT) {
             crosshair: true,
             type: 'datetime',
             tickPixelInterval: 110,
+            gridLineWidth: 1,
+            gridLineColor: '#f0f0f1',
             events: {
                 setExtremes: syncExtremes
             },

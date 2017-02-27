@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.LinkedTransferQueue;
 
 /**
  * <p></p>
@@ -34,6 +36,13 @@ public class UDPServer {
 
     public static final Logger logger = LoggerFactory.getLogger(UDPServer.class);
     private static Map<String, Long> threadMap;
+    // 存放处理慢的时间
+    private static Map<String, Long> slowMap;
+    // 存储一个队列大小，用来存储处理慢的请求
+    private static Queue slowQueue;
+    // 存储监控数据
+    private static Map<String, Long> monitorMap;
+
 
     /**
      *
@@ -96,8 +105,12 @@ public class UDPServer {
         if (threadMap == null){
             threadMap = new HashMap<>();
             threadMap.put("counter", 0L);
+            slowMap = new HashMap<>();
+            slowMap.put("slow", 0L);
+            slowQueue = new LinkedTransferQueue();
+            monitorMap = new HashMap<>();
+            monitorMap.put("time", System.currentTimeMillis());
         }
-
         try {
             setPushServer();
         }catch (Exception e){
@@ -105,7 +118,7 @@ public class UDPServer {
         }
 
         for (int port= 50000 ; port < 50300; port++) {
-            StartUDPServerThread thread = new StartUDPServerThread(threadMap, port);
+            StartUDPServerThread thread = new StartUDPServerThread(threadMap, port, slowMap, slowQueue, monitorMap);
             thread.start();
         }
     }
