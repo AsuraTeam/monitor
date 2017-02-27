@@ -694,6 +694,8 @@ function realtime_graph(id, server, groups, name) {
         },
         xAxis: {
             type: 'datetime',
+            gridLineWidth: 1,
+            gridLineColor: '#f0f0f1',
             tickPixelInterval: 150
         },
         yAxis: {
