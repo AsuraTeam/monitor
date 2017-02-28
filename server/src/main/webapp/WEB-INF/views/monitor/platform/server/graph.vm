@@ -216,6 +216,8 @@
             xAxis: {
                 crosshair: true,
                 type: 'datetime',
+                gridLineWidth: 1,
+                gridLineColor: '#f0f0f1',
                 tickPixelInterval: 110,
                 events: {
                     setExtremes: syncExtremes

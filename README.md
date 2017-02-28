@@ -120,10 +120,12 @@
    4、安装tomcat<br>
    5、安装mvn<br>
    其中redis, tomcat, mvn，jdk7 可以直接使用tools里面的包， 安装程序统一部署到 /home/runtime 目录<br>
+   详情查看deploy.sh脚本
    
    目录结构:<br>
    #ls /home/runtime<br>
     jdk7 tomcat_8081 redis maven 数据库自行配置即可<br>
+
     
 <h1>agent安装配置</h1>
 <h3>6、安装agent</h3><br>
