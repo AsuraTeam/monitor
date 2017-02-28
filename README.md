@@ -108,9 +108,15 @@
      mysql>source cmdb.sql
      mysql>grant select,update,insert,delete on cmdb.* to monitor@你的ip地址 identified by "aZkl299feM";<br>
      mysql>flush privileges;<br>
+     请绑定host os.dbm.com 到你的数据库的地址<br>
+     ping os.dbm.com 看是否能解析到你的数据库IP地址<br>
+     如果要修改域名请在安装完成后修改 /home/runtime/tomcat_8081/webapps/ROOT/WEB-INF/classes/jdbc.properties 替换成你自己的域名<br>
    2、准备一个redis服务<br>
+     请绑定host os.redis.com到你的redis地址<br>
+     ping os.redis.com 看是否能解析到你的redis的IP地址<br>
+     如果要修改域名请在安装完成后修改 /home/runtime/tomcat_8081/webapps/ROOT/WEB-INF/classes/system.properties 替换成你自己的域名<br>
    3、修改对应的环境变量<br>
-   4、绑定本机hostname到你的ip地址
+   4、绑定本机hostname到你的ip地址<br>
    5、本系统强制依赖时间，请保证所有服务器时间一致<br>
  
 <h4> 安装步骤:</h4><br>
@@ -119,6 +125,7 @@
    3、安装redis服务<br>
    4、安装tomcat<br>
    5、安装mvn<br>
+   Mysql库请使用utf8字符集<br>
    其中redis, tomcat, mvn，jdk7 可以直接使用tools里面的包， 安装程序统一部署到 /home/runtime 目录<br>
    详情查看deploy.sh脚本
    
@@ -129,13 +136,13 @@
     
 <h1>agent安装配置</h1>
 <h3>6、安装agent</h3><br>
-      1、使用mvn打包, 打包完成后,将agent.jar 记录，稍后会用到<br>
+      1、使用mvn打包, 打包完成后,将target/agent.jar 记录，稍后会用到<br>
       2、程序运行环境在tools/monitor.tar.bz2, 解压到 /home/runtime/目录<br>
       3、将tools里面的jdk7解压并改名为 /home/runtime/monitor/java/ 目录<br>
       4、修改agent配置文件，将所有v.asura.com替换为你的服务端的地址，为方便后期负载,尽量使用nginx等负载设备, 使用域名形式配置<br>
          修改redis.server 和server端使用的redis一致<br>
       5、将刚才的 agent.jar 复制到 /home/runtime/monitor/lib/ 目录<br>
-         cp -v agent.jar /home/runtime/monitor/lib/
+         cp -v agent.jar /home/runtime/monitor/lib/<br>
       6、启动 cd /home/runtime/monitor/bin; sh agent start<br>
       7、查看日志 tail -f /home/runtime/monitor/logs/agent.log
  
@@ -175,8 +182,35 @@ cat /etc/hosts<br>
    1、配置联系组<br>
    2、配置联系人<br>
    3、消息通道配置<br>
-      消息通道配置默认有邮件和手机的配置模板，自行修改即可
+      消息通道配置默认有邮件和手机的配置模板，自行修改即可<br>
+3、其他更多配置,需要大家共享<br>
+4、欢迎共享监控脚本<br>
+  监控脚本输出为json格式:<br>
+  示例:<br>
+  [<br>
+   {<br>
+     "name":"",<br>
+     "groups":"",<br>
+     "status":"",<br>
+     "ip":"",<br>
+     "messages":"",<br>
+     "value":"",<br>
+     "command":"",<br>
+   }<br>
+  ]<br>
+  name 为指标名字比如 system.load.min1 | system.memrory.used | system.io.r_s.vda  <br>
+  groups 为指标所在的组，一个组里放相关的指标, 比如所有cpu指标都放在cpu组里 <br>
+  status 脚本逻辑执行返回状态, <br>
+         1为正常, 2为危险,<br> 
+         3为警告, 4为未知,<br>
+         在报警时只有状态为2发送报警，其他状态不发送报警，在监控全局可以看到该状态<br> 
 
+  ip 可选, 默认脚本返回json没有ip字段，系统会按请求到数据上报的客户端地址记录ip地址<br>
+  messges 报警信息,可选, 在发送报警时发送的信息，自定义想写啥写啥，就是你的报警内容中会出现的文字<br>
+  value 程序采集指标结果，为数字类型，不能为空<br>
+  command 可选<br>
+  任何一个脚本只要能返回这样的一个json格式的数据,就可以配到监控脚本，开始监控你的系统了<br>
+  
 配置完以上信息基本就可以跑演示版本了<br>
 
 演示步骤:<br>

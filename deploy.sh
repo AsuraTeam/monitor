@@ -9,6 +9,7 @@
 #    对需要链接的服务器进行授权
 #    mysql>grant select,update,insert,delete on cmdb.* to monitor@你的ip地址 identified by "aZkl299feM";
 #    mysql>flush privileges;
+#    
 # 2、准备一个redis服务
 # 3、修改对应的环境变量
 # 4、本系统强制依赖时间，请保证所有服务器时间一致
