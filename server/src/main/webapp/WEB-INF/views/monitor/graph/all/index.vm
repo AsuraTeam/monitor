@@ -463,7 +463,6 @@
         getCheckValue("",ip);
     }
 
-
     function changeSelect(ip) {
         parent.layer.msg(JSON.stringify(ip),  {icon:1});
         $('#iframepage').attr('src','/monitor/graph/all/sub?ip='+ip)
@@ -537,6 +536,7 @@
 
         type = $('#img_type').val()
         ips =  get_all_ip()
+        if(!ips){ips=ip}
         urls = "/monitor/graph/all/sub?ip="+ip+"&select="+chk_value+"&startT="+startT+"&endT="+endT+"&ips="+ips;
         if(type){
             url = urls+"&type=1";
@@ -555,12 +555,10 @@
             url = urls +"&isAll=1";
         }
 
-
         // 多线条图像
         if(is_all_select == "2"){
             url = url + "&mline=1"
         }
-
 
         $('#iframepage').attr("src",url);
         if(img){
@@ -594,13 +592,13 @@
         getCheckValue("","", value)
     }
 
-    setTimeout(function () {
-        realtime = $.cookie("is_realtime");
-        if(realtime=="1"){
-            return;
-        }
-        window.location.reload();
-    },180000)
+//    setTimeout(function () {
+//        realtime = $.cookie("is_realtime");
+//        if(realtime=="1"){
+//            return;
+//        }
+//        window.location.reload();
+//    },180000)
 
     function reinitIframe(){
         var iframe = document.getElementById("iframepage");

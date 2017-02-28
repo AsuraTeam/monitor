@@ -126,7 +126,6 @@ function  setWidth(id,all) {
 function  setWidthMin(id,all) {
     console.log(id)
     width = $('#'+id+"BorderWidth").val()
-    console.log(width)
     if(width==100){
         widths=31
         if(all){
@@ -365,7 +364,6 @@ function graph_min(color, id, title, ytitle, url, chartype,lstartT,lendT) {
 
     data= eval(post({}, url+"&startT="+startT+"&endT="+endT))
     get_max_min_avg_last_value(data, id );
-
     $('#'+id).bind('mousemove touchmove touchstart', function (e) {
         var chart,
             point,
@@ -373,12 +371,15 @@ function graph_min(color, id, title, ytitle, url, chartype,lstartT,lendT) {
             event;
 
         for (i = 0; i < Highcharts.charts.length; i = i + 1) {
-            chart = Highcharts.charts[i];
-            event = chart.pointer.normalize(e.originalEvent); // Find coordinates within the chart
-            point = chart.series[0].searchPoint(event, true); // Get the hovered point
+            try{
+                chart = Highcharts.charts[i];
+                event = chart.pointer.normalize(e.originalEvent); // Find coordinates within the chart
+                point = chart.series[0].searchPoint(event, true); // Get the hovered point
 
-            if (point) {
-                point.highlight(e);
+                if (point) {
+                    point.highlight(e);
+                }
+            }catch(Exception){
             }
         }
     });
@@ -396,15 +397,17 @@ function graph_min(color, id, title, ytitle, url, chartype,lstartT,lendT) {
      */
     function syncExtremes(e) {
         var thisChart = this.chart;
-
-        if (e.trigger !== 'syncExtremes') { // Prevent feedback loop
-            Highcharts.each(Highcharts.charts, function (chart) {
+        try{
+          if (e.trigger !== 'syncExtremes') { // Prevent feedback loop
+              Highcharts.each(Highcharts.charts, function (chart) {
                 if (chart !== thisChart) {
                     if (chart.xAxis[0].setExtremes) { // It is null while updating
                         chart.xAxis[0].setExtremes(e.min, e.max, undefined, false, {trigger: 'syncExtremes'});
                     }
                 }
-            });
+             });
+          }
+        }catch(Exception){
         }
     }
     $('#' + id).highcharts({
