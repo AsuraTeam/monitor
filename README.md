@@ -210,6 +210,8 @@ cat /etc/hosts<br>
   value 程序采集指标结果，为数字类型，不能为空<br>
   command 可选<br>
   任何一个脚本只要能返回这样的一个json格式的数据,就可以配到监控脚本，开始监控你的系统了<br>
+  上传一个CPU类型的数据采集返回值:<br>
+  [{"status": "1", "name": "system.cpu.user", "messages": "system.cpu.user 5.67", "value": "5.67", "command": "7", "groups": "cpu"}, {"status": "1", "name": "system.cpu.nice", "messages": "system.cpu.nice 0.00", "value": "0.00", "command": "7", "groups": "cpu"}, {"status": "1", "name": "system.cpu.system", "messages": "system.cpu.system 1.08", "value": "1.08", "command": "7", "groups": "cpu"}, {"status": "1", "name": "system.cpu.iowait", "messages": "system.cpu.iowait 0.58", "value": "0.58", "command": "7", "groups": "cpu"}, {"status": "1", "name": "system.cpu.steal", "messages": "system.cpu.steal 0.00", "value": "0.00", "command": "7", "groups": "cpu"}, {"status": "1", "name": "system.cpu.idle", "messages": "system.cpu.idle 92.66", "value": "92.66", "command": "7", "groups": "cpu"}]
   
 配置完以上信息基本就可以跑演示版本了<br>
 
