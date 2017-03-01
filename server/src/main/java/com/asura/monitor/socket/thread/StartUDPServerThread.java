@@ -76,6 +76,11 @@ public class StartUDPServerThread extends Thread {
         }
     }
 
+    void remove(){
+        long remove = slowQueue.poll();
+        slowMap.put("slow", slowMap.get("slow") - remove);
+    }
+
     public void run() {
         try {
             DatagramSocket socket = new DatagramSocket(port);
@@ -101,7 +106,7 @@ public class StartUDPServerThread extends Thread {
                 if (slowQueue.size() == 1000) {
                     if (slowTime > 1000) {
                         logger.error("执行太慢啦，我不执行啦..1000次大于" + slowTime + " " + slowQueue.size());
-                        slowQueue.poll();
+                        remove();
                         continue;
                     }
                 }
@@ -115,8 +120,7 @@ public class StartUDPServerThread extends Thread {
                     slowQueue.add(time);
                     slowMap.put("slow", slowMap.get("slow") + time);
                 } else {
-                    long remove = slowQueue.poll();
-                    slowMap.put("slow", slowMap.get("slow") - remove);
+                   remove();
                 }
                 // 每100次打印一条日志
                 if (counter % 100 == 0) {

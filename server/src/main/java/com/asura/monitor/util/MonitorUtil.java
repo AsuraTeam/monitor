@@ -108,7 +108,9 @@ public class MonitorUtil {
             FileWriter.writeHistory(groups, ipAddr, historyName, value);
             if(writeType.equals("success")) {
                 // 监控历史数据生成
-                FileWriter.writeMonitorHistory( FileRender.replace(entity.getServer()), name, entity);
+                if (entity.getServer() != null) {
+                    FileWriter.writeMonitorHistory(FileRender.replace(entity.getServer()), name, entity);
+                }
             }
         }
     }
