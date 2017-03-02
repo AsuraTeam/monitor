@@ -217,7 +217,7 @@
             <if test="groupsId != null ">
                 and a.groups_id = #{groupsId}
             </if>
-            <if test="entId != null ">
+        <if test="entId != null ">
                 and ent_id = #{entId}
             </if>
     </select>
@@ -584,6 +584,13 @@
     <delete id="delete" parameterType="com.asura.resource.entity.CmdbResourceServerEntity">
         delete from cmdb_resource_server where server_id=#{serverId}
     </delete>
+
+    <select id="selectGroupsHostname" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
+        select  hostname, c.groups_name as groupsName
+        from monitor_platform_server a, cmdb_resource_server b ,
+        cmdb_resource_groups c where a.ip = b.ip_address
+        and b.groups_id=c.groups_id  and a.ip=#{ip}
+    </select>
 
 </mapper>
 

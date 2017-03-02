@@ -34,6 +34,8 @@
                                <ul>
                                    <li><a href="/monitor/platform/server/list">服务器列表</a>
                                    </li>
+                                   <li><a href="/monitor/index/performance/list">指标数据分析</a>
+                                   </li>
                                    <li><a href="/monitor/platform/alarm/list">报警处理状态</a>
                                    </li>
                                    <li><a href="/monitor/index/alarm/list">指标报警配置</a></li>

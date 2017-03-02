@@ -51,7 +51,7 @@ public class PageResponse {
      */
     public static PageBounds getPageBounds(int length, int start) {
         int page = 1;
-        if(start==0){
+        if(start == 0){
             start = 1;
         }
         try {

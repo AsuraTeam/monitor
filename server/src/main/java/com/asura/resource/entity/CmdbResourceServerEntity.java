@@ -18,6 +18,7 @@ import com.asura.framework.base.entity.BaseEntity;
  */
 public class CmdbResourceServerEntity extends BaseEntity{
 
+    private String hostname;
     private java.lang.String lastModifyTime;
     private String groupsName;
     private String entName;
@@ -32,6 +33,14 @@ public class CmdbResourceServerEntity extends BaseEntity{
     private int number;
     private int status;
     private String email;
+
+    public String getHostname() {
+        return hostname;
+    }
+
+    public void setHostname(String hostname) {
+        this.hostname = hostname;
+    }
 
     public String getEmail() {
         return email;
