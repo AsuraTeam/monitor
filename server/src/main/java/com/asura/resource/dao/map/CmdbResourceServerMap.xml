@@ -217,6 +217,15 @@
             <if test="groupsId != null ">
                 and a.groups_id = #{groupsId}
             </if>
+        <if test="userId != null">
+            and a.user_id = #{userId}
+        </if>
+        <if test="typeId != null">
+            and a.type_id = #{typeId}
+        </if>
+        <if test="serviceId != null">
+            and a.service_id = #{serviceId}
+        </if>
         <if test="entId != null ">
                 and ent_id = #{entId}
             </if>

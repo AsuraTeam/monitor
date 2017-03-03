@@ -182,7 +182,7 @@
             "scrollX": true, // 是否允许左右滑动
             "displayLength": 10, // 默认长度
             "ajax": { // 请求地址
-                "url": "/monitor/index/performance/listData?t=" + new Date().getTime() + "&groupsName="+groups+"&indexName=" + name+"&entname="+entid+"&username="+userid+"&typeIId="+typeid+"&serverType="+serviceid,
+                "url": "/monitor/index/performance/listData?t=" + new Date().getTime() + "&groupsName="+groups+"&indexName=" + name+"&entname="+entid+"&username="+userid+"&typeId="+typeid+"&serverType="+serviceid,
                 "type": 'post'
             },
 

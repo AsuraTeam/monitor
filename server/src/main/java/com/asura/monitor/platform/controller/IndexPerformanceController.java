@@ -74,30 +74,37 @@ public class IndexPerformanceController {
     @RequestMapping(value = "listData", produces = {"application/json;charset=utf-8"})
     @ResponseBody
     public String listData(String indexName, String groupsName, String entname, int start, int length, int draw, String username, String typeId, String serverType){
-        String file;
-        String[] indexs = indexName.split("\\|");
-        if (CheckUtil.checkString(groupsName)) {
-             file = dir + FileRender.replace(indexs[1]) + "_" + Integer.valueOf(groupsName);
-        }else{
-             file = dir + FileRender.replace(indexs[1]);
-        }
+
         Gson gson = new Gson();
         PageBounds pageBounds = PageResponse.getPageBounds(1000000, 1);
         SearchMap searchMap = new SearchMap();
+        String fileTypeId = "";
         if(CheckUtil.checkString(groupsName)){
+            fileTypeId = "group." + Integer.valueOf(groupsName);
             searchMap.put("groupsId", Integer.valueOf(groupsName));
         }
         if (CheckUtil.checkString(entname)){
+            fileTypeId = "ent." + Integer.valueOf(entname);
             searchMap.put("entId", Integer.valueOf(entname));
         }
         if (CheckUtil.checkString(username)){
+            fileTypeId = "user." + Integer.valueOf(username);
             searchMap.put("userId", Integer.valueOf(username));
         }
         if (CheckUtil.checkString(typeId)){
+            fileTypeId = "type." + Integer.valueOf(typeId);
             searchMap.put("typeId", Integer.valueOf(typeId));
         }
         if (CheckUtil.checkString(serverType)){
+            fileTypeId = "service." + Integer.valueOf(serverType);
             searchMap.put("serviceId", Integer.valueOf(serverType));
+        }
+        String file;
+        String[] indexs = indexName.split("\\|");
+        if (CheckUtil.checkString(fileTypeId)) {
+            file = dir + FileRender.replace(indexs[1]) + "_" + fileTypeId;
+        }else{
+            file = dir + FileRender.replace(indexs[1]);
         }
         PagingResult<CmdbResourceServerEntity> result = serverService.findAll(searchMap, pageBounds, "selectAllIp");
         ArrayList<String> server = new ArrayList<>();
