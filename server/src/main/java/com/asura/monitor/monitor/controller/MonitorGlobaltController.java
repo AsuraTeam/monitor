@@ -13,6 +13,7 @@ import com.asura.monitor.monitor.entity.CmdbMonitorInformationEntity;
 import com.asura.monitor.monitor.entity.CmdbMonitorMessagesEntity;
 import com.asura.monitor.monitor.service.MonitorInformationService;
 import com.asura.monitor.monitor.service.MonitorMessagesService;
+import com.asura.util.CheckUtil;
 import com.asura.util.DateUtil;
 import com.asura.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -219,15 +220,15 @@ public class MonitorGlobaltController {
      *
      * @return
      */
-    Map getAgentMessages(String status, int length, int start) {
+    public static Map getAgentMessages(String status, int length, int start) {
         Map<String, String> map = new HashMap<>();
         String messages = "监控Agent 5分钟未响应...";
         if (status.equals("2")) {
-            map = getAgentOkMap(MonitorCacheConfig.cacheAgentUnreachable);
+            map = getAgentOkMap(MonitorCacheConfig.cacheAgentUnreachable, "");
             messages = "监控Agent 5分钟未响应...";
         }
         if (status.equals("1")) {
-            map = getAgentOkMap(MonitorCacheConfig.cacheAgentIsOk);
+            map = getAgentOkMap(MonitorCacheConfig.cacheAgentIsOk, "");
             messages = "监控Agent响应正常...";
 
         }
@@ -265,7 +266,7 @@ public class MonitorGlobaltController {
      *
      * @return
      */
-    String getMessagesIp(String hostId) {
+    static String getMessagesIp(String hostId) {
         String ip = "";
         if (ID_TO_HOST == null) {
             ID_TO_HOST = new HashMap<>();
@@ -289,7 +290,7 @@ public class MonitorGlobaltController {
      *
      * @return
      */
-    Map getMessagesMap(ArrayList<MessagesEntity> messagesEntities, Map dataMap) {
+    static Map getMessagesMap(ArrayList<MessagesEntity> messagesEntities, Map dataMap) {
         Map map = new HashMap();
         int totle = 0;
         if (dataMap.size()==0){
@@ -496,11 +497,17 @@ public class MonitorGlobaltController {
      * MonitorCacheConfig.cacheAgentIsOk
      * @return
      */
-    public static Map<String,String> getAgentOkMap(String key){
+    public static Map<String,String> getAgentOkMap(String key, String groups){
         Map<String,String> okMap = new HashMap<>();
         Map<String,String> groupMap = getGroupsMap();
         Jedis jedis = redisUtil.getJedis();
         for(Map.Entry<String,String> entry: groupMap.entrySet()) {
+            // 如果指定组的话就判断组
+            if (CheckUtil.checkString(groups)){
+                if (!entry.getKey().equals(groups)){
+                    continue;
+                }
+            }
             String isOk = jedis.get(app+"_"+key + "_" + entry.getKey());
             if (isOk != null && isOk.length() > 0) {
                 Map<String,String> map = gson.fromJson(isOk, HashMap.class);
@@ -538,8 +545,8 @@ public class MonitorGlobaltController {
      * @return
      */
     CheckCountEntity getAgentUnreachable(){
-        Map<String,String> map = getAgentOkMap(MonitorCacheConfig.cacheAgentUnreachable);
-        Map<String,String> okMap = getAgentOkMap(MonitorCacheConfig.cacheAgentIsOk);
+        Map<String,String> map = getAgentOkMap(MonitorCacheConfig.cacheAgentUnreachable, "");
+        Map<String,String> okMap = getAgentOkMap(MonitorCacheConfig.cacheAgentIsOk, "");
         CheckCountEntity temp = new CheckCountEntity();
             temp.setName("监控Agent状态");
             temp.setDanger(map.size());
@@ -572,7 +579,6 @@ public class MonitorGlobaltController {
             if (result != null && result.length() > 0) {
                 Map<String, String> redisData = gson.fromJson(result, HashMap.class);
                 for (Map.Entry<String,String> map: redisData.entrySet()) {
-
                     data.put(map.getKey(), gson.fromJson(map.getValue(),HashMap.class));
                 }
             }

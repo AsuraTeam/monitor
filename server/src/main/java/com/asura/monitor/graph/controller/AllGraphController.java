@@ -9,6 +9,7 @@ import com.asura.monitor.graph.entity.PushEntity;
 import com.asura.monitor.graph.entity.StatusEntity;
 import com.asura.monitor.graph.util.FileRender;
 import com.asura.monitor.graph.util.FileWriter;
+import com.asura.util.CheckUtil;
 import com.asura.util.DateUtil;
 import com.asura.util.HttpUtil;
 import com.asura.util.RedisUtil;
@@ -304,7 +305,6 @@ public class AllGraphController {
     public String statusData(String ip) throws IOException {
         Gson gson = new Gson();
         ArrayList<String> dirs = FileRender.getSubDir(ip);
-        System.out.println(gson.toJson(dirs));
         ArrayList<StatusEntity> statusEntities = new ArrayList<>();
 
         //  大目录设置
@@ -341,7 +341,6 @@ public class AllGraphController {
                     File[] subFile = getDirFiles(statusDir + f.getName());
                     for (File subF : subFile) {
                         statusEntity.setName(f.getName().replace("SLASH", "/") + " " + subF.getName());
-                        System.out.println(statusDir + separator + f.getName() + separator + subF.getName());
                         last = FileRender.readLastLine(statusDir + separator + f.getName() + separator + subF.getName());
                         String[] result = last.split(" ");
                         statusEntity.setTitle(result[1]);
@@ -397,6 +396,30 @@ public class AllGraphController {
     }
 
     /**
+     * 获取agent服务器信息
+     * @param server
+     * @param redisUtil
+     * @param gson
+     * @return
+     */
+    public static Map<String,String> getHostInfo(String server, RedisUtil redisUtil, Gson gson){
+        String serverId = redisUtil.get(MonitorCacheConfig.hostsIdKey + server);
+        if (serverId == null ){
+            return new HashMap<>();
+        }
+        String portData = redisUtil.get(MonitorCacheConfig.cacheAgentServerInfo + serverId);
+        if (CheckUtil.checkString(portData)) {
+            Map serverMap = gson.fromJson(portData, HashMap.class);
+            Map map = new HashMap();
+            map.put("server", server);
+            map.put("serverId", serverId);
+            map.put("port", serverMap.get("port"));
+            return  map;
+        }
+        return new HashMap<>();
+    }
+
+    /**
      * 实时获取数据
      */
     @RequestMapping(value = "realtime", produces = {"application/json;charset=utf-8"})
@@ -417,19 +440,12 @@ public class AllGraphController {
             serverId = (String) hostIdMap.get(server).get("serverId");
             port = (String) hostIdMap.get(server).get("port");
         } else {
-            serverId = redisUtil.get(MonitorCacheConfig.hostsIdKey + server);
-            if (serverId == null ){
-                return "[]";
-            }
-            String portData = redisUtil.get(MonitorCacheConfig.cacheAgentServerInfo + serverId);
-            if (portData.length() > 0) {
-                Map serverMap = gson.fromJson(portData, HashMap.class);
-                Map map = new HashMap();
-                map.put("serverId", serverId);
-                map.put("port", serverMap.get("port"));
+            Map map =getHostInfo(server, redisUtil,  gson);
+            if (map != null && map.size() > 0) {
                 hostIdMap.put(server, map);
             }
         }
+
         String  key = groups + "." + name;
         String scriptId;
         if (!indexMap.containsKey(key)) {

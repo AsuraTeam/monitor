@@ -385,15 +385,15 @@ public class ServerController {
      */
     @RequestMapping(value = "delete", produces = {"application/json;charset=UTF-8"})
     @ResponseBody
-    public String delete(int id, HttpServletRequest request) {
+    public ResponseVo delete(int id, HttpServletRequest request) {
         String user = permissionsCheck.getLoginUser(request.getSession());
         if (user.length()<2){
-            return "请登陆后操作";
+            return ResponseVo.responseError("请登陆后操作");
         }
         String dept = ldapAuthenticate.getSignUserInfo("department", "sAMAccountName=" + user);
         CmdbResourceServerEntity resourceServerEntity = service.findById(id, CmdbResourceServerEntity.class);
         if (! user.equals("admin") && ! dept.contains("运维")){
-            return "no permissions";
+            return ResponseVo.responseError("no permissions");
         }
         RedisUtil redisUtil = new RedisUtil();
         redisUtil.del(MonitorCacheConfig.cacheHostIsUpdate+id);
@@ -402,7 +402,7 @@ public class ServerController {
         service.delete(resourceServerEntity);
         indexController.logSave(request,"删除资产数据 " + gson.toJson(resourceServerEntity));
         cacheController.cacheGroups();
-        return "ok";
+        return ResponseVo.responseOk(null);
     }
 
     /**

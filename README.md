@@ -20,6 +20,7 @@
 11、支持图像搜索,主机名,ip地址搜索图像<br>
 12、图像收藏功能,常用的直接在收藏列表点开查看<br>
 13、支持ldap认证登陆<br>
+14、支持任何指标数据多条件筛选排序,资源使用情况一目了然<br>
 </br>
 
 欢迎加入 阿修罗监控系统 QQ群 149469467<br>
@@ -55,6 +56,10 @@
 <br>
 <br>
 ![image](https://github.com/AsuraTeam/monitor/blob/master/images/img16.png)
+<br>
+<b>指标排序功能</b></br>
+<br>
+![image](https://github.com/AsuraTeam/monitor/blob/master/images/img17.png)
 <br>
 <b>图像搜索功能</b></br>
 <br>

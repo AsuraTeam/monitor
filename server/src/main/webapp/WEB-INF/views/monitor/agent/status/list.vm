@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>监控服务器列表</title><body class="gray-bg top-navigation">
+    #include("/index/include.vm")
+
+<div id="">
+    <div id="page-wrapper" class="gray-bg">
+        #include("/index/header.vm")
+<div id="addConfig"></div>
+<body>
+
+<div class="modal fade" id="show_ip_address" tabindex="-1"
+     role="dialog" style="background-color: #FfFfFf; margin-top: 16px;"
+     data-backdrop="false">
+    <div class="modal-dialog"
+         style="margin-top: 0px; width: 80%; ">
+        <div class="modal-content"
+             style="height: auto; overflow-y:scroll;width: 100%; ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title">&nbsp;&nbsp;<span id="addressNetworkId"></span>异常agent详情</h4>
+            </div>
+            <div  id="show_ip_detail_html" style="margin-bottom: 20px;">
+                加载中...
+            </div>
+            <div style="margin-top:120px;">&nbsp;</div>
+        </div>
+    </div>
+</div>
+
+<div class=" animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-content" style="overflow:scroll;">
+                    <table id="listTable"
+                           class="table  table-bordered table-hover dataTables-example">
+                        <thead>
+                        <tr nowrap="nowrap" role="rows">
+                            <th>业务线</th>
+                            <th>正常状态</th>
+                            <th>失败状态</th>
+                            <th>拥有主机</th>
+                            <th>异常主机</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function init(groups) {
+        url = "/monitor/agent/status/initSave"
+        result = post({"groupsId": groups}, url)
+        parent.layer.msg(JSON.stringify(result),  {icon:1});
+    }
+
+    function show_hosts(groupsId) {
+        url = "/monitor/agent/status/faildHosts"
+        $('#show_ip_address').modal("toggle")
+        result = eval(post({groupsId:groupsId},url))
+        html = ""
+        for( i=0;i<result.length;i++){
+            html += '<button title="最近检查时间" class="col-sm-4 btn btn-outline btn-default" style="margin-left:10px;border:1px solid #f0f0f0;width:150px;height: 40px;margin-top:5px;"><a>' +result[i] +"</a></button>"
+        }
+        $('#show_ip_detail_html').html(html+"</br>&nbsp;</p>")
+    }
+
+
+    function loadData(){
+        $("#listTable").dataTable({
+            "filter": true,//去掉搜索框
+            "ordering": false, // 是否允许排序
+            "paginationType": "full_numbers", // 页码类型
+            "destroy": true,
+            "processing": true,
+            "serverSide": true,
+            "scrollX": true, // 是否允许左右滑动
+            "displayLength": 10, // 默认长度
+            "ajax": { // 请求地址
+                "url": "/monitor/agent/status/getAgentStatus?t=" + new Date().getTime(),
+                "type": 'post'
+            },
+
+            "columns": [ // 数据映射
+                {"data": "groupsName", "mRender":function (data) {
+                    return data;
+
+                }},
+                {"data": "ok"},
+                {"data": "faild"},
+                {"data": "totle"},
+                {"data": "groupsId", "mRender":function (data, type ,full) {
+                       value = full["totle"] - full["ok"] -  full["faild"];
+                    return "<span style='margin-left:35%;' title='点击后显示没有运行agent或者上报数据超时的机器' onclick=\"show_hosts("+data+")\"><a><i class='fa fa-eye'></i></a>&nbsp;&nbsp;"+value+"</span>";                }},
+                {"data": "groupsId","mRender":function (data) {
+                    return '<button type="button" onclick="init('+data+')" title="点击后所有该组开启agent的机器会重新初始化数据" class="btn btn-sm btn-warning">初始化</button>&nbsp;';
+                }},
+            ],
+            "fnRowCallback": function (row, data) { // 每行创建完毕的回调
+                $(row).data('recordId', data.recordId);
+            }
+        });
+    }
+
+    loadData();
+
+</script>
+</body>
+</html>

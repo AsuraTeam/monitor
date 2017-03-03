@@ -275,6 +275,9 @@
 <input type="hidden" id="messages_groups_name_id">
 </div>
 <script>
+    function to_agent_status(){
+        window.location = "/monitor/agent/status/list"
+    }
 
     function getData() {
         exclude = $.cookie(cookieName);
@@ -321,9 +324,14 @@
         html = '<div class="col-md-3" style="padding-left: 5px;padding-right: 5px;border: 1px solid #f3f3f3;" ">'+
                 '  <div class="ibox">'+
                 '    <div class="ibox-title" style="border-top-width:1px;border-top-color:#1ab394;'+dangerCss+'" id="css'+full["id"]+'">' +
-                '      <span title="点击忽略该组显示" style="margin-left:10px;" onClick="excludeGroups(\''+full["name"]+'\')" class="close-link">' +
-                '          <i style="color:#BEBEBE;margin-top:-3px;font-size:15px;" class="fa fa-times"></i> </span>' +
-                '            <span title="点击到报表页面" style="margin-left:10px;" onClick="reportPage(\''+full["name"]+'\')" class="close-link">' +
+                '      <span title="点击忽略该组显示" style="margin-left:10px;" onClick="excludeGroups(\''+full["name"]+'\')" class="close-link">'+
+                '          <i style="color:#BEBEBE;margin-top:-3px;font-size:15px;" class="fa fa-times"></i> </span>'
+
+        if(full["name"] == "监控Agent状态"){
+            html += '<i style="color:#BEBEBE;margin-top:-3px;font-size:15px;" onclick="to_agent_status()" class="fa fa-eye"></i> </span>'
+        }
+
+        html += '<span title="点击到报表页面" style="margin-left:10px;" onClick="reportPage(\''+full["name"]+'\')" class="close-link">' +
                 '               <i style="color:#BEBEBE;margin-top:-3px;font-size:15px;" class="fa fa-line-chart"></i> </span>'+
                 '                   <span id="displayStop'+full["id"]+'" style="'+displayStop+'" class="label label-default pull-right"'+
                 '                          onclick="alarmPlay('+full["id"]+')">'+

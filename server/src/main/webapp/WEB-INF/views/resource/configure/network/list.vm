@@ -113,8 +113,8 @@
 
         $('#addressNetworkId').html(addressNetworkId+t);
         $('#show_ip_detail_html').html(html+"</br>&nbsp;</p>")
-
     }
+
     function saveConfig(id){
         data = get_form_data();
         if(id){
