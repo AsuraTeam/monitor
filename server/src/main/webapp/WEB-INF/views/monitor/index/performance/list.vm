@@ -194,7 +194,10 @@
                     return '<span onclick="loadData(\''+data+'\',\'\',\'\')">'+data+'</span>'
                 }},
                 {"data": "key","mRender":function (data) {
-                    return '<span onclick="loadData(\'\',\'\',\''+data+'\')">'+data+'</span><span title="点击到报表页面" style="margin-left:10px;" onClick="window.open(\'/monitor/graph/all/index?select=cpu|system.cpu.user,cpu|system.cpu.system,cpu|system.cpu.idle,cpu|system.cpu.iowait&ip='+data+'\')" class="close-link"><i style="color:#BEBEBE;margin-top:-3px;font-size:15px;" class="fa fa-line-chart"></i> </span>'
+                    return '<span>'+data+'</span>' +
+                            '<span title="点击到报表页面" style="margin-left:10px;" ' +
+                            'onClick="window.open(\'/monitor/graph/all/index?select='+name+'&ip='+data+'\')" class="close-link">' +
+                            '<i style="color:#BEBEBE;margin-top:-3px;font-size:15px;" class="fa fa-line-chart"></i> </span>'
                 }},
                 {"data": "value","mRender":function (data) {
                     return name;
