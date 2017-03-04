@@ -260,7 +260,7 @@ public class ResourceReportController {
     public String createData() throws  Exception{
         SearchMap searchMap = new SearchMap();
         searchMap.put("format","year");
-        searchMap.put("dates","2016");
+        searchMap.put("dates",DateUtil.getDate("yyyy"));
         ArrayList[] result = getReportData(searchMap);
         return gson.toJson(result);
     }
