@@ -355,12 +355,12 @@ function graph_min(color, id, title, ytitle, url, chartype,lstartT,lendT) {
         startT=lstartT;
         endT = lendT;
     }
-    lineWidth = 3
-    lineWidthO = 5
-    if(startT){
-        lineWidth = 1
-        lineWidthO= 1
-    }
+    // lineWidth = 3
+    // lineWidthO = 5
+    // if(startT){
+    //     lineWidth = 1
+    //     lineWidthO= 1
+    // }
 
     data= eval(post({}, url+"&startT="+startT+"&endT="+endT))
     get_max_min_avg_last_value(data, id );
@@ -448,10 +448,10 @@ function graph_min(color, id, title, ytitle, url, chartype,lstartT,lendT) {
         },
         plotOptions: {
             spline: {
-                lineWidth: 2,
+                lineWidth: 1.2,
                 states: {
                     hover: {
-                        lineWidth: lineWidthO
+                        lineWidth: 1.6
                     }
                 },
                 marker: {
@@ -565,10 +565,10 @@ function get_graph_all(image_id, ips,title, groups, names, type,     startT, end
         },
         plotOptions: {
             line: {
-                lineWidth: 1,
+                lineWidth: 1.2,
                 states: {
                     hover: {
-                        lineWidth: 3
+                        lineWidth: 1.6
                     }
                 },
                 marker: {
