@@ -5,9 +5,14 @@
 
 <div id="wrappe1r">
     <div class="ibox-title" style="margin-top: 0px;border: solid 1px #f0f0f0">
-        <div class="col-md-4" style="float:left;">
+        <div class="col-md-4" style="float:left;margin-top:-5px;">
             <strong>$!{ip}&nbsp;&nbsp;多维度选项&nbsp;&nbsp;
             </strong>
+            <span style="margin-left:20px;">
+            <button type="button" onclick="graphAll('sum', ['#1c84c6'])" class="btn btn-sm btn-outline btn-success">&nbsp;求&nbsp;和&nbsp;</button>&nbsp;
+            <button type="button" onClick="graphAll('avg', ['#1ab394'])" class="btn btn-sm btn-outline btn-primary">&nbsp;平&nbsp;均&nbsp;</button>
+            <button type="button" onClick="graphAll('0')" class="btn btn-sm btn-outline btn-danger">&nbsp;原&nbsp;始&nbsp;</button>
+            </span>
         </div>
     </div>
     <div class="" style="padding:0px;margin-top: 0px;">
@@ -24,7 +29,7 @@
 </div>
 </div>
 
-<input type="hidden" id="selectGroups">
+<input type="hidden" id="select_data_type">
 
 <script>//Flot Multiple Axes Line Chart
 
@@ -43,7 +48,73 @@ function getDatas() {
     return datas;
 }
 
-function graphAll() {
+function data_sum(){
+    datas = getDatas()
+    new_datas = {}
+    size = datas.length
+    data_list = new Array();
+    for(i=0;i<datas[0]["data"].length;i++){
+        data = new Array();
+        sum = 0
+        for(j=0; j<size; j++){
+            value = datas[j]["data"][i];
+            if(value){
+                sum += parseFloat(value[1])
+            }
+        }
+        data[0] =  datas[0]["data"][i][0]
+        data[1] = sum
+        data_list.push(data)
+
+    }
+    new_datas["name"] = datas[0]["name"]
+    new_datas["data"] = data_list
+    return [new_datas]
+}
+function data_avg(){
+    datas = getDatas()
+    new_datas = {}
+    size = datas.length
+    data_list = new Array();
+    for(i=0;i<datas[0]["data"].length;i++){
+        data = new Array();
+        sum = 0
+        for(j=0; j<size; j++){
+            value = datas[j]["data"][i];
+            if(value){
+                sum += parseFloat(value[1])
+            }
+        }
+        data[0] =  datas[0]["data"][i][0]
+        data[1] = sum / size
+        data_list.push(data)
+
+    }
+    new_datas["name"] = datas[0]["name"]
+    new_datas["data"] = data_list
+    return [new_datas]
+}
+
+function get_datas(value){
+    if (value == "sum"){
+        return data_sum()
+    }
+    if (value == "avg"){
+        return data_avg()
+    }
+    return getDatas()
+
+}
+function graphAll(data_type, colors) {
+    if(!colors){
+        xtype = "line"
+    }else{
+        xtype = "area"
+    }
+
+    if(!colors){
+        colors= ['#2b908f', '#90ee7e', '#f45b5b', '#7798BF', '#aaeeee', '#ff0066', '#eeaaee','#55BF3B', '#DF5353', '#7798BF', '#aaeeee']
+    }
     startT = $('#startSendTime').val()
     endT = $('#endSendTime').val()
     if (!startT) {
@@ -129,7 +200,7 @@ function graphAll() {
     t = "&startT=" + startT + "&endT=" + endT;
     $('#allimage').highcharts({
         chart: {
-            type: "line",
+            type: xtype,
             zoomType: 'x',
         },
 
@@ -137,13 +208,15 @@ function graphAll() {
             text: '',
         },
 
+        colors: colors,
+
         xAxis: {
             tickWidth: 1,
             lineWidth: 1,
             labels: {
                 align: 'left',
                 x: 3,
-                y: 55,
+                y: 5,
             }
         },
 
@@ -201,7 +274,7 @@ function graphAll() {
         exporting: {
             enabled: false
         },
-        series: getDatas()
+        series: get_datas(data_type)
     });
 }
 
@@ -210,11 +283,11 @@ function loadAll(zoom) {
     if (zoom) {
         setWidth("allimage")
     }
-    graphAll()
+    graphAll(0)
 }
 
 function loadimg() {
-    graphAll()
+    graphAll(0)
 }
 loadimg();
 </script>
