@@ -55,7 +55,7 @@ public class MonitorReportController {
      */
     @RequestMapping(value = "messagesData", produces = {"application/json;charset=UTF-8"})
     @ResponseBody
-    public String messagesData(int start, int length, String startTime, String endTime) {
+    public String messagesData(int start, int length, String startTime, String endTime, int draw) {
         String[] times = DateUtil.getMonthStartEnd();
         SearchMap searchMap = new SearchMap();
         searchMap.put("start", times[0]);
@@ -93,11 +93,13 @@ public class MonitorReportController {
                 searchMap.put("start", date.split(" ")[0] + " 00:00:00");
                 searchMap.put("end", date.split(" ")[0] + " 23:59:00");
                 searchMap.put(type, type);
-                PagingResult<MonitorMessagesEntity> result1 = messagesService.findAll(searchMap, pageBounds, "reportMessages");
+                PagingResult<MonitorMessagesEntity> result1 = messagesService.findAll(searchMap, PageResponse.getPageBounds(2,1), "reportMessages");
                 String cnt = "0";
-                if (result1.getTotal()>0) {
+                if (result1 != null && result1.getTotal()>0 && result1.getRows().size() > 0) {
                     MonitorMessagesEntity entity = result1.getRows().get(0);
                     cnt = entity.getCnt();
+                }else{
+                    continue;
                 }
                 switch (type) {
                     case "email":
@@ -120,9 +122,9 @@ public class MonitorReportController {
         }
         Map map = new HashMap<>();
         map.put("data", list);
-        map.put("recordsTotal", list.size());
-        map.put("recordsFiltered", list.size());
-        map.put("draw", 1);
+        map.put("recordsTotal", result.getTotal());
+        map.put("recordsFiltered", result.getTotal());
+        map.put("draw", draw);
         return new Gson().toJson(map);
     }
 }

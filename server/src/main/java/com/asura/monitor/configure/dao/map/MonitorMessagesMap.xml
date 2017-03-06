@@ -63,7 +63,7 @@
           and  email != ""
           and email is not NULL
         </if>
-          and messages_time &gt; #{start} and messages_time &lt; #{end}
+          and messages_time &gt;= #{start} and messages_time &lt;= #{end}
         group by 1 order by messages_id desc
     </select>
 
