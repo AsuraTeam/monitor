@@ -56,5 +56,9 @@
          where groups_id=#{groupsId}
     </update>
 
+    <delete id="delete" parameterType="com.asura.resource.entity.CmdbResourceGroupsEntity">
+           DELETE from cmdb_resource_groups where  groups_id=#{groupsId}
+    </delete>
+
 </mapper>
 

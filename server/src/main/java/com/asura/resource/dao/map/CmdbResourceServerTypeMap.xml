@@ -90,5 +90,8 @@
          where    type_id=#{typeId}
     </update>
 
+    <delete id="delete" parameterType="com.asura.resource.entity.CmdbResourceServerTypeEntity">
+        DELETE from cmdb_resource_server_type WHERE    type_id=#{typeId}
+    </delete>
 </mapper>
 

@@ -50,5 +50,8 @@
          where ent_id=#{entId}
     </update>
 
+    <delete id="delete" parameterType="com.asura.resource.entity.CmdbResourceEntnameEntity">
+        DELETE from cmdb_resource_entname where  ent_id=#{entId}
+    </delete>
 </mapper>
 

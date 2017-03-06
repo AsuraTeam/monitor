@@ -53,5 +53,8 @@
          where    os_id=#{osId}
     </update>
 
+    <delete id="delete" parameterType="com.asura.resource.entity.CmdbResourceOsTypeEntity">
+     DELETE  from cmdb_resource_os_type WHERE   os_id=#{osId}
+    </delete>
 </mapper>
 

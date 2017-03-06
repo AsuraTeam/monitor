@@ -101,6 +101,8 @@
          where cabinet_id=#{cabinetId}
     </update>
 
-
+    <delete id="delete" parameterType="com.asura.resource.entity.CmdbResourceCabinetEntity">
+          DELETE from cmdb_resource_cabinet where  cabinet_id=#{cabinetId}
+    </delete>
 </mapper>
 

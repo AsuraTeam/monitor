@@ -55,5 +55,8 @@
          where floor_id=#{floorId}
     </update>
 
+    <delete id="delete" parameterType="com.asura.resource.entity.CmdbResourceFloorEntity">
+        DELETE from cmdb_resource_floor where   floor_id=#{floorId}
+    </delete>
 </mapper>
 

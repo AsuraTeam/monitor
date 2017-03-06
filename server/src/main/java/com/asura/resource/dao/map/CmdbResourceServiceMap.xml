@@ -48,5 +48,8 @@
          where    service_id=#{serviceId}
     </update>
 
+    <delete id="delete" parameterType="com.asura.resource.entity.CmdbResourceServiceEntity">
+           DELETE from  cmdb_resource_service  where  service_id=#{serviceId}
+    </delete>
 </mapper>
 

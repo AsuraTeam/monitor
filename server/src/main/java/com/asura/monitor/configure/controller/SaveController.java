@@ -172,8 +172,8 @@ public class SaveController {
      */
     @RequestMapping("contacts/save")
     @ResponseBody
-    public ResponseVo contactsSave(MonitorContactsEntity entity, HttpSession session) {
-        String user = permissionsCheck.getLoginUser(session);
+    public ResponseVo contactsSave(MonitorContactsEntity entity, HttpServletRequest request) {
+        String user = permissionsCheck.getLoginUser(request.getSession());
         entity.setLastModifyUser(user);
         entity.setLastModifyTime(DateUtil.getTimeStamp());
         if (entity.getContactsId() != null) {
@@ -182,6 +182,7 @@ public class SaveController {
         } else {
             contactsService.save(entity);
         }
+        indexController.logSave(request, "添加监控联系人" + gson.toJson(entity));
         cacheController.setContactCache();
         return ResponseVo.responseOk(null);
     }
@@ -214,8 +215,8 @@ public class SaveController {
      */
     @RequestMapping("contactGroup/save")
     @ResponseBody
-    public ResponseVo contactGroupSave(MonitorContactGroupEntity entity, HttpSession session) {
-        String user = permissionsCheck.getLoginUser(session);
+    public ResponseVo contactGroupSave(MonitorContactGroupEntity entity, HttpServletRequest request) {
+        String user = permissionsCheck.getLoginUser(request.getSession());
         entity.setLastModifyUser(user);
         entity.setLastModifyTime(DateUtil.getTimeStamp());
         if (entity.getGroupId() != null) {
@@ -224,6 +225,7 @@ public class SaveController {
             entity.setStatus(1);
             contactGroupService.save(entity);
         }
+        indexController.logSave(request, "添加监控联系组" + gson.toJson(entity));
         cacheController.setContactGroupCache();
         return ResponseVo.responseOk(null);
     }
@@ -236,8 +238,8 @@ public class SaveController {
      */
     @RequestMapping("script/save")
     @ResponseBody
-    public ResponseVo scriptSave(MonitorScriptsEntity entity, HttpSession session) {
-        String user = permissionsCheck.getLoginUser(session);
+    public ResponseVo scriptSave(MonitorScriptsEntity entity, HttpServletRequest request) {
+        String user = permissionsCheck.getLoginUser(request.getSession());
         entity.setLastModifyUser(user);
         entity.setLastModifyTime(DateUtil.getTimeStamp());
         if (entity.getScriptsId() != null) {
@@ -253,6 +255,7 @@ public class SaveController {
             entity.setScriptsId(id);
             scriptsService.save(entity);
         }
+        indexController.logSave(request, "添加脚本" + gson.toJson(entity));
         redisUtil.setex(MonitorCacheConfig.cacheScriptIdKey+ entity.getScriptsId(),600, gson.toJson(entity));
         updateHostUpdate("script");
         cacheController.setDefaultMonitorChange();
@@ -281,8 +284,8 @@ public class SaveController {
      */
     @RequestMapping("item/save")
     @ResponseBody
-    public ResponseVo itemSave(MonitorItemEntity entity, HttpSession session) {
-        String user = permissionsCheck.getLoginUser(session);
+    public ResponseVo itemSave(MonitorItemEntity entity, HttpServletRequest request) {
+        String user = permissionsCheck.getLoginUser(request.getSession());
         entity.setLastModifyUser(user);
         entity.setLastModifyTime(DateUtil.getTimeStamp());
         if (entity.getItemId() != null) {
@@ -298,6 +301,7 @@ public class SaveController {
             entity.setItemId(id);
             itemService.save(entity);
         }
+        indexController.logSave(request, "添加监控项目" + gson.toJson(entity));
         cacheController.setItemCache();
         cacheController.setDefaultMonitorChange();
         return ResponseVo.responseOk(null);
@@ -326,8 +330,8 @@ public class SaveController {
      */
     @RequestMapping("messages/save")
     @ResponseBody
-    public ResponseVo messagesSave(MonitorMessageChannelEntity entity, HttpSession session) {
-        String user = permissionsCheck.getLoginUser(session);
+    public ResponseVo messagesSave(MonitorMessageChannelEntity entity, HttpServletRequest request) {
+        String user = permissionsCheck.getLoginUser(request.getSession());
         entity.setLastModifyUser(user);
         entity.setLastModifyTime(DateUtil.getTimeStamp());
         if (entity.getChannelId() != null) {
@@ -335,8 +339,20 @@ public class SaveController {
         } else {
             channelService.save(entity);
         }
+        indexController.logSave(request, "添加消息通道" + gson.toJson(entity));
         redisUtil.set(MonitorCacheConfig.cacheChannelKey + entity.getChannelTp(), gson.toJson(entity));
         return ResponseVo.responseOk(null);
+    }
+
+    /**
+     *
+     * @param configureId
+     * @param hosts
+     */
+    void deleteOldConfigure(String configureId, String[] hosts){
+        for (String host: hosts) {
+            redisUtil.del(cacheHostCnfigureKey + host + "_" + configureId);
+        }
     }
 
     /**
@@ -354,7 +370,8 @@ public class SaveController {
         if (entity.getConfigureId() != null) {
             MonitorConfigureEntity configureEntity = configureService.findById(entity.getConfigureId(), MonitorConfigureEntity.class);
             hosts = configureEntity.getHosts().split(",");
-
+            // 删除老的机器的监控配置
+            deleteOldConfigure(entity.getConfigureId()+"", hosts);
             configureService.update(entity);
         } else {
             List<MonitorConfigureEntity> r = configureService.getDataList(null, "selectMaxId");
@@ -368,12 +385,11 @@ public class SaveController {
             entity.setConfigureId(id);
             configureService.save(entity);
         }
-        redisUtil.set(MonitorCacheConfig.cacheConfigureKey+entity.getConfigureId(),gson.toJson(entity));
+        redisUtil.set(MonitorCacheConfig.cacheConfigureKey+entity.getConfigureId(), gson.toJson(entity));
         makeHostMonitorTag(entity);
         setUpdateMonitor(entity);
         MakeCacheThread cacheThread  = new MakeCacheThread(cacheController, hosts);
         cacheThread.start();
-
         indexController.logSave(request, "添加监控" + gson.toJson(entity));
         return ResponseVo.responseOk(null);
     }
@@ -494,7 +510,7 @@ public class SaveController {
                    hostSet = getHosts(hosts, hostSet);
                }
            }
-           if(group!=null){
+           if(group != null){
                String[] groups = group.split(",");
                for (String g:groups){
                    String result = redisUtil.get(MonitorCacheConfig.cacheGroupsKey+g);
