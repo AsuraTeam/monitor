@@ -90,15 +90,24 @@ public class FileWriter {
      * @return
      */
     public static String getGraphFile(String type, String ip, String name){
+        StringBuilder dir = new StringBuilder();
         // 拼接文件目录
-        String dir = dataDir + separator + "graph" + separator +
-                ip + separator +
-                type + separator +
-                dateUtil.getDate("yyyy") + separator +
-                dateUtil.getDate("MM") + separator +
-                dateUtil.getDate("dd") + separator +
-                separator + name;
-        return dir;
+        dir.append(dataDir)
+                .append(separator)
+                .append("graph")
+                .append(separator)
+                .append(ip)
+                .append(separator)
+                .append(type)
+                .append(separator)
+                .append( dateUtil.getDate("yyyy"))
+                .append(separator)
+                .append(dateUtil.getDate("MM"))
+                .append(separator)
+                .append(dateUtil.getDate("dd") )
+                .append(separator)
+                .append(name);
+        return dir.toString();
     }
 
     /**
@@ -116,16 +125,8 @@ public class FileWriter {
         }catch (Exception e){
             return;
         }
-
         // 拼接文件目录
-        String dir = dataDir + separator + "graph" + separator +
-                ip + separator +
-                type + separator +
-                dateUtil.getDate("yyyy") + separator +
-                dateUtil.getDate("MM") + separator +
-                dateUtil.getDate("dd") + separator +
-                separator + name;
-
+        String dir = getGraphFile(type, ip, name);
         // 将值组装成固定的时间和数据
         String content = DateUtil.getDateStampInteter() + "000 " + value.trim();
         writeFile(dir, content, true);
@@ -138,15 +139,23 @@ public class FileWriter {
      * @return
      */
     public  static  String getMonitorFile(String ip, String name){
-
+        StringBuilder file = new StringBuilder();
         // 拼接文件目录
-        String file = dataDir + separator + "monitor" + separator +
-                ip + separator +
-                dateUtil.getDate("yyyy") + separator +
-                dateUtil.getDate("MM") + separator +
-                dateUtil.getDate("dd") + separator +
-                separator + name;
-        return file;
+        file.append(dataDir)
+                .append(separator)
+                .append("monitor")
+                .append(separator)
+                .append(ip)
+                .append(separator)
+                .append( dateUtil.getDate("yyyy"))
+                .append(separator)
+                .append(dateUtil.getDate("MM"))
+                .append(separator)
+                .append(dateUtil.getDate("dd") )
+                .append(separator)
+                .append(name);
+
+        return file.toString();
     }
 
     /**
@@ -173,29 +182,29 @@ public class FileWriter {
         writeFile(file, content, true);
     }
 
-    /**
-     * 错误日志写入
-     * @param entity
-     */
-    public static void writeErrorHistory(PushEntity entity) {
-        // 拼接文件目录
-        String file = dataDir + separator + "monitor" + separator +
-                dateUtil.getDate("yyyy") + separator +
-                dateUtil.getDate("MM") + separator +
-                dateUtil.getDate("dd") + separator +"error";
-
-        if (entity.getTime() == null) {
-            entity.setTime(DateUtil.getDate("yyyy-MM-dd HH:mm:ss"));
-        }
-
-        String content = entity.getTime() + " ";
-        content += entity.getCommand() + " ";
-        content += entity.getStatus() + " ";
-        content += entity.getValue() + " ";
-        content += "[" + entity.getMessages().replace("\\n", " ") + "]";
-        writeFile(file, content, true);
-
-    }
+//    /**
+//     * 错误日志写入
+//     * @param entity
+//     */
+//    public static void writeErrorHistory(PushEntity entity) {
+//        // 拼接文件目录
+//        String file = dataDir + separator + "monitor" + separator +
+//                dateUtil.getDate("yyyy") + separator +
+//                dateUtil.getDate("MM") + separator +
+//                dateUtil.getDate("dd") + separator +"error";
+//
+//        if (entity.getTime() == null) {
+//            entity.setTime(DateUtil.getDate("yyyy-MM-dd HH:mm:ss"));
+//        }
+//
+//        String content = entity.getTime() + " ";
+//        content += entity.getCommand() + " ";
+//        content += entity.getStatus() + " ";
+//        content += entity.getValue() + " ";
+//        content += "[" + entity.getMessages().replace("\\n", " ") + "]";
+//        writeFile(file, content, true);
+//
+//    }
 
 
     /**
@@ -203,31 +212,30 @@ public class FileWriter {
      * @return
      */
     public static String getSysInfoDir(){
-        String dir = dataDir + separator + "graph" + separator
-                +"sysinfo"
-                +separator
-                +DateUtil.getDate("yyyy")
-                +separator
-                +DateUtil.getDate("MM")
-                +separator
-                +DateUtil.getDate("dd") + separator;
-        return dir;
+        StringBuilder file = new StringBuilder();
+        // 拼接文件目录
+        file.append(dataDir)
+                .append(separator)
+                .append("graph")
+                .append(separator)
+                .append("sysinfo")
+                .append(separator)
+                .append( dateUtil.getDate("yyyy"))
+                .append(separator)
+                .append(dateUtil.getDate("MM"))
+                .append(separator)
+                .append(dateUtil.getDate("dd") )
+                .append(separator);
+        return file.toString();
     }
 
     /**
      * 获取指定指标数据
      * @return
      */
-    public static String getIndexData(String ip, String type, String name,int dataLen){
+    public static String getIndexData(String ip, String type, String name, int dataLen){
         String data  ="";
-        String file = dataDir + separator + "graph" + separator
-                +ip + separator + type
-                +separator
-                +DateUtil.getDate("yyyy")
-                +separator
-                +DateUtil.getDate("MM")
-                +separator
-                +DateUtil.getDate("dd") + separator + name;
+        String file = getGraphFile(type, ip, name);
         try {
            String lastData =  FileRender.readLastLine(file);
             if (lastData!= null){

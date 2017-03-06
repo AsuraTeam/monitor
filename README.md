@@ -65,6 +65,10 @@
 <br>
 ![image](https://raw.githubusercontent.com/AsuraTeam/monitor/master/images/img13.png)
 <br>
+<b>指标聚合功能,单指标多服务器,平均和求和</b></br>
+<br>
+![image](https://raw.githubusercontent.com/AsuraTeam/monitor/master/images/img18.png)
+<br>
 <b>图像收藏功能</b></br>
 <br>
 ![image](https://raw.githubusercontent.com/AsuraTeam/monitor/master/images/img14.png)
