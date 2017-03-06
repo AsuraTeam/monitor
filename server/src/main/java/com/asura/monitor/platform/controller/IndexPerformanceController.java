@@ -80,23 +80,23 @@ public class IndexPerformanceController {
         SearchMap searchMap = new SearchMap();
         String fileTypeId = "";
         if(CheckUtil.checkString(groupsName)){
-            fileTypeId = "group." + Integer.valueOf(groupsName);
+            fileTypeId += "group." + Integer.valueOf(groupsName);
             searchMap.put("groupsId", Integer.valueOf(groupsName));
         }
         if (CheckUtil.checkString(entname)){
-            fileTypeId = "ent." + Integer.valueOf(entname);
+            fileTypeId += "ent." + Integer.valueOf(entname);
             searchMap.put("entId", Integer.valueOf(entname));
         }
         if (CheckUtil.checkString(username)){
-            fileTypeId = "user." + Integer.valueOf(username);
+            fileTypeId += "user." + Integer.valueOf(username);
             searchMap.put("userId", Integer.valueOf(username));
         }
         if (CheckUtil.checkString(typeId)){
-            fileTypeId = "type." + Integer.valueOf(typeId);
+            fileTypeId += "type." + Integer.valueOf(typeId);
             searchMap.put("typeId", Integer.valueOf(typeId));
         }
         if (CheckUtil.checkString(serverType)){
-            fileTypeId = "service." + Integer.valueOf(serverType);
+            fileTypeId += "service." + Integer.valueOf(serverType);
             searchMap.put("serviceId", Integer.valueOf(serverType));
         }
         String file;
