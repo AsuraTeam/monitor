@@ -42,6 +42,7 @@ import static com.asura.monitor.graph.util.FileWriter.separator;
  * <BR>	修改日期			修改人			修改内容
  * </PRE>
  * 指标名称配置
+ *
  * @author zhaozq
  * @version 1.0
  * @since 1.0
@@ -53,8 +54,8 @@ public class IndexFromScriptController {
     @Autowired
     private PermissionsCheck permissionsCheck;
 
-     @Autowired
-     private MonitorIndexFromScriptsService indexService;
+    @Autowired
+    private MonitorIndexFromScriptsService indexService;
 
     @Autowired
     private IndexController indexController;
@@ -64,13 +65,14 @@ public class IndexFromScriptController {
 
     /**
      * 指标配置
+     *
      * @return
      */
     @RequestMapping("index/add")
-    public String indexAdd(int id,Model model){
-        if(id>0){
-            MonitorIndexFromScriptsEntity result = indexService.findById(id,MonitorIndexFromScriptsEntity.class);
-            model.addAttribute("configs",result);
+    public String indexAdd(int id, Model model) {
+        if (id > 0) {
+            MonitorIndexFromScriptsEntity result = indexService.findById(id, MonitorIndexFromScriptsEntity.class);
+            model.addAttribute("configs", result);
         }
         List<MonitorScriptsEntity> result = scriptsService.getDataList(new SearchMap(), "selectByAll");
         model.addAttribute("scripts", result);
@@ -79,19 +81,20 @@ public class IndexFromScriptController {
 
     /**
      * 获取最新指标的数据到库里面
+     *
      * @return
      */
     @RequestMapping("index/getIndex")
     @ResponseBody
-    public String getIndex( MonitorIndexFromScriptsService indexServices){
-        if (indexService == null){
+    public String getIndex(MonitorIndexFromScriptsService indexServices) {
+        if (indexService == null) {
             indexService = indexServices;
         }
         RedisUtil redisUtil = new RedisUtil();
         String lock = redisUtil.get(MonitorCacheConfig.updateIndexNameLock);
-        if (lock!=null && lock.equals("1")){
+        if (lock != null && lock.equals("1")) {
             return "get Index is lock";
-        }else{
+        } else {
             redisUtil.setex(MonitorCacheConfig.updateIndexNameLock, 600, "1");
         }
         Map indexMap = new HashMap();
@@ -99,23 +102,23 @@ public class IndexFromScriptController {
         PageBounds pageBounds = PageResponse.getPageBounds(1000000, 1);
         List indexList = new ArrayList<>();
         PagingResult<MonitorIndexFromScriptsEntity> result = indexService.findAll(searchMap, pageBounds, "selectByAll");
-        for (MonitorIndexFromScriptsEntity entity: result.getRows()){
+        for (MonitorIndexFromScriptsEntity entity : result.getRows()) {
             indexList.add(entity.getIndexName());
             indexMap.put(entity.getIndexName(), entity.getScriptsId());
         }
-        String dir = dataDir + separator + "graph" + separator +"index" +separator;
+        String dir = dataDir + separator + "graph" + separator + "index" + separator;
         File file = new File(dir);
         File[] list = file.listFiles();
-        for (File files:list){
-           String index =  files.getName();
+        for (File files : list) {
+            String index = files.getName();
             MonitorIndexFromScriptsEntity scriptsEntity = new MonitorIndexFromScriptsEntity();
             scriptsEntity.setIndexName(index);
             scriptsEntity.setLastModifyTime(DateUtil.getTimeStamp());
-            String scriptId = FileRender.readLastLine(dir + index+ separator + "id");
-            if (scriptId==null){
+            String scriptId = FileRender.readLastLine(dir + index + separator + "id");
+            if (scriptId == null) {
                 continue;
             }
-            scriptsEntity.setScriptsId(Integer.valueOf(scriptId.replace("\n","")));
+            scriptsEntity.setScriptsId(Integer.valueOf(scriptId.replace("\n", "")));
             try {
                 if (!indexList.contains(index)) {
                     indexService.save(scriptsEntity);
@@ -124,7 +127,7 @@ public class IndexFromScriptController {
                         indexService.update(scriptsEntity);
                     }
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -133,10 +136,11 @@ public class IndexFromScriptController {
 
     /**
      * 指标配置
+     *
      * @return
      */
     @RequestMapping("index/list")
-    public String indexList(){
+    public String indexList() {
         return "monitor/configure/index/list";
     }
 
@@ -154,7 +158,7 @@ public class IndexFromScriptController {
             searchMap.put("scriptsId", Integer.valueOf(indexId));
         }
         String key = request.getParameter("search[value]");
-        if (key!=null&&key.length()>0){
+        if (key != null && key.length() > 0) {
             searchMap.put("key", key);
         }
         PagingResult<MonitorIndexFromScriptsEntity> result = indexService.findAll(searchMap, pageBounds, "selectByAll");
@@ -183,30 +187,33 @@ public class IndexFromScriptController {
             indexService.save(entity);
         }
         SearchMap searchMap = new SearchMap();
-        PageBounds pageBounds = PageResponse.getPageBounds(1000000,1);
+        PageBounds pageBounds = PageResponse.getPageBounds(1000000, 1);
         PagingResult<MonitorIndexFromScriptsEntity> result = indexService.findAll(searchMap, pageBounds, "selectByAll");
         Jedis jedis = redisUtil.getJedis();
-        for (MonitorIndexFromScriptsEntity scriptsEntity: result.getRows()) {
-            jedis.set(RedisUtil.app+"_"+ MonitorCacheConfig.cacheIndexScript + scriptsEntity.getIndexName(), entity.getScriptsId() + "");
+        for (MonitorIndexFromScriptsEntity scriptsEntity : result.getRows()) {
+            jedis.set(RedisUtil.app + "_" + MonitorCacheConfig.cacheIndexScript + scriptsEntity.getIndexName(), entity.getScriptsId() + "");
         }
         return ResponseVo.responseOk(null);
     }
 
     /**
      * 删除指标名称
+     *
      * @param id
+     *
      * @return
      */
-    @RequestMapping("deleteSave")
+    @RequestMapping("index/deleteSave")
     @ResponseBody
-    public String deleteSave(int id, HttpServletRequest request){
-        MonitorIndexFromScriptsEntity entity = indexService.findById(id,MonitorIndexFromScriptsEntity.class);
-        String dir = dataDir + separator + "graph" + separator +"index" +separator +  FileRender.replace(entity.getIndexName());
+    public String deleteSave(int id, HttpServletRequest request) {
+        MonitorIndexFromScriptsEntity entity = indexService.findById(id, MonitorIndexFromScriptsEntity.class);
+        String dir = dataDir + separator + "graph" + separator + "index" + separator + FileRender.replace(entity.getIndexName());
         try {
             File file = new File(dir);
             file.delete();
-        }catch (Exception e){
+        } catch (Exception e) {
         }
+        indexService.delete(entity);
         indexController.logSave(request, "删除指标名称 " + entity.getIndexName());
         return "ok";
     }

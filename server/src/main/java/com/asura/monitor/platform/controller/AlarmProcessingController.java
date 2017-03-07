@@ -11,6 +11,7 @@ import com.asura.monitor.configure.service.MonitorMessageChannelService;
 import com.asura.monitor.configure.util.MessagesChannelUtil;
 import com.asura.monitor.report.entity.MonitorReportDayEntity;
 import com.asura.monitor.report.service.MonitorReportDayService;
+import com.asura.util.CheckUtil;
 import com.asura.util.DateUtil;
 import com.asura.util.PermissionsCheck;
 import com.asura.util.RedisUtil;
@@ -38,6 +39,7 @@ import static com.asura.monitor.configure.util.MessagesChannelUtil.sendEmail;
  * <BR>	修改日期			修改人			修改内容
  * </PRE>
  * 报警处理
+ *
  * @author zhaozq
  * @version 1.0
  * @since 1.0
@@ -56,37 +58,37 @@ public class AlarmProcessingController {
     private PermissionsCheck permissionsCheck;
 
     /**
-     *
      * @return
      */
     @RequestMapping("list")
-    public String list(){
+    public String list() {
         reportDayService.updateAutoRecover();
         return "/monitor/platform/alarm/list";
     }
 
     /**
      * 获取报警异常处理数据清空
+     *
      * @return
      */
     @RequestMapping(value = "listData", produces = {"application/json;charset=UTF-8"})
     @ResponseBody
-    public String listData(int length, int start, int draw, String  changeStatus, HttpServletRequest request){
+    public String listData(int length, int start, int draw, String changeStatus, HttpServletRequest request) {
         SearchMap searchMap = new SearchMap();
-        if (changeStatus!=null&&changeStatus.length()>0){
+        if (changeStatus != null && changeStatus.length() > 0) {
             searchMap.put("changeStatus", changeStatus);
         }
-        if (changeStatus!=null&&changeStatus.equals("0")){
+        if (changeStatus != null && changeStatus.equals("0")) {
             searchMap.remove("changeStatus");
             searchMap.put("changeStatusNull", "1");
         }
         String search = request.getParameter("search[value]");
-        if(search!=null&&search.length()>1){
+        if (CheckUtil.checkString(search)) {
             searchMap.put("ipAddress", search);
         }
         PageBounds pageBounds = PageResponse.getPageBounds(length, start);
         PagingResult<MonitorReportDayEntity> result = reportDayService.findAll(searchMap, pageBounds, "getHoursAlarmData");
-        return PageResponse.getMap(result,draw);
+        return PageResponse.getMap(result, draw);
     }
 
     /**
@@ -96,14 +98,14 @@ public class AlarmProcessingController {
      */
     void sendMessages(int reportId) {
         RedisUtil redisUtil = new RedisUtil();
-        MonitorReportDayEntity entity  = reportDayService.findById(reportId, MonitorReportDayEntity.class);
+        MonitorReportDayEntity entity = reportDayService.findById(reportId, MonitorReportDayEntity.class);
 
         String messages = "故障处理通知:" +
                 "\n处理人:      " + entity.getOperator() +
                 "\n处理时间:    " + DateUtil.getDate(DateUtil.TIME_FORMAT) +
                 "\n处理进度:    " + SevertityConfig.getStatus(entity.getChangeStatus()) +
                 "\n故障开始时间:" + entity.getStartTime() +
-                "\n报警状态:    " + SevertityConfig.getSevertity(entity.getSeverityId(), false)+
+                "\n报警状态:    " + SevertityConfig.getSevertity(entity.getSeverityId(), false) +
                 "\n报警服务器:  " + entity.getIpAddress() +
                 "\n报警指标:    " + entity.getIndexName().replace("SLASH", "/");
 
@@ -129,17 +131,18 @@ public class AlarmProcessingController {
     /**
      * @param reportId
      * @param changeStatus
+     *
      * @return
      */
     @RequestMapping(value = "changeAlarm", produces = {"application/json;charset=UTF-8"})
     @ResponseBody
-    public String changeAlarm(int reportId, String changeStatus, HttpSession session){
+    public String changeAlarm(int reportId, String changeStatus, HttpSession session) {
         String user = permissionsCheck.getLoginUser(session);
         MonitorReportDayEntity entity = new MonitorReportDayEntity();
         entity.setOperator(user);
         entity.setChangeStatus(changeStatus);
         entity.setReportId(reportId);
-        entity.setOperatorTime(DateUtil.getDateStamp() +"");
+        entity.setOperatorTime(DateUtil.getDateStamp() + "");
         reportDayService.update(entity);
         sendMessages(reportId);
         return "ok";

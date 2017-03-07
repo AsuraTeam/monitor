@@ -68,5 +68,8 @@
          where index_id=#{indexId}
     </update>
 
+    <delete id="delete" parameterType="com.asura.monitor.configure.entity.MonitorIndexFromScriptsEntity">
+           DELETE from monitor_index_from_scripts WHERE   index_id=#{indexId}
+    </delete>
 </mapper>
 

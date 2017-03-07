@@ -161,6 +161,7 @@ public class SaveController {
         if (lastUser.equals(user) || user.equals("admin") ) {
             indexController.logSave(request, "删除组" + gson.toJson(entity));
             groupsService.delete(entity);
+            redisUtil.del(MonitorCacheConfig.cacheGroupsKey.concat(id+""));
         }
         return ResponseVo.responseOk(null);
     }
@@ -204,6 +205,7 @@ public class SaveController {
         if (lastUser.equals(user) || user.equals("admin")) {
             indexController.logSave(request, "删除用户" + gson.toJson(entity));
             contactsService.delete(entity);
+            redisUtil.del(MonitorCacheConfig.cacheContactKey.concat(id+""));
         }
         return ResponseVo.responseOk(null);
     }
@@ -230,6 +232,26 @@ public class SaveController {
         return ResponseVo.responseOk(null);
     }
 
+    /**
+     * 联系人组配置删除
+     * @return
+     */
+    @RequestMapping("contactGroup/deleteSave")
+    @ResponseBody
+    public ResponseVo contactsGroupDelete(int id, HttpServletRequest request) {
+        String user = permissionsCheck.getLoginUser(request.getSession());
+        MonitorContactGroupEntity entity = contactGroupService.findById(id, MonitorContactGroupEntity.class);
+        String lastUser = entity.getLastModifyUser();
+        if (lastUser == null){
+            lastUser = "";
+        }
+        if (lastUser.equals(user) || user.equals("admin")) {
+            indexController.logSave(request, "删除监控联系人组" + gson.toJson(entity));
+            contactGroupService.delete(entity);
+            redisUtil.del(MonitorCacheConfig.cacheContactGroupKey.concat(id+""));
+        }
+        return ResponseVo.responseOk(null);
+    }
 
     /**
      * 脚本配置
@@ -320,6 +342,7 @@ public class SaveController {
         if (lastUser.equals(user) || user.equals("admin") ) {
             indexController.logSave(request, "删除监控项目" + gson.toJson(entity));
             itemService.delete(entity);
+            redisUtil.del(MonitorCacheConfig.cacheItemKey.concat(id+""));
         }
         return ResponseVo.responseOk(null);
     }
