@@ -72,7 +72,9 @@ public class Configure {
         for(String f:conf){
             if(f.startsWith(name)){
                 String[] data = f.split(name+"=");
-                return data[1];
+                if (data.length>1) {
+                    return data[1];
+                }
             }
         }
         return "";
