@@ -14,6 +14,7 @@ import com.asura.agent.entity.MonitorScriptsEntity;
 import com.asura.agent.entity.MonitorSystemScriptsEntity;
 import com.asura.agent.entity.MonitorTemplateEntity;
 import com.asura.agent.entity.PushEntity;
+import com.asura.agent.monitor.AgentMonitor;
 import com.asura.agent.util.Base64Util;
 import com.asura.agent.util.CommandUtil;
 import com.asura.agent.util.DateUtil;
@@ -353,6 +354,8 @@ public class MonitorController {
 
     }
 
+
+
     /**
      * 获取实时数据
      * 主要是性能参数的获取，传递脚本ID
@@ -445,6 +448,20 @@ public class MonitorController {
                 }
             }
         }
+    }
+
+    /**
+     * agent自身资源使用上报,每1分钟上报一次
+     */
+    @Scheduled(cron = "10 */1 * * * ?")
+    void agentMonitor(){
+        String ip = "";
+        for (String ips : LOCAL_IP) {
+            ip = ips;
+        }
+        ArrayList<PushEntity> list = AgentMonitor.setPushEntitys(ip);
+        info(gson.toJson(list));
+        pushMonitor(list, successApiUrl, true);
     }
 
     /**
@@ -704,7 +721,7 @@ public class MonitorController {
                 }
 
                 lastSendTime = ALARM_INTERVAL.get(alarmId);
-                int alarmInterval = 30;
+                int alarmInterval;
                 if (entity.getMonitorConfigureTp().equals("item")) {
                     alarmInterval = entity.getAlarmInterval() * 60;
                 } else {
@@ -1643,6 +1660,10 @@ public class MonitorController {
                 command = tempDir + s + SCRIPT_ARGV.get(id);
                 info("start exec script " + command);
                 entitys = run(command);
+                if (entitys == null){
+                    logger.info("执行脚本失败" + command);
+                    continue;
+                }
                 for (PushEntity entity : entitys) {
                     String alarmId = id + "_" + getServerId(entity) + "_" + entity.getGroups() + "_" + entity.getName();
                     if (entity != null) {
@@ -1806,7 +1827,7 @@ public class MonitorController {
                     pushData(url, data);
                 }
                 if (udpSendNumber > 50 ){
-                    udpSendNumber = 21L;
+                    udpSendNumber = 19L;
                 }
             }else{
                 // 发送失败的数据
