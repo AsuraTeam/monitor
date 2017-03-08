@@ -9,7 +9,7 @@
         <div class="modal-content"
              style="height: 420px; width: 100%; ">
             <div class="modal-header">
-                <button type="button" class="close data-dismiss="modal">
+                <button type="button" class="close" data-dismiss="modal">
                     <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
                 </button>
                 <h4 class="modal-title">&nbsp;&nbsp;报警联系人配置</h4>

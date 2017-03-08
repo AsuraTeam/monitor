@@ -68,7 +68,6 @@ public class StartUDPServerThread extends Thread {
             pushEntity.setStatus("1");
             pushEntity.setScriptId("0");
             pushEntity.setName("monitor.push.time");
-            pushEntity.setScriptId("0");
             list.add(pushEntity);
             String data = gson.toJson(list);
             MonitorUtil.writePush(data, "success", localIp);
