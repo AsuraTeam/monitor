@@ -1,9 +1,7 @@
 package com.asura.agent.monitor;
 
-import com.google.gson.Gson;
 import com.asura.agent.configure.Configure;
 import com.asura.agent.entity.PushEntity;
-import com.asura.agent.thread.AgentMonitorThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,26 +90,6 @@ public class AgentMonitor {
         MBeanServerConnection rm = ManagementFactory.getPlatformMBeanServer();
         getThreadNumber(list, ip, rm, "agent");
         getMemroyUsed(list, ip, rm, "agent");
-        // 本地是否监控8887，监听的话就上传本地java数据
-        AgentMonitorThread thread = new AgentMonitorThread(list, ip, jmxc);
-        thread.start();
-        long start = System.currentTimeMillis() / 1000;
-        while (true){
-            if (!thread.isAlive()){
-                break;
-            }
-            if (System.currentTimeMillis() / 1000 - start > 5){
-                break;
-            }
-            try {
-                Thread.sleep(300);
-            }catch (Exception e){
-            }
-        }
-        try {
-            thread.interrupt();
-        }catch (Exception e){
-        }
         return list;
     }
 
@@ -164,7 +142,6 @@ public class AgentMonitor {
                     memoryUsage = MemoryUsage.from((CompositeDataSupport) rm.getAttribute(objectName, "Usage"));
                     setMemroryUsed(list, ip, key.replace(" ", "."), memoryUsage.getUsed(), memoryUsage.getCommitted(), groups);
                 }catch (Exception e){
-
                 }
             }
         }catch (Exception e){
