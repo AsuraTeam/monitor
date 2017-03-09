@@ -34,7 +34,7 @@
 
     <select id="selectByAll" resultType="com.asura.monitor.configure.entity.MonitorScriptsEntity">
         <include refid="baseSql"/>
-        WHERE  1 = 1
+        WHERE  1=1
         <if test="scriptsId != null">
            and scripts_id = #{scriptsId}
         </if>
@@ -123,7 +123,6 @@
 
     <update id="update" parameterType="com.asura.monitor.configure.entity.MonitorScriptsEntity">
         update monitor_scripts set   
-            scripts_id=#{scriptsId},
             last_modify_time=#{lastModifyTime},
             last_modify_user=#{lastModifyUser},
             is_valid=#{isValid},
@@ -154,5 +153,8 @@
          where    scripts_id=#{scriptsId}
     </update>
 
+    <delete id="delete" parameterType="com.asura.monitor.configure.entity.MonitorScriptsEntity">
+        DELETE from monitor_scripts where scripts_id=#{scriptsId}
+    </delete>
 </mapper>
 

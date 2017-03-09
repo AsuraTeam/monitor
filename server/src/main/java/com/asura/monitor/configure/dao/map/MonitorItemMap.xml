@@ -64,6 +64,10 @@
         ORDER  by  a.item_id DESC
         </select>
 
+    <select id="selectItemScripts" parameterType="int" resultType="com.asura.monitor.configure.entity.MonitorItemEntity">
+        SELECT item_id as itemId from monitor_item where script_id=#{scriptsId}
+    </select>
+
     <select id="findById" resultType="com.asura.monitor.configure.entity.MonitorItemEntity">
         <include refid="baseSql"/>
         and  a.item_id=#{itemId}

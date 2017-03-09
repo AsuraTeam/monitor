@@ -1,5 +1,6 @@
 package com.asura.monitor.configure.controller;
 
+import com.asura.framework.base.paging.SearchMap;
 import com.google.gson.Gson;
 import com.asura.common.controller.IndexController;
 import com.asura.common.response.ResponseVo;
@@ -21,8 +22,8 @@ import com.asura.monitor.configure.service.MonitorMessageChannelService;
 import com.asura.monitor.configure.service.MonitorScriptsService;
 import com.asura.monitor.configure.service.MonitorTemplateService;
 import com.asura.monitor.configure.thread.MakeCacheThread;
+import com.asura.monitor.configure.util.ConfigureUtil;
 import com.asura.util.DateUtil;
-import com.asura.util.HttpUtil;
 import com.asura.util.LdapAuthenticate;
 import com.asura.util.PermissionsCheck;
 import com.asura.util.RedisUtil;
@@ -30,17 +31,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import redis.clients.jedis.Jedis;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
-import static com.asura.monitor.configure.conf.MonitorCacheConfig.cacheConfigureHostsListKey;
 import static com.asura.monitor.configure.conf.MonitorCacheConfig.cacheGroupsKey;
 import static com.asura.monitor.configure.conf.MonitorCacheConfig.cacheHostCnfigureKey;
 import static com.asura.monitor.configure.conf.MonitorCacheConfig.cacheHostConfigKey;
@@ -62,9 +58,6 @@ import static com.asura.monitor.configure.conf.MonitorCacheConfig.cacheHostConfi
 @Controller
 @RequestMapping("/monitor/configure/")
 public class SaveController {
-
-    @Autowired
-    private com.asura.monitor.configure.service.MonitorInformationService informationService;
 
     @Autowired
     private MonitorItemService itemService;
@@ -92,8 +85,9 @@ public class SaveController {
 
     @Autowired
     private PermissionsCheck permissionsCheck;
-    private Gson gson = new Gson();
-    private RedisUtil redisUtil = new RedisUtil();
+
+    private final Gson GSON = new Gson();
+    private final RedisUtil REDIS_UTIL = new RedisUtil();
 
     @Autowired
     private LdapAuthenticate ldapAuthenticate;
@@ -103,6 +97,8 @@ public class SaveController {
 
     @Autowired
     private CacheController cacheController;
+
+    private final ConfigureUtil CONFIGURE_UTIL = new ConfigureUtil();
 
     /**
      * 模板列表
@@ -120,15 +116,16 @@ public class SaveController {
         } else {
             templateService.save(entity);
         }
-        redisUtil.set(MonitorCacheConfig.cacheTemplateKey + entity.getTemplateId(), gson.toJson(entity));
-        updateHostUpdate("template");
+        REDIS_UTIL.set(MonitorCacheConfig.cacheTemplateKey + entity.getTemplateId(), GSON.toJson(entity));
+        CONFIGURE_UTIL.updateHostUpdate("template");
         return ResponseVo.responseOk(null);
     }
 
-
-
     /**
      * 监控组配置
+     *
+     * @param entity
+     * @param session
      *
      * @return
      */
@@ -143,13 +140,14 @@ public class SaveController {
         } else {
             groupsService.save(entity);
         }
-        redisUtil.set(cacheGroupsKey + entity.getGroupsId(), gson.toJson(entity));
-        updateHostUpdate("groups");
+        REDIS_UTIL.set(cacheGroupsKey + entity.getGroupsId(), GSON.toJson(entity));
+        CONFIGURE_UTIL.updateHostUpdate("groups");
         return ResponseVo.responseOk(null);
     }
 
     /**
      * 联系组配置删除
+     *
      * @return
      */
     @RequestMapping("groups/deleteSave")
@@ -158,16 +156,19 @@ public class SaveController {
         String user = permissionsCheck.getLoginUser(request.getSession());
         MonitorGroupsEntity entity = groupsService.findById(id, MonitorGroupsEntity.class);
         String lastUser = entity.getLastModifyUser();
-        if (lastUser.equals(user) || user.equals("admin") ) {
-            indexController.logSave(request, "删除组" + gson.toJson(entity));
+        if (lastUser.equals(user) || user.equals("admin")) {
+            indexController.logSave(request, "删除组" + GSON.toJson(entity));
             groupsService.delete(entity);
-            redisUtil.del(MonitorCacheConfig.cacheGroupsKey.concat(id+""));
+            REDIS_UTIL.del(MonitorCacheConfig.cacheGroupsKey.concat(id + ""));
         }
         return ResponseVo.responseOk(null);
     }
 
     /**
      * 联系人配置
+     *
+     * @param entity
+     * @param request
      *
      * @return
      */
@@ -178,12 +179,12 @@ public class SaveController {
         entity.setLastModifyUser(user);
         entity.setLastModifyTime(DateUtil.getTimeStamp());
         if (entity.getContactsId() != null) {
-            redisUtil.set(MonitorCacheConfig.cacheContactKey + entity.getContactsId(), gson.toJson(entity));
+            REDIS_UTIL.set(MonitorCacheConfig.cacheContactKey + entity.getContactsId(), GSON.toJson(entity));
             contactsService.update(entity);
         } else {
             contactsService.save(entity);
         }
-        indexController.logSave(request, "添加监控联系人" + gson.toJson(entity));
+        indexController.logSave(request, "添加监控联系人" + GSON.toJson(entity));
         cacheController.setContactCache();
         return ResponseVo.responseOk(null);
     }
@@ -191,6 +192,10 @@ public class SaveController {
 
     /**
      * 联系人配置删除
+     *
+     * @param id
+     * @param request
+     *
      * @return
      */
     @RequestMapping("contacts/deleteSave")
@@ -199,19 +204,22 @@ public class SaveController {
         String user = permissionsCheck.getLoginUser(request.getSession());
         MonitorContactsEntity entity = contactsService.findById(id, MonitorContactsEntity.class);
         String lastUser = entity.getLastModifyUser();
-        if (lastUser == null){
+        if (lastUser == null) {
             lastUser = "";
         }
         if (lastUser.equals(user) || user.equals("admin")) {
-            indexController.logSave(request, "删除用户" + gson.toJson(entity));
+            indexController.logSave(request, "删除用户" + GSON.toJson(entity));
             contactsService.delete(entity);
-            redisUtil.del(MonitorCacheConfig.cacheContactKey.concat(id+""));
+            REDIS_UTIL.del(MonitorCacheConfig.cacheContactKey.concat(id + ""));
         }
         return ResponseVo.responseOk(null);
     }
 
     /**
-     * 联系组配置
+     * 联系人组配置
+     *
+     * @param entity
+     * @param request
      *
      * @return
      */
@@ -227,13 +235,25 @@ public class SaveController {
             entity.setStatus(1);
             contactGroupService.save(entity);
         }
-        indexController.logSave(request, "添加监控联系组" + gson.toJson(entity));
+        indexController.logSave(request, "添加监控联系组" + GSON.toJson(entity));
         cacheController.setContactGroupCache();
         return ResponseVo.responseOk(null);
     }
 
     /**
+     *
+     * @param hostId
+     */
+    public void initMonitor(String hostId){
+        CONFIGURE_UTIL.initMonitor(hostId);
+    }
+
+    /**
      * 联系人组配置删除
+     *
+     * @param id
+     * @param request
+     *
      * @return
      */
     @RequestMapping("contactGroup/deleteSave")
@@ -242,19 +262,22 @@ public class SaveController {
         String user = permissionsCheck.getLoginUser(request.getSession());
         MonitorContactGroupEntity entity = contactGroupService.findById(id, MonitorContactGroupEntity.class);
         String lastUser = entity.getLastModifyUser();
-        if (lastUser == null){
+        if (lastUser == null) {
             lastUser = "";
         }
         if (lastUser.equals(user) || user.equals("admin")) {
-            indexController.logSave(request, "删除监控联系人组" + gson.toJson(entity));
+            indexController.logSave(request, "删除监控联系人组" + GSON.toJson(entity));
             contactGroupService.delete(entity);
-            redisUtil.del(MonitorCacheConfig.cacheContactGroupKey.concat(id+""));
+            REDIS_UTIL.del(MonitorCacheConfig.cacheContactGroupKey.concat(id + ""));
         }
         return ResponseVo.responseOk(null);
     }
 
     /**
      * 脚本配置
+     *
+     * @param entity
+     * @param request
      *
      * @return
      */
@@ -268,40 +291,29 @@ public class SaveController {
             scriptsService.update(entity);
         } else {
             List<MonitorScriptsEntity> r = scriptsService.getDataList(null, "selectMaxId");
-            int id ;
+            int id;
             try {
-                id = r.get(0).getScriptsId()+1;
-            }catch (Exception e){
+                id = r.get(0).getScriptsId() + 1;
+            } catch (Exception e) {
                 id = 1;
             }
             entity.setScriptsId(id);
             scriptsService.save(entity);
         }
-        indexController.logSave(request, "添加脚本" + gson.toJson(entity));
-        redisUtil.setex(MonitorCacheConfig.cacheScriptIdKey+ entity.getScriptsId(),600, gson.toJson(entity));
-        updateHostUpdate("script");
-        cacheController.setDefaultMonitorChange();
+        indexController.logSave(request, "添加脚本" + GSON.toJson(entity));
+        REDIS_UTIL.setex(MonitorCacheConfig.cacheScriptIdKey + entity.getScriptsId(), 600, GSON.toJson(entity));
+        CONFIGURE_UTIL.updateHostUpdate("script");
+        CONFIGURE_UTIL.setHostMonitorQueue(itemService, configureService, entity.getScriptsId(), cacheController);
         return ResponseVo.responseOk(null);
     }
 
-    /**
-     * @param type
-     */
-    void updateHostUpdate(String type){
-        String result = redisUtil.get(MonitorCacheConfig.cacheConfigureHostsListKey);
-        // 将脚本更新通知到agent
-        Jedis jedis = redisUtil.getJedis();
-        if(result!=null){
-            ArrayList<String> arrayList = gson.fromJson(result, ArrayList.class);
-            for (String  h:arrayList) {
-                jedis.lpush(RedisUtil.app + "_" + MonitorCacheConfig.cacheHostUpdateQueue + h, type);
-            }
-        }
-        jedis.close();
-    }
 
     /**
      * 项目配置
+     *
+     * @param entity
+     * @param request
+     *
      * @return
      */
     @RequestMapping("item/save")
@@ -314,23 +326,31 @@ public class SaveController {
             itemService.update(entity);
         } else {
             List<MonitorItemEntity> r = itemService.getDataList(null, "selectMaxId");
-            int id ;
+            int id;
             try {
-                id = r.get(0).getItemId()+1;
-            }catch (Exception e){
+                id = r.get(0).getItemId() + 1;
+            } catch (Exception e) {
                 id = 1;
             }
             entity.setItemId(id);
             itemService.save(entity);
         }
-        indexController.logSave(request, "添加监控项目" + gson.toJson(entity));
+        indexController.logSave(request, "添加监控项目" + GSON.toJson(entity));
         cacheController.setItemCache();
-        cacheController.setDefaultMonitorChange();
+        if (entity.getIsDefault() != null && entity.getIsDefault().equals("1")) {
+            cacheController.setDefaultMonitorChange();
+        }else{
+            CONFIGURE_UTIL.setHostMonitorQueue(itemService, configureService, entity.getScriptId(), cacheController);
+        }
         return ResponseVo.responseOk(null);
     }
 
     /**
-     * 项目配置
+     * 项目配置删除
+     *
+     * @param id
+     * @param request
+     *
      * @return
      */
     @RequestMapping("item/deleteSave")
@@ -339,15 +359,63 @@ public class SaveController {
         String user = permissionsCheck.getLoginUser(request.getSession());
         MonitorItemEntity entity = itemService.findById(id, MonitorItemEntity.class);
         String lastUser = entity.getLastModifyUser();
-        if (lastUser.equals(user) || user.equals("admin") ) {
-            indexController.logSave(request, "删除监控项目" + gson.toJson(entity));
+        SearchMap searchMap = new SearchMap();
+        searchMap.put("itemId", id);
+        List<MonitorConfigureEntity> configureEntities = configureService.getDataList(searchMap, "selectItemHosts");
+        if (configureEntities.size() > 0){
+            return ResponseVo.responseError("请删除有依赖的监控项目后重试, 还有" +configureEntities.size()+ "未删除");
+        }
+
+        if (lastUser.equals(user) || user.equals("admin")) {
+            indexController.logSave(request, "删除监控项目" + GSON.toJson(entity));
+            REDIS_UTIL.del(MonitorCacheConfig.cacheItemKey.concat(id + ""));
+            // 如果删除默认配置, 就发送default设置
+            if (entity.getIsDefault() != null && entity.getIsDefault().equals("1")) {
+                cacheController.setDefaultMonitorChange();
+            }else{
+                CONFIGURE_UTIL.setHostMonitorQueue(itemService, configureService, entity.getScriptId(), cacheController);
+            }
             itemService.delete(entity);
-            redisUtil.del(MonitorCacheConfig.cacheItemKey.concat(id+""));
+        }
+        return ResponseVo.responseOk(null);
+    }
+
+
+    /**
+     * 项目配置删除
+     *
+     * @param id
+     * @param request
+     *
+     * @return
+     */
+    @RequestMapping("script/deleteSave")
+    @ResponseBody
+    public ResponseVo scriptDelete(int id, HttpServletRequest request) {
+        String user = permissionsCheck.getLoginUser(request.getSession());
+        MonitorScriptsEntity entity = scriptsService.findById(id, MonitorScriptsEntity.class);
+        String lastUser = entity.getLastModifyUser();
+        SearchMap searchMap = new SearchMap();
+        searchMap.put("scriptsId", id);
+        List<MonitorItemEntity> items = itemService.getDataList(searchMap, "selectItemScripts");
+        if (items.size() > 0 ){
+            return ResponseVo.responseError("请删除监控项目后再删除监控脚本");
+        }
+        if (lastUser.equals(user) || user.equals("admin")) {
+            indexController.logSave(request, "删除监控脚本" + GSON.toJson(entity));
+            REDIS_UTIL.del(MonitorCacheConfig.cacheScriptIdKey.concat(String.valueOf(id)));
+            // 如果删除默认配置, 就发送default设置
+            CONFIGURE_UTIL.setHostMonitorQueue(itemService, configureService, entity.getScriptsId(), cacheController);
+            scriptsService.delete(entity);
         }
         return ResponseVo.responseOk(null);
     }
 
     /**
+     * 消息通道保存
+     *
+     * @param entity
+     * @param request
      *
      * @return
      */
@@ -362,24 +430,16 @@ public class SaveController {
         } else {
             channelService.save(entity);
         }
-        indexController.logSave(request, "添加消息通道" + gson.toJson(entity));
-        redisUtil.set(MonitorCacheConfig.cacheChannelKey + entity.getChannelTp(), gson.toJson(entity));
+        indexController.logSave(request, "添加消息通道" + GSON.toJson(entity));
+        REDIS_UTIL.set(MonitorCacheConfig.cacheChannelKey + entity.getChannelTp(), GSON.toJson(entity));
         return ResponseVo.responseOk(null);
     }
 
     /**
+     * 监控配置保存
      *
-     * @param configureId
-     * @param hosts
-     */
-    void deleteOldConfigure(String configureId, String[] hosts){
-        for (String host: hosts) {
-            redisUtil.del(cacheHostCnfigureKey + host + "_" + configureId);
-        }
-    }
-
-    /**
-     * 项目配置
+     * @param entity
+     * @param request
      *
      * @return
      */
@@ -389,165 +449,36 @@ public class SaveController {
         String user = permissionsCheck.getLoginUser(request.getSession());
         entity.setLastModifyUser(user);
         entity.setLastModifyTime(DateUtil.getTimeStamp());
-        String[] hosts ;
+        String[] hosts;
         if (entity.getConfigureId() != null) {
             MonitorConfigureEntity configureEntity = configureService.findById(entity.getConfigureId(), MonitorConfigureEntity.class);
             hosts = configureEntity.getHosts().split(",");
             // 删除老的机器的监控配置
-            deleteOldConfigure(entity.getConfigureId()+"", hosts);
+            CONFIGURE_UTIL.deleteOldConfigure(entity.getConfigureId() + "", hosts);
             configureService.update(entity);
         } else {
             List<MonitorConfigureEntity> r = configureService.getDataList(null, "selectMaxId");
-            int id ;
+            int id;
             try {
-                id = r.get(0).getConfigureId()+1;
-            }catch (Exception e){
+                id = r.get(0).getConfigureId() + 1;
+            } catch (Exception e) {
                 id = 1;
             }
             hosts = entity.getHosts().split(",");
             entity.setConfigureId(id);
-            configureService.save(entity);
+            try {
+                configureService.save(entity);
+            }catch (Exception e){
+                return ResponseVo.responseError("保存监控重复或数据库希尔错误 ".concat(e.toString()));
+            }
         }
-        redisUtil.set(MonitorCacheConfig.cacheConfigureKey+entity.getConfigureId(), gson.toJson(entity));
-        makeHostMonitorTag(entity);
-        setUpdateMonitor(entity);
-        MakeCacheThread cacheThread  = new MakeCacheThread(cacheController, hosts);
+        REDIS_UTIL.set(MonitorCacheConfig.cacheConfigureKey + entity.getConfigureId(), GSON.toJson(entity));
+        CONFIGURE_UTIL.makeHostMonitorTag(entity);
+        CONFIGURE_UTIL.setUpdateMonitor(entity);
+        MakeCacheThread cacheThread = new MakeCacheThread(cacheController, hosts);
         cacheThread.start();
-        indexController.logSave(request, "添加监控" + gson.toJson(entity));
+        indexController.logSave(request, "添加监控" + GSON.toJson(entity));
         return ResponseVo.responseOk(null);
-    }
-
-    /**
-     * 设置组和host的缓存
-     * @param hashSet
-     * @param newHashSet
-     * @param entity
-     * @param arrayList
-     * @return
-     */
-    public HashSet setHostGroupData(HashSet<String> hashSet, HashSet<String> newHashSet, MonitorConfigureEntity entity, ArrayList arrayList){
-       if(hashSet!=null) {
-           for (String m : hashSet) {
-               if (entity.getIsValid()==1) {
-                   newHashSet.add(m);
-               } else {
-                   if (!arrayList.contains(m)) {
-                       newHashSet.add(m);
-                   }
-               }
-           }
-       }
-        return newHashSet;
-    }
-
-    /**
-     * 生成每个主机和组的监控配置
-     */
-    public void makeHostMonitorTag(MonitorConfigureEntity entity) {
-        String cacheData = entity.getConfigureId() + "";
-        if (entity.getHostId() != null) {
-            // 监控的组
-            String[] groups = entity.getGroupsId().split(",");
-            ArrayList<String> arrayList = new ArrayList<>();
-            for(String c:groups){
-                if (entity.getIsValid() == 1) {
-                    arrayList.add(c);
-                }
-            }
-
-            HashSet<String> groupSet = new HashSet<>();
-
-            for (int i = 0; i < groups.length; i++) {
-                String key = MonitorCacheConfig.cacheGroupsConfigureKey + groups[i] + "_" +
-                        entity.getConfigureId();
-                if (entity.getIsValid() == 1) {
-                    // 缓存组的数据
-                    redisUtil.set(key, cacheData);
-                    groupSet.add(groups[i]);
-                } else {
-                    redisUtil.del(key);
-                }
-            }
-            HashSet<String> cacheGroups = gson.fromJson(redisUtil.get(MonitorCacheConfig.cacheConfigureGroupsListKey), HashSet.class);
-            groupSet = setHostGroupData(cacheGroups,groupSet,entity,arrayList);
-            redisUtil.set(MonitorCacheConfig.cacheConfigureGroupsListKey, gson.toJson(groupSet));
-        }
-
-        if (entity.getHosts() != null) {
-            // 监控的主机
-            String[] hosts = entity.getHosts().split(",");
-            // 从redis获取监控的组和host
-            HashSet<String> hostSet = new HashSet<>();
-
-            ArrayList<String> arrayList = new ArrayList<>();
-            for(String c:hosts){
-                if (entity.getIsValid() == 1) {
-                    arrayList.add(c);
-                }
-            }
-
-            for (int i = 0; i < hosts.length; i++) {
-                String  key = cacheHostCnfigureKey + hosts[i] + "_"
-                        + entity.getConfigureId();
-                if (entity.getIsValid() == 1) {
-                    // 缓存host的配置信息
-                    redisUtil.set(key, gson.toJson(cacheData));
-                    hostSet.add(hosts[i].replace("\\n",""));
-                }else{
-                    redisUtil.del(key);
-                }
-            }
-            HashSet<String> cacheHosts = gson.fromJson(redisUtil.get(cacheConfigureHostsListKey), HashSet.class);
-            hostSet = setHostGroupData(cacheHosts,hostSet,entity,arrayList);
-            redisUtil.set(cacheConfigureHostsListKey, gson.toJson(hostSet));
-        }
-    }
-
-    /**
-     *
-     * @param hosts
-     * @param hostSet
-     * @return
-     */
-    HashSet<String> getHosts(String[] hosts, HashSet hostSet){
-        for (String h:hosts){
-            hostSet.add(h);
-        }
-        return hostSet;
-    }
-
-    /**
-     * 获取相关配置的更新
-     * 获取主机
-     * 然后每个主机更新自己的数据
-     * @param entity
-     */
-    void setUpdateMonitor(MonitorConfigureEntity entity){
-           Jedis jedis = redisUtil.getJedis();
-           HashSet<String> hostSet = new HashSet<>();
-           String host = entity.getHosts();
-           String group = entity.getGroupsId();
-           if(host!=null){
-               String[] hosts = host.split(",");
-               if (entity.getIsValid() == 1) {
-                   hostSet = getHosts(hosts, hostSet);
-               }
-           }
-           if(group != null){
-               String[] groups = group.split(",");
-               for (String g:groups){
-                   String result = redisUtil.get(MonitorCacheConfig.cacheGroupsKey+g);
-                   if(result!=null && result.length()>1){
-                       MonitorGroupsEntity groupsEntity = gson.fromJson(result, MonitorGroupsEntity.class);
-                       String[] hosts = groupsEntity.getHosts().split(",");
-                           hostSet = getHosts(hosts, hostSet);
-                   }
-               }
-           }
-           for (String h:hostSet){
-              jedis.lpush(RedisUtil.app+"_"+MonitorCacheConfig.cacheHostUpdateQueue+h, "configure");
-           }
-        jedis.close();
     }
 
     /**
@@ -557,83 +488,60 @@ public class SaveController {
      */
     @RequestMapping("messages/recordSaveSetAlarm")
     @ResponseBody
-    public String recordSaveSetAlarm(String value, HttpServletRequest request){
-        String user = permissionsCheck.getLoginUser(request.getSession());
-        String dept = ldapAuthenticate.getSignUserInfo("department", "sAMAccountName=" + user);
-        if (dept != null && !dept.contains("运维") && !user.equals("admin")) {
-            return "error";
-        }
+    public ResponseVo recordSaveSetAlarm(String value, HttpServletRequest request) {
         indexController.logSave(request, "修改报警开关 " + value);
-        redisUtil.set(MonitorCacheConfig.cacheAlarmSwitch, value);
-        return "ok";
-    }
-
-    /**
-     * 初始化监控信息
-     * @param hostId
-     */
-    public void initMonitor(String hostId){
-        String server = "";
-        String url = "";
-        String portData = redisUtil.get(MonitorCacheConfig.cacheAgentServerInfo + hostId);
-        if (portData.length() > 5) {
-            Map serverMap = gson.fromJson(portData, HashMap.class);
-            server = redisUtil.get(MonitorCacheConfig.cacheHostIdToIp+hostId);
-            url = "http://" + server + ":" + serverMap.get("port") + "/monitor/init";
-            HttpUtil.sendGet(url);
-        }
+        REDIS_UTIL.set(MonitorCacheConfig.cacheAlarmSwitch, value);
+        return ResponseVo.responseOk("ok");
     }
 
     /**
      * 删除监控
+     *
      * @return
      */
     @RequestMapping("configure/delete")
     @ResponseBody
-    public String deleteConfigure(int id, HttpServletRequest request){
+    public String deleteConfigure(int id, HttpServletRequest request) {
         String user = permissionsCheck.getLoginUser(request.getSession());
-        if (user.length()<2){
+        if (user.length() < 2) {
             return "请登陆后操作";
         }
         String dept = ldapAuthenticate.getSignUserInfo("department", "sAMAccountName=" + user);
-        MonitorConfigureEntity configureEntity = configureService.findById(id,MonitorConfigureEntity.class);
+        MonitorConfigureEntity configureEntity = configureService.findById(id, MonitorConfigureEntity.class);
         String lastModifyUser = configureEntity.getLastModifyUser();
-        if (!user.equals(lastModifyUser) && ! user.equals("admin") && ! dept.contains("运维")){
+        if (!user.equals(lastModifyUser) && !user.equals("admin") && !dept.contains("运维")) {
             return "no permissions";
         }
         String hosts = configureEntity.getHosts();
         String[] hostsList = hosts.split(",");
-        String url;
-        String server;
-        for (String hostId: hostsList){
-            if (hostId.equals("")||hostId.length()<1){
+        for (String hostId : hostsList) {
+            if (hostId.equals("") || hostId.length() < 1) {
                 continue;
             }
-            String  delConfigKey = cacheHostCnfigureKey + hostId + "_"
-                    + id;
-            redisUtil.del(delConfigKey);
-            initMonitor(hostId);
+            String delConfigKey = cacheHostCnfigureKey + hostId + "_" + id;
+            REDIS_UTIL.del(delConfigKey);
+            CONFIGURE_UTIL.initMonitor(hostId);
             String key = MonitorCacheConfig.cacheDefaultChangeQueue + hostId;
-            redisUtil.del(key);
-            redisUtil.lpush(key, "1");
-            String  configKey = cacheHostConfigKey + hostId ;
-            String configs = redisUtil.get(configKey);
-            if (configs != null && configs.length()>0){
+            REDIS_UTIL.del(key);
+            REDIS_UTIL.lpush(key, "1");
+            String configKey = cacheHostConfigKey + hostId;
+            String configs = REDIS_UTIL.get(configKey);
+            if (configs != null && configs.length() > 0) {
                 HashSet<String> configData = new HashSet<>();
-                HashSet<String> configSet = gson.fromJson(configs, HashSet.class);
-                for (String confKey : configSet){
-                    if (!confKey.trim().equals(id+"".trim())){
+                HashSet<String> configSet = GSON.fromJson(configs, HashSet.class);
+                for (String confKey : configSet) {
+                    if (!confKey.trim().equals(id + "".trim())) {
                         configData.add(confKey);
                     }
                 }
-                redisUtil.set(configKey, gson.toJson(configData));
+                REDIS_UTIL.set(configKey, GSON.toJson(configData));
             }
 
         }
 
         configureService.delete(configureEntity);
-        redisUtil.del(MonitorCacheConfig.cacheConfigureKey+id);
-        indexController.logSave(request, "删除监控配置" + gson.toJson(configureEntity));
+        REDIS_UTIL.del(MonitorCacheConfig.cacheConfigureKey + id);
+        indexController.logSave(request, "删除监控配置" + GSON.toJson(configureEntity));
         return "ok";
     }
 }

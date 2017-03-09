@@ -86,7 +86,7 @@
         }, function(){
             result = post({id:id}, url);
             parent.layer.msg(JSON.stringify(result),  {icon:1})
-            location.reload();
+            $('#listTable').dataTable().fnReloadAjax();
         }, function(){
             parent.layer.msg("取消操作",  {icon:2})
         });
@@ -108,7 +108,6 @@
         url = "/monitor/configure/"+site+"/save";
         result = post(data, url);
         parent.layer.msg(JSON.stringify(result),  {icon:1});
-        //$('#add_getui_config').modal('toggle');
         $('#listTable').dataTable().fnReloadAjax();
     }
     function loadData(){

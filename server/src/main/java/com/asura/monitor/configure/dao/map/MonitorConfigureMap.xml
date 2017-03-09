@@ -81,6 +81,10 @@
         select max(configure_id) as configureId from monitor_configure
     </select>
 
+    <!-- 获取某个监控项目的所有hosts -->
+    <select id="selectItemHosts" parameterType="int" resultType="com.asura.monitor.configure.entity.MonitorConfigureEntity">
+        select hosts from monitor_configure where item_id=#{itemId}
+    </select>
 
     <insert id="save" parameterType="com.asura.monitor.configure.entity.MonitorConfigureEntity">
         insert into monitor_configure(
