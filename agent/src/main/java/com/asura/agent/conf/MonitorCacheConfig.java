@@ -135,4 +135,7 @@ public class MonitorCacheConfig {
 
     // 缓存push服务器的地址,多个用逗号分隔
     public static String cachePushServer = "cache_push_server";
+
+    // 存储监控 cache_agent_version_hostid
+    public static final String cacheAgentVersion = "cache_agent_v_";
 }

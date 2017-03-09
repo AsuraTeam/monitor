@@ -17,22 +17,8 @@ package com.asura.agent.entity;
 public class PushServerEntity {
     // ip地址
     private String ip;
-    // 最近更新时间
-    private Long update;
 
     public String getIp() {
         return ip;
-    }
-
-    public void setIp(String ip) {
-        this.ip = ip;
-    }
-
-    public Long getUpdate() {
-        return update;
-    }
-
-    public void setUpdate(Long update) {
-        this.update = update;
     }
 }

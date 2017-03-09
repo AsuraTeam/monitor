@@ -6,12 +6,14 @@ import com.asura.framework.dao.mybatis.paginator.domain.PageBounds;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.asura.common.response.PageResponse;
+import com.asura.monitor.configure.conf.MonitorCacheConfig;
 import com.asura.monitor.configure.entity.SysinfoDataEntity;
 import com.asura.monitor.graph.util.FileRender;
 import com.asura.monitor.graph.util.FileWriter;
 import com.asura.monitor.platform.entity.MonitorPlatformServerEntity;
 import com.asura.monitor.platform.entity.ProcessEntity;
 import com.asura.monitor.platform.service.MonitorPlatformServerService;
+import com.asura.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -84,9 +86,6 @@ public class PlatformController {
         for (File file1 : list) {
             arrayList.add(file1.getName());
         }
-
-        Gson gson = new Gson();
-        System.out.println(gson.toJson(arrayList));
         return arrayList;
     }
 
@@ -235,6 +234,7 @@ public class PlatformController {
         if (search != null) {
             searchMap.put("key", search);
         }
+        RedisUtil redisUtil = new RedisUtil();
         List<MonitorPlatformServerEntity> list = new ArrayList<>();
         PagingResult<MonitorPlatformServerEntity> result = serverService.findAll(searchMap, pageBounds, "selectByAll");
         for (MonitorPlatformServerEntity entity : result.getRows()) {
@@ -253,9 +253,9 @@ public class PlatformController {
                 } else {
                     entity.setStatus("DOWN");
                 }
+                entity.setVersion(redisUtil.get(MonitorCacheConfig.cacheAgentVersion.concat(ip)));
                 list.add(entity);
             } catch (Exception e) {
-                e.printStackTrace();
             }
         }
         Map map = new HashMap();

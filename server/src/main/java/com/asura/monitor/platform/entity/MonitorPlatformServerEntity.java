@@ -30,6 +30,16 @@ public class MonitorPlatformServerEntity extends BaseEntity{
     // 平台状态
     private String status;
     private String groupsName;
+    // agent版本
+    private String version;
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
 
     public String getGroupsName() {
         return groupsName;

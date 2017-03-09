@@ -309,4 +309,16 @@ public class MonitorUtil {
         }
         return "";
     }
+
+
+    /**
+     * 获取有效的监控主机
+     */
+    public static HashSet getIsValidHosts() {
+        // 获取自己是否有监控项目
+        String allHosts = redisUtil.get(MonitorCacheConfig.cacheAllHostIsValid);
+        info("get is configure host " + allHosts);
+        HashSet hosts = gson.fromJson(allHosts, HashSet.class);
+        return hosts;
+    }
 }

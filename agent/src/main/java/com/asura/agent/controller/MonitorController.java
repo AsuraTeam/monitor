@@ -49,6 +49,7 @@ import static com.asura.agent.conf.MonitorCacheConfig.cacheContactKey;
 import static com.asura.agent.util.HttpUtil.sendPost;
 import static com.asura.agent.util.MonitorUtil.getAdminGroup;
 import static com.asura.agent.util.MonitorUtil.getGroupData;
+import static com.asura.agent.util.MonitorUtil.getIsValidHosts;
 import static com.asura.agent.util.MonitorUtil.getScripts;
 import static com.asura.agent.util.MonitorUtil.sendPostMessages;
 import static com.asura.agent.util.RedisUtil.app;
@@ -88,6 +89,9 @@ import static com.asura.agent.util.RedisUtil.app;
 @RestController
 @EnableAutoConfiguration
 public class MonitorController {
+
+    // 版本号
+    private final String VERSION= "1.0.0.0";
 
     private final Logger logger = LoggerFactory.getLogger(MonitorController.class);
 
@@ -302,16 +306,6 @@ public class MonitorController {
         return result;
     }
 
-    /**
-     * 获取有效的监控主机
-     */
-    HashSet getIsValidHosts() {
-        // 获取自己是否有监控项目
-        String allHosts = redisUtil.get(MonitorCacheConfig.cacheAllHostIsValid);
-        info("get is configure host " + allHosts);
-        HashSet hosts = gson.fromJson(allHosts, HashSet.class);
-        return hosts;
-    }
 
     /**
      * 获取自己是否可上线
@@ -328,6 +322,7 @@ public class MonitorController {
                 HOST_IDS = result;
                 logger.info("获取到本机IP地址 " + ip + " id: " + result);
                 LOCAL_IP.add(ip);
+                redisUtil.set(MonitorCacheConfig.cacheAgentVersion.concat(ip), VERSION);
                 if (hosts.contains(result)) {
                     IS_DEFAULT = true;
                 }
@@ -353,8 +348,6 @@ public class MonitorController {
         }
 
     }
-
-
 
     /**
      * 获取实时数据
