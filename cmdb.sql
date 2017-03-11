@@ -1180,3 +1180,20 @@ CREATE TABLE `monitor_images_collection` (
   `ip` text comment "ip地址",
   PRIMARY KEY (`collection_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
+
+/**
+** 增加
+**/
+alter table monitor_index_from_scripts modify index_name varchar(500) ;
+
+create table monitor_cluster_configure 
+(cluster_id int primary key auto_increment ,
+cluster_name varchar(200) comment "集群名字", 
+cluster_hosts varchar(4000) comment "集群host", 
+last_modify_user varchar(32) comment "最近修改用户", 
+last_modify_time varchar(32) comment "最近修改时间", 
+description varchar(200) comment "描述信息",
+groups_id int comment "参考cmdb组id") ; 
+
+alter table monitor_cluster_configure add unique index uidx_cluster_name (cluster_name) ;
