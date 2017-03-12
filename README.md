@@ -20,6 +20,7 @@
 12、图像收藏功能,常用的直接在收藏列表点开查看<br>
 13、支持ldap认证登陆<br>
 14、支持任何指标数据多条件筛选排序,资源使用情况一目了然<br>
+15、集群数据分析,任何指标求和,平均<br>
 </br>
 
 欢迎加入 阿修罗监控系统 QQ群 149469467<br>
@@ -67,6 +68,10 @@
 <b>指标聚合功能,单指标多服务器,平均和求和</b></br>
 <br>
 ![image](https://raw.githubusercontent.com/AsuraTeam/monitor/master/images/img18.png)
+<br>
+<b>集群指标信息,平均和求和</b></br>
+<br>
+![image](https://raw.githubusercontent.com/AsuraTeam/monitor/master/images/img19.png)
 <br>
 <b>图像收藏功能</b></br>
 <br>
