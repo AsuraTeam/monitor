@@ -1,6 +1,5 @@
 package com.asura.agent.monitor;
 
-import com.asura.agent.configure.Configure;
 import com.asura.agent.entity.PushEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,16 +8,11 @@ import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import javax.management.openmbean.CompositeDataSupport;
 import javax.management.remote.JMXConnector;
-import javax.management.remote.rmi.RMIConnector;
-import javax.management.remote.rmi.RMIServer;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /**
  * <p></p>
@@ -38,35 +32,6 @@ public class AgentMonitor {
 
     private static final Logger logger = LoggerFactory.getLogger(AgentMonitor.class);
     private static final DecimalFormat df = new DecimalFormat("######0.00");
-    private static JMXConnector jmxc;
-
-    /**
-     *
-     * @param ip
-     * @param port
-     * @return
-     */
-    public static MBeanServerConnection getRemoteMBConn(String ip, String port){
-        try{
-            MBeanServerConnection mbs;
-            Registry registry= LocateRegistry.getRegistry(ip, Integer.parseInt(port));
-            RMIServer stub=null;
-
-            if (stub == null) {
-                stub = (RMIServer) registry.lookup("jmxrmi");
-            }
-            jmxc = new RMIConnector(stub, null);
-            jmxc.connect();
-            mbs=jmxc.getMBeanServerConnection();
-            return mbs;
-        } catch (Exception e) {
-            if (Configure.get("DEBUG").equals("true")) {
-                logger.error("链接本地java监听8887失败", e);
-             }
-        }
-        return null;
-
-    }
 
     /**
      * 获取线程数

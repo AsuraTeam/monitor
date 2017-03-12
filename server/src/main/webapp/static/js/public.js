@@ -107,9 +107,7 @@ function sleep(n) {
 }
 
 function  setWidth(id,all) {
-    console.log(id)
     width = $('#'+id+"BorderWidth").val()
-    console.log(width)
     if(width==100){
         widths=49
         if(all){
@@ -124,7 +122,6 @@ function  setWidth(id,all) {
 
 
 function  setWidthMin(id,all) {
-    console.log(id)
     width = $('#'+id+"BorderWidth").val()
     if(width==100){
         widths=31

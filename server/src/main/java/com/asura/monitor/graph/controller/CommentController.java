@@ -5,18 +5,27 @@ import com.asura.framework.base.paging.SearchMap;
 import com.asura.framework.dao.mybatis.paginator.domain.PageBounds;
 import com.google.gson.Gson;
 import com.asura.common.response.PageResponse;
+import com.asura.monitor.cluster.controller.MonitorClusterController;
+import com.asura.monitor.cluster.entity.MonitorClusterConfigureEntity;
+import com.asura.monitor.cluster.service.MonitorClusterConfigureService;
+import com.asura.monitor.configure.conf.MonitorCacheConfig;
 import com.asura.monitor.graph.util.FileRender;
-import com.asura.util.DateUtil;
 import com.asura.resource.entity.CmdbResourceGroupsEntity;
 import com.asura.resource.service.CmdbResourceGroupsService;
+import com.asura.util.CheckUtil;
+import com.asura.util.DateUtil;
+import com.asura.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import redis.clients.jedis.Jedis;
 
 import javax.servlet.http.HttpServletRequest;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.asura.monitor.graph.util.FileRender.readHistory;
 import static com.asura.monitor.graph.util.FileWriter.dataDir;
@@ -41,9 +50,14 @@ import static com.asura.monitor.graph.util.FileWriter.separator;
 @RequestMapping("/monitor/graph/")
 public class CommentController {
 
-
     @Autowired
     private CmdbResourceGroupsService groupsService;
+
+    @Autowired
+    private MonitorClusterConfigureService clusterConfigureService;
+
+    @Autowired
+    private MonitorClusterController clusterController;
 
     private Gson gson = new Gson();
 
@@ -116,6 +130,64 @@ public class CommentController {
         return gson.toJson(result);
     }
 
+    /**
+     * 集群状态数据获取
+     * @param groupsName
+     * @param clusterName
+     * @param type
+     * @param name
+     * @return
+     */
+    @RequestMapping(value = "historyClusterData", produces = {"application/json;charset=utf8"})
+    @ResponseBody
+    public String getClusterData(String groupsName, String clusterName, String type, String name, String resultType){
+        DecimalFormat df = new DecimalFormat("#######0.00");
+        String server = "";
+        PagingResult<MonitorClusterConfigureEntity> result = clusterController.getClusterServer(groupsName, clusterName);
+        for (MonitorClusterConfigureEntity entity: result.getRows()){
+                server = entity.getClusterHosts();
+        }
+        RedisUtil redisUtil = new RedisUtil();
+        Jedis jedis = redisUtil.getJedis();
+        String ip;
+        List<ArrayList<ArrayList<Object>>> list = new ArrayList<>();
+        if (CheckUtil.checkString(server)){
+            String startT = DateUtil.getDay();
+            String endT = DateUtil.getDay();
+            String[] servers = server.split(",");
+            for (String ser: servers) {
+                ip = jedis.get(RedisUtil.app + "_" + MonitorCacheConfig.cacheHostIdToIp + ser);
+                list.add(readHistory(ip, type, name, startT, endT, null));
+            }
+        }
+        ArrayList<Object> temp = new ArrayList<>();
+        Gson gson = new Gson();
+        ArrayList data ;
+        Double sum ;
+        ArrayList sumList = new ArrayList();
+        for (int j=0; j<list.get(0).size(); j++) {
+            sum = 0.0;
+            data = new ArrayList();
+            data.add(0);
+            data.add(1);
+            for (int i = 0; i < list.size(); i++) {
+                if(list.get(i).size() > j) {
+                    temp = list.get(i).get(j);
+                    sum += Double.valueOf(temp.get(1).toString());
+                }else{
+                    sum += 0.0;
+                }
+            }
+            data.set(0, Long.valueOf(temp.get(0).toString()));
+            if (CheckUtil.checkString(resultType)){
+                data.set(1, Double.valueOf(df.format(sum / list.size())));
+            }else {
+                data.set(1, Double.valueOf(df.format(sum)));
+            }
+            sumList.add(data);
+        }
+        return gson.toJson(sumList);
+    }
 
     /**
      * 页面

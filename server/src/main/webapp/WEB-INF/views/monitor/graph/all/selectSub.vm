@@ -90,8 +90,6 @@ function stock_chart(color, id, title, ytitle, url, chartype,lstartT,lendT) {
         startT=lstartT;
         endT = lendT;
     }
-    console.log(startT)
-    console.log(endT)
     lineWidth = 3
     lineWidthO = 5
     if(startT){

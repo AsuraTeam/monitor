@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>集群监控图展示</title><body class="gray-bg top-navigation">
+    #include("/index/include.vm")
+<script type="application/javascript" src="/static/js/monitor/graph/all/graph.js"></script>
+
+<script>
+
+    function iFrameHeight() {
+        var ifm= document.getElementById("iframepage");
+        var subWeb = document.frames ? document.frames["iframepage"].document : ifm.contentDocument;
+        if(ifm != null && subWeb != null) {
+            ifm.height = subWeb.body.scrollHeight;
+            ifm.width = subWeb.body.scrollWidth;
+        }
+    }
+
+</script>
+<div id="">
+    <div id="page-wrapper" class="gray-bg">
+        #include("/index/header.vm")
+        <body>
+        <script src="/static/js/plugins/highcharts.js"></script>
+        <div class="modal-header col-md-12" style="float:left;">
+            <div style="float:left;margin-left:5px;" class="col-md-4">
+                <h4 class="modal-title" style="color:#808080;font-size:6px;">${groupsName}&nbsp;&nbsp;$!{select.replace("SLASH", "/")}&nbsp;集群监控指标</h4>
+            </div>
+            <div style="float:left;margin-left:5px;" class="col-md-4 pull-right">
+                <select  class="selectpicker bla bla bli form-control" data-live-search="true" onchange="load_page($(this).val())">
+                    <option value="">$!{select.replace("SLASH", "/")}</option>
+                    #foreach($name in $names)
+                        #foreach($n in $types.get($name))
+                            <option value="${name}.${n}">${name}.${n.replace("SLASH", "/")}</option>
+                        #end
+                    #end
+                </select>
+            </div>
+            <div class="col-md-3 pull-right">
+                <button onclick="load_img_all()" class="btn btn-outline btn-sm btn-warning" type="button">
+                    <i class="fa fa-mail-reply"></i>&nbsp;&nbsp;所有
+                </button> &nbsp;&nbsp;
+                <button onclick="load_img()" class="btn btn-outline btn-sm btn-primary" type="button">
+                    <i class="fa fa-mail-reply"></i>&nbsp;&nbsp;求和
+                </button> &nbsp;&nbsp;
+                <button onclick="load_img(1)" class="btn btn-outline btn-sm btn-success" type="button">
+                    <i class="fa fa-mail-reply"></i>&nbsp;&nbsp;平均
+                </button> &nbsp;&nbsp;
+            </div>
+        </div>
+    </div>
+</div>
+<div id="load_select_image" style="height: 373px;margin-bottom:-0px;width:100%;margin:10px;"></div>
+<div style="margin-left:10px;margin-top:50px;" id="load_select_image_">
+    <table class="table  table-bordered table-hover dataTables-example" style="font-size:4px;padding:2px;">
+        <tr>
+            <th></th>
+            <th>last</th>
+            <th>min</th>
+            <th>avg</th>
+            <th>max</th>
+        </tr>
+        <tr>
+            <th><span><span class="label-primary" style="background-color:#2FCC3F"><span style="margin-left:9px;">&nbsp;</span></span>$!{select.replace("SLASH", "/")}</span></th>
+            <th id="load_select_imagelast"></th>
+            <th id="load_select_imagemin"></th>
+            <th id="load_select_imageavg"></th>
+            <th id="load_select_imagemax"></th>
+        </tr>
+    </table>
+</div>
+</div>
+<iframe src="" name="imgiframe" id="iframepage" frameborder="0" width="100%" scrolling="no" marginheight="0" marginwidth="0" onLoad="iFrameHeight()"></iframe>
+<br>
+<br>
+<br>
+<br>
+</div>
+
+<script type="">
+
+    function getParam(select) {
+        map = {}
+        if(select){
+            name = select
+        }else{
+            name = "${select}";
+        }
+        name_list = name.split(".")
+        name_data = ""
+        for(i=1;i<name_list.length;i++){
+            name_data += name_list[i] + "."
+        }
+        name_data = name_data.substring(0, name_data.length -1)
+        groups = name_list[0]
+        map["groups"] = groups
+        map["name"] = name_data
+        return map;
+    }
+
+    function load_page(name) {
+        map = getParam(name);
+        img_data = map["groups"]+"."+map["name"];
+        $.cookie("selectImages", img_data, {"path":"/"});
+        window.location = '/monitor/cluster/cluster?groupsName=$!{groupsName}&clusterName=$!{clusterName}&select='+img_data
+    }
+
+    /**
+     *
+     * @param type
+     */
+    function load_img(type){
+        if(!type){type=""}
+        map = getParam();
+        groups = map["groups"]
+        var names = {}
+        names[groups] = new Array();
+        names[groups].push(map["name"])
+        cluser_graph_all("", "load_select_image", names, groups, type, "" , "$!{clusterName}")
+    }
+    load_img()
+
+    function load_img_all(){
+        map = getParam();
+        $.cookie("is_realtime", "")
+        $.cookie("is_all_select", "2")
+        img_data = map["groups"]+"|"+map["name"];
+        $.cookie("selectImages", img_data, {"path":"/"});
+        $.cookie("select_all_ip_textarea", "$!{hosts}".replace(/,/g, "\n"))
+        url = '/monitor/graph/all/sub?ip=$!{ip}&select='+img_data+"&ips=$!{hosts}"
+        $('#iframepage').attr("src", url);
+    }
+
+    function reinitIframe(){
+        var iframe = document.getElementById("iframepage");
+        try{
+            var bHeight = iframe.contentWindow.document.body.scrollHeight;
+            var dHeight = iframe.contentWindow.document.documentElement.scrollHeight;
+            var height = Math.max(bHeight, dHeight);
+            iframe.height = height;
+        }catch (ex){}
+    }
+    window.setInterval("reinitIframe()", 3400);
+</script>
+</body>

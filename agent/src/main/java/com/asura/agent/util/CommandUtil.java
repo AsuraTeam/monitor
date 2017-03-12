@@ -31,6 +31,19 @@ public class CommandUtil {
     public static final Logger logger = LoggerFactory.getLogger(CommandUtil.class);
     private static final Runtime runtime = Runtime.getRuntime();
 
+    /**
+     * 上报cpu个数
+     * @return
+     */
+    public static String getCpuNumber(){
+        return  String.valueOf(runtime.availableProcessors());
+    }
+
+    /**
+     *
+     * @param command
+     * @return
+     */
     public static String execScript(String command){
         String result = "";
         String line = "";

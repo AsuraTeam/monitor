@@ -104,6 +104,66 @@ public class AllGraphController {
         return "/monitor/graph/all/listImg";
     }
 
+
+    /**
+     * 获取图像目录
+     * @param model
+     * @param ip
+     * @param select
+     * @return
+     */
+    public Model getImagesDir(Model model, String ip, String select, boolean all){
+        ArrayList dir ;
+        dir = getSubDir(ip);
+
+        // 获取所有的类型
+        Map<String, ArrayList> map = FileRender.getGraphName(dir, ip);
+        Map tempMap = new HashMap();
+        if (CheckUtil.checkString(select)) {
+            model.addAttribute("select", select);
+            String[] selectList = select.split(",");
+            String[] types ;
+            for (String s : selectList) {
+                ArrayList<String> tempArr = new ArrayList();
+                types = s.split("\\|");
+                ArrayList<String> t = (ArrayList) map.get(types[0]);
+                if (t==null){continue;}
+                for (String tname : t) {
+                    if (tname.equals(types[1].trim())) {
+                        tempArr.add(tname);
+                    }
+                }
+                if (tempMap.get(types[0]) != null) {
+                    ArrayList newTemp = (ArrayList) tempMap.get(types[0]);
+                    for (String ns : tempArr) {
+                        newTemp.add(ns);
+                    }
+                    tempMap.put(types[0], newTemp);
+                } else {
+                    tempMap.put(types[0], tempArr);
+                }
+            }
+        }
+        model.addAttribute("names", dir);
+        if (tempMap.size() > 0) {
+            model.addAttribute("types", tempMap);
+        } else {
+            model.addAttribute("types", map);
+            // 取消空选择时选择所有数据,只选择前10个
+            int count= 0;
+            for (Map.Entry<String, ArrayList> entry : map.entrySet()) {
+                ArrayList names = entry.getValue();
+                tempMap.put(entry.getKey(), names);
+                count += names.size();
+                if (count > 10 && ! all){
+                    break;
+                }
+            }
+            model.addAttribute("types", tempMap);
+        }
+        return model;
+    }
+
     /**
      * 所有图像入口
      *
@@ -127,58 +187,10 @@ public class AllGraphController {
         if (ip == null || ip.length() < 1) {
             return "/monitor/graph/all/sub";
         }
-        if (dayNumber!=null&&dayNumber.length()>0){
+        if (CheckUtil.checkString(dayNumber)){
             model.addAttribute("dayNumber", dayNumber);
         }
-        dir = getSubDir(ip);
-
-        // 获取所有的类型
-        Map<String, ArrayList> map = FileRender.getGraphName(dir, ip);
-        Map tempMap = new HashMap();
-        if (select != null && select.length() > 5) {
-            model.addAttribute("select", select);
-            String[] selectList = select.split(",");
-            String[] types ;
-            for (String s : selectList) {
-                ArrayList<String> tempArr = new ArrayList();
-                types = s.split("\\|");
-                ArrayList<String> t = (ArrayList) map.get(types[0]);
-                if (t==null){continue;}
-                for (String tname : t) {
-                    if (tname.equals(types[1].trim())) {
-                        tempArr.add(tname);
-                    }
-                }
-                if (tempMap.get(types[0]) != null) {
-                    ArrayList newTemp = (ArrayList) tempMap.get(types[0]);
-                    for (String ns : tempArr) {
-                        newTemp.add(ns);
-                    }
-                    tempMap.put(types[0], newTemp);
-                } else {
-                    tempMap.put(types[0], tempArr);
-
-                }
-            }
-        }
-
-        model.addAttribute("names", dir);
-        if (tempMap.size() > 0) {
-            model.addAttribute("types", tempMap);
-        } else {
-            model.addAttribute("types", map);
-            // 取消空选择时选择所有数据,只选择前10个
-            int count= 0;
-            for (Map.Entry<String, ArrayList> entry : map.entrySet()) {
-                ArrayList names = entry.getValue();
-                tempMap.put(entry.getKey(), names);
-                count += names.size();
-                if (count>10){
-                    break;
-                }
-            }
-            model.addAttribute("types", tempMap);
-        }
+        getImagesDir(model, ip, select, false);
         if (width != null && width.length() > 0) {
             model.addAttribute("width", width);
         }
@@ -303,7 +315,6 @@ public class AllGraphController {
     @RequestMapping("statusData")
     @ResponseBody
     public String statusData(String ip) throws IOException {
-        Gson gson = new Gson();
         ArrayList<String> dirs = FileRender.getSubDir(ip);
         ArrayList<StatusEntity> statusEntities = new ArrayList<>();
 

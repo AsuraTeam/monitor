@@ -322,7 +322,9 @@ public class MonitorController {
                 HOST_IDS = result;
                 logger.info("获取到本机IP地址 " + ip + " id: " + result);
                 LOCAL_IP.add(ip);
+                // 上报版本和cpu数量
                 redisUtil.set(MonitorCacheConfig.cacheAgentVersion.concat(ip), VERSION);
+                redisUtil.set(MonitorCacheConfig.cacheAgentCpu.concat(ip), CommandUtil.getCpuNumber());
                 if (hosts.contains(result)) {
                     IS_DEFAULT = true;
                 }
@@ -346,7 +348,6 @@ public class MonitorController {
                 IS_MONITOR = false;
             }
         }
-
     }
 
     /**
@@ -877,7 +878,7 @@ public class MonitorController {
     }
 
     /**
-     * 每30秒更新一次
+     * 每15秒更新一次
      * 设置agent是存活的
      */
     @Scheduled(cron = "*/5 * * * * ?")

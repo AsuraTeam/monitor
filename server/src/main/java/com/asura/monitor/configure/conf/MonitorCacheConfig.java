@@ -155,4 +155,7 @@ public class MonitorCacheConfig {
     // 存储监控 cache_agent_version_hostid
     public static final String cacheAgentVersion = "cache_agent_v_";
 
+    // 上报agent的cpu数量
+    public static final String cacheAgentCpu = "cache_agent_cpu_";
+
 }
