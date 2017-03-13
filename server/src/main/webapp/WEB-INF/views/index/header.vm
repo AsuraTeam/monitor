@@ -91,6 +91,8 @@
                         </li>
                         <li><a href="/monitor/configure/configure/list">监控配置</a>
                         </li>
+                        <li><a href="/monitor/cluster/list">集群监控配置</a>
+                        </li>
                     </ul>
                 </li>
                 <li class="dropdown-toggle">
