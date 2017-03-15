@@ -71,17 +71,17 @@ public class CommentController {
 
     public static SearchMap getSearchMap(String groups, String ip, String name, HttpServletRequest request) {
         SearchMap searchMap = new SearchMap();
-        if (groups != null && groups.length() > 1) {
+        if (CheckUtil.checkString(groups)) {
             searchMap.put("groupsName", groups);
         }
 
         // 模糊匹配
         String search = request.getParameter("search[value]");
-        if (search != null && search.length() > 1) {
+        if (CheckUtil.checkString(search)) {
             searchMap.put("search", search);
         }
         // 匹配名称
-        if (name != null && name.length() > 0) {
+        if (CheckUtil.checkString(name)) {
             searchMap.put("name", name);
         }
 
@@ -119,12 +119,22 @@ public class CommentController {
             result = readHistory(ip, type, name, startT, endT, totle);
         } else {
             DateUtil dateUtil = new DateUtil();
-            String dir = dataDir + separator +
-                    "graph" + separator +
-                    ip + separator +
-                    type + separator +
-                    dateUtil.getDate("yyyy") +
-                    separator + "day"+dayNumber + separator + name;
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append(dataDir)
+                    .append(separator)
+                    .append("graph")
+                    .append(separator)
+                    .append(ip)
+                    .append(separator)
+                    .append(type)
+                    .append(separator)
+                    .append(dateUtil.getDate("yyyy"))
+                    .append(separator)
+                    .append("day")
+                    .append(dayNumber)
+                    .append(separator)
+                    .append(name);
+            String dir = stringBuilder.toString();
             result = FileRender.readTxtFile(dir, result, totle);
         }
         return gson.toJson(result);

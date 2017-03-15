@@ -1,6 +1,5 @@
 package com.asura.agent.entity;
 
-
 /**
  * <p></p>
  * <p/>
@@ -16,6 +15,18 @@ package com.asura.agent.entity;
  * @since 1.0
  */
 public class MonitorScriptsEntity {
+
+    // 设置脚本执行超时时间
+    private String timeOut;
+
+    public String getTimeOut() {
+        return timeOut;
+    }
+
+    public void setTimeOut(String timeOut) {
+        this.timeOut = timeOut;
+    }
+
     /**
      * This field corresponds to the database column monitor_scripts.scripts_id
      * Comment: 主键

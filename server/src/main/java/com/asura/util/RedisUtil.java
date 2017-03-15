@@ -22,16 +22,28 @@ public class RedisUtil  {
 
     private static  final  Logger LOGGER = LoggerFactory.getLogger(RedisUtil.class);
     public static  String app = "monitor";
+    private static String redisPassword;
     private  String url ;
-    private int port = 6379;
+    private static int port;
 
     public RedisUtil(){
-        Resource resource = null;
-        Properties props = null;
+        Resource resource ;
+        Properties props ;
+        resource = new ClassPathResource("/system.properties");
         try {
-            resource = new ClassPathResource("/system.properties");
             props = PropertiesLoaderUtils.loadProperties(resource);
             url = (String) props.get("redis.server");
+            url = url.trim();
+            String redisPass = (String) props.get("redis.password");
+            if (CheckUtil.checkString(redisPass)) {
+                redisPassword = redisPassword.trim();
+            }
+            String cport = (String) props.get("redis.port");
+            if(CheckUtil.checkString(cport)){
+                port = Integer.valueOf(cport.trim());
+            }else{
+                port = 6379;
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -45,6 +57,9 @@ public class RedisUtil  {
     public Jedis getJedis(){
         LOGGER.info("获取链接...");
         Jedis jedis = new Jedis(url, port);
+        if (CheckUtil.checkString(redisPassword)){
+            jedis.auth(redisPassword);
+        }
         return jedis;
     }
 
@@ -55,8 +70,7 @@ public class RedisUtil  {
      * @return
      */
     public String set(String key, String value) {
-
-        Jedis jedis = new Jedis(url, port);
+        Jedis jedis = getJedis();
         String r = "";
         try {
             LOGGER.info("set "+app + "_" + key, value);
@@ -74,8 +88,7 @@ public class RedisUtil  {
      * @return
      */
     public String setHostId(java.util.List<CmdbResourceServerEntity> entityList) {
-
-        Jedis jedis = new Jedis(url, port);
+        Jedis jedis = getJedis();
         String r = "";
         try {
             for(CmdbResourceServerEntity c:entityList) {
@@ -99,8 +112,7 @@ public class RedisUtil  {
      * @return
      */
     public String get(String key) {
-
-        Jedis jedis = new Jedis(url, port);
+        Jedis jedis = getJedis();
         String r = "";
         LOGGER.info(url +" " + port);
         try {
@@ -112,7 +124,6 @@ public class RedisUtil  {
             r = "";
             jedis.close();
         }
-//        LOGGER.info(r);
         return r;
     }
 
@@ -121,8 +132,7 @@ public class RedisUtil  {
      * @return
      */
     public Long del(String key) {
-
-        Jedis jedis = new Jedis(url, port);
+        Jedis jedis = getJedis();
         long r = 1l;
         try {
             LOGGER.info("del "+ app + "_" + key);
@@ -141,7 +151,7 @@ public class RedisUtil  {
      * @return
      */
     public String  rpop(String key) {
-        Jedis jedis = new Jedis(url, port);
+        Jedis jedis = getJedis();
         String r = "";
         try {
             LOGGER.info("rpop "+ app + "_" + key);
@@ -160,8 +170,8 @@ public class RedisUtil  {
      * @return
      */
     public Long llen(String key){
-        Jedis jedis = new Jedis(url, port);
-        Long r = 0L;
+        Jedis jedis = getJedis();
+        Long r;
         try {
             LOGGER.info("rpop "+ app + "_" + key);
             r = jedis.llen(app + "_" + key);
@@ -178,8 +188,8 @@ public class RedisUtil  {
      * @return
      */
     public long lpush(String key, String value) {
-        Jedis jedis = new Jedis(url, port);
-        long r = 1l;
+        Jedis jedis = getJedis();
+        long r;
         try {
             LOGGER.info("lpush "+ app + "_" + key);
             r = jedis.lpush(app + "_" + key, value);
@@ -197,7 +207,7 @@ public class RedisUtil  {
      * @return
      */
     public String setex(String key,int timeOut, String value) {
-        Jedis jedis = new Jedis(url, port);
+        Jedis jedis = getJedis();
         String r = "";
         try {
             LOGGER.info("setex "+app + "_" + key, value);
@@ -205,8 +215,8 @@ public class RedisUtil  {
             jedis.close();
         } catch (Exception e) {
             r = "";
+            jedis.close();
         }
         return r;
     }
-
 }

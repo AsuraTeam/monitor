@@ -1,7 +1,6 @@
 package com.asura.agent.util;
 
 import com.asura.agent.configure.Configure;
-import com.asura.agent.controller.MonitorController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
@@ -15,8 +14,9 @@ public class RedisUtil {
     private static  final Logger LOGGER = LoggerFactory.getLogger(RedisUtil.class);
 
     private static String url = Configure.get("redis.server");
-    public static String app = "monitor";
-    private static  int port = 6379;
+    public static final String app = "monitor";
+    private static int port;
+    private static String redisPassword;
 
     private static boolean isConfig = false;
 
@@ -26,8 +26,12 @@ public class RedisUtil {
      * @return
      */
     public Jedis getJedis(){
+        init();
         LOGGER.info("获取链接...");
         Jedis jedis = new Jedis(url, port);
+        if (redisPassword != null && redisPassword.length() > 0 ){
+            jedis.auth(redisPassword);
+        }
         return jedis;
     }
 
@@ -38,14 +42,17 @@ public class RedisUtil {
     static void init(){
         if(!isConfig) {
             LOGGER.info("set redis server start ....");
+            redisPassword = Configure.get("redis.password");
             String curl = Configure.get("redis.server");
             if (curl.length() > 1) {
                 url = curl;
                 isConfig = true;
             }
             String cport = Configure.get("redis.port");
-            if(cport.length()>1){
+            if(cport.length() > 1 ){
                 port = Integer.valueOf(cport);
+            }else{
+                port = 6379;
             }
             LOGGER.info("set redis server end ....");
         }
@@ -58,14 +65,14 @@ public class RedisUtil {
      * @return
      */
     public String set(String key, String value) {
-        init();
-        Jedis jedis = new Jedis(url, port);
+        Jedis jedis = getJedis();
         String r = "";
         try {
             LOGGER.info("set "+app + "_" + key, value);
             r = jedis.set(app + "_" + key, value);
             jedis.close();
         } catch (Exception e) {
+            LOGGER.error("Redis set ERROR " + key ,e);
             r = "";
         }
         return r;
@@ -77,14 +84,14 @@ public class RedisUtil {
      * @return
      */
     public String setex(String key,int timeOut, String value) {
-        init();
-        Jedis jedis = new Jedis(url, port);
+        Jedis jedis = getJedis();
         String r = "";
         try {
             LOGGER.info("setex "+app + "_" + key, value);
             r = jedis.setex(app + "_" + key,timeOut, value);
             jedis.close();
         } catch (Exception e) {
+            LOGGER.error("Redis setex ERROR " + key ,e);
             r = "";
         }
         return r;
@@ -95,15 +102,14 @@ public class RedisUtil {
      * @return
      */
     public String get(String key) {
-        init();
-        Jedis jedis = new Jedis(url, port);
+        Jedis jedis = getJedis();
         String r = "";
         try {
             LOGGER.info("get "+ app + "_" + key);
             r = jedis.get(app + "_" + key);
             jedis.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Redis get ERROR " + key ,e);
             r = "";
             jedis.close();
         }
@@ -115,8 +121,7 @@ public class RedisUtil {
      * @return
      */
     public long del(String key) {
-        init();
-        Jedis jedis = new Jedis(url, port);
+        Jedis jedis = getJedis();
         long r = 1l;
         try {
             LOGGER.info("del "+ app + "_" + key);
@@ -134,8 +139,7 @@ public class RedisUtil {
      * @return
      */
     public long lpush(String key, String value) {
-        init();
-        Jedis jedis = new Jedis(url, port);
+        Jedis jedis = getJedis();
         long r = 1l;
         try {
             LOGGER.info("lpush "+ app + "_" + key);
@@ -154,8 +158,7 @@ public class RedisUtil {
      * @return
      */
     public String  rpop(String key) {
-        init();
-        Jedis jedis = new Jedis(url, port);
+        Jedis jedis = getJedis();
         String r = "";
         try {
             LOGGER.info("rpop "+ app + "_" + key);
@@ -167,5 +170,4 @@ public class RedisUtil {
         }
         return r;
     }
-
 }

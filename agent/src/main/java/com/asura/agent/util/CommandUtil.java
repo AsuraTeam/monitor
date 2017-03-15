@@ -71,7 +71,7 @@ public class CommandUtil {
      *
      * @return
      */
-    public static String runScript(String command) {
+    public static String runScript(String command, int timeOut) {
         List<String> list = new ArrayList();
         RunCmdThread thread = new RunCmdThread(command, list);
         thread.start();
@@ -86,8 +86,8 @@ public class CommandUtil {
             if (!thread.isAlive()) {
                 break;
             }
-            if (System.currentTimeMillis() / 1000 - start > 8) {
-                logger.error("线程超时:" + command);
+            if (System.currentTimeMillis() / 1000 - start > timeOut) {
+                logger.error("线程超时:" + command + "超时时间 "+ timeOut);
                 if (thread.isAlive()) {
                     try {
                         thread.interrupt();

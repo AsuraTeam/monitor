@@ -1,4 +1,5 @@
 set global max_allowed_packet=1000000000;
+set names utf8;
 create database cmdb;
 use cmdb;
 --
@@ -129,7 +130,7 @@ CREATE TABLE `cmdb_quartz` (
   `last_modify_user` varchar(32) DEFAULT NULL COMMENT '最近修改用户',
   PRIMARY KEY (`quartz_id`),
   UNIQUE KEY `uidx_cmdb_quartz_quartz_name` (`quartz_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -338,7 +339,7 @@ CREATE TABLE `cmdb_resource_network_address` (
   `last_modify_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最近修改时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_ip_prefix_id_ip_subffix` (`ip_prefix_id`,`ip_subffix`)
-) ENGINE=InnoDB AUTO_INCREMENT=4825 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -368,7 +369,7 @@ CREATE TABLE `cmdb_resource_os_type` (
   `image_path` varchar(200) DEFAULT NULL COMMENT '图片路径',
   PRIMARY KEY (`os_id`),
   UNIQUE KEY `uidx_os_name` (`os_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -419,7 +420,7 @@ CREATE TABLE `cmdb_resource_server` (
   UNIQUE KEY `uidx_cabinet_levelcabinet_id` (`cabinet_id`,`cabinet_level`),
   KEY `uidx_server_id` (`server_id`),
   KEY `uidx_manager_ip` (`manager_ip`)
-) ENGINE=InnoDB AUTO_INCREMENT=2293 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -449,7 +450,7 @@ CREATE TABLE `cmdb_resource_server_type` (
   `depend` varchar(5) DEFAULT NULL COMMENT '参考的类型',
   PRIMARY KEY (`type_id`),
   UNIQUE KEY `uidx_service_type` (`type_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -601,7 +602,7 @@ CREATE TABLE `monitor_contact_group` (
   `is_admin` int(11) DEFAULT NULL COMMENT '是否是管理员组,所有报警都发送到管理员组',
   PRIMARY KEY (`group_id`),
   UNIQUE KEY `uidx_group_name` (`group_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=67 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -630,7 +631,7 @@ CREATE TABLE `monitor_contacts` (
   `last_modify_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最近修改时间',
   PRIMARY KEY (`contacts_id`),
   UNIQUE KEY `idx_contacts_member_name` (`member_name`,`mobile`,`mail`)
-) ENGINE=InnoDB AUTO_INCREMENT=444 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -650,16 +651,16 @@ DROP TABLE IF EXISTS `monitor_groups`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `monitor_groups` (
-  `groups_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'ä¸»é”®',
-  `groups_name` varchar(200) DEFAULT NULL COMMENT 'ç»„åç§°',
-  `last_modify_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'æœ€è¿‘ä¿®æ”¹æ—¶é—´',
-  `last_modify_user` varchar(32) DEFAULT NULL COMMENT 'æœ€è¿‘ä¿®æ”¹ç”¨æˆ·',
-  `is_valid` int(11) DEFAULT NULL COMMENT 'æ˜¯å¦æœ‰æ•ˆ',
-  `hosts` text COMMENT 'æ‹¥æœ‰çš„ä¸»æœº',
-  `other_name` varchar(100) DEFAULT NULL COMMENT 'ç»„åˆ«å',
+  `groups_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '组ID',
+  `groups_name` varchar(200) DEFAULT NULL COMMENT '组名称',
+  `last_modify_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最近修改时间',
+  `last_modify_user` varchar(32) DEFAULT NULL COMMENT '最近修改时间',
+  `is_valid` int(11) DEFAULT NULL COMMENT '最近修改时间',
+  `hosts` text COMMENT '拥有主机',
+  `other_name` varchar(100) DEFAULT NULL COMMENT '组别名',
   PRIMARY KEY (`groups_id`),
   UNIQUE KEY `uidx_monitor_groups_groups_name` (`groups_name`,`other_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -730,10 +731,10 @@ CREATE TABLE `monitor_index_from_scripts` (
   `last_modify_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最近修改时间',
   `last_modify_user` varchar(100) DEFAULT NULL COMMENT '最近修改人',
   `description` varchar(30) DEFAULT NULL COMMENT ' 描述信息',
-  `unit` varchar(10) DEFAULT NULL COMMENT 'æŒ‡æ ‡å•ä½',
+  `unit` varchar(10) DEFAULT NULL COMMENT '指标单元',
   PRIMARY KEY (`index_id`),
   UNIQUE KEY `uidx_index_name` (`index_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=618 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -920,7 +921,7 @@ CREATE TABLE `monitor_platform_server` (
   `last_modify_time` varchar(32) DEFAULT NULL COMMENT '最近更新时间',
   PRIMARY KEY (`platform_id`),
   UNIQUE KEY `uidx_platform_server_ip` (`ip`)
-) ENGINE=InnoDB AUTO_INCREMENT=2198 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1197,3 +1198,8 @@ description varchar(200) comment "描述信息",
 groups_id int comment "参考cmdb组id") ; 
 
 alter table monitor_cluster_configure add unique index uidx_cluster_name (cluster_name) ;
+
+/**
+** 脚本超时时间20170315补丁
+*/
+alter table monitor_scripts add time_out int comment "脚本超时时间";

@@ -30,7 +30,7 @@ public class RunCmdThread extends Thread{
 
     public void run(){
         String cmdResult = CommandUtil.execScript(cmd);
-        if (cmdResult != null && cmdResult.length()>0){
+        if (cmdResult != null && cmdResult.length() > 0){
             result.add(cmdResult);
             return;
         }else{
