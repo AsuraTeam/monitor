@@ -92,7 +92,7 @@ import static com.asura.agent.util.RedisUtil.app;
 public class MonitorController {
 
     // 版本号
-    private final String VERSION = "1.0.0.0";
+    private final String VERSION = "1.0.0.1";
 
     private final Logger logger = LoggerFactory.getLogger(MonitorController.class);
 
@@ -286,7 +286,9 @@ public class MonitorController {
      * @param messages
      */
     void info(String messages) {
-        logger.info(messages);
+        if (messages != null) {
+            logger.info(messages);
+        }
     }
 
     /**
@@ -491,12 +493,13 @@ public class MonitorController {
      */
     @Scheduled(cron = "10 */1 * * * ?")
     void agentMonitor() {
+        if (LOCAL_IP == null) return;
         String ip = "";
         for (String ips : LOCAL_IP) {
             ip = ips;
         }
         ArrayList<PushEntity> list = AgentMonitor.setPushEntitys(ip);
-        info(isDebug ? gson.toJson(list) : null);
+        info(isDebug ? "agent data:" + gson.toJson(list) : null);
         pushMonitor(list, successApiUrl, true);
     }
 
@@ -830,7 +833,7 @@ public class MonitorController {
 
                 //  发送报警信息
                 info(isDebug ? "添加报警到队列啦... " + alarmId : null);
-                info(isDebug ? gson.toJson(SCRIPT_STATUS.get(alarmId)) : null);
+                info(isDebug ? "添加到报警队列script_status" + gson.toJson(SCRIPT_STATUS.get(alarmId)) : null);
                 if (SCRIPT_STATUS.containsKey(alarmId)) {
                     queue.add(SCRIPT_STATUS.get(alarmId));
                 }
@@ -915,7 +918,7 @@ public class MonitorController {
         Thread.sleep(random.nextInt(100) * 300);
         Jedis jedis = redisUtil.getJedis();
         String queueKey = app + "_" + MonitorCacheConfig.cacheHostUpdateQueue + getHosts();
-        info(isDebug ? queueKey : null);
+        info(isDebug ? "queue key" +  queueKey : null);
         long len = jedis.llen(queueKey);
 
         info(isDebug ? "获取到队列大小 " + len : null);
@@ -1094,7 +1097,7 @@ public class MonitorController {
         setAgentAlarmStatus(hostList);
         String host;
         int count = 0;
-        info(isDebug ? gson.toJson(hostList) : null);
+        info(isDebug ? "hostList: " + gson.toJson(hostList) : null);
         for (String date : getHostStatus(hostList, false)) {
             host = hostList.get(count);
             count += 1;
@@ -1134,7 +1137,7 @@ public class MonitorController {
             } else {
                 info(isDebug ? "set is ok " + host : null);
                 okMap.put(host, date);
-                logger.info(gson.toJson(AGENT_ALARM_MAP));
+                info(isDebug ?  "agent_alarm_map :" + gson.toJson(AGENT_ALARM_MAP) : null);
                 if (AGENT_ALARM_MAP.containsKey(host)) {
                     AGENT_ALARM_MAP.remove(host);
                     String server = redisUtil.get(MonitorCacheConfig.cacheHostIdToIp + host);
@@ -1784,7 +1787,7 @@ public class MonitorController {
                         }
                         // 画图的使用的 不做报警处理
                         if (entity.getStatus().equals("0")) {
-                            info(isDebug ? gson.toJson(entity) : null);
+                            info(isDebug ? "画图使用数据:" +  gson.toJson(entity) : null);
                             success.add(entity);
                         }
                         // 判断脚本运行状态成功

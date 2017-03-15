@@ -44,6 +44,7 @@ import java.util.Map;
 import static com.asura.monitor.configure.util.MessagesChannelUtil.getChannelEntity;
 import static com.asura.monitor.configure.util.MessagesChannelUtil.getEmailEntity;
 import static com.asura.monitor.util.MonitorUtil.getPushEntity;
+import static com.asura.monitor.util.MonitorUtil.logger;
 
 /**
  * <p></p>
@@ -609,10 +610,13 @@ public class ApiController {
         }
         String ipAddr;
         // 获取客户端IP
-        if (entity.getIp() == null || entity.getIp().length() < 10) {
+        if (entity.getIp() == null || entity.getIp().length() < 6) {
             ipAddr = RequestClientIpUtil.getIpAddr(request);
         } else {
             ipAddr = FileRender.replace(entity.getIp());
+            if (ipAddr.length() < 2){
+                logger.error("获取到IP地址失败:" + gson.toJson(entity));
+            }
         }
         // 报警发送处理
         alarmSet(entity, ipAddr);

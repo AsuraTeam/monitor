@@ -70,6 +70,9 @@ public class FileRender {
      * @return
      */
     public static String replace(String str) {
+        if (str == null){
+            return "";
+        }
         str = str.replace("\\", "");
         str = str.replace("..", "");
         str = str.replace("\\.\\.", "");

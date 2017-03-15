@@ -28,10 +28,7 @@ public class Md5Util {
 
     public static String getMd5ByFile(File file) throws Exception  {
         String value = null;
-
-            FileInputStream in = new FileInputStream(file);
-
-
+        FileInputStream in = new FileInputStream(file);
         try {
             MappedByteBuffer byteBuffer = in.getChannel().map(FileChannel.MapMode.READ_ONLY, 0, file.length());
             MessageDigest md5 = MessageDigest.getInstance("MD5");
@@ -51,7 +48,5 @@ public class Md5Util {
         }
         return value;
     }
-
-
 
 }

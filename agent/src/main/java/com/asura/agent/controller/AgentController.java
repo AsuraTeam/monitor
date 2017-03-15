@@ -5,7 +5,6 @@ import com.google.gson.Gson;
 import com.asura.agent.configure.Configure;
 import com.asura.agent.entity.PushEntity;
 import com.asura.agent.thread.GetDataThread;
-import com.asura.agent.util.CommandUtil;
 import com.asura.agent.util.FileIoUtil;
 import com.asura.agent.util.HttpUtil;
 import com.asura.agent.util.Md5Util;
@@ -218,8 +217,9 @@ public class AgentController {
         String path = Configure.getJarPath();
 
         // 临时文件定义
-        String tempFile = "/tmp/agent.jar";
-        String tempMd5 = "/tmp/agent.md5";
+        String tempPath = System.getProperty("java.io.tmpdir") + System.getProperty("file.separator");
+        String tempFile = tempPath + "agent.jar";
+        String tempMd5 = tempFile +  "agent.md5";
 
         logger.info("下载更新包开始...."+url);
         HttpUtil.downloadNet(url,tempFile);
@@ -230,8 +230,9 @@ public class AgentController {
         if(f.exists()){
 
             // 获取文件的md5
-            String md5 = Md5Util.getMd5ByFile(f);
-            logger.info("更新包的文件md5值为:"+md5);
+            String md5 = Md5Util.getMd5ByFile(f).trim();
+            logger.info("更新包MD5长度:" + md5.length());
+            logger.info("更新包的文件md5值为: "+md5);
 
             // 获取提供更新包下载的MD5
             HttpUtil.downloadNet(url+".md5",tempMd5);
