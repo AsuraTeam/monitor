@@ -139,6 +139,9 @@
             parent.layer.msg("描述信息填写", {icon: 2});
             return;
         }
+        if (!data["timeOut"]){
+            data["timeOut"] = 8;
+        }
         if(id){
             data["scriptsId"] = id;
         }

@@ -29,7 +29,8 @@
         arg2comm as arg2comm,
         arg1comm as arg1comm,
         anew as anew,
-        isrecover as isrecover
+        isrecover as isrecover,
+        time_out as timeOut
         from monitor_scripts </sql>
 
     <select id="selectByAll" resultType="com.asura.monitor.configure.entity.MonitorScriptsEntity">
@@ -87,7 +88,8 @@
             arg2comm,
             arg1comm,
             anew,
-            isrecover
+            isrecover,
+            time_out
         ) 
         values(        
             #{scriptsId},
@@ -117,7 +119,8 @@
             #{arg2comm},
             #{arg1comm},
             #{anew},
-            #{isrecover}
+            #{isrecover},
+            #{timeOut}
         )
     </insert>
 
@@ -149,7 +152,8 @@
             arg2comm=#{arg2comm},
             arg1comm=#{arg1comm},
             anew=#{anew},
-            isrecover=#{isrecover}
+            isrecover=#{isrecover},
+            time_out = #{timeOut}
          where    scripts_id=#{scriptsId}
     </update>
 

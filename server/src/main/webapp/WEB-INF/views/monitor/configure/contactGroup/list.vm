@@ -169,7 +169,7 @@
                 }
                 },
                 {"data": "description"},
-                {"sWidth": "150px", "data": "groupName", "mRender": function(data, type, full) {
+                {"sWidth": "150px", "data": "groupId", "mRender": function(data, type, full) {
                     return '<a  onclick="show_cache(\''+data+'\',\'item\')"><i style="margin-left: 25px;" class="fa fa-heart-o"></i></a>';
                 }
                 },

@@ -11,6 +11,26 @@
         #include("/index/header.vm")
 <div id="addConfig"></div>
 <body>
+<div class="modal fade" id="show_agent_info" tabindex="-1"
+     role="dialog" style="background-color: #FfFfFf; margin-top: 16px;"
+     data-backdrop="false">
+    <div class="modal-dialog"
+         style="margin-top: 0px; width: 50%; ">
+        <div class="modal-content"
+             style="height: auto; overflow-y:scroll;width: 100%; ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title">&nbsp;&nbsp;agent信息查看</h4>
+            </div>
+            <div  id="show_agent_info_html"  rows="15" style="margin-bottom: 0px;width: 100%;">
+                加载中...
+            </div>
+            <div style="margin-top:12px;">&nbsp;</div>
+        </div>
+    </div>
+</div>
 
 <div class=" animated fadeInRight">
     <div class="row">
@@ -56,6 +76,11 @@
         loadData();
     }
 
+    function show_agent_info(ip) {
+        url = "/monitor/platform/server/agent";
+        result = post({},url)
+        $('show_agent_info').modal("toggle")
+    }
     function loadData(){
         $("#listTable").dataTable({
             "filter": true,//去掉搜索框
@@ -77,7 +102,6 @@
                 }},
                 {"data": "hostname", "mRender":function (data) {
                     return data;
-
                 }},
                 {"data": "status","mRender":function (data) {
                     k = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
@@ -113,7 +137,9 @@
                     return html;
                 }},
                 {"data": "loadavg"},
-                {"data": "version"},
+                {"data": "version", "mRender": function (data, type, full) {
+                    return "<span onclick='show_agent_info(\'"+full["ip"]+"\')'><a>"+data+"</a></span"
+                }},
                 {"data": "lastModifyTime","mRender":function (data) {
                     return data?laydate.now(data, "YYYY-MM-DD hh:mm:ss"):"--";
                 }},

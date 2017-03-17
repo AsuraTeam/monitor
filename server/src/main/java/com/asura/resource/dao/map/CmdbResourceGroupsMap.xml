@@ -18,6 +18,9 @@
                 #{item}
             </foreach>
         </if>
+        <if test="groupsName != null">
+            and groups_name=#{groupsName}
+        </if>
         </select>
 
     <select id="findById" resultType="com.asura.resource.entity.CmdbResourceGroupsEntity">

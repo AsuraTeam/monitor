@@ -8,10 +8,14 @@
         create_user as createUser,
         last_modify_time as lastModifyTime,
         last_modify_user as lastModifyUser</sql>
+
     <select id="selectByAll" resultType="com.asura.resource.entity.CmdbResourceOsTypeEntity">
         select
         <include refid="sqlId"/>
-         from cmdb_resource_os_type 
+         from cmdb_resource_os_type WHERE  1=1
+        <if test="os != null">
+            and os_name=#{os}
+        </if>
         </select>
 
     <select id="findById" resultType="com.asura.resource.entity.CmdbResourceOsTypeEntity">

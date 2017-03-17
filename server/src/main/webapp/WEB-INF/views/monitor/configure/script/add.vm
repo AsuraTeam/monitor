@@ -315,15 +315,24 @@ json格式
                 </div>
             </div>
             <div class="col-md-12" style="margin-top: 5px;"></div>
-            <div class="col-md-12">
-                <div class="form-group">
-                    <label class="col-sm-2 control-label">描述信息:</label>
-                    <div class="col-sm-10" style="margin-left: -5%;width: 88%;">
-                        <input type="text" name="description" class="form-control" id="script_description"
-                               value="$!{configs.description}">
+                <div class="col-md-6">
+                    <div class="form-group" title="脚本在执行过程中超时时间">
+                        <label class="col-sm-3 control-label">超时时间:</label>
+                        <div class="col-sm-9" >
+                            <input type="number" name="timeOut" id="time_out" class="form-control"
+                                   value="$!{configs.timeOut}">
+                        </div>
                     </div>
                 </div>
-            </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">描述信息:</label>
+                        <div class="col-sm-8" >
+                            <input type="text" name="description" class="form-control" id="script_description"
+                                   value="$!{configs.description}">
+                        </div>
+                    </div>
+                </div>
             <div class="col-md-12" style="margin-top: 5px;"></div>
             <div class="col-md-12">
                 <div class="form-group">
@@ -353,6 +362,9 @@ json格式
 </div>
 <script type="text/javascript">
 
+    if(!"$!{configs.scriptsId}"){
+        $('#time_out').val(8)
+    }
     function change(obj) {
         value = $(obj).val();
         if (value == 0) {

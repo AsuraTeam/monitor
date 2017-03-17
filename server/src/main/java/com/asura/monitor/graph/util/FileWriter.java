@@ -182,31 +182,6 @@ public class FileWriter {
         writeFile(file, content, true);
     }
 
-//    /**
-//     * 错误日志写入
-//     * @param entity
-//     */
-//    public static void writeErrorHistory(PushEntity entity) {
-//        // 拼接文件目录
-//        String file = dataDir + separator + "monitor" + separator +
-//                dateUtil.getDate("yyyy") + separator +
-//                dateUtil.getDate("MM") + separator +
-//                dateUtil.getDate("dd") + separator +"error";
-//
-//        if (entity.getTime() == null) {
-//            entity.setTime(DateUtil.getDate("yyyy-MM-dd HH:mm:ss"));
-//        }
-//
-//        String content = entity.getTime() + " ";
-//        content += entity.getCommand() + " ";
-//        content += entity.getStatus() + " ";
-//        content += entity.getValue() + " ";
-//        content += "[" + entity.getMessages().replace("\\n", " ") + "]";
-//        writeFile(file, content, true);
-//
-//    }
-
-
     /**
      * 获取系统信息的希尔目录
      * @return

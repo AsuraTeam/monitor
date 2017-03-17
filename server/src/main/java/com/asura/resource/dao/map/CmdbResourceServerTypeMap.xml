@@ -54,6 +54,9 @@
         cmdb_resource_server_type b
         where  a.depend=b.type_id and a.depend>0
         and a.type_id=#{type_id}
+        <if test="typeName != null">
+            and type_name=#{typeName}
+        </if>
 
     </select>
 

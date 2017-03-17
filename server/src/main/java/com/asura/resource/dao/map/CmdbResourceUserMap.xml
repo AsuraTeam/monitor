@@ -16,7 +16,11 @@
         <include refid="sqlId"/>
         from cmdb_resource_user a, cmdb_resource_groups b WHERE
         a.groups_id = b.groups_id
+        <if test="username != null">
+            and user_name=#{username}
+        </if>
     </select>
+
     <select id="findById" resultType="com.asura.resource.entity.CmdbResourceUserEntity">
         select
         <include refid="sqlId"/>

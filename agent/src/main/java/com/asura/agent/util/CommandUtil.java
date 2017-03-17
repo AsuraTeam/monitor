@@ -1,12 +1,15 @@
 package com.asura.agent.util;
 
+import com.sun.management.OperatingSystemMXBean;
 import com.asura.agent.thread.RunCmdThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +40,28 @@ public class CommandUtil {
      */
     public static String getCpuNumber(){
         return  String.valueOf(runtime.availableProcessors());
+    }
+
+    /**
+     * 获取内存大小
+     */
+    public static String getMemorySize(){
+        OperatingSystemMXBean osmb = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+        return "" + osmb.getTotalPhysicalMemorySize() /  1024 /1024 / 1024;
+    }
+
+    /**
+     * 获取硬盘总大小
+     * @return
+     */
+    public static String getDiskSize(){
+        File[] roots = File.listRoots();
+        long disk = 0L;
+        // 获取磁盘分区列表
+        for (File file : roots) {
+            disk += file.getTotalSpace();
+        }
+        return disk / 1024 /1024 /1024 +"";
     }
 
     /**

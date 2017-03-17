@@ -23,6 +23,7 @@ import com.asura.monitor.configure.service.MonitorScriptsService;
 import com.asura.monitor.configure.service.MonitorTemplateService;
 import com.asura.monitor.configure.thread.MakeCacheThread;
 import com.asura.monitor.configure.util.ConfigureUtil;
+import com.asura.util.CheckUtil;
 import com.asura.util.DateUtil;
 import com.asura.util.LdapAuthenticate;
 import com.asura.util.PermissionsCheck;
@@ -287,6 +288,10 @@ public class SaveController {
         String user = permissionsCheck.getLoginUser(request.getSession());
         entity.setLastModifyUser(user);
         entity.setLastModifyTime(DateUtil.getTimeStamp());
+        // 设置默认超时时间
+        if (! CheckUtil.checkString(entity.getTimeOut()+"")){
+            entity.setTimeOut(8);
+        }
         if (entity.getScriptsId() != null) {
             scriptsService.update(entity);
         } else {

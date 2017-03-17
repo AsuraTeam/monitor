@@ -10,6 +10,7 @@ import com.asura.common.response.ResponseVo;
 import com.asura.monitor.configure.conf.MonitorCacheConfig;
 import com.asura.monitor.configure.controller.CacheController;
 import com.asura.monitor.graph.controller.CommentController;
+import com.asura.monitor.graph.entity.PushEntity;
 import com.asura.resource.entity.CmdbResourceCabinetEntity;
 import com.asura.resource.entity.CmdbResourceEntnameEntity;
 import com.asura.resource.entity.CmdbResourceGroupsEntity;
@@ -28,6 +29,7 @@ import com.asura.resource.service.CmdbResourceServerTypeService;
 import com.asura.resource.service.CmdbResourceServiceService;
 import com.asura.resource.service.CmdbResourceUserService;
 import com.asura.util.DateUtil;
+import com.asura.util.HttpClientIpAddress;
 import com.asura.util.LdapAuthenticate;
 import com.asura.util.PermissionsCheck;
 import com.asura.util.RedisUtil;
@@ -42,6 +44,7 @@ import redis.clients.jedis.Jedis;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import static com.asura.util.RedisUtil.app;
 
@@ -512,4 +515,178 @@ public class ServerController {
         return "ok";
     }
 
+    /**
+     * 自动生成组5个组,每组1000个机器
+     * @return
+     */
+    int autoMakeGroups(){
+        String groupsName = "自动生成组1";
+        SearchMap searchMap = new SearchMap();
+        searchMap.put("groupsName", groupsName);
+        PageBounds pageBounds = PageResponse.getPageBounds(10, 1);
+        PagingResult<CmdbResourceGroupsEntity> result = groupsService.findAll(searchMap, pageBounds);
+        if (result.getTotal() < 1) {
+             for (int i = 1; i < 11 ; i++ ) {
+                CmdbResourceGroupsEntity entity = new CmdbResourceGroupsEntity();
+                entity.setCreateTime(DateUtil.getDateStampInteter());
+                entity.setGroupsName("自动生成组"+i);
+                groupsService.save(entity);
+            }
+        }
+        Random random = new Random();
+        PagingResult<CmdbResourceGroupsEntity> data = groupsService.findAll(searchMap, pageBounds);
+        int rand = random.nextInt((int) data.getTotal());
+        return data.getRows().get(rand).getGroupsId();
+    }
+
+    /**
+     * 生成系统类型
+     * @return
+     */
+    int autoMakeOs(String os){
+        SearchMap searchMap = new SearchMap();
+        searchMap.put("os", os);
+        PageBounds pageBounds = PageResponse.getPageBounds(2, 1);
+        PagingResult<CmdbResourceOsTypeEntity> result = osTypeService.findAll(searchMap, pageBounds);
+        if (result.getTotal() > 0 ){
+            return result.getRows().get(0).getOsId();
+        }else{
+            CmdbResourceOsTypeEntity entity = new CmdbResourceOsTypeEntity();
+            entity.setOsName(os);
+            osTypeService.save(entity);
+        }
+        PagingResult<CmdbResourceOsTypeEntity> data = osTypeService.findAll(searchMap, pageBounds);
+        return data.getRows().get(0).getOsId();
+    }
+
+    /**
+     * 自动生成用户
+     * @return
+     */
+    int autoMakeUser(){
+        SearchMap searchMap = new SearchMap();
+        searchMap.put("username", "admin");
+        PageBounds pageBounds = PageResponse.getPageBounds(2, 1);
+        PagingResult<CmdbResourceUserEntity> result = userService.findAll(searchMap, pageBounds);
+        if (result.getTotal() > 0 ){
+            return result.getRows().get(0).getUserId();
+        }else{
+            CmdbResourceUserEntity entity = new CmdbResourceUserEntity();
+            entity.setUserName("admin");
+            entity.setGroupsId(autoMakeGroups());
+            userService.save(entity);
+        }
+        PagingResult<CmdbResourceUserEntity> data = userService.findAll(searchMap, pageBounds);
+        return data.getRows().get(0).getUserId();
+    }
+
+    /**
+     * 自动生产环境
+     * @return
+     */
+    int autoMakeEnt(){
+        SearchMap searchMap = new SearchMap();
+        searchMap.put("entname", "自动环境");
+        PagingResult<CmdbResourceEntnameEntity> result = entnameService.findAll(searchMap, PageResponse.getPageBounds(2, 1));
+        if (result.getTotal() > 0 ){
+            return result.getRows().get(0).getEntId();
+        }else{
+            CmdbResourceEntnameEntity entnameEntity = new CmdbResourceEntnameEntity();
+            entnameEntity.setEntName("自动环境");
+            entnameService.save(entnameEntity);
+        }
+        PagingResult<CmdbResourceEntnameEntity> data = entnameService.findAll(searchMap, PageResponse.getPageBounds(2, 1));
+        return data.getRows().get(0).getEntId();
+    }
+
+    /**
+     * 自动生产服务类型
+     * @return
+     */
+    int autoMakeServerType(){
+        SearchMap searchMap = new SearchMap();
+        searchMap.put("typeName", "未知");
+        PagingResult<CmdbResourceServerTypeEntity> result = serverTypeService.findAll(searchMap, PageResponse.getPageBounds(2, 1));
+        if (result.getTotal() > 0 ){
+            return result.getRows().get(0).getTypeId();
+        }else{
+            CmdbResourceServerTypeEntity typeEntity = new CmdbResourceServerTypeEntity();
+            typeEntity.setTypeName("未知");
+            serverTypeService.save(typeEntity);
+        }
+        PagingResult<CmdbResourceServerTypeEntity> data = serverTypeService.findAll(searchMap, PageResponse.getPageBounds(2, 1));
+        return data.getRows().get(0).getTypeId();
+    }
+
+    /**
+     * 自动生产服务
+     * @return
+     */
+    int autoMakeService(){
+        SearchMap searchMap = new SearchMap();
+        searchMap.put("serviceName", "未知");
+        PagingResult<CmdbResourceServiceEntity> result = serviceService.findAll(searchMap, PageResponse.getPageBounds(2, 1));
+        if (result.getTotal() > 0 ){
+            return result.getRows().get(0).getServiceId();
+        }else{
+            CmdbResourceServiceEntity serviceEntity = new CmdbResourceServiceEntity();
+            serviceEntity.setServiceName("未知");
+            serviceService.save(serviceEntity);
+        }
+        PagingResult<CmdbResourceServiceEntity> data = serviceService.findAll(searchMap, PageResponse.getPageBounds(2, 1));
+        return data.getRows().get(0).getServiceId();
+    }
+
+    /**
+     * 自动生产机房
+     * @return
+     */
+    int autoMakeCabinet(){
+        SearchMap searchMap = new SearchMap();
+        searchMap.put("cabinetName", "未知");
+        List<CmdbResourceCabinetEntity> result = cabinetService.selectCabinetName(searchMap, "selectCabinetName");
+        if (result.size() > 0 ){
+            return result.get(0).getCabinetId();
+        }else{
+            CmdbResourceCabinetEntity cabinetEntity = new CmdbResourceCabinetEntity();
+            cabinetEntity.setCabinetName("未知");
+            cabinetService.save(cabinetEntity);
+        }
+        List<CmdbResourceCabinetEntity> data = cabinetService.selectCabinetName(searchMap, "selectCabinetName");
+        return data.get(0).getCabinetId();
+    }
+
+
+    /**
+     * 自动上传cmdb数据
+     * @param entity
+     * @return
+     */
+    @RequestMapping("auto")
+    @ResponseBody
+    public ResponseVo autoCmdb(PushEntity entity, HttpServletRequest request){
+        String ip = HttpClientIpAddress.getIpAddr(request);
+        SearchMap searchMap = new SearchMap();
+        searchMap.put("ipAddress", ip);
+        List<CmdbResourceServerEntity> serverEntity = service.getDataList(searchMap, "selectServerid");
+        if (serverEntity.size() > 0 ){
+            return ResponseVo.responseOk("ok");
+        }
+        CmdbResourceServerEntity resourceServerEntity = new CmdbResourceServerEntity();
+        resourceServerEntity.setGroupsId(autoMakeGroups());
+        resourceServerEntity.setCpu(entity.getCpu());
+        resourceServerEntity.setDiskSize(entity.getDisk());
+        resourceServerEntity.setStatus(1);
+        resourceServerEntity.setIpAddress(ip);
+        resourceServerEntity.setOsId(autoMakeOs(entity.getOs()));
+        resourceServerEntity.setEntId(autoMakeEnt());
+        resourceServerEntity.setUserId(autoMakeUser()+"");
+        resourceServerEntity.setServiceId(autoMakeService()+"");
+        resourceServerEntity.setTypeId(autoMakeServerType());
+        resourceServerEntity.setDescription("自动上报");
+        resourceServerEntity.setHostId(0);
+        resourceServerEntity.setCabinetId(autoMakeCabinet());
+        save(resourceServerEntity, request);
+        return ResponseVo.responseOk("ok");
+    }
 }

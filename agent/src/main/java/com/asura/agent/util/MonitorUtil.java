@@ -281,8 +281,8 @@ public class MonitorUtil {
         if (entity.getWeixin() != null ) {
             mess += "&weixin=" + entity.getWeixin() ;
         }
-        info(mess);
-        info(HttpUtil.sendPost(url, mess));
+        logger.info(mess);
+        logger.info(HttpUtil.sendPost(url, mess));
     }
 
     /**

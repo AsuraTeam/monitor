@@ -267,6 +267,7 @@ public class ApiController {
     @ResponseBody
     public ResponseVo faildPush(PushEntity entity,String lentity, HttpServletRequest request){
         lentity = Base64Util.decode(lentity);
+        LOGGER.info("获取失败的数据" + lentity);
         writePush(lentity, request, "success");
         entity.setServer(request.getLocalAddr());
         return ResponseVo.responseOk(entity);
@@ -326,8 +327,14 @@ public class ApiController {
         for (int i=0 ; i< queueLength ;i++) {
             String queueData =  redisUtil.rpop(MonitorCacheConfig.cacheAlarmQueueKey);
             if (queueData !=null && queueData.length() > 0) {
-                MonitorMessagesEntity messagesEntity = gson.fromJson(queueData, MonitorMessagesEntity.class);
-                sendMonitorMessages(messagesEntity);
+                try {
+                    queueData = queueData.replace("\n", "<br>");
+                    logger.info("获取到报警信息:" + queueData);
+                    MonitorMessagesEntity messagesEntity = gson.fromJson(queueData, MonitorMessagesEntity.class);
+                    sendMonitorMessages(messagesEntity);
+                }catch (Exception e){
+                    logger.info("发送报警失败:" , e);
+                }
             }
         }
     }

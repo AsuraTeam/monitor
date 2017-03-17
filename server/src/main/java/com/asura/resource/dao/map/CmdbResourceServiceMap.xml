@@ -10,8 +10,12 @@
     <select id="selectByAll" resultType="com.asura.resource.entity.CmdbResourceServiceEntity">
         select
         <include refid="sqlId"/>
-         from cmdb_resource_service 
+         from cmdb_resource_service WHERE 1=1
+        <if test="serviceName != null">
+            and service_name=#{serviceName}
+        </if>
         </select>
+
     <select id="findById" resultType="com.asura.resource.entity.CmdbResourceServiceEntity">
         select
         <include refid="sqlId"/>

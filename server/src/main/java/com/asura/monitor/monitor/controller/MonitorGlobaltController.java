@@ -324,9 +324,7 @@ public class MonitorGlobaltController {
         }
 
         Jedis jedis = redisUtil.getJedis();
-//        List<String> hosts = getHosts(groupsId, jedis);
-//        List<Map<String, Map<String, String>>> hostMap = getHostStatus(hosts, jedis);
-        String datas = FileRender.readLastLine(tempDir + "groupsMap_" + groupsId+"_"+status);
+        String datas = FileRender.readLastLine(tempDir.concat("groupsMap_").concat(groupsId).concat("_").concat(status));
         Map<String, String> dataMap = gson.fromJson(datas, HashMap.class);
 
         String[] data;
@@ -350,7 +348,15 @@ public class MonitorGlobaltController {
             count += 1;
             data = entry.getKey().split("_");
             try {
-                path = FileRender.replace(data[1] + "_" + status + "_" + data[3] + "_" + data[4]);
+                StringBuilder pathBuilder = new StringBuilder();
+                pathBuilder.append(data[1])
+                        .append("_")
+                        .append(status)
+                        .append("_")
+                        .append(data[3])
+                        .append("_")
+                        .append(data[4]);
+                path = FileRender.replace(pathBuilder.toString());
             } catch (Exception e) {
                 continue;
             }

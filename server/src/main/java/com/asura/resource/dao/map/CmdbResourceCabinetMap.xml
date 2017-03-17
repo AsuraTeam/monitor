@@ -43,7 +43,8 @@
 
     <select id="selectCabinetName" resultType="com.asura.resource.entity.CmdbResourceCabinetEntity">
         select
-           distinct cabinet_scope as cabinetScope
+           distinct cabinet_scope as cabinetScope,
+        cabinet_id as cabinetId
         from cmdb_resource_cabinet where cabinet_id!=1
         <if test="cabinetScope != null">
             and cabinet_scope=#{cabinetScope}

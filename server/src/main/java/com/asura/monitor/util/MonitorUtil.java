@@ -94,6 +94,9 @@ public class MonitorUtil {
                 + FileRender.replace(entity.getStatus())) + "_"
                 + FileRender.replace(entity.getGroups())+ "_"+ FileRender.replace(entity.getName());
 
+        if (entity.getStatus().equals("2")){
+            logger.info(name);
+        }
         String groups = FileRender.replace(entity.getGroups());
         String value = entity.getValue();
         // 记录每个指标的服务器地址

@@ -42,6 +42,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Random;
 import java.util.concurrent.LinkedTransferQueue;
 
@@ -92,7 +93,7 @@ import static com.asura.agent.util.RedisUtil.app;
 public class MonitorController {
 
     // 版本号
-    private final String VERSION = "1.0.0.1";
+    private final String VERSION = "1.0.0.6";
 
     private final Logger logger = LoggerFactory.getLogger(MonitorController.class);
 
@@ -269,9 +270,6 @@ public class MonitorController {
         if (REAL_TIME_CACHE == null) {
             REAL_TIME_CACHE = new HashMap<>();
         }
-        if (UPDATE_SERVER_TIME == null) {
-            UPDATE_SERVER_TIME = DateUtil.getCurrTime();
-        }
         if (PUSH_SERVER_INFO_TIME == null) {
             pushServerInfo();
             PUSH_SERVER_INFO_TIME = DateUtil.getCurrTime();
@@ -298,7 +296,7 @@ public class MonitorController {
         Map map = new HashMap();
         map.put("port", IpUtil.getServerPort());
         map.put("hostname", IpUtil.getHostname());
-        redisUtil.set(MonitorCacheConfig.cacheAgentServerInfo + HOST_IDS, gson.toJson(map));
+        redisUtil.set(MonitorCacheConfig.cacheAgentServerInfo.concat(HOST_IDS), gson.toJson(map));
     }
 
     /**
@@ -312,8 +310,7 @@ public class MonitorController {
         ip = ip.replace(",", "");
         ip = ip.replace("'", "");
         ip = ip.replace("\"", "");
-        String result = redisUtil.get(MonitorCacheConfig.hostsIdKey + ip);
-        return result;
+        return redisUtil.get(MonitorCacheConfig.hostsIdKey .concat(ip));
     }
 
 
@@ -370,6 +367,37 @@ public class MonitorController {
         return AgentSystemInfo.getSystemInfo();
     }
 
+    /**
+     * 上传cmdb数据
+     */
+    void pushCmdb(){
+        try {
+            for (String ip : IpUtil.getHostIP()) {
+                String result = getHostId(ip);
+                if (result != null && result.length() > 0) {
+                    return;
+                }
+                logger.error("ip没有到cmdb, 请保证至少一个agent的地址在cmdb系统", ip);
+            }
+        }catch (Exception e){
+            UPDATE_SERVER_TIME = null;
+            return;
+        }
+        String url = Configure.get("sysInfoApiUrl").replace("/monitor/api/sysInfo", "/resource/configure/server/auto");
+        Properties props = System.getProperties();
+        StringBuilder sb = new StringBuilder();
+        sb.append("os=")
+                .append(props.getProperty("os.name"))
+                .append(props.getProperty("os.version"))
+                .append("&cpu=")
+                .append(CommandUtil.getCpuNumber())
+                .append("&memory=")
+                .append(CommandUtil.getMemorySize())
+                .append("&disk=")
+                .append(CommandUtil.getDiskSize());
+        HttpUtil.sendPost(url, sb.toString());
+        logger.info("上传数据到cmdb" + sb.toString());
+    }
 
     /**
      * 获取实时数据
@@ -571,11 +599,11 @@ public class MonitorController {
             runScript(time, success, faild);
         }
         if (faild.size() > 0) {
+            logger.info("获取到失败状态".concat(gson.toJson(faild)).concat(faildApiUrl) );
             pushMonitor(faild, faildApiUrl, false);
         }
         if (success.size() > 0) {
             pushMonitor(success, successApiUrl, true);
-
         }
         MONITOR_LOCK.remove("locked");
     }
@@ -602,6 +630,8 @@ public class MonitorController {
     @Scheduled(cron = "*/59 * * * * ?")
     void setAgentServerInfoCron() {
         if (UPDATE_SERVER_TIME == null) {
+            UPDATE_SERVER_TIME = DateUtil.getCurrTime();
+            pushCmdb();
             return;
         }
         if (DateUtil.getCurrTime() - UPDATE_SERVER_TIME > 1800) {
@@ -694,7 +724,7 @@ public class MonitorController {
             String configId = key[0];
             MonitorConfigureEntity entity = CONFIGS.get(configId);
             if (entity == null) {
-                info(isDebug ? "获取到空数据 COFNIGS.get" + configId : null);
+                info(isDebug ? "获取到空数据 COFNIGS.get" + configId + gson.toJson(key): null);
                 continue;
             }
             if (key.length < 6) {
@@ -715,7 +745,7 @@ public class MonitorController {
             String id = configId + "_" + scriptId;
             StringBuilder alarmIdString = new StringBuilder();
             alarmIdString.append(id).append("_").append(key[2]).append("_").append(key[3]).append("_").append(key[4]);
-            String alarmId = alarmMapString.toString();
+            String alarmId = alarmIdString.toString();
             // 如果小于配置文件的重试次数，则执行重试
 
             // 获取重试次数
@@ -1008,7 +1038,7 @@ public class MonitorController {
         // 通知服务端做报警处理
         String url = Configure.get("noticeSendUrl");
         if (isOk) {
-            info(isDebug ? HttpUtil.sendPost(url, "") : null);
+            logger.info("发送报警消息" + HttpUtil.sendPost(url, "") + " " + url);
         } else {
             sendPostMessages(messages, url);
         }
@@ -1599,7 +1629,7 @@ public class MonitorController {
         }
         // 最后一个参数为IP地址
         for (String ip : LOCAL_IP) {
-            args += " " + ip;
+            args += " ".concat(ip);
         }
         return args;
     }
@@ -1720,7 +1750,11 @@ public class MonitorController {
         if (entity != null && entity.getTimeOut() != null && entity.getTimeOut().length() > 0 ){
             try {
                 info(isDebug ? "获取到超时时间" + entity.getTimeOut()  : null);
-                return Integer.valueOf(entity.getTimeOut());
+                int timeOut =  Integer.valueOf(entity.getTimeOut());
+                if (timeOut==0){
+                    return 8;
+                }
+                return timeOut;
             }catch (Exception e){
                 if (isDebug){
                     logger.error("脚本时间获取失败", e);
@@ -1799,13 +1833,10 @@ public class MonitorController {
                             if (ALARM_COUNT.containsKey(alarmId)) {
                                 if (getAlarmStatus(alarmId)) {
                                     ALARM_COUNT.remove(alarmId);
-
                                     info(isDebug ? "获取到报警状态为 " + entity.getStatus() + " ALARM_COUNT.remove " + alarmId : null);
 
                                     if (!ALARM_LAST_TIME.containsKey(alarmId)) {
-
                                         info(isDebug ? "初始化 ALARM_LAST_TIME ..." : null);
-
                                         ALARM_LAST_TIME.put(alarmId, DateUtil.getCurrTime());
                                     }
                                     //  发送报警信息, 报警后40秒内恢复,不发送恢复信息, 去掉多余的报警
@@ -1814,13 +1845,11 @@ public class MonitorController {
                                         if (monitorItemEntity != null) {
                                             if (monitorItemEntity.getIsRecover() == 1) {
                                                 queue.add(entity);
-
                                                 info(isDebug ? "添加恢复报警到队列啦...1" : null);
 
                                             }
                                         } else {
                                             queue.add(entity);
-
                                             info(isDebug ? "添加恢复报警到队列啦...2" : null);
 
                                         }
@@ -1833,19 +1862,13 @@ public class MonitorController {
                         } else {
                             // 统计非正常状态的信息
                             if (Integer.valueOf(entity.getStatus()) > 1) {
-
                                 info(isDebug ? "获取到失败状态 " + gson.toJson(entity) + " " + alarmId : null);
-
                                 faild.add(entity);
                                 if (!ALARM_COUNT.containsKey(alarmId)) {
-
                                     info(isDebug ? "获取到报警状态为 " + entity.getStatus() + " init ALARM_COUNT 1 " + alarmId : null);
-
                                     ALARM_COUNT.put(alarmId, 1);
                                 } else if (ALARM_COUNT.get(alarmId) == 0) {
-
                                     info(isDebug ? "获取到报警状态为 " + entity.getStatus() + " init ALARM_COUNT 2 " + alarmId : null);
-
                                     ALARM_COUNT.put(alarmId, 1);
                                 }
                                 SCRIPT_STATUS.put(alarmId, entity);
@@ -1873,16 +1896,16 @@ public class MonitorController {
         old += 1;
         ALARM_MAP.put(id, old);
         if (!type.equals("ok")) {
-            removeMap(ids + "_ok");
+            removeMap(ids.concat("_ok"));
         }
         if (!type.equals("faild")) {
-            removeMap(ids + "_faild");
+            removeMap(ids.concat("_faild"));
         }
         if (!type.equals("warning")) {
-            removeMap(ids + "_warning");
+            removeMap(ids.concat("_warning"));
         }
         if (!type.equals("unknown")) {
-            removeMap(ids + "_unknown");
+            removeMap(ids.concat("_unknown"));
         }
     }
 
@@ -1915,7 +1938,7 @@ public class MonitorController {
      * @param data
      */
     void pushData(String url, String data) {
-        info(isDebug ? sendPost(url, "lentity=" + Base64Util.encode(data)) : null);
+        info(sendPost(url, "lentity=" + Base64Util.encode(data)));
     }
 
     /**
@@ -1957,16 +1980,23 @@ public class MonitorController {
                 }
             } else {
                 // 发送失败的数据
+                info(isDebug ? "上传失败的数据 " + data : null);
                 pushData(url, data);
             }
             info(isDebug ? "entity size: " + entity.size() : null);
 
             for (PushEntity pushEntity : entity) {
-                String id = pushEntity.getConfigId() +
-                        "_" + pushEntity.getScriptId() +
-                        "_" + pushEntity.getServer() +
-                        "_" + pushEntity.getGroups() +
-                        "_" + pushEntity.getName();
+                StringBuilder idString = new StringBuilder();
+                idString.append(pushEntity.getConfigId())
+                        .append("_")
+                        .append(pushEntity.getScriptId())
+                        .append("_")
+                        .append(pushEntity.getServer())
+                        .append("_")
+                        .append(pushEntity.getGroups())
+                        .append("_")
+                        .append(pushEntity.getName());
+                String id = idString.toString();
                 switch (pushEntity.getStatus()) {
                     case "1":
                         ok.add(id);
@@ -2093,7 +2123,7 @@ public class MonitorController {
                 String result = redisUtil.get(cacheContactGroupKey + group);
                 if (result != null) {
                     MonitorContactGroupEntity entity = gson.fromJson(result, MonitorContactGroupEntity.class);
-                    contact += entity.getMember() + ",";
+                    contact += entity.getMember().concat(",");
                 }
             }
         }
@@ -2119,7 +2149,7 @@ public class MonitorController {
         }
         String result = "";
         for (String c : contactSet) {
-            result += c + ",";
+            result += c .concat(",");
         }
         logger.info("获取到联系人 " + result);
         if (result.length() > 2) {
@@ -2144,7 +2174,7 @@ public class MonitorController {
         } catch (Exception e) {
             logger.error("没有获取到配置文件信息", e);
         }
-        String messages = gson.toJson(entity);
+        String messages = entity.getMessages();
         messages = messages.replace("${message}", entity.getAlarmCount() - 1 + " " + pushEntity.getMessages());
         messages = messages.replace("${groups}", "");
         messages = messages.replace("${command}", pushEntity.getCommand());
@@ -2276,7 +2306,7 @@ public class MonitorController {
         entity.setServerId(serverId);
         String messages = getMessages(pushEntity, entity);
         entity.setMessages(messages);
-        pushMessages(messages);
+        pushMessages(gson.toJson(entity));
     }
 
     /**
@@ -2345,7 +2375,7 @@ public class MonitorController {
      * @param ids
      */
     void setGroupsData(String type, ArrayList<String> ids) {
-        String result = redisUtil.get(MonitorCacheConfig.cacheHostStatusMap + HOST_IDS);
+        String result = redisUtil.get(MonitorCacheConfig.cacheHostStatusMap.concat(HOST_IDS));
         Map<String, String> redisData = new HashMap<>();
         Map<String, String> okData = new HashMap<>();
         Map<String, String> faildData = new HashMap<>();
@@ -2367,6 +2397,10 @@ public class MonitorController {
         redisData.put("faild", gson.toJson(dataMap.get("faild")));
         redisData.put("warning", gson.toJson(dataMap.get("warning")));
         redisData.put("unknown", gson.toJson(dataMap.get("unknown")));
-        redisUtil.setex(MonitorCacheConfig.cacheHostStatusMap + HOST_IDS, 3600, gson.toJson(redisData));
+        redisUtil.setex(MonitorCacheConfig.cacheHostStatusMap.concat(HOST_IDS), 3600, gson.toJson(redisData));
+        dataMap = new HashMap();
+        okData = new HashMap<>();
+        redisData = new HashMap<>();
+        info(isDebug ? dataMap.toString() + okData.toString() + redisData.toString() : "");
     }
 }

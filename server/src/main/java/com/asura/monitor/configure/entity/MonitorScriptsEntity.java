@@ -17,6 +17,17 @@ import com.asura.framework.base.entity.BaseEntity;
  * @since 1.0
  */
 public class MonitorScriptsEntity extends BaseEntity{
+
+    private int timeOut;
+
+    public int getTimeOut() {
+        return timeOut;
+    }
+
+    public void setTimeOut(int timeOut) {
+        this.timeOut = timeOut;
+    }
+
     /**
      * This field corresponds to the database column monitor_scripts.scripts_id
      * Comment: 主键
