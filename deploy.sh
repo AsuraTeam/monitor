@@ -50,10 +50,11 @@ rsync -arz maven/ $RUNPATH/maven/
 rsync -arz tomcat_8081/ $RUNPATH/tomcat_8081/
 rsync -arz .m2/ ~/.m2/
 
-
+cd -
 if [ "$redis_server" == "127.0.0.1" ] ; then
     cd $RUNPATH/redis/bin && ./redis-server ../conf/redis.conf
     echo "cd $RUNPATH/redis/bin && ./redis-server ../conf/redis.conf" >> /etc/rc.local
+    cd -
 fi
 
 # 设置环境变量

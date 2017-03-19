@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.monitor.configure.dao.MonitorSeverityDao">
+    <sql id="baseSql">
+                select
+            severity_id as severityId,
+            severity_name as severityName,
+            last_modify_time as lastModifyTime,
+            last_modify_user as lastModifyUser
+         from monitor_severity
+
+    </sql>
+
+    <select id="selectByAll" resultType="com.asura.monitor.configure.entity.MonitorSeverityEntity">
+        <include refid="baseSql"/>
+
+    </select>
+
+    <select id="findById" resultType="com.asura.monitor.configure.entity.MonitorSeverityEntity">
+        <include refid="baseSql"/>
+        where    severity_id=#{severityId}
+    </select>
+
+    <insert id="save" parameterType="com.asura.monitor.configure.entity.MonitorSeverityEntity">
+        insert into monitor_severity(
+            severity_id,
+            severity_name,
+            last_modify_time,
+            last_modify_user
+        ) 
+        values(        
+            #{severityId},
+            #{severityName},
+            #{lastModifyTime},
+            #{lastModifyUser}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.monitor.configure.entity.MonitorSeverityEntity">
+        update monitor_severity set   
+            severity_id=#{severityId},
+            severity_name=#{severityName},
+            last_modify_time=#{lastModifyTime},
+            last_modify_user=#{lastModifyUser}
+         where    severity_id=#{severityId}
+    </update>
+
+</mapper>
+

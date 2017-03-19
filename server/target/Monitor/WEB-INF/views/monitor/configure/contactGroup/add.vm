@@ -1,0 +1,195 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<body>
+<div class="modal fade" id="add_getui_config" tabindex="-1"
+     role="dialog" style="background-color: #FfFfFf; margin-top: 16px;"
+     data-backdrop="false">
+    <div class="modal-dialog"
+         style="margin-top: 0px; width: 70%; ">
+        <div class="modal-content"
+             style="height: 690px; width: 100%; ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title">&nbsp;&nbsp;报警联系组配置</h4>
+            </div>
+            <div class="animated fadeInRight">
+                <form>
+                    <div class="col-md-12">
+                        <p>&nbsp;
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">组名称:</label>
+                            <div class="col-sm-9">
+                                <input type="text" name="groupName" class="form-control"
+                                       value="$!{configs.groupName}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <p>&nbsp;
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">描述信息:</label>
+                            <div class="col-sm-9">
+                                <input type="text" name="description" class="form-control"
+                                       value="$!{configs.description}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <p>&nbsp;
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">报警目标:</label>
+                            <div class="col-sm-4">
+                                <div class="checkbox checkbox-primary checkbox-inline">
+                                    <input type="checkbox"  onchange="change(this)" name="ismail" id="checkbox3"
+                                           class="form-control" #if( $configs.ismail == 1 ) checked   #end
+                                           value="$!{configs.ismail}">
+                                    <label for="checkbox3 control-label">发送到邮箱</label></strong>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="checkbox checkbox-primary checkbox-inline">
+                                    <input type="checkbox" onchange="change(this)" name="ismobile" id="checkbox4"
+                                           class="form-control" #if( $configs.ismobile == 1 ) checked   #end
+                                           value="$!{configs.ismobile}">
+                                    <label for="checkbox4 control-label">发送到手机</label></strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">是否有效:</label>
+                            <div class="col-sm-4">
+                                <div class="checkbox checkbox-primary checkbox-inline">
+                                        <input type="checkbox" onchange="change(this)" name="status" id="checkbox5"
+                                               class="form-control" #if( $configs.status == 1 ) checked   #end
+                                               value="$!{configs.status}">
+                                    <label for="checkbox5 control-label">&nbsp;</label></strong>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">是否是管理员:</label>
+                            <div class="col-sm-4">
+                                <div class="checkbox checkbox-primary checkbox-inline">
+                                    <input type="checkbox" onchange="change(this)" name="isAdmin" id="checkbox6"
+                                           class="form-control" #if( $configs.isAdmin == 1 ) checked   #end
+                                           value="#if( $configs.isAdmin)$!{configs.isAdmin}#end">
+                                    <label for="checkbox6 control-label">&nbsp;</label></strong>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <p>&nbsp;
+                    </div>
+                    <div class="col-md-12">
+                        <label class="col-sm-3 control-label">可选择联系人</label>
+                        <label class="col-sm-3"><input placeholder="搜索联系人" onkeyup="search($(this).val())" class="fa-border form-control" style="margin-top:-5px;"></label>
+                        <label class="col-sm-3 control-label">已选择联系人</label>
+                    </div>
+                    <div class="col-md-12" style="margin-top: 5px;">
+                        <div class="col-xs-5">
+                            <select name="from" id="undo_redo" class="form-control" size="10" multiple="multiple">
+                            </select>
+                        </div>
+
+                        <div class="col-xs-2">
+                            <button type="button" id="undo_redo_undo" class="btn btn-primary btn-block">undo</button>
+                            <!--button type="button" id="undo_redo_rightAll" class="btn btn-default btn-block"><i class="glyphicon glyphicon-forward"></i></button-->
+                            <button type="button" id="undo_redo_rightSelected" class="btn btn-default btn-block"><i class="glyphicon glyphicon-chevron-right"></i></button>
+                            <button type="button" id="undo_redo_leftSelected" class="btn btn-default btn-block"><i class="glyphicon glyphicon-chevron-left"></i></button>
+                            <!--button type="button" id="undo_redo_leftAll" class="btn btn-default btn-block"><i class="glyphicon glyphicon-backward"></i></button-->
+                            <button type="button" id="undo_redo_redo" class="btn btn-warning btn-block">redo</button>
+                        </div>
+
+                        <div class="col-xs-5">
+                            <select name="to" id="undo_redo_to" class="form-control" size="10" multiple="multiple"></select>
+                        </div>
+                    </div>
+                </form>
+                <div class="col-md-12">
+                    <p>
+                    <p>
+                </div>
+
+            </div>
+            <div class="modal-footer" style="border:solid 1px #e0e0e0">
+            </div>
+            <button style="margin-left: 87%;margin-top: 25px;"
+                    onclick="saveConfig($!{configs.groupId});" class="btn btn-primary btn-lg" type="button">
+                <i class="fa fa-check"></i>&nbsp;保存
+            </button>
+        </div>
+
+    </div>
+</div>
+<script type="text/javascript">
+    function  setTo() {
+        id = "$!{configs.groupId}"
+        if(id.length<1){
+            id=0
+            return
+        }
+        setFrom(id,"undo_redo_to");
+    }
+
+    function setFrom(id,html_id,key) {
+        if(!key){
+            key=""
+        }
+
+        url = "/monitor/configure/contacts/getContacts?id="+id;
+        result = post({key:key},url);
+        result = eval(result);
+        data = result["data"]
+        html = ""
+        for(i=0;i<data.length;i++){
+            html += '<option value='+data[i]["contactsId"]+'>'+data[i]["memberName"]+"</option>";
+        }
+        $('#'+html_id).html(html);
+    }
+    function search(key) {
+        if(key.length<1){
+            return
+        }
+        setFrom(0,"undo_redo",key);
+    }
+    setFrom(0,"undo_redo");
+    setTo();
+
+
+    jQuery(document).ready(function($) {
+        $('#undo_redo').multiselect({
+            keepRenderingSort: true
+        });
+    });
+    function change(obj){
+        value = $(obj).val();
+        if(value==0){
+            console.log(1);
+            $(obj).val(1);
+        }else{
+            console.log(0)
+            $(obj).val(0);
+        }
+    }
+</script>
+</body>

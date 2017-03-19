@@ -1,0 +1,297 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<body xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+<div class="modal fade" id="add_getui_config" tabindex="-1"
+     role="dialog" style="background-color: #FfFfFf; margin-top: 16px;"
+     data-backdrop="false">
+    <div class="modal-dialog"
+         style="margin-top: 0px; width: 80%; ">
+        <div class="modal-content"
+             style=" width: 100%; height: auto;">
+            <form>
+            <div class="modal-header" >
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title">&nbsp;&nbsp;监控项目配置</h4>
+            </div>
+            <div class="">
+
+                    <div class="col-md-12" style="margin-top: 15px;">
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">项目名称:</label>
+                            <div class="col-sm-9">
+                                <input type="text" name="itemName" placeholder="项目名称,一个好区别的名称"
+                                       class="form-control"
+                                       value="$!{configs.itemName}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">脚本名称:</label>
+                            <div class="col-sm-9"    >
+                                <select name="scriptId"  id="scriptId"  class="form-control"  onchange=" changeScript($(this).val())">
+                                    #if($configs.scriptId) <option value="$configs.scriptId">${configs.fileName}</option>
+                                        #else
+                                            <option value="">请选择</option>
+                                    #end
+                                    #foreach($s in $scripts)
+                                        <option title="${s.monitorName} <${s.description}>" value="${s.scriptsId}">${s.fileName}</option>
+                                    #end
+
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12" style="margin-top: 5px;"></div>
+                <div id="argsId"></div>
+            <div class="col-md-12" style="margin-top: 5px;"></div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">检查间隔(秒钟):</label>
+                        <div class="col-sm-8">
+                            <input type="number" id="checkInterval"  name="checkInterval" title="检查间隔，调用监控脚本执行的间隔" class="form-control"
+                                   value="#if($configs.checkInterval)$!{configs.checkInterval}#else 60 #end">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">报警间隔(分钟):</label>
+                        <div class="col-sm-8">
+                            <input type="number" id="alarmInterval" name="alarmInterval" title="报警间隔，2次报警的间隔， 0为不间隔" class="form-control"
+                                   value="#if($configs.alarmInterval)$!{configs.alarmInterval}#else 15 #end">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-12" style="margin-top: 5px;"></div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">报警次数(次):</label>
+                        <div class="col-sm-8">
+                            <input type="number" id="alarmCount" name="alarmCount" title="报警后发送报警的次数,0为不限制" class="form-control"
+                                   value="#if($configs.alarmCount)$!{configs.alarmCount}#else 3 #end">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">重试次数(次):</label>
+                        <div class="col-sm-8">
+                            <input type="number" id="retry" name="retry" title="失败后重试几次发送报警，0为不重试" class="form-control"
+                                   value="#if($configs.retry)$!{configs.retry}#else 5 #end">
+                        </div>
+                    </div>
+                </div>
+
+            <div class="col-md-12" style="margin-top: 5px;"></div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">是否有效:</label>
+                    <div class="col-sm-8">
+                        <div class="checkbox checkbox-primary checkbox-inline" >
+                            <input type="checkbox" onchange="change(this)" name="isValid"
+                                   id="checkbox5"
+                                   class="form-control" #if( $configs.isValid == "1" )
+                                   checked   #end
+                                   value="#if($configs.isValid)$!{configs.isValid}#else 1 #end">
+                            <label for="checkbox5 control-label">&nbsp;</label></strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">是否发送恢复短信:</label>
+                        <div class="col-sm-8">
+                            <div class="checkbox checkbox-primary checkbox-inline">
+                                <input type="checkbox" onchange="change(this)" name="isRecover"
+                                       id="checkbox5"
+                                       class="form-control" #if( $configs.isRecover == 1 )
+                                       checked   #end
+                                       value="#if($configs.isRecover)$!{configs.isRecover}#else 1 #end">
+                                <label for="checkbox5 control-label">&nbsp;</label></strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12" style="margin-top: 15px;">
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">短信合并:</label>
+                        <div class="col-sm-8">
+                            <div class="checkbox checkbox-primary checkbox-inline" >
+                                <input type="checkbox" onchange="change(this)" name="isMerge" title="
+               报警短信合并
+               ,配置后同一时间多条信息合并到一个url
+               进行发送，接收者会收到一条url,点开url
+               后可以看到具体的信息"
+                                       id="checkbox5"
+                                       class="form-control" #if( $configs.isMerge == "1" )
+                                       checked   #end
+                                       value="#if($configs.isMerge)$!{configs.isMerge}#else 0 #end">
+                                <label for="checkbox5 control-label">&nbsp;</label></strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">是否报警给管理员:</label>
+                        <div class="col-sm-4">
+                            <div class="checkbox checkbox-primary checkbox-inline">
+                                <input type="checkbox" onchange="change(this)" name="isAdmin" id="checkbox6"
+                                       class="form-control" #if( $configs.isAdmin == 1 ) checked   #end
+                                       value="$!{configs.isAdmin}">
+                                <label for="checkbox6 control-label">&nbsp;</label></strong>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <br>
+                <div class="col-md-12" style="margin-top: 15px;">
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">是否默认监控:</label>
+                        <div class="col-sm-4">
+                            <div class="checkbox checkbox-primary checkbox-inline">
+                                <input type="checkbox" onchange="change(this)" name="isDefault" id="checkbox7"
+                                       class="form-control" #if( $configs.isDefault == 1 ) checked   #end
+                                       value="$!{configs.isDefault}">
+                                <label for="checkbox7 control-label">&nbsp;</label></strong>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                    <div class="col-md-12" style="margin-top: 15px;">
+                    </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">报警发送消息:</label>
+                        <div class="col-sm-9">
+                            <textarea type="text"  rows="4" name="alarmMessages" placeholder="报警的时候发送的信息模板"
+                                   class="form-control">$!{configs.alarmMessages}</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">恢复发送消息:</label>
+                        <div class="col-sm-9">
+                            <textarea type="text" name="recoverMessages" rows="4" placeholder="报警恢复的时候发送的信息模板"
+                                   class="form-control">$!{configs.recoverMessages}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-12" style="margin-top: 15px;"></div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">描述信息:</label>
+                        <div class="col-sm-10" style="margin-left: -5%;width: 88%;">
+                            <input type="text" name="description" class="form-control" id="script_description"
+                                   value="$!{configs.description}">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12" style="margin-top: 15px;"></div>
+                <button style="margin-left: 87%;margin-top: 5px;margin-bottom: 10px;"
+                        onclick="saveConfig($!{configs.itemId});" class="btn btn-primary btn-lg" type="button">
+                    <i class="fa fa-check"></i>&nbsp;保存
+                </button>
+        </div>
+        </form>
+
+    </div>
+
+</div>
+</div>
+<script type="text/javascript">
+
+    #if(!$configs.itemId)
+        $('#retry').val(6)
+        $('#alarmCount').val(3)
+        $('#alarmInterval').val(15)
+        $('#checkInterval').val(120)
+        #else
+        changeScript($!{configs.itemId}, 1)
+    #end
+
+    function change(obj) {
+        value = $(obj).val();
+        if (value == 0) {
+            console.log(1);
+            $(obj).val(1);
+        } else {
+            console.log(0)
+            $(obj).val(0);
+        }
+    }
+    function addArg(id) {
+        $('#addArg' + id).show();
+    }
+    function removeArg(id) {
+        if(id<=8){
+            for(i =8;i>=id;i--){
+                $('#addArg' + i).hide();
+                $('input[name="arg'+i+'"]').val("")
+                $("input[name='arg"+i+"comm']").val("")
+            }
+        }
+    }
+    function changeScript(id, t) {
+        if (!id) {
+            return
+        }
+        if (!t) {
+        url = "/monitor/configure/script/listData?draw=1&start=1&length=2"
+            result = post({scriptsId:id},url)
+    }else
+    {
+        url = "/monitor/configure/item/listData?draw=1&start=1&length=2"
+        result = post({itemId:id},url)
+    }
+
+        data = result["data"]
+        data = data[0]
+        html= ""
+        for(i=1;i<=8;i++) {
+            if(!data["arg"+i]){
+                break;
+            }
+            html += '<div id="addArg'+i+'">' +
+                    '     <div class="col-md-12" style="margin-top: 5px;">' +
+                    '     </div>' +
+                    '     <div class="col-md-6">' +
+                    '         <div class="form-group">' +
+                    '             <label class="col-sm-4 control-label">参数'+i+':</label>' +
+                    '             <div class="col-sm-8">' +
+                    '                 <input type="text" name="arg'+i+'" class="form-control" placeholder="给脚本传递的第二个参数"' +
+                    '                        value="'+data["arg"+i]+'">' +
+                    '             </div>' +
+                    '         </div>' +
+                    '     </div>' +
+                    '     <div class="col-md-6">' +
+                    '         <div class="form-group">' +
+                    '             <label class="col-sm-4 control-label">参数'+i+'描述:</label>' +
+                    '             <div class="col-sm-8">' +
+                    '                 <input type="text" style="border:none;background-color:#ffffff;" readonly name="arg'+i+'comm" class="form-control"' +
+                    '                        placeholder="给脚本传递的第'+i+'个参数的描述信息"' +
+                    '                        value="'+data["arg"+i+"comm"]+'">' +
+                    '             </div>' +
+                    '         </div>' +
+                    '     </div>' +
+                    '</div>'
+        }
+        $('#argsId').html(html)
+    }
+</script>
+</body>

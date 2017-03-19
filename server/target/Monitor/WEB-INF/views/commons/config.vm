@@ -1,0 +1,4 @@
+u#set($ctx="http://localhost:8085")
+<script type="text/javascript">
+    var ctx = "$ctx";
+</script>

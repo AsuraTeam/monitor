@@ -1,0 +1,134 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>报警信息发送统计</title>
+
+    #include("/index/include.vm")
+
+    <style>
+        table th {
+            word-break: keep-all;
+            white-space: nowrap;
+        }
+
+        table td {
+            word-break: keep-all;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body class="top-navigation">
+<div id="wrapp11er">
+    <div id="page-wrapp1er" class="gray-bg">
+        #include("/index/header.vm")
+        <div class="w1rapper" style="padding: 0px;">
+        </div>
+        <div style="margin-left: 30%;"><h2><strong>每日报警发送统计报表</strong></h2></div>
+        <div class="input-group col-md-6 pull-right" style="margin-top:-40px;margin-right: 10px;">
+            <span class="input-group-addon">时间选择：</span>
+            <input type="text" class="form-control" id="startSendTime" name="startSendTime">
+            <span class="input-group-addon">-</span>
+            <input type="text" class="form-control" id="endSendTime" name="endSendTime">
+
+        </div>
+            <div class="col-sm-12" style="margin-top:-35px">
+
+                                <table id="listTable"
+                                       class="table  table-bordered table-hover dataTables-example">
+                                    <thead>
+                                    <tr role="rows">
+                                        <th >发送日志</th>
+                                        <th >邮件报警次数</th>
+                                        <th >短信告警次数</th>
+                                        <th >微信告警次数</th>
+                                        <th >钉钉告警次数</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+
+                function loadData() {
+                    startTime = $('#startSendTime').val()
+                    endTime = $('#endSendTime').val()
+                    if(!startTime){
+                        startTime = ""
+                    }
+                    if(!endTime){
+                        endTime = ""
+                    }
+                    $("#listTable").dataTable({
+                        "filter": false,//去掉搜索框
+                        "ordering": false, // 是否允许排序
+                        "paginationType": "full_numbers", // 页码类型
+                        "destroy": true,
+                        "processing": false,
+                        "serverSide": true,
+                        "scrollX": true, // 是否允许左右滑动
+                        "displayLength": 10, // 默认长度
+                        "ajax": { // 请求地址
+                            "url": "/monitor/report/messagesData?t=" + new Date().getTime() + "&startTime=" + startTime +"&endTime=" + endTime ,
+                            "type": 'post'
+                        },
+
+                        "columns": [ // 数据映射
+                            {"data": "messagesTime","mRender":function (data) {
+                                return data.split(" ")[0];
+                            }},
+                            {"data": "emailCount","mRender":function (data) {
+                                return data;
+                            }},
+                            {"data": "mobileCount","mRender":function (data) {
+                                return data;
+                            }},
+                            {"data": "weixinCount","mRender":function (data) {
+                               return data;
+                            }},
+                            {"data": "dingCount","mRender":function (data) {
+                                return data;
+                            }},
+                        ],
+                        "fnRowCallback": function (row, data) { // 每行创建完毕的回调
+                            $(row).data('recordId', data.recordId);
+                        }
+                    });
+                }
+
+                loadData();
+                var startSendTime = {
+                    elem: '#startSendTime',
+                    choose: function (data) {
+                        if ($('#endSendTime').val()) {
+                            loadData();
+                        }
+                    }
+                }
+
+                var endSendTime = {
+                    elem: '#endSendTime',
+                    choose: function (data) {
+                        if ($('#startSendTime').val()) {
+                            loadData();
+                        }
+                    }
+                }
+                laydate(startSendTime);
+                laydate(endSendTime);
+
+            </script>
+            </div>
+        </div>/
+    </div>
+</body>
+    #include("/index/footer.vm")
+</html>
+

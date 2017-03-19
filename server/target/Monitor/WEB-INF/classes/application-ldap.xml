@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+       <!-- ldap服务 -->
+       <bean id="ldapConfig" class="com.asura.common.entity.LdapEntity">
+              <property name="ldapSearchBase" value="${ldap.searchBase}" />
+              <property name="ldapServer" value="${ldap.server}" />
+              <property name="ldapPort" value="${ldap.port}" />
+              <property name="ldapPassword" value="${ldap.password}" />
+              <property name="ldapPrefix" value="${ldap.prefix}" />
+              <property name="ldapUsername" value="${ldap.username}" />
+
+       </bean>
+
+
+
+</beans>

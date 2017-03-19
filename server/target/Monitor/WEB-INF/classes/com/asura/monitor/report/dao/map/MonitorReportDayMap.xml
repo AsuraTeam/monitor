@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.monitor.report.dao.MonitorReportDayDao">
+
+    <sql id="baseSql">
+          select
+    report_id as reportId,
+    operator as operator,
+    alarm_time as alarmTime,
+    a.severity_id as severityId,
+    operator_time as operatorTime,
+    change_status as changeStatus,
+    index_name as indexName,
+    a.groups_id as groupsId,
+    b.ip_address as ipAddress,
+    c.groups_name as groupsName,
+    start_time as startTime
+    from monitor_report_day a,
+    cmdb_resource_server b,
+    cmdb_resource_groups c ,
+    monitor_scripts d
+    WHERE a.server_id = b.server_id
+    and b.groups_id = c.groups_id
+    and a.scripts_id = d.scripts_id
+    </sql>
+
+    <select id="selectByAll" resultType="com.asura.monitor.report.entity.MonitorReportDayEntity">
+        select 
+            report_id as reportId,
+            a.server_id as serverId,
+            operator as operator,
+            alarm_time as alarmTime,
+            a.scripts_id as scriptsId,
+            a.severity_id as severityId,
+            operator_time as operatorTime,
+            index_name as indexName,
+            a.groups_id as groupsId,
+            b.ip_address as ipAddress,
+            c.groups_name as groupsName,
+            start_time as startTime
+         from monitor_report_day a,
+         cmdb_resource_server b,
+         cmdb_resource_groups c ,
+         monitor_scripts d
+         WHERE a.server_id = b.server_id
+         and b.groups_id = c.groups_id
+         and a.scripts_id = d.scripts_id
+        </select>
+
+    <insert id="save" parameterType="com.asura.monitor.report.entity.MonitorReportDayEntity">
+        insert into monitor_report_day(
+            server_id,
+            operator,
+            alarm_time,
+            scripts_id,
+            severity_id,
+            operator_time,
+            groups_id,
+            index_name,
+            start_time
+        ) 
+        values(        
+            #{serverId},
+            #{operator},
+            #{alarmTime},
+            #{scriptsId},
+            #{severityId},
+            #{operatorTime},
+            #{groupsId},
+            #{indexName},
+            #{startTime}
+        )
+    </insert>
+
+    <!--统计时间段内各个指标的名称 -->
+    <select id="getIndexNames"  resultType="com.asura.monitor.report.entity.MonitorReportDayEntity">
+        select  DISTINCT replace(a.index_name,"SLASH","/") as indexName
+        from monitor_report_day a, cmdb_resource_groups b
+        where a.groups_id=b.groups_id
+        and b.groups_name=#{groupsName}
+        <if test="month != null">
+            and substr(alarm_time,1,7)= #{month}
+        </if>
+        <if test="start != null">
+            and alarm_time &gt;= #{start} and alarm_time &lt;= #{end}
+        </if>
+    </select>
+
+    <!--统计时间段内各指标的占比-->
+    <select id="reportIndexName"  resultType="com.asura.monitor.report.entity.MonitorReportDayEntity">
+    select  count(*) as y, replace(a.index_name,"SLASH","/") as name
+     from monitor_report_day a, cmdb_resource_groups b
+     where a.groups_id=b.groups_id
+     and b.groups_name=#{groupsName}
+      and substr(alarm_time,1,7)= #{month}
+     group by  name
+    </select>
+
+    <!--月度每个组的报警统计和每个报警指标的统计-->
+    <select id="reportMonthGroupsNameIndexName"  resultType="com.asura.monitor.report.entity.MonitorReportDayEntity">
+    select
+        <if test="groupsName != null">
+        count(*) as cnt ,
+        </if>
+        a.groups_id,
+        b.groups_name as groupsName, a.index_name as indexName
+    from monitor_report_day a ,
+    cmdb_resource_groups b where
+    a.groups_id= b.groups_id
+    <if test="month != null">
+        and substr(alarm_time,1,7)= #{month}
+    </if>
+    <if test="start != null">
+        and alarm_time &gt;= #{start} and alarm_time &lt;= #{end}
+    </if>
+    <if test="groupsName != null">
+        and b.groups_name = #{groupsName}
+            group by a.index_name
+        ORDER  by cnt
+        </if>
+
+    </select>
+
+    <!--  -->
+    <select id="indexNameDetail" parameterType="com.asura.monitor.report.entity.MonitorReportDayEntity" resultType="com.asura.monitor.report.entity.MonitorReportDayEntity">
+    select alarm_time as alarmTime,
+    a.index_name as indexName ,c.ip_address as ipAddress
+    from monitor_report_day a, cmdb_resource_groups b,
+    cmdb_resource_server c  where a.server_id=c.server_id
+    and  a.groups_id=b.groups_id and b.groups_name=#{groupsName}
+        <if test="month != null">
+            and substr(alarm_time,1,7)= #{month}
+        </if>
+        <if test="start != null">
+            and alarm_time &gt;= #{start} and alarm_time &lt;= #{end}
+        </if>
+    and a.index_name=#{indexName}
+    </select>
+
+    <!--获取每个指标指定时间内的数据历史，每小时的-->
+    <select id="indexDataHistory" parameterType="com.asura.monitor.report.entity.MonitorReportDayEntity" resultType="com.asura.monitor.report.entity.MonitorReportDayEntity">
+    select concat(CAST(unix_timestamp(substr(alarm_time,1,13)) AS signed), "000") as alarmTime, count(*) as cnt
+    from monitor_report_day a,
+    cmdb_resource_groups b
+    where a.groups_id=b.groups_id
+      and b.groups_name=#{groupsName}
+        <if test="month != null">
+            and substr(alarm_time,1,7)= #{month}
+        </if>
+        <if test="start != null">
+            and alarm_time &gt;= #{start} and alarm_time &lt;= #{end}
+        </if>
+        and index_name = #{indexName}
+    group by alarmTime
+    </select>
+
+    <!--判断数据是否超过记录-->
+    <select id="getIsMax" parameterType="com.asura.monitor.report.entity.MonitorReportDayEntity" resultType="com.asura.monitor.report.entity.MonitorReportDayEntity">
+            select * from monitor_report_day where
+            server_id = #{serverId}
+            and scripts_id= #{scriptsId}
+            and groups_id = #{groupsId}
+            and index_name = #{indexName}
+            and (change_status  is null or change_status &lt; 3);
+    </select>
+
+    <!-- 更新操作状态 -->
+    <update id="update" parameterType="com.asura.monitor.report.entity.MonitorReportDayEntity">
+        update monitor_report_day set
+         <if test="operator != null">
+             operator=#{operator},
+         </if>
+        <if test="operatorTime != null">
+            operator_time=#{operatorTime},
+        </if>
+        <if test="changeStatus != null">
+            change_status=#{changeStatus}
+            where report_id=#{reportId}
+        </if>
+         <if test="serverId != null">
+             alarm_time = #{alarmTime}
+             WHERE server_id = #{serverId}
+             and scripts_id = #{scriptsId}
+             and groups_id = #{groupsId}
+             and index_name = #{indexName}
+         </if>
+    </update>
+
+    <select id="findById" parameterType="int" resultType="com.asura.monitor.report.entity.MonitorReportDayEntity">
+        <include refid="baseSql"/>
+        and report_id=#{reportId}
+    </select>
+
+    <!-- 获取3小时内的报警数据 -->
+    <select id="getHoursAlarmData" parameterType="com.asura.monitor.report.entity.MonitorReportDayEntity" resultType="com.asura.monitor.report.entity.MonitorReportDayEntity">
+    <include refid="baseSql"/>
+    <if test="start != null">
+        and alarm_time &gt;= #{start} and alarm_time &lt;= #{end}
+    </if>
+    <if test="start == null">
+        and unix_timestamp(now()) - unix_timestamp(alarm_time)  &lt; 36000
+    </if>
+        <if test="changeStatus != null and chanageStatus != '0' ">
+            and change_status = #{changeStatus}
+        </if>
+        <if test="changeStatusNull != null">
+            and change_status is NULL
+        </if>
+        <if test="ipAddress != null">
+            and b.ip_address like concat("%",#{ipAddress},"%")
+        </if>
+        ORDER BY change_status, alarm_time
+    </select>
+
+    <!-- 更新自动恢复的数据 -->
+    <update id="updateAutoRecover" >
+         update monitor_report_day  set change_status=4 where (
+             (
+              (unix_timestamp(alarm_time) - unix_timestamp(start_time) >  9000 and change_status is null )
+              or (
+                  unix_timestamp(now()) - unix_timestamp(alarm_time) > 1800
+                   and unix_timestamp(alarm_time) = unix_timestamp(start_time)
+                   and change_status is NULL
+                )
+              )
+            or unix_timestamp(now()) - unix_timestamp(alarm_time)>7200 )          and change_status is null
+    </update>
+
+</mapper>
+

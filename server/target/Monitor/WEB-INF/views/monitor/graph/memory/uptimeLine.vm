@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    #include("/index/include.vm")
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="/static/js/highcharts.js"></script>
+    <title>内存使用状态展示</title>
+
+
+</head>
+
+<body class="top-navigation" style="background-color: #FeFeFe">
+
+<div id="wrappe1r">
+    <div id="page-wrapper" class="gray-bg">
+        #include("/index/header.vm")
+        </div>
+        <div class="ibox-title" style="margin-top: 0px;border: solid 1px #f0f0f0">
+            <div class="col-md-4" style="float:left;">
+                <strong>$!{ip}&nbsp;&nbsp;总内存大小&nbsp;&nbsp;$!{totle}()MB)
+                </strong>
+            </div>
+            <div class="input-group col-sm-6 pull-right" style="margin-top: -8px;" >
+                <span class="input-group-addon">时间(<font color="red">单天选择</font>)：</span>
+                <input type="text" class="form-control" id="startSendTime"  name="startSendTime">
+                <span class="input-group-addon">-</span>
+                <input type="text" class="form-control" id="endSendTime"  name="endSendTime">
+
+            </div>
+            <div class="col-md-5 pull-right">
+                <div class="form-group  ">
+                    <div class="col-sm-3 pull-right">
+                        <select class="form-control" STYLE="float:left;margin-top:-26px;">
+                            <option value="60">1h</option>
+                            <option value="720">12H</option>
+                            <option value="1440">1d</option>
+                            <option value="">3d</option>
+                            <option value="">7d</option>
+                            <option value="">1m</option>
+                            <option value="">0.5y</option>
+                            <option value="">1y</option>
+                        </select>
+                    </div>
+                    <label class="col-sm-2  control-label pull-right" style="margin-top:-15px;">时间段:</label>
+                </div>
+            </div>
+            </div>
+            <br>
+            <div class="" style="padding:6px;margin-top: 0px;">
+
+                <div id="usedBorder" class="col-md-4" style="border:solid 1px #f0f0f0;width: 49%;padding: 15px;margin-left:10px;">
+                    <div class="ibox float-e-margins">
+                        <div class="">
+                            <span class="default pull-right" onclick="loadUse(1);"><i class="fa fa-search-plus" style="font-size:19px;margin-top:-4px;"></i></span>
+                            <h5 align="center">内存使用趋势图</h5>
+                        </div>
+                        <input type="hidden" id="usedBorderWidth" value="49">
+                        <div id="used" style="width: 100%;height: 340px;margin-bottom:-40px;"></div>
+                    </div>
+                </div>
+
+                <div id="usedpBorder" class="col-md-4" style="border:solid 1px #f0f0f0;width: 49%;padding: 15px;margin-left:10px;">
+                    <div class="ibox float-e-margins">
+                        <div class="">
+                            <span class="default pull-right" onclick="loadUsedp(1);"><i class="fa fa-search-plus" style="font-size:19px;margin-top:-4px;"></i></span>
+                            <h5 align="center">内存使用百分比趋势图</h5>
+                        </div>
+                        <input type="hidden" id="usedpBorderWidth" value="49">
+                        <div id="usedP" style="width: 100%;height: 340px;margin-bottom:-40px;"></div>
+                    </div>
+                </div>
+
+
+                <div id="bufferBorder" class="col-md-4"
+                     style="border:solid 1px #f0f0f0;width: 49%;maring-top:25px;padding: 15px;margin-left:10px;">
+                    <div class="ibox float-e-margins">
+                        <div class="">
+                            <span class="default pull-right" onclick="loadBuffer(1);"><i class="fa fa-search-plus" style="font-size:19px;margin-top:-4px;"></i></span>
+                            <h5 align="center">内存BUFFER趋势图</h5>
+                        </div>
+                        <input type="hidden" id="bufferBorderWidth" value="49">
+                        <div id="buffer" style="width: 100%;height: 340px;margin-bottom:-40px;"></div>
+                    </div>
+                </div>
+
+                <div id="bufferpBorder" class="col-md-4" style="border:solid 1px #f0f0f0;width: 49%;padding: 15px;margin-left:10px;margin-top: 25px;">
+                    <div class="ibox float-e-margins">
+                        <div class="">
+                            <span class="default pull-right" onclick="loadBufferp(1);"><i class="fa fa-search-plus" style="font-size:19px;margin-top:-4px;"></i></span>
+                            <h5 align="center">内存BUFFER使用百分比趋势图</h5>
+                        </div>
+                        <input type="hidden" id="bufferpBorderWidth" value="49">
+                        <div id="bufferP" style="width: 100%;height: 340px;margin-bottom:-40px;"></div>
+                    </div>
+                </div>
+
+                <div id="cacheBorder" class="col-md-4"
+                     style="border:solid 1px #f0f0f0;width: 49%;padding: 15px;margin-left:10px;maring-top:15px;">
+                    <div class="ibox float-e-margins">
+                        <div class="">
+                            <span class="default pull-right" onclick="loadCache(1);"><i class="fa fa-search-plus" style="font-size:19px;margin-top:-4px;"></i></span>
+                            <h5 align="center">内存CACHE趋势图</h5>
+                        </div>
+                        <input type="hidden" id="cacheBorderWidth" value="49">
+                        <div id="cache" style="width: 100%;height: 340px;margin-bottom:-40px;"></div>
+                    </div>
+                </div>
+                <div id="cachepBorder" class="col-md-4" style="border:solid 1px #f0f0f0;width: 49%;padding: 15px;margin-left:10px;">
+                    <div class="ibox float-e-margins">
+                        <div class="">
+                            <span class="default pull-right" onclick="loadCachep(1);"><i class="fa fa-search-plus" style="font-size:19px;margin-top:-4px;"></i></span>
+                            <h5 align="center">内存CACHE使用百分比趋势图</h5>
+                        </div>
+                        <input type="hidden" id="cachepBorderWidth" value="49">
+                        <div id="cacheP" style="width: 100%;height: 340px;margin-bottom:-40px;"></div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+</div>
+
+<input type="hidden" id="selectGroups">
+
+
+<script>//Flot Multiple Axes Line Chart
+
+function  loadUse(zoom) {
+    if(zoom){
+        setWidth("used")
+    }
+    graph("1ab394", "used", "'使用大小(MB)'", "使用大小", "/monitor/graph/memory/historyData?ip=${ip}&name=used")
+}
+
+
+function  loadBuffer(zoom) {
+    if (zoom) {
+        setWidth("buffer")
+    }
+    graph("1ab394", "buffer", "BUFFER使用(MB)", "BUFFER使用", "/monitor/graph/memory/historyData?ip=${ip}&name=buffer")
+}
+
+
+function  loadCache(zoom) {
+    if (zoom) {
+        setWidth("cache")
+    }
+    graph("1ab394", "cache", "CACHE使用(MB)", "CACHE使用", "/monitor/graph/memory/historyData?ip=${ip}&name=cache")
+}
+
+function  loadCachep(zoom) {
+    if (zoom) {
+        setWidth("cachep")
+    }
+    graph("f8ac59", "cacheP", "CACHE使用百分比", "CACHE使用百分比", "/monitor/graph/memory/historyData?ip=${ip}&name=cache&totle=$!{totle}")
+}
+
+function  loadBufferp(zoom) {
+    if (zoom) {
+        setWidth("bufferp")
+    }
+    graph("f8ac59", "bufferP", "BUFFER使用百分比)", "BUFFER使用百分比", "/monitor/graph/memory/historyData?ip=${ip}&name=buffer&totle=$!{totle}")
+}
+
+function  loadUsedp(zoom) {
+    if (zoom) {
+        setWidth("usedp")
+    }
+    graph("f8ac59", "usedP", "使用百分比)", "使用百分比", "/monitor/graph/memory/historyData?ip=${ip}&name=used&totle=$!{totle}")
+}
+
+
+function loadimg() {
+    loadUsedp()
+    loadBufferp()
+    loadCachep()
+    loadCache()
+    loadBuffer();
+    loadUse()
+    graphAll()
+}
+timePulush(loadimg)
+loadimg();
+</script>
+</body>
+
+</html>

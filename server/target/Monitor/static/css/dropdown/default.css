@@ -1,0 +1,113 @@
+@charset "UTF-8";
+
+/** 
+ * Default CSS Drop-Down Menu Theme
+ *
+ * @file		default.css
+ * @name		Default
+ * @version		0.1.1
+ * @type		transitional
+ * @browsers	Windows: IE5+, Opera7+, Firefox1+
+ *				Mac OS: Safari2+, Firefox2+
+ *
+ * @link		http://www.lwis.net/
+ * @copyright	2008 Live Web Institute. All Rights Reserved.
+ *
+ * Module Classes: *.dir {} *.on {} *.open {} li.hover {} li.first {} li.last {}
+ * Expected directory tag - li
+ *
+ */
+
+
+/*-------------------------------------------------/
+ * @section		Base Drop-Down Styling
+ * @structure	ul (unordered list)
+ *				ul li (list item)
+ *				ul li a (links)
+ *				/*\.class|(li|a):hover/
+ * @level sep	ul
+ */
+
+
+ul.dropdown {
+ font-weight: bold;
+}
+
+	ul.dropdown li {
+	 padding: 9px 15px;
+	 border-style: solid;
+	 border-width: 0px 0px 0px 0;
+	 border-color: #fff #d9d9d9 #d9d9d9;
+	 background-color: #ffffff;
+	 color: #000;
+	}
+
+	ul.dropdown li.hover,
+	ul.dropdown li:hover {
+	 background-color: #eee;
+	 color: #000;
+	}
+
+	ul.dropdown a:link,
+	ul.dropdown a:visited	{ color: #676a6c; text-decoration: none; }
+	ul.dropdown a:hover		{ color: #1ab394; }
+	ul.dropdown a:active	{ color: #ffa500; }
+
+
+	/* -- level mark -- */
+
+	ul.dropdown ul {
+	 width: 150px;
+	 margin-top: 1px;
+	}
+
+		ul.dropdown ul li {
+		 font-weight: normal;
+			border:1px solid #f0f0f0;
+			border-image: none;
+			border-style: solid solid none;
+			border-width: 1px 0px;
+		}
+
+
+
+/*-------------------------------------------------/
+ * @section		Support Class `dir`
+ * @level sep	ul, .class
+ */
+
+
+ul.dropdown *.dir {
+ padding-right: 20px;
+ background-image: url(/static/images/nav-arrow-down.png);
+ background-position: 100% 50%;
+ background-repeat: no-repeat;
+}
+
+
+/* -- Components override -- */
+
+ul.dropdown-horizontal ul *.dir {
+ padding-right: 15px;
+ background-image: url(/static/images/nav-arrow-right.png);
+ background-position: 100% 50%;
+ background-repeat: no-repeat;
+}
+
+ul.dropdown-upward *.dir {
+ background-image: url(/static/images/nav-arrow-top.png);
+}
+
+ul.dropdown-vertical *.dir,
+ul.dropdown-upward ul *.dir {
+ background-image: url(/static/images/nav-arrow-right.png);
+}
+
+ul.dropdown-vertical-rtl *.dir {
+ padding-right: 10px;
+ padding-left: 15px;
+ background-image: url(/static/images/nav-arrow-left.png);
+ background-position: 0 50%;
+}
+
+a.hover-primary:hover{color:#1ab394;}

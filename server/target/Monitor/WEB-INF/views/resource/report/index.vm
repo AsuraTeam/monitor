@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html">
+
+<head>
+
+    #include("/index/include.vm")
+    <script src="/static/js/highcharts.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>物资报表</title>
+
+    <style>
+        title td tr {
+            border: none;
+            padding: 0px;
+            margin: 0px;
+        }
+
+        .no-border-right {
+            border-left: solid 1px #f0f0f0;
+            border-top: solid 1px #f0f0f0;
+            border-bottom: solid 1px #f0f0f0;
+        }
+    </style>
+</head>
+
+<body class="gray-bg top-navigation" style="background-color: #FeFeFe">
+
+<div id="wrappe1r">
+    <div id="page-wrapper" class="gray-bg">
+        #include("/index/header.vm")
+        <div class="wra1pper" style="padding:6px;">
+
+            <div class="col-md-4" style="border:solid 1px #f0f0f0;width: 77%;padding: 15px;margin-left:10px;">
+                <div class="ibox float-e-margins">
+                    <div class="">
+                        <span class="label label-primary pull-right">月度</span>
+                        <h5>增长趋势</h5>
+                    </div>
+                    <div id="container" style="width: 100%;height: 210px;margin-bottom:-40px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4"
+             style="width: 20%;padding: 15px;margin-left:10px;margin-top:-5px;border:solid 1px #f0f0f0;">
+            <div class="ibox float-e-margins" onclick="window.open('/resource/configure/server/list')">
+                <div class="">
+                    <span class="label label-primary pull-right">总数</span>
+                    <h6>资产总数</h6>
+                </div>
+                <div class="ibox-content">
+                    <h1 class="no-margins" style="text-align:center;">${totle}</h1>
+                    <small>总计资产数量</small>
+                    </p>
+                    <small onclick="ifOff();">设备关机数量:<font color="red"
+                                                           style="font-size: 20px;margin-left: 10px;">${isOff}</font>
+                    </small>
+                    </p>
+                    <small onclick="noRecord();">未登记的设备数量:<font color="red"
+                                                                style="font-size: 20px;margin-left: 10px;">${noRecord}</font>
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12" style="width: 100%;float:left;margin-top:10px;">
+            <div id="countTypeName" style="float: left;width: 49%;border:solid 1px #f0f0f0;"></div>
+            <div id="countServiceName" style="float: left;width: 49%;margin-left: 20px;border:solid 1px #f0f0f0;"></div>
+            <div id="countDiskSize" style="float: left;width: 49%;margin-top: 15px;border:solid 1px #f0f0f0;"></div>
+            <div id="countMemory"
+                 style="float: left;width: 48%;margin-left: 20px;margin-top: 15px;border:solid 1px #f0f0f0;"></div>
+            <div id="countGroupsName" style="float: left;width: 49%;margin-top: 15px;border:solid 1px #f0f0f0; "></div>
+            <div id="countEntName"
+                 style="float: left;width: 49%;margin-left: 20px;margin-top: 15px;border:solid 1px #f0f0f0;"></div>
+        </div>
+        <div class="col-md-4"
+             style="width: 31%;margin-left:20px;padding: 5px;margin-top: 20px;border:solid 1px #f0f0f0;">
+                <div style="border-top: 1px solid #f0f0f0;">
+                    <span class="label label-warning pull-right" style="margin-top: 5px;">环境</span>
+                    <h5>&nbsp;&nbsp;环境分布</h5>
+                    <table class="table" id="selectEntNameCount">
+                        <thead>
+                        <tr>
+                            <th>环境名称</th>
+                            <th>设备数量</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                    </p>
+            </div>
+        </div>
+        <div class="col-md-4"
+                 style="width: 31%;margin-left:20px;padding: 5px;margin-top: 20px;border:solid 1px #f0f0f0;">
+                <span class="label label-warning pull-right">设备类型</span>
+                <h5>类型分布</h5>
+                <table class="table" id="selectGroupsNameCount">
+                    <thead>
+                    <tr>
+                        <th>设备类型</th>
+                        <th>设备数量</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                </p>
+            </div>
+        <div class="col-md-4"
+             style="width: 31%;margin-left:20px;padding: 5px;margin-top: 20px;border:solid 1px #f0f0f0;">
+            <span class="label label-warning pull-right" style="margin-top: 5px;">类型</span>
+            <h5>&nbsp;&nbsp;服务类型分布</h5>
+            <table class="table" id="reportServiceName">
+                <thead>
+                <tr>
+                    <th>类型名称</th>
+                    <th>设备数量</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            </p>
+       </div>
+        </div>
+</div>
+<div class="col-md-12">&nbsp;</div>
+<div class="col-md-4" style="width: 30%;padding: 5px;margin-left: 20px;margin-top: 20px;border:solid 1px #f0f0f0;position: relative;">
+        <div class="">
+            <span class="label label-primary  pull-right">业务线数据</span>
+            <h5>业务线</h5>
+            <input type="hidden" value="" id="getGroups">
+            <table class="table" id="selectGroupsCount">
+                <thead>
+                <tr>
+                    <th>业务线名称</th>
+                    <th>设备数量</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            </p>
+    </div>
+</div>
+
+<div class="col-md-4" style="padding: 5px;margin-left: 20px;margin-top: 20px;border:solid 1px #f0f0f0;float: left;position:relative;">
+        <div class="">
+            <span class="label label-primary  pull-right">负责人数据</span>
+            <h5>负责人</h5>
+            <table class="table" id="selectUserCount">
+                <thead>
+                <tr>
+                    <th>负责人名称</th>
+                    <th>设备数量</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            </p>
+    </div>
+</div>
+<div class="col-md-4" style="width: 31%;margin-left:20px;padding: 5px;margin-top: 20px;border:solid 1px #f0f0f0;float: left; position: relative;">
+        <div class="">
+            <span class="label label-primary pull-right">每月上架量</span>
+            <h5>上架数量</h5>
+            <table class="table" id="selectGroupsNameCount">
+                <thead>
+                <tr>
+                    <th>月份</th>
+                    <th>上架量</th>
+                </tr>
+                </thead>
+                <tbody>
+                <script>
+                    result = eval(post({}, "/resource/report/createData"));
+                    console.log(result.length)
+                    r = ""
+                    for (i = 0; i < result.length; i++) {
+                        t = result[i][0]
+                        date = t ? laydate.now(t, "YYYY-MM-DD") : "--";
+                        html = "<tr>"
+                        html += "<td>" + date + "</td><td><a onclick=\"loadData('','" + date + "')\">" + result[i][1] + "</a></td>"
+                        html += "</tr>"
+                        r += html;
+                    }
+                    document.write(r)
+
+                </script>
+                </tbody>
+            </table>
+            </p>
+        </div>
+</div>
+
+
+<input type="hidden" id="selectGroups">
+
+<script src="/static/js/plugins/peity/jquery.peity.min.js"></script>
+<script src="/static/js/plugins/flot/jquery.flot.js"></script>
+<script src="/static/js/highcharts.js"></script>
+<script src="/static/js/highstock.js"></script>
+<script>//Flot Multiple Axes Line Chart
+
+var colors = ["#1ab394",
+    "#f8ac59", "#CC66CC",
+    "#1f90d8", "#FFB94F", "#1cc09f", "#3c763d", "#99389f", "#017ebc"];
+
+
+$(function () {
+    $(document).ready(function () {
+        Highcharts.setOptions({
+            global: {
+                useUTC: false
+            }
+        });
+
+        $('#container').highcharts({
+            chart: {
+                type: 'spline',
+                animation: Highcharts.svg, // don't animate in old IE
+                marginRight: 10,
+
+            },
+            colors: ["#1ab394"],
+            title: {
+                text: ''
+            },
+            xAxis: {
+                type: 'datetime',
+                tickPixelInterval: 110
+            },
+            yAxis: {
+                title: {
+                    text: '添加数量'
+                },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#1ab394'
+                }]
+            },
+            tooltip: {
+                formatter: function () {
+                    return '<b>' + this.series.name + '</b><br/>' +
+                            Highcharts.dateFormat('%Y-%m', this.x) + '月<br/>' +
+                            Highcharts.numberFormat(this.y, 2);
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            exporting: {
+                enabled: false
+            },
+            series: [{
+                name: '数量',
+                data: eval(post({}, "/resource/report/createData")),
+            }]
+        });
+    });
+});
+//获取当前时间，格式YYYY-MM-DD
+function getNowFormatDate() {
+    var date = new Date();
+    var seperator1 = "-";
+    var year = date.getFullYear();
+    var month = date.getMonth() + 1;
+    var strDate = date.getDate();
+    if (month >= 1 && month <= 9) {
+        month = "0" + month;
+    }
+    if (strDate >= 0 && strDate <= 9) {
+        strDate = "0" + strDate;
+    }
+    var currentdate = year + seperator1 + month + seperator1 + strDate;
+    return currentdate;
+}
+function reportServiceName(key) {
+    if (!key) {
+        key = "";
+    }
+
+    $("#reportServiceName").dataTable({
+        "filter": false,//去掉搜索框
+        "ordering": false, // 是否允许排序
+        "paginationType": "full_numbers", // 页码类型
+        "destroy": true,
+        "processing": false,
+        "serverSide": true,
+        "scrollX": true, // 是否允许左右滑动
+        "displayLength": 10, // 默认长度
+        "bLengthChange": false, // 下啦选择每页显示
+        "language": {
+            "paginate": {
+                "last": "",
+                "next": "",
+                "sPrevious": "",
+                "sInfo": "",
+                "sFirst": "",
+            },
+            "sInfo": "",
+            "sInfoEmpty": "",
+        },
+        "ajax": { // 请求地址
+            "url": "/resource/report/reportServiceName?t=" + new Date().getTime() + "&groupsName=" + key,
+            "type": 'post'
+        },
+
+
+        "columns": [ // 数据映射
+            {"data": "serviceName"},
+            {
+                "data": "cnt", "mRender": function (data, type, full) {
+                key = full["entName"]
+                return '<span onclick="loadData(\'' + key + '\')"><a href="javascript:void(0)">' + data + '</a></span>'
+            }
+            }
+        ],
+        "fnRowCallback": function (row, data) { // 每行创建完毕的回调
+            $(row).data('recordId', data.recordId);
+        }
+    });
+}
+reportServiceName()
+
+function selectUserCount(key) {
+    if (!key) {
+        key = "";
+    }
+
+    $("#selectUserCount").dataTable({
+        "filter": false,//去掉搜索框
+        "ordering": false, // 是否允许排序
+        "paginationType": "full_numbers", // 页码类型
+        "destroy": true,
+        "processing": false,
+        "serverSide": true,
+        "scrollX": true, // 是否允许左右滑动
+        "displayLength": 10, // 默认长度
+        "bLengthChange": false, // 下啦选择每页显示
+        "language": {
+            "paginate": {
+                "last": "",
+                "next": "",
+                "sPrevious": "",
+                "sInfo": "",
+                "sFirst": "",
+            },
+            "sInfo": "",
+            "sInfoEmpty": "",
+        },
+        "ajax": { // 请求地址
+            "url": "/resource/report/selectUserCount?t=" + new Date().getTime() + "&groupsName=" + key,
+            "type": 'post'
+        },
+
+
+        "columns": [ // 数据映射
+            {"data": "userName"},
+            {
+                "data": "cnt", "mRender": function (data, type, full) {
+                return data;
+            }
+            }
+        ],
+        "fnRowCallback": function (row, data) { // 每行创建完毕的回调
+            $(row).data('recordId', data.recordId);
+        }
+    });
+}
+selectUserCount()
+function selectEntNameCount(key) {
+    if (!key) {
+        key = "";
+    }
+
+    $("#selectEntNameCount").dataTable({
+        "filter": false,//去掉搜索框
+        "ordering": false, // 是否允许排序
+        "paginationType": "full_numbers", // 页码类型
+        "destroy": true,
+        "processing": false,
+        "serverSide": true,
+        "scrollX": true, // 是否允许左右滑动
+        "displayLength": 10, // 默认长度
+        "bLengthChange": false, // 下啦选择每页显示
+        "language": {
+            "paginate": {
+                "last": "",
+                "next": "",
+                "sPrevious": "",
+                "sInfo": "",
+                "sFirst": "",
+            },
+            "sInfo": "",
+            "sInfoEmpty": "",
+        },
+        "ajax": { // 请求地址
+            "url": "/resource/report/entnameData?t=" + new Date().getTime() + "&groupsName=" + key,
+            "type": 'post'
+        },
+
+
+        "columns": [ // 数据映射
+            {"data": "entName"},
+            {
+                "data": "cnt", "mRender": function (data, type, full) {
+                key = full["entName"]
+                return '<span onclick="changeEntname(\'' + key + '\')"><a href="javascript:void(0)">' + data + '</a></span>'
+            }
+            }
+        ],
+        "fnRowCallback": function (row, data) { // 每行创建完毕的回调
+            $(row).data('recordId', data.recordId);
+        }
+    });
+}
+selectEntNameCount()
+
+function changeEntname(key) {
+    selectGroupsCount(key)
+    getPie("业务线汇总", "业务线汇总", "countGroupsName", "countGroupsName", key)
+    console.log(1)
+}
+
+function selectGroupsNameCount(key) {
+    if (!key) {
+        key = "";
+    }
+    $('#selectGroups').val(key)
+
+    $("#selectGroupsNameCount").dataTable({
+        "filter": false,//去掉搜索框
+        "ordering": false, // 是否允许排序
+        "paginationType": "full_numbers", // 页码类型
+        "destroy": true,
+        "processing": false,
+        "serverSide": true,
+        "scrollX": true, // 是否允许左右滑动
+        "displayLength": 10, // 默认长度
+        "bLengthChange": false, // 下啦选择每页显示
+        "language": {
+            "paginate": {
+                "last": "",
+                "next": "",
+                "sPrevious": "",
+                "sInfo": "",
+                "sFirst": "",
+            },
+            "sInfo": "",
+            "sInfoEmpty": "",
+        },
+        "ajax": { // 请求地址
+            "url": "/resource/report/typeData?t=" + new Date().getTime() + "&groups=" + key,
+            "type": 'post'
+        },
+
+
+        "columns": [ // 数据映射
+            {"data": "typeName"},
+            {
+                "data": "cnt", "mRender": function (data, type, full) {
+                key = full["typeName"]
+                return '<span onclick="loadData(\'' + key + '\')"><a href="javascript:void(0)">' + data + '</a></span>'
+            }
+            }
+        ],
+        "fnRowCallback": function (row, data) { // 每行创建完毕的回调
+            $(row).data('recordId', data.recordId);
+        }
+    });
+}
+selectGroupsNameCount();
+
+// 刷新页面
+function loadData(typeName, time) {
+    group = $('#selectGroups').val()
+    if (!group) {
+        group = ""
+    }
+    if (!time) {
+        time = ""
+    } else {
+        time = time.substring(0, 7)
+    }
+
+    url = "/resource/configure/server/list?typeName=" + typeName + "&groupsName=" + group + "&time=" + time
+    window.open(url)
+
+}
+
+function ifOff() {
+    url = "/resource/configure/server/list?isOff=1"
+    window.open(url)
+}
+
+function noRecord() {
+    url = "/resource/configure/server/noRecord"
+    window.open(url)
+}
+
+function selectGroupsCount(entName) {
+
+    if (!entName) {
+        entName = ""
+    }
+
+    $("#selectGroupsCount").dataTable({
+        "filter": false,//去掉搜索框
+        "ordering": false, // 是否允许排序
+        "paginationType": "full_numbers", // 页码类型
+        "destroy": true,
+        "processing": false,
+        "serverSide": true,
+        "scrollX": true, // 是否允许左右滑动
+        "displayLength": 10, // 默认长度
+        "bLengthChange": false, // 下啦选择每页显示
+        "language": {
+            "paginate": {
+                "last": "",
+                "next": "",
+                "sPrevious": "",
+                "sInfo": "",
+                "sFirst": "",
+            },
+            "sInfo": "",
+            "sInfoEmpty": "",
+        },
+        "ajax": { // 请求地址
+            "url": "/resource/report/groupsData?t=" + new Date().getTime() + "&entName=" + entName,
+            "type": 'post'
+        },
+
+
+        "columns": [ // 数据映射
+            {"data": "groupsName"},
+            {
+                "data": "cnt", "mRender": function (data, type, full) {
+                key = full["groupsName"]
+
+                return '<span onclick="changeGroups(\'' + key + '\')"><a href="javascript:void(0)">' + data + '</a></span>'
+            }
+            }
+        ],
+        "fnRowCallback": function (row, data) { // 每行创建完毕的回调
+            $(row).data('recordId', data.recordId);
+        }
+    });
+}
+selectGroupsCount("");
+;
+
+function changeGroups(key) {
+    selectGroupsNameCount(key)
+    selectEntNameCount(key)
+    reportServiceName(key)
+    selectUserCount(key)
+}
+
+
+function getPie(title, name, type, pieId, entName) {
+    if (!entName) {
+        entName = ""
+    }
+
+    // Radialize the colors
+    Highcharts.getOptions().colors = Highcharts.map(Highcharts.getOptions().colors, function (color) {
+        return {
+            radialGradient: {
+                cx: 0.5,
+                cy: 0.3,
+                r: 0.7
+            },
+            stops: [
+                [0, color],
+                [1, Highcharts.Color(color).brighten(-0.3).get('rgb')] // darken
+            ]
+        };
+    });
+
+    // Build the chart
+    $('#' + pieId).highcharts({
+        chart: {
+            plotBackgroundColor: null,
+            plotBorderWidth: null,
+            plotShadow: false,
+            type: 'pie'
+        },
+        colors: colors,
+        title: {
+            text: title + " " + entName,
+        },
+        tooltip: {
+            pointFormat: '{series.name}: <b>{point.y} {point.percentage:.1f}%</b> ' + entName
+        },
+        plotOptions: {
+            pie: {
+                showInLegend: true,
+                allowPointSelect: true,
+                cursor: 'pointer',
+                dataLabels: {
+                    enabled: true,
+                    format: '<b>{point.name}</b>: {point.percentage:.1f} % ',
+                    style: {
+                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                    },
+                    connectorColor: 'silver'
+                }
+            }
+        },
+        series: [{
+            name: name,
+            data: post({type: type}, '/resource/configure/server/countDataReport?entName=' + entName)
+
+        }]
+    });
+
+}
+getPie("服务类型汇总", "服务类型汇总", "countServiceName", "countServiceName")
+getPie("业务线汇总", "业务线汇总", "countGroupsName", "countGroupsName")
+getPie("环境汇总", "环境汇总", "countEntName", "countEntName")
+getPie("磁盘大小(GB)", "磁盘大小", "countDiskSize", "countDiskSize")
+getPie("设备类型汇总", "设备类型汇总", "countTypeName", "countTypeName")
+getPie("内存大小(GB)", "内存大小", "countMemory", "countMemory")
+</script>
+</body>
+
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目pvuv分析</title>
+<body class="gray-bg top-navigation">
+    #include("/index/include.vm")
+<script src="/static/js/highcharts.js"></script>
+<div id="">
+    <div>
+        #include("/index/header.vm")
+        <div id="addConfig"></div>
+        <body>
+        <div class=" animated fadeInRight">
+            <div class="row" style="background-color: #ffffff;">
+                <div class="col-sm-12">
+                    <div class="ibox float-e-margins" style="background-color:#f0f0f0; ">
+                        <div class="col-md-2 " style="margin-left: -5px;margin-top: 5px;">
+                    </div>
+                        <div class="col-md-2 "  style="margin-top: 5px;">
+                        </div>
+                        <div class="input-group col-md-6 pull-right" style="margin-top: 5px;">
+                            <span class="input-group-addon">时间(<font color="red">单天选择</font>)：</span>
+                            <input type="text" class="form-control" id="startSendTime" name="startSendTime">
+                            <span class="input-group-addon">-</span>
+                            <input type="text" class="form-control" id="endSendTime" name="endSendTime">
+                        </div>
+                    </div>
+                    <div class="ibox-content" style="overflow:scroll;margin-top: -40px;">
+                        <table id="listTable"
+                               class="table  table-bordered table-hover dataTables-example">
+                            <thead>
+                            <tr nowrap="nowrap" role="rows">
+                                <th>域名</th>
+                                <th onclick="order('pv')"><i class="fa fa-sort"></i>&nbsp;&nbsp;PV</th>
+                                <th onclick="order('uv')"><i class="fa fa-sort"></i>&nbsp;&nbsp;UV</th>
+                                <th onclick="order('totle')"><i class="fa fa-sort"></i>&nbsp;&nbsp;总量</th>
+                                <th onclick="order('traffic')"><i class="fa fa-sort"></i>&nbsp;&nbsp;流量(MB)</th>
+                                <th>分析时间</th>
+                                <th>趋势图</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/plugins/sparkline/jquery.sparkline.min.js"></script>
+    <script>
+
+        function order(t) {
+            loadData(t);
+        }
+        site = "/log/pvuv/";
+
+        function showHistory(id) {
+            url = site + "graph";
+            start = $('#startSendTime').val();
+            end = $('#endSendTime').val()
+            html = post({id:id, start:start, end:end}, url);
+            $('#addConfig').html(html);
+            $('#add_getui_config').modal('toggle');
+        }
+
+        function loadData(type) {
+            start = $('#startSendTime').val()
+            end = $('#endSendTime').val()
+            groupsName = $('#groupsDataId').val()
+            domain = $('#domainId').val()
+            if (!start) {
+                start = ""
+            }else{
+                start = Date.parse(new Date(start))/1000
+            }
+            if (!end) {
+                end = ""
+            }else{
+                end = Date.parse(new Date(end))/1000
+            }
+            if (!type) {
+                type = ""
+            }
+
+            console.log(end)
+            $("#listTable").dataTable({
+                "filter": true,//去掉搜索框
+                "ordering": false, // 是否允许排序
+                "paginationType": "full_numbers", // 页码类型
+                "destroy": true,
+                "processing": true,
+                "serverSide": true,
+                "scrollX": true, // 是否允许左右滑动
+                "displayLength": 10, // 默认长度
+                "ajax": { // 请求地址
+                    "url": site + "listData?t=" + new Date().getTime() + "&startT=" + start + "&endT=" + end + "&order="+type,
+                    "type": 'post'
+                },
+
+                "columns": [ // 数据映射
+                    {"data": "item"},
+                    {"data": "pv"},
+                    {"data": "uv"},
+                    {"data": "totle"},
+                    {"data": "traffic"},
+                    {"data": "time"},
+                    {"data": "uvId","mRender":function (data) {
+                        return  '<button type="button" onclick="showHistory('+data+')" class="btn btn-sm btn-default">图例</button>';
+                    }}
+                ],
+                "fnRowCallback": function (row, data) { // 每行创建完毕的回调
+                    $(row).data('recordId', data.recordId);
+                }
+            });
+        }
+
+        loadData();
+        /** 时间插件
+         *
+         */
+        var startSendTime = {
+            elem: '#startSendTime',
+            choose: function (data) {
+                endSendTime.min = data;
+                endSendTime.start = data;
+                if ($('#endSendTime').val()) {
+                    loadData();
+                }
+            }
+        }
+        var endSendTime = {
+            elem: '#endSendTime',
+            choose: function (data) {
+                startSendTime.max = data;
+                if ($('#startSendTime').val()) {
+                    loadData();
+                }
+            }
+        }
+        laydate(startSendTime);
+        laydate(endSendTime);
+    </script>
+</body>
+</html>

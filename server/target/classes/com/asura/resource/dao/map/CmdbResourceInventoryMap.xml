@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.resource.dao.CmdbResourceInventoryDao">
+    <sql id="baseSql">
+                select
+            inventory_id as inventoryId,
+            title as title,
+            groups_id as groupsId,
+            inventory_used as inventoryUsed,
+            last_modify_time as lastModifyTime,
+            inventory_number as inventoryNumber,
+            inventory_totle as inventoryTotle,
+            last_modify_user as lastModifyUser,
+            update_time as updateTime
+         from cmdb_resource_inventory WHERE 1=1
+    </sql>
+
+    <select id="selectByAll" resultType="com.asura.resource.entity.CmdbResourceInventoryEntity">
+         <include refid="baseSql" />
+    </select>
+
+    <select id="findById" resultType="com.asura.resource.entity.CmdbResourceInventoryEntity">
+        <include refid="baseSql" />
+        and   inventory_id=#{inventoryId}
+    </select>
+
+    <insert id="save" parameterType="com.asura.resource.entity.CmdbResourceInventoryEntity">
+        insert into cmdb_resource_inventory(
+            inventory_id,
+            title,
+            groups_id,
+            last_modify_time,
+            inventory_number,
+            inventory_totle,
+            last_modify_user,
+            update_time
+        ) 
+        values(        
+            #{inventoryId},
+            #{title},
+            #{groupsId},
+            #{lastModifyTime},
+            #{inventoryNumber},
+            #{inventoryTotle},
+            #{lastModifyUser},
+            #{updateTime}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.resource.entity.CmdbResourceInventoryEntity">
+        update cmdb_resource_inventory set
+            title=#{title},
+            groups_id=#{groupsId},
+            last_modify_time=#{lastModifyTime},
+            inventory_number=#{inventoryNumber},
+            inventory_totle=#{inventoryTotle},
+            last_modify_user=#{lastModifyUser},
+            update_time=#{updateTime},
+            inventory_used=#{inventoryUsed}
+         where    inventory_id=#{inventoryId}
+    </update>
+
+    <update id="delete" parameterType="com.asura.resource.entity.CmdbResourceInventoryEntity">
+       delete from cmdb_resource_inventory where inventory_id=#{inventoryId}
+    </update>
+</mapper>
+

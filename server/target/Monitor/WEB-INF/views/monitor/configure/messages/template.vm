@@ -1,0 +1,151 @@
+<style>
+    .ibox {
+        clear: both;
+        margin-bottom: 45px;
+        margin-top: 0;
+        padding: 0;
+    }
+    .ibox-content {
+        background-color: #ffffff;
+        color: inherit;
+        padding: 15px 20px 20px 20px;
+        border-color: #e7eaec;
+        -webkit-border-image: none;
+        -o-border-image: none;
+        border-image: none;
+        border-style: solid solid none;
+        border-width: 1px 0px;
+        border: 1px solid #f0f0f0;
+    }
+    .table {
+        width: 100%;
+        max-width: 100%;
+        margin-bottom: 20px;
+    }
+    table {
+        background-color: transparent;
+    }
+    table {
+        border-spacing: 0;
+        border-collapse: collapse;
+    }
+    .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+        border-top: 1px solid #e7eaec;
+        line-height: 1.42857;
+        padding: 8px;
+        vertical-align: middle;
+    }
+    .table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
+        padding: 8px;
+        line-height: 1.42857143;
+        vertical-align: top;
+        border-top: 1px solid #ddd;
+    }
+    * {
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+    }
+    user agent stylesheettr {
+        display: table-row;
+        vertical-align: inherit;
+        border-color: inherit;
+    }
+    .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+        border-top: 1px solid #e7eaec;
+        line-height: 1.42857;
+        padding: 8px;
+        vertical-align: middle;
+    }
+    .table-bordered > thead > tr > th, .table-bordered > tbody > tr > th, .table-bordered > tfoot > tr > th, .table-bordered > thead > tr > td, .table-bordered > tbody > tr > td, .table-bordered > tfoot > tr > td {
+        border: 1px solid #e7e7e7;
+    }
+    .table-bordered>tbody>tr>td, .table-bordered>tbody>tr>th, .table-bordered>tfoot>tr>td, .table-bordered>tfoot>tr>th, .table-bordered>thead>tr>td, .table-bordered>thead>tr>th {
+        border: 1px solid #ddd;
+    }
+    .table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
+        padding: 8px;
+        line-height: 1.42857143;
+        vertical-align: top;
+        border-top: 1px solid #ddd;
+    }
+    td, th {
+        padding: 0;
+    }
+
+    .ibox-title {
+        border-top:5px solid #1ab394;
+        width: 100%;
+        height: 60px;;
+    }
+    .ibox-title h6 {
+        display: inline-block;
+        font-size: 20px;
+        margin: 0 0 7px;
+        padding: 0;
+        text-overflow: ellipsis;
+        float: left;
+        margin-top: 15px;
+        margin-left: 30px;
+        margin-bottom: 5px;;
+    }
+
+    .ibox-title .label {
+        float: left;
+        margin-left: 4px;
+    }
+    .padding {
+        padding-bottom: 15px;
+        margin-top: 10px;;
+        margin-left: 20px;
+        color: bl;
+    }
+
+</style>
+<div class="col-sm-6">
+    <div class="ibox float-e-margins">
+        <div class="ibox-title">
+            <h6>${SUBJECT}</h6>
+        </div>
+        <div class="ibox-content">
+
+            <table class="table">
+                <tbody>
+                <tr>
+                    <td style="border: 1px solid #f1f1f1;width: 20%;"><br><span class="padding">报警时间</span><br></td>
+                    <td style="border: 1px solid #f1f1f1;"><br><span class="padding">${TIME}</span><p></td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #f1f1f1;width: 20%;"><br><span class="padding">检查项目</span><br></td>
+                    <td style="border: 1px solid #f1f1f1;"><br><span class="padding">${COMMAND}</span><p></td>
+
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #f1f1f1;width: 20%;"><br><span class="padding">报警内容</span><br></td>
+                    <td style="border: 1px solid #f1f1f1;"><br><span class="padding">${COMMAND}</span><p></td>
+
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #f1f1f1;width: 20%;"><br><span class="padding">报警次数</span><br></td>
+                    <td style="border: 1px solid #f1f1f1;"><br><span class="padding">${ALARM_COUNT}</span><p></td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #f1f1f1;width: 20%;"><br><span class="padding">异常服务器</span><br></td>
+                    <td style="border: 1px solid #f1f1f1;"><br><span class="padding">${SERVER}</span><p></td>
+
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #f1f1f1;width: 20%;"><br><span class="padding">异常状态</span><br></td>
+                    <td style="border: 1px solid #f1f1f1;"><br><span class="padding">${STATUS}</span><p></td>
+
+                </tr>
+                </tbody>
+            </table>
+           <span style="color: red;font-size: 15px;">该邮件为系统自动发出，请勿直接回复!
+            <span style="margin-left: 80%;color: #f7a54a"><strong>阿修罗运维团队</strong></span></span>
+        </div>
+    </div>
+</div>
+
+
+

@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    #include("/index/include.vm")
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统性能指标展示</title>
+
+</head>
+<script>
+    function imageSelect(mselect, realtime) {
+        $.cookie("is_range");
+        if(mselect){
+            $.cookie("is_realtime");
+            html = getGroups(1)
+            $('#select_groups_id').html(html)
+            $('.selectpicker').selectpicker({
+                'selectedText': 'cat'
+            });
+            $.cookie("s","多维度查看");
+            $('#show_graph_select_ip').modal("toggle")
+            return
+        }else{
+            $.cookie("is_all_select","");
+            $('#show_graph_imgages').modal("toggle")
+        }
+        $.cookie("is_realtime","0");
+        if(realtime){
+            $.cookie("s","实时查看");
+            $.cookie("is_realtime", 1);
+            return
+        }
+
+    }
+    function f_check_IP(id)
+    {  var ip = document.getElementById(id).value;
+        var re=/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/;//正则表达式
+        if(re.test(ip))
+        {
+            if( RegExp.$1<256 && RegExp.$2<256 && RegExp.$3<256 && RegExp.$4<256)
+                return true;
+        }
+        return false;
+    }
+    function setIpAddress(value, select) {
+        if (!f_check_IP('add_ip_address_id') && !select){
+            parent.layer.msg("ip地址格式有误",  {icon:2})
+            return;
+        }
+        old = $('#select_all_ip_textarea').val();
+        olds = old.split("\n")
+        news = ""
+        is_exists = false
+        for (i=0;i<olds.length;i++){
+            if(olds[i].length<5){continue}
+            if (olds[i] != value ) {
+                news += olds[i] + "\n"
+            }else{
+                is_exists = true
+            }
+        }
+        if(!is_exists){
+            news += value
+        }
+        $('#select_all_ip_textarea').val(news);
+        $.cookie("select_all_ip_textarea", news);
+    }
+    allip = $.cookie("select_all_ip_textarea")
+    if (allip){
+        $.cookie("select_all_ip_textarea", allip);
+    }else{
+        $.cookie("select_all_ip_textarea", "$!{ip}");
+    }
+    function selectAllImages(isLine) {
+        parent.layer.msg("已选择服务器" + $('#select_all_ip_textarea').val(),  {icon:1})
+        if(isLine == 1){
+            $.cookie("is_all_select", "");
+        }else{
+            $.cookie("is_all_select", 1);
+        }
+        if(isLine == 2){
+            $.cookie("is_all_select", 2);
+        }
+        $.cookie("is_range","");
+        $('#show_graph_select_ip').modal("toggle");
+        $('#show_graph_imgages').modal('toggle')
+
+    }
+    function clearAllImages() {
+        $.cookie("is_range","");
+        $.cookie("is_all_select","");
+        $.cookie("select_all_ip_textarea", "");
+        $('#show_graph_select_ip').modal("toggle");
+        window.location.reload();
+    }
+
+    function iFrameHeight() {
+        $('#show_image_status_id').html($.cookie("s"))
+        var ifm= document.getElementById("iframepage");
+        var subWeb = document.frames ? document.frames["iframepage"].document : ifm.contentDocument;
+        if(ifm != null && subWeb != null) {
+            ifm.height = subWeb.body.scrollHeight;
+            ifm.width = subWeb.body.scrollWidth;
+        }
+    }
+    function get_all_ip() {
+        ips =   $.cookie("select_all_ip_textarea")
+        ips = ips.replace(/\n/g,",")
+        return ips;
+    }
+</script>
+
+<style>
+    .title-img{
+        background-color: #f0f0f0;
+        height: 45px;
+        margin-top:0px;
+        margin-left: -15px;
+        margin-right: -15px;
+    }
+    .search-ip{
+        border-radius:0;
+        border-top:0px;
+        margin-left:-15px;
+        height:32px;
+    }
+</style>
+
+<body class="top-navigation" style="background-color: #FeFeFe">
+
+<div id="select_image_content">
+    <script>
+        url = "/monitor/graph/all/selectImg?ip=$ip"
+        result = post({},url)
+        document.write(result)
+    </script>
+    <div class="modal fade in" id="show_graph_select_ip" tabindex="-1"
+         role="dialog" style="background-color: #FfFfFf; margin-top: 16px;"
+         data-backdrop="false">
+        <div class="modal-dialog"
+             style="margin-top: 0px; width: 40%; ">
+            <div class="modal-content"
+                 style="height: 600px; width: 100%;">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                    </button>
+                    <h4 class="modal-title">多服务器添加 </h4>
+                </div>
+                <br>
+                <div class="form-group">
+                    <div class="col-sm-12" style="float: left;">
+                        <div class="col-sm-12" >
+                            <input class="form-control col-sm-7" onchange="setIpAddress($(this).val())" id="add_ip_address_id" style="float:left;" placeholder="输入完整IP地址">
+                        </div>
+                        <div class="col-sm-12" ></p></div>
+                        <div class="col-sm-6" style="float: left;">
+                            <div  id="select_groups_id"></div>
+                        </div>
+                        <div class="col-sm-6" style="float: left;">
+                            <select  class="selectpicker bla bla bli form-control " data-live-search="true"  id="select_groups_ip" onChange="setIpAddress($(this).val(), 1)">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-12" ></p></div>
+                    <div class="col-sm-12" >
+                        <textarea class="form-control" readonly rows="12" id="select_all_ip_textarea">$!{ip}</textarea>
+                    </div>
+                </div>
+                <div class="col-sm-12" style="margin-left:10px;">
+                    <div style="border-top:1px solid #eaeaea;margin-top:15px;margin-bottom:-30px;margin-left:-30px;width:108%;" class="col-sm-12">&nbsp;</div>
+                      <span class="input-group-btn">
+                       <span class="input-group-btn">
+                       <button style="margin-top: 12px;" onclick="clearAllImages()" class="btn btn-default btn-lg btn-outline" type="button">
+                           <i class="fa fa-trash-o"></i>&nbsp;取消
+                       </button></span>
+                       <span class="input-group-btn">
+                        <button style="margin-bottom: 15px;margin-top: 27px;margin-left: 5px;"
+                                onclick="selectAllImages()" class="btn btn-success btn-lg btn-outline"
+                                type="button">
+                        <i class="fa fa-area-chart"></i>&nbsp;聚合图
+                       </button>
+                      </span>
+                       <span class="input-group-btn">
+                        <button style="margin-bottom: 15px;margin-top: 27px;margin-left: 5px;"
+                                onclick="selectAllImages(1)" class="btn btn-primary btn-lg btn-outline"
+                                type="button">
+                        <i class="fa fa-line-chart"></i>&nbsp;单线图
+                       </button>
+                      </span>
+                       <span class="input-group-btn">
+                        <button style="margin-bottom: 15px;margin-top: 27px;margin-left: 5px;"
+                                onclick="selectAllImages(2)" class="btn btn-warning btn-lg btn-outline"
+                                type="button">
+                        <i class="fa fa-area-chart"></i>&nbsp;多线图
+                       </button>
+                      </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="wrappe1r">
+    <div id="page-wrapper" class="gray-bg">
+        #include("/index/header.vm")
+    </div>
+    <div class="ibox-title" style="margin-top: 0px;border: solid 1px #f0f0f0">
+        <div class="col-md-2 pull-left" style="border: solid 1px #f0f0f0;height:37px;margin-top: -10px; ">
+            <span onclick="imageSelect()" ><i class="fa fa-line-chart" style="margin-top:12px;"></i><strong>&nbsp;图像选择</strong></span>
+        </div>
+        <input id="is_all_select" type="hidden">
+        <div class="col-md-4 pull-left" style="float:left;margin-left: -10%;">
+            <span>#if($ip)$!{ip}#else
+                <script>
+                  document.write(getGroups())
+              </script>
+            #end
+                &nbsp;</span>
+        </div>
+        <div class="col-md-4 pull-left" style="float:left;margin-left: -24%;">
+            <select  onchange="changeSelect($(this).val())" id="selectIp" style="border: none;height: 35px;border:1px solid #f0f0f0;margin-top: -10px;"><option></option></option></select>
+        </div>
+        <div class="col-md-4 pull-left" style="margin-top: -8px;margin-left: -25%;">
+            <span class="input-group-addon form-control pull-left" style="width: 70px;border-right: 1px solid #f0f0f0;">时间段:</span>
+            <select  onchange="timearea($(this).val())" class="input-group-addon  pull-left" STYLE="float:left;margin-left:0px;height:35px;border-left: 1px solid #f0f0f0;width: 130px;margin-right: 10px;">
+                <option value="3">3d</option>
+                <option value="7">7d</option>
+                <option value="30">1m</option>
+                <option value="60">2m</option>
+                <option value="120">4m</option>
+                <option value="180">6m</option>
+                <option value="240">8m</option>
+                <option value="360">1y</option>
+            </select>&nbsp;&nbsp;
+        </div>
+        <div class="input-group col-md-6 pull-right" style="margin-top:-33px;">
+            <span class="input-group-addon">时间(<font color="red">单天选择</font>)：</span>
+            <input type="text" class="form-control" id="startSendTime" name="startSendTime">
+            <span class="input-group-addon">-</span>
+            <input type="text" class="form-control" id="endSendTime" name="endSendTime">
+
+        </div>
+        <div style="margin-top: 5px;"><p>&nbsp;</p></div>
+        <div class="input-group">
+            <div class="input-group">
+                <input type="text" class="form-control" id="search_ip" onkeyup="getIp('',$(this).val())" placeholder="输入IP地址">
+                <div class="col-md-2" id="show_search_ip" style="display:none;position:absolute;background-color:#fefefe;margin-top:30px;">
+                </div>
+                <span class="input-group-btn"> <button type="button" onclick="to_min_image($('#search_ip').val())" class="btn  btn-primary">看图
+                </button> </span>
+                  <span class="input-group-btn" >
+                      <button type="button" style="margin-left: 5px;" onclick="toPage($('#search_ip').val(),1)" class="btn btn-outline btn-warning">区间图</button>
+                      <button type="button" style="margin-left: 5px;" onclick="to_min_image()" class="btn btn-outline btn-danger">小图</button>
+                      <button type="button" style="margin-left: 5px;" onclick="imageSelect(1);" class="btn btn-outline btn-success">多维度选择</button>
+                      <button type="button" style="margin-left: 5px;" onclick="imageSelect('','1');" class="btn btn-outline btn-default">实时查看</button>
+                  </span>
+                 <span class="pull-right" style="margin-left:10px;">
+                        <button type="button" onclick="legend_setting()"  class="btn btn-outline btn-danger">
+                            <span id="legend_setting_title">显示图例</span>
+                        </button>
+                  </span>
+                   <span class="pull-right" id="my_collection_graph" style="margin-left:10px;display:none;">
+                     <button type="button" onclick="to_my_collection()"  class="btn btn-outline btn-success">我的收藏:<span id="my_collection_graph_number"></span></button>
+                  </span>
+                 <span class="pull-right" id="" style="margin-left:10px;">
+                     <button type="button" onclick="save_my_collection()"  class="btn btn-outline btn-primary">收藏图像</button>
+                  </span>
+                  <span class="pull-right" style="margin-left:10px;">
+                  <button type="button"  class="btn btn-outline btn-warning">状态:<span id="show_image_status_id"></span></button>
+                  </span>
+                <input type="text" class="form-control" style="width:300px;margin-left:10px;" id="search_images" onkeyup="search_images($(this).val())" placeholder="图片搜索">
+                <div class="col-md-2" id="show_search_images" style="display:none;position:absolute;background-color:#fefefe;margin-top:30px;margin-left:10px;">
+                </div>
+            </div></div>
+        <iframe src="" name="imgiframe" id="iframepage" frameborder="0" width="100%" scrolling="no" marginheight="0" marginwidth="0" onLoad="iFrameHeight()"></iframe>
+
+    </div>
+</div>
+</div>
+</div>
+<input type="hidden" id="select_ip_address">
+<input type="hidden" id="img_type">
+<script type="text/javascript" language="javascript">
+
+    is_all_select = $.cookie("legend_show", "0")
+    //  设置图例
+    function legend_setting(){
+        show_legend = $('#legend_setting_title').html()
+        if(show_legend == "显示图例"){
+            is_all_select = $.cookie("legend_show", "1")
+            $('#legend_setting_title').html("关闭图例")
+        }else{
+            is_all_select = $.cookie("legend_show", "0")
+            $('#legend_setting_title').html("显示图例")
+        }
+        loadiframe();
+    }
+
+    function set_my_collection() {
+        result = post({},"/user")
+        if(result){
+            url = "/monitor/graph/collection/number";
+            result = post({},url);
+            $('#my_collection_graph_number').html(result);
+            $('#my_collection_graph').show()
+        }else{
+            $('#my_collection_graph').hide()
+        }
+    }
+    set_my_collection();
+
+    function save_my_collection(){
+        data = $.cookie("selectImages");
+        allip = get_all_ip()
+        if(!allip){
+            allip = "${ip}"
+        }
+        if(data.length>5){
+            is_all_select = $.cookie("is_all_select")
+            // 多线条图像
+            if(is_all_select == "2"){
+                allip += ",2"
+            }
+            url = "/monitor/graph/collection/save";
+            result = post({ip: allip, images:data},url);
+            parent.layer.msg(JSON.stringify(result),  {icon:1});
+            set_my_collection();
+        }else{
+            parent.layer.msg("请先选择好要收藏的图像",  {icon:2});
+        }
+    }
+    function to_my_collection() {
+        url = "/monitor/graph/collection/list";
+        window.location= url;
+    }
+
+    function search_images_load(value, id){
+        aa = ""
+        $("input[name='select_image_name']:checkbox:checked").each(function(){
+            aa+=$(this).val()+","
+        })
+        datas = aa.split(",")
+        select = ""
+        for(j=0;j<datas.length;j++){
+            value = datas[j]
+            if(!value){continue}
+            if(value.length<3){continue}
+            value = value.replace(/\//g,"SLASH")
+            values = value.split(".")
+            groups = values[0]
+            name = ""
+            for(i=1;i<values.length;i++){
+                name += values[i]+"."
+            }
+            name = name.substring(0, name.length-1);
+            value = groups+"|"+name
+            select+= value +","
+        }
+        $.cookie("selectImages", select,{path:"/"})
+        allip = get_all_ip();
+        url = "/monitor/graph/all/sub?ip=$!{ip}&width=$!{width}$!{bind}&select="+select+"&ips="+allip
+        $('#show_image_status_id').html($.cookie("s"))
+        $('#iframepage').attr("src", url);
+    }
+
+
+    function search_images(value){
+        $("#show_search_images").show()
+        url = "/monitor/configure/index/listData?start=1&length=100&draw=1";
+        result = post({"search[value]": value},url);
+        data = result["data"]
+        width = $("#search_images").css("width").replace(/px/,"")
+        $("#show_search_images").css("width", width)
+        html = "<div style='float:left;text-align:left;'><span  onclick='$(\"#show_search_images\").hide()' style='text-align:left;width:"+width+"px;' class='btn-outline btn-danger btn search-ip'><div class='checkbox  checkbox-inline'><label for='inlineCheckbox'>关闭</label></div></div><br>"
+        for (i=0;i<data.length;i++){
+            html += "<div style='float:left;text-align:left;'><span style='text-align:left;width:"+width+"px;' class='btn-outline btn-primary btn search-ip'><div class='checkbox  checkbox-inline'><input type='checkbox' name='select_image_name'  onclick=\"search_images_load('"+data[i]["indexName"]+"',"+i+")\" value='"+data[i]["indexName"].replace(/SLASH/g,"/")+"' id='inlineCheckbox"+i+"'><label for='inlineCheckbox"+i+"'> "+data[i]["indexName"].replace(/SLASH/g,"/")+"</label></div></div><br>"
+        }
+        $("#show_search_images").html(html)
+    }
+
+    function getGroups(isSelect) {
+        url = "/resource/configure/groups/listData?draw=1&length=1000&start=1";
+        result = post({},url);
+        data = result["data"]
+        if(isSelect){
+            html = '<select class="selectpicker bla bla bli form-control" data-live-search="true" onchange="getIp($(this).val())">'
+        }else{
+            html = "<select style='height: 32px;border: none;margin-top: -9px;' class='' onchange='getIp($(this).val())'>"
+        }
+        html += "<option>--请选择组--</option>"
+        for(i=0;i<data.length;i++){
+            html += "<option value='"+data[i]["groupsName"]+"'>"+data[i]["groupsName"]+"</option>"
+        }
+        html += "</select>"
+        return html;
+    }
+
+    function to_min_image(ip){
+        $.cookie("is_range","");
+        $.cookie("s","小图查看");
+        $.cookie("is_realtime", "0");
+        $.cookie("is_all_select", "");
+        $('#show_image_status_id').html($.cookie("s"))
+        if(!ip){
+            window.location='/monitor/graph/all/index?ip=$!{ip}'
+        }else{
+            window.location='/monitor/graph/all/index?ip='+ip
+        }
+    }
+
+    function loadiframe() {
+        cookieName = "selectImages"
+        chk_value = $.cookie(cookieName);
+        if ("$!{select}"){
+            chk_value = "$!{select}"
+        }
+        is_last_ip = false;
+        allip = get_all_ip();
+        allips = allip.split(",")
+        for (i =0 ;i <allips.length; i++ ){
+            if ( "${ip}" == allips[i]){
+                is_last_ip = true;
+            }
+        }
+        if(!is_last_ip){
+            allip = "${ip}";
+            $.cookie("select_all_ip_textarea", "")
+        }
+        $.cookie("selectImages", chk_value,{path:"/"})
+        url = "/monitor/graph/all/sub?ip=$!{ip}&width=$!{width}$!{bind}&select="+chk_value+"&ips="+allip
+        is_mline = $.cookie("is_all_select")
+        if(is_mline == "2"){
+            url = url +"&mline=1"
+        }
+        $('#show_image_status_id').html($.cookie("s"))
+        $('#iframepage').attr("src", url);
+    }
+
+    loadiframe();
+
+    function toPage(ip,type) {
+        $.cookie("s","区间图");
+        $('#show_search_ip').hide()
+        $.cookie("is_realtime","0");
+        $.cookie("is_all_select","");
+        if(!type){
+            $('#img_type').val("")
+        }else{
+            $('#img_type').val(1)
+        }
+        add = $('#select_ip_address').val()
+        if(!add){
+            $('#select_ip_address').val(ip)
+        }
+        if(add!=ip){
+            selectimg(ip)
+        }
+        $.cookie("is_range","1");
+        $('#show_image_status_id').html($.cookie("s"))
+        getCheckValue("",ip);
+    }
+
+    function changeSelect(ip) {
+        parent.layer.msg(JSON.stringify(ip),  {icon:1});
+        $('#iframepage').attr('src','/monitor/graph/all/sub?ip='+ip)
+    }
+</script>
+
+<script>
+    function checkBoxAll(css) {
+        check = $("."+css+"All").is(":checked");
+        $("."+css).prop("checked",check);
+    }
+
+
+    function getIp(groupsName, ip ){
+        if (ip&&ip.length<4){
+            return
+        }
+        if(ip){
+            url = "/monitor/platform/server/listData?length=30&start=1&draw=1";
+        }else{
+            url = "/resource/configure/server/listData?length=1000&start=1&draw=1";
+        }
+        result = post({groupsName:groupsName.trim(),"search[value]":ip},url);
+        data = result["data"];
+
+        html = ""
+        width = $("#search_ip").css("width")
+        for(i=0;i<data.length;i++){
+            if(groupsName){
+                html += "<option value="+data[i]["ipAddress"]+">"+data[i]["ipAddress"]+"</option>"
+            }else{
+                html += "<button title='"+data[i]["hostname"]+"' onclick=\"to_min_image('"+data[i]["ip"]+"')\" style='width:"+width+";' class='btn-outline btn-primary btn search-ip'>"+data[i]["ip"]+"</button><br>"
+            }
+        }
+        if(ip){
+            $('#show_search_ip').css("width",width)
+            $('#show_search_ip').show()
+            $('#show_search_ip').html(html)
+        }else{
+            $('#show_search_ip').hide()
+            $('#select_groups_ip').html(html)
+            $('#selectIp').html(html)
+        }
+        $('#select_groups_ip').selectpicker('refresh');
+    }
+
+
+
+    function getCheckValue(img, ip, dayNumber) {
+        if(!ip){
+            ip="$!{ip}"
+        }
+        if(!ip){
+            ip = $('#search_ip').val();
+        }
+        startT= $('#startSendTime').val()
+        endT = $('#endSendTime').val()
+        if(!startT){
+            startT = ""
+        }
+        if(!endT){
+            endT = ""
+        }
+        var chk_value = [];
+        $('input[name="isAction"]:checked').each(function(){
+            chk_value.push($(this).val())
+        })
+
+        cookieName = "selectImages"
+        $.cookie(cookieName, chk_value, {path:"/"});
+
+        type = $('#img_type').val()
+        ips =  get_all_ip()
+        if(!ips){ips=ip}
+        urls = "/monitor/graph/all/sub?ip="+ip+"&select="+chk_value+"&startT="+startT+"&endT="+endT+"&ips="+ips;
+        if(type){
+            url = urls+"&type=1";
+        }else{
+            url = urls;
+        }
+
+        // 获取压缩数据
+        if (dayNumber){
+            url = urls+"&dayNumber=" + dayNumber ;
+        }
+
+        is_all_select = $.cookie("is_all_select")
+
+        if(is_all_select == "1"){
+            url = urls +"&isAll=1";
+        }
+
+        // 多线条图像
+        if(is_all_select == "2"){
+            url = url + "&mline=1"
+        }
+
+        $('#iframepage').attr("src",url);
+        if(img){
+            $('#show_graph_imgages').modal("toggle")
+        }
+    }
+    timePulush(getCheckValue)
+
+    function selectimg(ip) {
+        if(!ip){
+            ip="$!{ip}"
+        }
+        url = "/monitor/graph/all/selectImg?ip="+ip;
+        result = post({},url)
+        $('#select_image_content').html(result)
+    }
+    function time_count(dd, dadd){
+        //可以加上错误处理
+        var a = new Date(dd)
+        a = a.valueOf()
+        a = a - dadd * 24 * 60 * 60 * 1000
+        a = new Date(a)
+        return a.getFullYear() + "-" + (a.getMonth() + 1) + "-" + a.getDate() ;
+    }
+    /**
+     * 时间段选择
+     */
+    function timearea(value) {
+        var d = new Date();
+        var str = d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+        getCheckValue("","", value)
+    }
+
+//    setTimeout(function () {
+//        realtime = $.cookie("is_realtime");
+//        if(realtime=="1"){
+//            return;
+//        }
+//        window.location.reload();
+//    },180000)
+
+    function reinitIframe(){
+        var iframe = document.getElementById("iframepage");
+        try{
+            var bHeight = iframe.contentWindow.document.body.scrollHeight;
+            var dHeight = iframe.contentWindow.document.documentElement.scrollHeight;
+            var height = Math.max(bHeight, dHeight);
+            iframe.height = height;
+        }catch (ex){}
+    }
+    window.setInterval("reinitIframe()", 3400);
+
+</script>
+</body>

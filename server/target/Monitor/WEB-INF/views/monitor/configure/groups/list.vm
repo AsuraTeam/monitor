@@ -1,0 +1,236 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>监控组管理</title><body class="gray-bg top-navigation">
+    #include("/index/include.vm")
+    <script type="application/javascript" src="/static/js/monitor.js"></script>
+<div id="">
+    <div id="page-wrapper" class="gray-bg">
+        #include("/index/header.vm")
+<div id="addConfig"></div>
+<body>
+<div class="modal fade" id="show_cache" tabindex="-1"
+     role="dialog" style="background-color: #FfFfFf; margin-top: 16px;"
+     data-backdrop="false">
+    <div class="modal-dialog"
+         style="margin-top: 0px; width: 50%; ">
+        <div class="modal-content"
+             style="height: auto; overflow-y:scroll;width: 100%; ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title">&nbsp;&nbsp;缓存数据查看</h4>
+            </div>
+            <div  id="show_cache_detail_html"  rows="15" style="margin-bottom: 0px;width: 100%;">
+                加载中...
+            </div>
+            <div style="margin-top:12px;">&nbsp;</div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="show_ip_address" tabindex="-1"
+     role="dialog" style="background-color: #FfFfFf; margin-top: 16px;"
+     data-backdrop="false">
+    <div class="modal-dialog"
+         style="margin-top: 0px; width: 50%; ">
+        <div class="modal-content"
+             style="height: auto; overflow-y:scroll;width: 100%; ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title">&nbsp;&nbsp;<span id="addressNetworkId"></span>已拥有hosts地址</h4>
+            </div>
+            <div  id="show_ip_detail_html" style="margin-bottom: 20px;">
+                加载中...
+            </div>
+            <div style="margin-top:120px;">&nbsp;</div>
+        </div>
+    </div>
+
+</div>
+<div class=" animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <button class="btn btn-success " type="button"
+                            onclick="addConfig();">
+                        <i class="fa fa-upload"></i>&nbsp;&nbsp;<span class="bold">添加</span>
+                    </button>
+                    <button class="btn btn-outline btn-primary " type="button"
+                            onclick="window.location='/monitor/configure/script/list'">
+                        <i class="fa fa-linux"></i>&nbsp;&nbsp;<span class="bold">脚本配置</span>
+                    </button>
+                    <button class="btn btn-outline btn-primary " type="button"
+                            onclick="window.location='/monitor/configure/item/list'">
+                        <i class="fa fa-gg"></i>&nbsp;&nbsp;<span class="bold">项目配置</span>
+                    </button>
+                    <button class="btn btn-outline btn-primary " type="button"
+                            onclick="window.location='/monitor/configure/configure/list'">
+                        <i class="fa fa-eye"></i>&nbsp;&nbsp;<span class="bold">监控配置</span>
+                    </button>
+                    <button class="btn btn-outline btn-primary " type="button"
+                            onclick="window.location='/monitor/configure/template/list'">
+                        <i class="fa fa-object-group"></i>&nbsp;&nbsp;<span class="bold">模板配置</span>
+                    </button>
+                    <button class="btn btn-outline btn-primary " type="button"
+                            onclick="window.location='/monitor/configure/groups/setCache'">
+                        <i class="fa fa-heart-o"></i>&nbsp;&nbsp;<span class="bold">生成缓存</span>
+                    </button>
+                </div>
+                <div class="ibox-content" style="overflow:scroll;">
+                    <table id="listTable"
+                           class="table  table-bordered table-hover dataTables-example">
+                        <thead>
+                        <tr nowrap="nowrap" role="rows">
+                            <th>组名称</th>
+                            <th>组附加名称</th>
+                            <th>拥有设备</th>
+                            <th>是否有效</th>
+                            <th>缓存查看</th>
+                            <th>最近修改人</th>
+                            <th>最近修改时间</th>
+                            <th>编辑/删除</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var site = "groups"
+    function addConfig(id){
+        if(!id){
+            id=0;
+        }
+        url = "/monitor/configure/"+site+"/add";
+        html = post({id:id}, url);
+        $('#addConfig').html(html);
+        $('#add_getui_config').modal('toggle');
+    }
+
+    // 查看模板的缓存信息
+    function show_cache(name){
+        url = "/monitor/configure/"+site+"/getCache";
+        html = post({name:name}, url);
+        $('#show_cache_detail_html').html(syntaxHighlight(JSON.stringify(html)));
+        $('#show_cache').modal("toggle")
+    }
+
+    function deleteConfig(id){
+
+        url = "/monitor/configure/"+site+"/delete";
+        parent.layer.confirm("点击同意后,将删除数据", {
+            btn: ['同意','不同意'], //按钮
+            shade: false//不显示遮罩
+        }, function(){
+            result = post({id:id}, url);
+            parent.layer.msg(JSON.stringify(result),  {icon:1})
+            location.reload();
+        }, function(){
+            parent.layer.msg("取消操作",  {icon:2})
+        });
+
+    }
+    function saveConfig(id){
+        data = get_form_data();
+        if(id){
+            data["groupsId"] = id;
+        }
+
+        if(!data["groupsName"]){
+            parent.layer.msg("组名称必须选择",  {icon:2})
+        }
+        to = $('#undo_redo_to').html();
+        to_hosts = to.match(/>.*</g)
+        to = to.match(/"(\d+)"/g);
+
+
+        hosts_ip = ""
+
+        for(i=0;i<to_hosts.length;i++){
+            ip = to_hosts[i].replace(/</g,"")
+            ip = ip.replace(/>/g,"")
+            hosts_ip += ip+",";
+        }
+        hosts_ip = hosts_ip.substring(0,hosts_ip.length-1)
+        hosts = ""
+        for(i=0;i<to.length;i++){
+            hosts += to[i].replace(/"/g,"")+",";
+        }
+        hosts = hosts.substring(0,hosts.length-1)
+        data["hosts"] = hosts
+        data["ipList"] = hosts_ip
+        data["gname"] = $('#selectGroupsId option:selected').text()
+
+
+        isValid = $('#checkbox5').val()
+        data["isValid"] = isValid
+        url = "/monitor/configure/"+site+"/save";
+        result = post(data, url);
+        parent.layer.msg(JSON.stringify(result),  {icon:1});
+        //$('#add_getui_config').modal('toggle');
+        $('#listTable').dataTable().fnReloadAjax();
+    }
+
+
+
+    function loadData(){
+        $("#listTable").dataTable({
+            "filter": false,//去掉搜索框
+            "ordering": false, // 是否允许排序
+            "paginationType": "full_numbers", // 页码类型
+            "destroy": true,
+            "processing": true,
+            "serverSide": true,
+            "scrollX": true, // 是否允许左右滑动
+            "displayLength": 10, // 默认长度
+            "ajax": { // 请求地址
+                "url": "/monitor/configure/"+site+"/listData?t=" + new Date().getTime(),
+                "type": 'post'
+            },
+
+            "columns": [ // 数据映射
+                {"data": "gname"},
+                {"data": "otherName"},
+                {"data": "hosts", "mRender":function (data) {
+                    return '<a onclick="show_hosts(\''+data+'\')">'+data.split(",").length+'<span style="margin-left: 20px;"></span><i class="fa fa-users"></i></a>';
+                }},
+                {"data": "isValid","mRender":function (data) {
+                    if(data=="1"){return "有效"}else{return "无效"}
+                }},
+                {"sWidth": "150px", "data": "groupsId", "mRender": function(data, type, full) {
+                    return '<a  onclick="show_cache(\''+data+'\',\'item\')"><i style="margin-left: 25px;" class="fa fa-heart-o"></i></a>';
+                  }
+                },
+                {"data": "lastModifyUser"},
+                {"data": "lastModifyTime","mRender":function (data) {
+                    return data?laydate.now(data, "YYYY-MM-DD hh:mm:ss"):"--";
+                }},
+                {"sWidth": "150px", "data": "groupsId", "mRender": function(data, type, full) {
+                    return '<button type="button" onclick="addConfig('+data+')" class="btn btn-sm btn-warning">编辑</button>&nbsp;'+
+                           '<button type="button" onClick="deleteConfig('+data+')" class="btn btn-sm btn-danger">删除</button>';
+                }
+                },
+            ],
+            "fnRowCallback": function (row, data) { // 每行创建完毕的回调
+                $(row).data('recordId', data.recordId);
+            }
+        });
+    }
+
+    loadData();
+
+</script>
+</body>
+</html>

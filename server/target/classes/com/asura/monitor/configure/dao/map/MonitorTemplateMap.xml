@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.monitor.configure.dao.MonitorTemplateDao">
+    <sql id="baseSql">    select
+        template_id as templateId,
+        template_name as templateName,
+        templates as templates,
+        last_modify_time as lastModifyTime,
+        last_modify_user as lastModifyUser,
+        is_valid as isValid,
+        description,
+        items as items
+        from monitor_template </sql>
+    <select id="selectByAll" resultType="com.asura.monitor.configure.entity.MonitorTemplateEntity">
+        <include refid="baseSql"/>
+        where 1=1
+           <if test="key !=null">
+               and  template_name like concat("%",#{key},"%")
+           </if>
+        <if test="ids != null">
+            and template_id in
+            <foreach collection="ids" item="item" close=")" open="(" index="index" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        </select>
+
+    <select id="findById" resultType="com.asura.monitor.configure.entity.MonitorTemplateEntity">
+        <include refid="baseSql"/>
+        WHERE template_id=#{templateId}
+    </select>
+
+    <insert id="save" parameterType="com.asura.monitor.configure.entity.MonitorTemplateEntity">
+        insert into monitor_template(
+            template_id,
+            template_name,
+            templates,
+            last_modify_time,
+            last_modify_user,
+            is_valid,
+            items,
+            description
+        ) 
+        values(        
+            #{templateId},
+            #{templateName},
+            #{templates},
+            #{lastModifyTime},
+            #{lastModifyUser},
+            #{isValid},
+            #{items},
+            #{description}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.monitor.configure.entity.MonitorTemplateEntity">
+        update monitor_template set   
+
+            template_name=#{templateName},
+            templates=#{templates},
+            last_modify_time=#{lastModifyTime},
+            last_modify_user=#{lastModifyUser},
+            is_valid=#{isValid},
+            items=#{items},
+            description=#{description}
+         where      template_id=#{templateId}
+    </update>
+
+</mapper>
+

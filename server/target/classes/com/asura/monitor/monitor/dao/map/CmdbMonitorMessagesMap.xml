@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.monitor.monitor.dao.CmdbMonitorMessagesDao">
+    <select id="selectByAll" resultType="com.asura.monitor.monitor.entity.CmdbMonitorMessagesEntity">
+        select
+        a.id as id,
+        mobile as mobile,
+        messages as messages,
+        messages_id as messagesId,
+        messages_time as messagesTime
+        from cmdb_monitor_messages a, cmdb_monitor_item b
+        <where>
+            a.check_command = b.file_name
+            and 1=1
+            <if test="start != null  ">
+                and messages_time &gt; #{start} and messages_time &lt; #{end}
+            </if>
+            and messages_id != "email"
+            <if test="messages != null">
+                and messages like concat('%',#{messages},'%')
+            </if>
+            <if test="checkCommand != null">
+                and b.monitor_name=#{checkCommand}
+            </if>
+            <if test="groups != null">
+                and a.groups=#{groups}
+            </if>
+            order by id desc
+        </where>
+    </select>
+
+    <!-- 每天24个小时，每小时的报警量 -->
+    <select id="selectHoursCount" resultType="com.asura.monitor.monitor.entity.CmdbMonitorMessagesEntity">
+    select count(distinct id) cnt ,
+    substr(messages_time,1,13)  hours
+    from cmdb_monitor_messages a
+    where messages_id != "email"
+    and messages_time &gt; #{start} and messages_time &lt; #{end}
+    <if test="groups != null">
+        and groups = #{groups}
+    </if>
+    group by substr(messages_time,1,13)  order by 2
+    </select>
+
+    <!-- 查询每分钟的报警 -->
+    <select id="selectMinuteCount" resultType="com.asura.monitor.monitor.entity.CmdbMonitorMessagesEntity">
+        select count(distinct id) cnt ,
+        substr(messages_time,1,16) as hours
+        from cmdb_monitor_messages a
+        where messages_id != "email"
+        and messages_time &gt; #{start} and messages_time &lt; #{end}
+        <if test="groups != null">
+            and groups = #{groups}
+        </if>
+        group by substr(messages_time,1,16) order by 2
+    </select>
+
+
+    <!-- 查询每10分钟的报警数量 -->
+    <select id="select10MinuteCount" resultType="com.asura.monitor.monitor.entity.CmdbMonitorMessagesEntity">
+        select count(distinct id) cnt ,
+        substr(messages_time,1,15) as hours
+        from cmdb_monitor_messages a
+        where messages_id != "email"
+        and messages_time &gt; #{start} and messages_time &lt; #{end}
+        <if test="groups != null">
+            and groups = #{groups}
+        </if>
+        group by substr(messages_time,1,15) order by 2
+    </select>
+
+    <!-- 计算每个监控类型一天内的报警次数 -->
+    <select id="selectMonitorNameCount" resultType="com.asura.monitor.monitor.entity.CmdbMonitorMessagesEntity">
+        select
+        b.monitor_name as monitorName,
+        count(*) as cnt
+        from
+        cmdb_monitor_messages a , cmdb_monitor_item b
+        where a.check_command = b.file_name
+        and messages_id != "email"
+        and messages_time &gt; #{start} and messages_time &lt; #{end}
+        <if test="groups !=null">
+            and a.groups=#{groups}
+        </if>
+        group by b.monitor_name
+    </select>
+
+    <!-- 计算每个业务一天内的报警次数 -->
+    <select id="selectGroupsCount" resultType="com.asura.monitor.monitor.entity.CmdbMonitorMessagesEntity">
+        select
+        a.groups,
+        count(*) as cnt
+        from
+        cmdb_monitor_messages a
+        where
+        messages_time &gt; #{start} and messages_time &lt; #{end}
+        and messages_id != "email"
+        <if test="groups != null">
+            and groups = #{groups}
+        </if>
+        group by a.groups
+    </select>
+
+    <!-- 获取部门信息 -->
+    <select id="selectGroups" resultType="com.asura.monitor.monitor.entity.CmdbMonitorInformationEntity">
+        select distinct groups from cmdb_monitor_configure where groups!="";
+    </select>
+
+    <!-- 获取各部门的监控信息 -->
+    <select id="selectGroupsMonitorInfo" resultType="com.asura.monitor.monitor.entity.CmdbMonitorMessagesEntity">
+    select id,status,groups ,count(id) as cnt
+    from cmdb_monitor_information
+      <where>
+          <if test="exclude != null">
+              groups not in
+              <foreach item="item" collection="exclude" separator="," open="(" close=")" index="">
+                  #{item}
+              </foreach>
+          </if>
+      </where>
+
+     group by groups,status
+        order by status
+    </select>
+
+</mapper>
+

@@ -1,0 +1,75 @@
+<div class="row" style="margin-left: 10px;">
+    #foreach($g in $check)
+        <div class="col-sm-3" style="width: 25%;margin-left:-12px;margin-top:-20px;margin-right: 10px; ">
+            <div class="ibox">
+                <script>var LOADING${g.id};</script>
+                <div class="ibox-title" id="css${g.id}">
+                    <span id="displayStop${g.id}" style="display: none" class="label label-default pull-right"
+                          onclick="alarmPlay(${g.id})">
+                        <i id="displayStop${g.id}Fa" class="fa fa-stop"></i>
+                    </span>
+                    <h5>阿修罗 - ${g.name}</h5>
+                </div>
+                <div class="ibox-content">
+                    <p style="text-align: center;margin-left: -20px;">
+                        当前监控&nbsp;&nbsp;<strong>
+                        <script> document.write(${g.ok}+${g.warning}+${g.danger}+${g.unknown}) </script>
+                    </strong>项
+                    </p>
+
+                    <div class="row  m-t-sm">
+                        <div class="col-sm-3 text-right">
+                            <div class="font-bold">正常</div>
+                            <span style="margin-top:9px;" class="btn btn-outline btn-primary">${g.ok}&nbsp;</span>
+                        </div>
+                        <div class="col-sm-3 text-right">
+                            <div class="font-bold">危险</div>
+                            <span style="margin-top:9px;" class="btn btn-outline btn-danger" onclick="loadGroupData('${g.name}')">${g.danger}</span>
+                            <script>if (${g.danger}>
+                            0
+                            )
+                            {
+                                $('#displayStop${g.id}').show();
+                                $('#css' +${g.id}).css("background-color", "#ed5565")
+                                if (!LOADING) {
+                                    LOADING = setInterval(function () {
+                                        $('#alarmPlay').attr("src", "/static/mp3/alarm.mp3");
+                                    }, 5000);
+
+                                }
+
+                            }
+                            </script>
+                        </div>
+                        <div class="col-sm-3 text-right">
+                            <div class="font-bold">警告</div>
+                            <span style="margin-top:9px;" class="btn btn-outline btn-warning">${g.warning}</span>
+                            <script>if (${g.warning}>
+                            0
+                            )
+                            {
+                                $('#css' +${g.id}).css("background-color", "yellow")
+                            }
+                            </script>
+
+                        </div>
+                        <div class="col-sm-3 text-right">
+                            <div class="font-bold">未知</div>
+                            <span style="margin-top:9px;" class="btn btn-outline btn-default">${g.unknown}</span>
+                            <script>if (${g.unknown}>
+                            0
+                            )
+                            {
+                                $('#css' +${g.id}).css("background-color", "#8f9d6a")
+                            }
+                            </script>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    #end
+</div>

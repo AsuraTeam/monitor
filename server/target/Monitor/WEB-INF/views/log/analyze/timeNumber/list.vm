@@ -1,0 +1,284 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>web日志访问URL时间分析</title>
+<body class="gray-bg top-navigation">
+    #include("/index/include.vm")
+
+<div id="">
+    <div>
+        #include("/index/header.vm")
+        <div id="addConfig"></div>
+        <body>
+        <div class="modal fade" id="add_getui_config" tabindex="-1"
+             role="dialog" style="background-color: #FfFfFf; margin-top: 16px;"
+             data-backdrop="false">
+            <div class="modal-dialog"
+                 style="margin-top: 0px; width: 80%; ">
+                <div class="modal-content"  style=" width: 100%;height: 400px; ">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                        </button>
+                        <h4 class="modal-title">URL访问分析</h4>
+                    </div>
+                    <div style="margin-left: 5%;margin-top: 2%;" class="col-sm-5">
+                        <br>
+                        分析URL为:<span id="show_url_id" style="color:red;margin-left: 10px;"></span>
+                        <br>
+                        <br>
+                        <br>
+                        共访问了<span id="access_number_id" style="color:red;font-size:20px;margin-right: 10px;margin-left: 10px;">0</span>次<br>
+                        <br>
+                        其中超时共<span id="timeout_number_id" style="color:red;font-size:20px;margin-right: 10px;margin-left: 10px;">0</span>次<br>
+                        <br>
+                        超时占比:<span id="percent_id" style="color:red;font-size:20px;margin-right: 10px;margin-left: 10px;">100</span>%<br>
+                        <br>
+                        <br>
+                        <br>
+                        数据时间:<span id="url_time_id" style="margin-left: 5%;font-size: 20px;color:red"></span>
+                    </div>
+                    <div style="margin-left: -15%;margin-top: 12%;" class="col-sm-4">
+                    <span id="sparkline7">
+                        <canvas width="150" height="150" style="display: inline-block; width: 150px; height: 150px; vertical-align: top;"></canvas></span>
+                    </div>
+                    <br>
+                    <br>
+                    <br>
+                    所属业务组:<span id="url_groups_name_id" style="margin-left: 5%;font-size: 20px;"></span>
+                    <br>
+                    <br>
+                    <br>
+                    所属责任人:<span id="url_user_id" style="margin-left: 5%;font-size: 20px;"></span>
+                    <br>
+                    <br>
+                    <br>
+                    所属域名:<span id="url_domain_id" style="margin-left: 5%;font-size: 20px;"></span>
+                    <br>
+                    <br>
+                    <br>
+                    超时阈值:<span id="url_timeout_id" style="margin-left: 5%;font-size: 20px;color:red"></span>秒
+                    <br>
+
+                </div>
+                </div>
+                </div>
+            </div>
+        <div class=" animated fadeInRight">
+            <div class="row" style="background-color: #ffffff;">
+                <div class="col-sm-12">
+                    <div class="ibox float-e-margins" style="background-color:#f0f0f0; ">
+                        <div class="col-md-2 " style="margin-left: -5px;margin-top: 5px;">
+            <span>#if($ip)$!{ip}#else
+                <script>
+                  url = "/resource/configure/groups/listData?draw=1&length=1000&start=1";
+                  result = post({}, url);
+                  data = result["data"]
+                  html = "<select style='height: 32px;border: none;margin-top: 2px;;' id='groupsDataId' onchange='loadData()'>"
+                  html += "<option value=''>业务线选择</option>"
+                  for (i = 0; i < data.length; i++) {
+                      html += "<option value='" + data[i]["groupsName"] + "'>" + data[i]["groupsName"] + "</option>"
+                  }
+                  html += "</select>"
+                  document.write(html)
+              </script>
+            #end
+                &nbsp;</span>
+            </div>
+           <div class="col-md-2 "  style="margin-top: 5px;">
+            <span>#if($ip)$!{ip}#else
+                <script>
+                  url = "/log/analyze/system/listData?draw=1&length=1000&start=1";
+                  result = post({}, url);
+                  data = result["data"]
+                  html = "<select style='height: 32px;border: none;margin-top: 2px;;' id='domainId' onchange='loadData()'>"
+                  html += "<option value=''>域名选择</option>"
+                  for (i = 0; i < data.length; i++) {
+                      html += "<option value='" + data[i]["domain"] + "'>" + data[i]["domain"] + "</option>"
+                  }
+                  html += "</select>"
+                  document.write(html)
+              </script>
+            #end
+                &nbsp;</span>
+                        </div>
+                        <div class="input-group col-md-6 pull-right" style="margin-top: 5px;">
+                            <span class="input-group-addon">时间(<font color="red">单天选择</font>)：</span>
+                            <input type="text" class="form-control" id="startSendTime" name="startSendTime">
+                            <span class="input-group-addon">-</span>
+                            <input type="text" class="form-control" id="endSendTime" name="endSendTime">
+
+                        </div>
+                    </div>
+                    <div class="ibox-content" style="overflow:scroll;margin-top: -40px;">
+                        <table id="listTable"
+                               class="table  table-bordered table-hover dataTables-example">
+                            <thead>
+                            <tr nowrap="nowrap" role="rows">
+                                <th>业务线</th>
+                                <th>负责人</th>
+                                <th>域名</th>
+                                <th onclick="loadData()">url</th>
+                                <th>访问次数</th>
+                                <th>单天总访问次数</th>
+                                <th>当天url总数</th>
+                                <th>总请求(非精确)</th>
+                                <th>后端响应(非精确)</th>
+                                <th>分析时间</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<input type="hidden" id="hide_number_id">
+    <script src="/static/js/plugins/sparkline/jquery.sparkline.min.js"></script>
+    <script>
+        site = "/log/analyze/timeNumber/";
+
+        function loadData(url) {
+            if(url){
+                $('#hide_number_id').val("")
+               $('#timeout_number_id').html(0)
+                $('#add_getui_config').modal("toggle");
+                $('#show_url_id').html(url)
+            }
+            start = $('#startSendTime').val()
+            end = $('#endSendTime').val()
+            groupsName = $('#groupsDataId').val()
+            domain = $('#domainId').val()
+            if (!start) {
+                start = "$!{startT}"
+            }else{
+                start = Date.parse(new Date(start))/1000
+            }
+            if (!end) {
+                end = ""
+            }else{
+                end = Date.parse(new Date(end))/1000
+            }
+            if (!groupsName) {
+                groupsName = ""
+            }
+            if(!domain){
+                domain = "$!{domain}"
+            }
+           if(!url){
+               url = ""
+           }
+
+            $("#listTable").dataTable({
+                "filter": true,//去掉搜索框
+                "ordering": false, // 是否允许排序
+                "paginationType": "full_numbers", // 页码类型
+                "destroy": true,
+                "processing": true,
+                "serverSide": true,
+                "scrollX": true, // 是否允许左右滑动
+                "displayLength": 10, // 默认长度
+                "ajax": { // 请求地址
+                    "url": site + "listData?t=" + new Date().getTime() + "&startT=" + start + "&endT=" + end + "&groupsName=" + groupsName+"&domain="+domain+"&url="+url,
+                    "type": 'post'
+                },
+
+                "columns": [ // 数据映射
+                    {"data": "groupsName"},
+                    {"data": "userName"},
+                    {"data": "domain"},
+                    {"data": "url","mRender":function (data) {
+                         return "<span title='"+data+"' onclick='loadData(\""+data+"\")'><a href-'javascript:void(0)'>"+data.substring(0,50)+"</a></span>";
+                    }},
+                    {"data": "num","mRender":function (data,type,full) {
+                        val = $('#hide_number_id').val().split(",")
+                        if(val.length==0){
+                            $('#hide_number_id').val(full["numberId"]+",")
+                        }
+                        status = 1
+                        for(i=0;i<val.length;i++){
+                            if(val[i]==full["numberId"]){
+                                status = 0
+                            }
+                        }
+                        if(status==1){
+                            o = $('#hide_number_id').val()
+                            $('#hide_number_id').val(o+full["numberId"]+",")
+                        }
+                        if(status==1) {
+                            old = $('#timeout_number_id').html()
+                            old = parseInt(old)
+                            data = parseInt(data)
+                            $('#timeout_number_id').html((data + old));
+                        }
+                        $('#access_number_id').html(full["daynum"])
+                        percent = ($('#timeout_number_id').html()/full["daynum"]*100).toFixed(2)
+                        $('#percent_id').html(percent)
+                        $('#url_groups_name_id').html(full["groupsName"])
+                        $('#url_domain_id').html(full["domain"])
+                        $('#url_user_id').html(full["userName"])
+                        $('#url_timeout_id').html(full["timeArea"])
+
+                        $("#sparkline7").sparkline([percent, 100-percent], {
+                            type: 'pie',
+                            height: '150px',
+                            sliceColors: ['#1ab394', '#b3b3b3', '#e4f0fb']});
+                        return data;
+                    }},
+                    {"data": "daynum"},
+                    {"data": "dayUrlNumber"},
+                    {"data": "upstreamResponseTime","mRender":function (data, type ,full) {
+                        data = parseInt(data)
+                        return data+"~"+(data+parseInt(full["timeArea"]))+"秒";
+                    }},
+                    {"data": "requestTime","mRender":function (data, type ,full) {
+                        data = parseInt(data)
+                        return data+"~"+(data+parseInt(full["timeArea"]))+"秒";
+                    }},
+                    {"data": "changeTime","mRender":function (data) {
+                        data = data + "000";
+                        date  =  data?laydate.now(data, "YYYY-MM-DD"):"--";
+                        $('#url_time_id').html(date)
+                        return date;
+                    }},
+                ],
+                "fnRowCallback": function (row, data) { // 每行创建完毕的回调
+                    $(row).data('recordId', data.recordId);
+                }
+            });
+        }
+
+        loadData();
+        /** 时间插件
+         *
+         */
+        var startSendTime = {
+            elem: '#startSendTime',
+            choose: function (data) {
+                endSendTime.min = data;
+                endSendTime.start = data;
+                if ($('#endSendTime').val()) {
+                    loadData();
+                }
+            }
+        }
+
+        var endSendTime = {
+            elem: '#endSendTime',
+            choose: function (data) {
+                startSendTime.max = data;
+                if ($('#startSendTime').val()) {
+                    loadData();
+                }
+
+            }
+        }
+        laydate(startSendTime);
+        laydate(endSendTime);
+    </script>
+</body>
+</html>

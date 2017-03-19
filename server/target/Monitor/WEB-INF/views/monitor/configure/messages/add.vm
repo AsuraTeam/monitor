@@ -1,0 +1,335 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<body>
+<div class="modal fade" id="add_getui_config" tabindex="-1"
+     role="dialog" style="background-color: #FfFfFf; margin-top: 16px;"
+     data-backdrop="false">
+    <div class="modal-dialog"
+         style="margin-top: 0px; width: 80%; ">
+        <div class="modal-content"
+             style="height: auto; width: 100%; ">
+            <div class="modal-header">
+                <button type="button" class="close data-dismiss=" modal
+                ">
+                <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title">&nbsp;&nbsp;报警消息通道配置</h4>
+            </div>
+            <div class="animated fadeInRight">
+                <form>
+                    <div class="col-md-12">
+                        <p>&nbsp;
+                        </p>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">通道类型:</label>
+                            <div class="col-sm-10">
+                                <select type="text" onchange="changeType($(this).val())" name="channelTp"
+                                        class="form-control" value="$!{configs.channelTp}">
+                                    #if($configs.channelTp)
+                                        <option value="${configs.channelTp}">#if($configs.channelTp.equals("email"))邮件
+#end
+                                            #if($configs.channelTp.equals("mobile"))手机
+                                            #end
+                                            #if($configs.channelTp.equals("ding"))钉钉
+                                            #end
+                                            #if($configs.channelTp.equals("weixin"))微信
+                                            #end
+                                        </option>
+                                    #end
+                                    <option value=>--</option>
+                                    <option value=email>邮件</option>
+                                    <option value="mobile">手机</option>
+                                    <option value="ding">钉钉</option>
+                                    <option value="weixin">微信</option>
+                                    <option value="other">其他</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12" style="margin-top: 5px;">
+                        </p>
+                    </div>
+
+                    <!--配置微信企业号-->
+                    <div id="ding_configure_id" style="display: none;">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">钉钉CorpId:</label>
+                                <div class="col-sm-7">
+                                    <input type="text" name="dingCorpId" class="form-control"
+                                           value="$!{configs.dingCorpId}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">钉钉SecretId:</label>
+                                <div class="col-sm-7">
+                                    <input type="text" name="dingSecretId" class="form-control"
+                                           value="$!{configs.dingSecretId}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12" style="margin-top: 5px;">
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">钉钉AgentId:</label>
+                                <div class="col-sm-7">
+                                    <input type="text" name="dingAgentId" class="form-control"
+                                           value="$!{configs.dingAgentId}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12" style="display: none" id="weixin_gzh_tp">
+                        <label class="col-sm-2 control-label">微信公众号类型:</label>
+                        <div class="form-group col-md-6">
+                            <select onchange="changeWx($(this).val())" class="col-md-6 form-control" name="weixinTp"  value="$!{configs.weixinTp}">
+                                <option value="${configs.weixinTp}">#if($configs.weixinTp.equals("qy"))企业号
+                                #end
+                                    #if($configs.weixinTp.equals("dy"))订阅号
+                                    #end
+                                </option>
+                                <option value="qy">企业号</option>
+                                <option value="dy">订阅号</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!--配置微信订阅号-->
+                    <div id="weixin_configure_dingyue_id" style="display: none;">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">订阅号Token:</label>
+                                <div class="col-sm-7">
+                                    <input type="text" name="weixinWechatToken" class="form-control"
+                                           value="$!{configs.weixinWechatToken}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">订阅号Secret:</label>
+                                <div class="col-sm-7">
+                                    <input type="text" name="weixinAppSecret" class="form-control"
+                                           value="$!{configs.weixinAppSecret}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12" style="margin-top: 5px;">
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">订阅号AppId:</label>
+                                <div class="col-sm-7">
+                                    <input type="text" name="weixinAppId" class="form-control"
+                                           value="$!{configs.weixinAppId}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--配置微信企业号-->
+                    <div id="weixin_configure_qiye_id" style="display: none;">
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">企业号CorpId:</label>
+                                <div class="col-sm-7">
+                                    <input type="text" name="weixinCorpId" class="form-control"
+                                           value="$!{configs.weixinCorpId}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">企业号SecretId:</label>
+                                <div class="col-sm-7">
+                                    <input type="text" name="weixinSecretId" class="form-control"
+                                           value="$!{configs.weixinSecretId}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12" style="margin-top: 5px;">
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">企业号AgentId:</label>
+                                <div class="col-sm-7">
+                                    <input type="text" name="weixinAppId" class="form-control"
+                                           value="$!{configs.weixinAppId}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="emailTemplate" style="#if($configs.channelTp.equals("email")) #else
+        display: none #end">
+                        <div class="col-md-12" >
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">邮件内容模板:</label>
+                                <div class="col-sm-10">
+                                <textarea rows="14" name="mailTemplate" class="form-control">$!{configs.mailTemplate}
+                                    #if(!$configs.mailTemplate)
+                                        发送邮件的html模板
+系统开放的字段有
+                                        ${SUBJECT}  // 主题
+                                        ${CONTENT}  // 内容
+                                        ${START}    // 异常开始时间
+                                        ${SERVER}   // 服务器地址
+                                        ${COMMAND}  // 监控项名称
+                                        ${TIME}     // 时间
+                                        ${ALARM_COUNT} // 报警次数
+                                        ${STATUS} // 状态
+可根据这些字段结合html做出漂亮的邮件内容
+                                    #end
+                                </textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-12" style="margin-top: 5px;">
+                                </p>
+                            </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">邮件服务器地址:</label>
+                                <div class="col-sm-7">
+                                    <input type="text" name="smtpServer" class="form-control"
+                                           value="$!{configs.smtpServer}">
+                                </div>
+                            </div>
+                        </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="col-sm-5 control-label">是否开启认证:</label>
+                                    <div class="col-sm-7">
+                                        <div class="checkbox checkbox-primary checkbox-inline" style="margin-left: -10%;">
+                                            <input type="checkbox" onchange="change(this)" name="smtpAuth"
+                                                   id="checkbox5"
+                                                   class="form-control" #if( $configs.smtpAuth == 1 )
+                                                   checked   #end
+                                                   value="#if($configs.smtpAuth)$!{configs.smtpAuth}#else 0 #end">
+                                            <label for="checkbox5 control-label">&nbsp;</label></strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12" style="margin-top: 5px;">
+                                </p>
+                            </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">SMTP用户名:</label>
+                                <div class="col-sm-7">
+                                    <input type="text" name="smtpUser" class="form-control"
+                                           value="$!{configs.smtpUser}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">SMTP密码:</label>
+                                <div class="col-sm-7">
+                                    <input type="text" name="smtpPass" class="form-control"
+                                           value="$!{configs.smtpPass}">
+                                </div>
+                            </div>
+                        </div>
+                            <div class="col-md-12" style="margin-top: 5px;">
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="col-sm-5 control-label">发件人配置:</label>
+                                    <div class="col-sm-7">
+                                        <input type="text" name="smtpSender" title="发送报警时显示的发件人" class="form-control"
+                                               value="$!{configs.smtpSender}">
+                                    </div>
+                                </div>
+                            </div>
+                      </div>
+                    </div>
+                    <div class="col-md-12" style="margin-top: 5px;">
+                        </p>
+                    </div>
+                    <div class="col-md-12" id="scriptId" style="#if($configs.channelTp.equals("mobile")) #else display: none #end">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">脚本内容:</label>
+                            <div class="col-sm-10">
+                                <code>脚本内容，可传入手机号,和消息内容
+                                    手机号多个用逗号分隔<br>
+                                    示例: sendMobile.sh '1510101xxxx,15201012xxx' '消息内容'</code>
+                                <textarea rows="14" type="email" name="channelScript" class="form-control">$!{configs.channelScript}
+                                </textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <p>&nbsp;
+                        </p>
+                    </div>
+                </form>
+                <div class="col-md-12">
+                    <p>
+                    <p>
+                </div>
+
+            </div>
+            <div class="modal-footer" style="border:solid 1px #e0e0e0">
+            </div>
+            <button style="margin-left: 85%;margin-top: 15px;margin-bottom: 10px;"
+                    onclick="saveConfig($!{configs.channelId});" class="btn btn-primary btn-lg"
+                    type="button">
+                <i class="fa fa-check"></i>&nbsp;保存
+            </button>
+            <br>
+        </div>
+
+    </div>
+</div>
+<script>
+    function changeType(value) {
+        if (value == "email" ) {
+            $('#emailTemplate').show();
+            $('#scriptId').hide();
+            $('#ding_configure_id').hide();
+        }
+
+        if (value =="mobile"|| value == "other"){
+            $('#scriptId').show();
+            $('#emailTemplate').hide();
+            $('#ding_configure_id').hide();
+        }
+
+        if(value=="weixin"){
+            $('#weixin_gzh_tp').show();
+            $('#weixin_configure_qiye_id').show();
+            $('#emailTemplate').hide();
+            $('#ding_configure_id').hide();
+        }
+        if(value=="ding") {
+            $('#ding_configure_id').show();
+            $('#emailTemplate').hide();
+            $('#weixin_gzh_tp').hide();
+            $('#scriptId').hide();
+            $('#weixin_configure_qiye_id').hide();
+            $('#weixin_configure_dingyue_id').hide();
+        }
+    }
+    // 微信
+    function changeWx(value) {
+        if(value=="qy"){
+            $('#weixin_configure_dingyue_id').hide();
+            $('#weixin_configure_qiye_id').show();
+        }
+        if(value=="dy"){
+            $('#weixin_configure_qiye_id').hide();
+            $('#weixin_configure_dingyue_id').show();
+        }
+    }
+</script>
+</body>

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.resource.dao.CmdbResourceNetworkDao">
+    <select id="selectByAll" resultType="com.asura.resource.entity.CmdbResourceNetworkEntity">
+       select b.status,count(*) as cnt,
+       a.network_id as networkId,
+         a.network_prefix as networkPrefix,
+         a.network_suffix as networkSuffix,
+          a.last_modify_time as lastModifyTime,
+            a.description from cmdb_resource_network a ,
+                cmdb_resource_network_address b
+        where b.ip_prefix_id=a.network_id
+        and b.ip_subffix>0
+        <if test="networkPrefix != null">
+            and a.network_prefix=#{networkPrefix}
+        </if>
+        group by a.network_prefix,b.status
+
+        </select>
+
+
+
+    <select id="selectNetwork" resultType="com.asura.resource.entity.CmdbResourceNetworkEntity">
+         select
+        network_id as networkId,
+        network_prefix as networkPrefix,
+        network_suffix as networkSuffix,
+        last_modify_time as lastModifyTime,
+        description
+        from cmdb_resource_network
+    </select>
+
+    <select id="selectCountNetwork" resultType="com.asura.resource.entity.CmdbResourceNetworkEntity">
+        select count(*) as cnt
+         from cmdb_resource_network
+    </select>
+
+    <select id="selectAllUseFree" resultType="com.asura.resource.entity.CmdbResourceNetworkEntity">
+    select count(*) as cnt ,
+    status from cmdb_resource_network a ,
+    cmdb_resource_network_address b where
+    a.network_id=b.ip_prefix_id group by status
+    </select>
+
+    <select id="findById" resultType="com.asura.resource.entity.CmdbResourceNetworkEntity">
+        select
+        network_id as networkId,
+        network_prefix as networkPrefix,
+        last_modify_time as lastModifyTime,
+        create_user as createUser,
+        last_modify_user as lastModifyUser,
+        create_time as createTime,
+        network_suffix as networkSuffix,
+        description as description
+        from cmdb_resource_network
+        WHERE
+        network_id=#{networkId}
+    </select>
+
+    <insert id="save" parameterType="com.asura.resource.entity.CmdbResourceNetworkEntity">
+        insert into cmdb_resource_network(
+            network_id,
+            network_prefix,
+            last_modify_time,
+            create_user,
+            last_modify_user,
+            create_time,
+            network_suffix,
+            description
+        ) 
+        values(        
+            #{networkId},
+            #{networkPrefix},
+            #{lastModifyTime},
+            #{createUser},
+            #{lastModifyUser},
+            #{createTime},
+            #{networkSuffix},
+            #{description}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.resource.entity.CmdbResourceNetworkEntity">
+        update cmdb_resource_network set   
+            network_prefix=#{networkPrefix},
+            create_user=#{createUser},
+            last_modify_user=#{lastModifyUser},
+            create_time=#{createTime},
+             last_modify_time=#{lastModifyTime},
+            network_suffix=#{networkSuffix},
+            description=#{description}
+         where  network_id=#{networkId}
+    </update>
+
+</mapper>
+

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.monitor.configure.dao.MonitorInformationDao">
+    <sql id="baseSql">
+          select
+            information_id as informationId,
+            server_id as serverId,
+            script_id as scriptId,
+            last_time as lastTime,
+            next_time as nextTime,
+            severity_id as severityId,
+            info as info,
+            notice_number as noticeNumber,
+            server_address as serverAddress
+         from monitor_information
+    </sql>
+
+    <select id="selectByAll" resultType="com.asura.monitor.configure.entity.MonitorInformationEntity">
+        <include refid="baseSql"/>
+        </select>
+
+    <select id="findById" resultType="com.asura.monitor.configure.entity.MonitorInformationEntity">
+        <include refid="baseSql"/>
+        WHERE  information_id=#{informationId}
+    </select>
+
+    <insert id="save" parameterType="com.asura.monitor.configure.entity.MonitorInformationEntity">
+        insert into monitor_information(
+            information_id,
+            server_id,
+            script_id,
+            last_time,
+            next_time,
+            severity_id,
+            info,
+            notice_number,
+            server_address
+        ) 
+        values(        
+            #{informationId},
+            #{serverId},
+            #{scriptId},
+            #{lastTime},
+            #{nextTime},
+            #{severityId},
+            #{info},
+            #{noticeNumber},
+            #{serverAddress}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.monitor.configure.entity.MonitorInformationEntity">
+        update monitor_information set   
+            information_id=#{informationId},
+            server_id=#{serverId},
+            script_id=#{scriptId},
+            last_time=#{lastTime},
+            next_time=#{nextTime},
+            severity_id=#{severityId},
+            info=#{info},
+            notice_number=#{noticeNumber},
+            server_address=#{serverAddress}
+         where  information_id=#{informationId}
+    </update>
+
+</mapper>
+

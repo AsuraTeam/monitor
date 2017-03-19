@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.monitor.configure.dao.MonitorTiggerDao">
+    <sql id="baseSql">
+             select
+            tigger_id as tiggerId,
+            tigger_name as tiggerName,
+            expression as expression,
+            is_valid as isValid,
+            last_modify_time as lastModifyTime,
+            last_modify_user as lastModifyUser,
+            severity_id as severityId,
+            template_id as templateId
+         from monitor_tigger
+    </sql>
+
+    <select id="selectByAll" resultType="com.asura.monitor.configure.entity.MonitorTiggerEntity">
+    <include refid="baseSql"/>
+</select>
+    <select id="findById" resultType="com.asura.monitor.configure.entity.MonitorTiggerEntity">
+        <include refid="baseSql"/>
+        where   tigger_id=#{tiggerId}
+
+    </select>
+
+    <insert id="save" parameterType="com.asura.monitor.configure.entity.MonitorTiggerEntity">
+        insert into monitor_tigger(
+            tigger_id,
+            tigger_name,
+            expression,
+            is_valid,
+            last_modify_time,
+            last_modify_user,
+            severity_id,
+            template_id
+        ) 
+        values(        
+            #{tiggerId},
+            #{tiggerName},
+            #{expression},
+            #{isValid},
+            #{lastModifyTime},
+            #{lastModifyUser},
+            #{severityId},
+            #{templateId}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.monitor.configure.entity.MonitorTiggerEntity">
+        update monitor_tigger set   
+            tigger_id=#{tiggerId},
+            tigger_name=#{tiggerName},
+            expression=#{expression},
+            is_valid=#{isValid},
+            last_modify_time=#{lastModifyTime},
+            last_modify_user=#{lastModifyUser},
+            severity_id=#{severityId},
+            template_id=#{templateId}
+         where   tigger_id=#{tiggerId}
+    </update>
+
+</mapper>
+

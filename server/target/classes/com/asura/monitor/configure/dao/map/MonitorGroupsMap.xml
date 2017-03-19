@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.monitor.configure.dao.MonitorGroupsDao">
+    <sql id="baseSql">select
+        a.groups_id as groupsId,
+        a.groups_name as groupsName,
+        b.groups_name as gname,
+        a.other_name as otherName,
+        a.last_modify_time as lastModifyTime,
+        a.last_modify_user as lastModifyUser,
+        a.is_valid as isValid,
+        a.hosts as hosts
+        from monitor_groups a,
+        cmdb_resource_groups b
+        WHERE  a.groups_name = b.groups_id
+        </sql>
+
+    <select id="selectByAll" resultType="com.asura.monitor.configure.entity.MonitorGroupsEntity">
+        <include refid="baseSql"/>
+    </select>
+
+    <select id="findById" resultType="com.asura.monitor.configure.entity.MonitorGroupsEntity">
+        <include refid="baseSql"/>
+        and  a.groups_id=#{groupsId}
+    </select>
+
+    <insert id="save" parameterType="com.asura.monitor.configure.entity.MonitorGroupsEntity">
+        insert into monitor_groups(
+            groups_id,
+            groups_name,
+            last_modify_time,
+            last_modify_user,
+            is_valid,
+            hosts,
+            other_name
+        ) 
+        values(        
+            #{groupsId},
+            #{groupsName},
+            #{lastModifyTime},
+            #{lastModifyUser},
+            #{isValid},
+            #{hosts},
+            #{otherName}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.monitor.configure.entity.MonitorGroupsEntity">
+        update monitor_groups set   
+            groups_id=#{groupsId},
+            groups_name=#{groupsName},
+            last_modify_time=#{lastModifyTime},
+            last_modify_user=#{lastModifyUser},
+            is_valid=#{isValid},
+            hosts=#{hosts},
+            other_name = #{otherName}
+         where  groups_id=#{groupsId}
+    </update>
+
+</mapper>
+

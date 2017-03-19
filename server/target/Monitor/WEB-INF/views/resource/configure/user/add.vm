@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<body>
+<div class="modal fade" id="add_getui_config" tabindex="-1"
+     role="dialog" style="background-color: #FfFfFf; margin-top: 16px;"
+     data-backdrop="false">
+    <div class="modal-dialog"
+         style="margin-top: 0px; width: 40%; ">
+        <div class="modal-content"
+             style="height: 450px; width: 100%; ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title">&nbsp;&nbsp;用户配置</h4>
+            </div>
+            <div class="animated fadeInRight">
+                <form>
+                    <div class="col-md-12">
+                        <p>&nbsp;
+                        </p>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">用户名称:</label>
+                            <div class="col-sm-9">
+                                <input type="text" name="userName" class="form-control"
+                                       value="$!{configs.userName}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <p>&nbsp;
+                        </p>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">业务线选择:</label>
+                            <div class="col-sm-9">
+                                <select class="form-control" name="groupsId">
+                                    <option value="#if ($configs.groupsId) $configs.groupsId #else 0 #end">#if ($configs.groupsName) $configs.groupsName  #end</option>
+                                    <option>--</option>
+                                    #foreach( $conf in $groups )
+                                        <option
+                                                value='$!{conf.groupsId}'>
+                                            $!{conf.groupsName}
+                                        </option>
+                                    #end
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <p>&nbsp;
+                        <p>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">手机:</label>
+                            <div class="col-sm-9">
+                                <input type="text" name="mobile" class="form-control"
+                                       value="$!{configs.mobile}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <p>&nbsp;
+                        </p>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">邮箱:</label>
+                            <div class="col-sm-9">
+                                <input type="text" name="email" class="form-control"
+                                       value="$!{configs.email}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <p>&nbsp;
+                        </p>
+                    </div>
+                </form>
+                <div class="col-md-12">
+                    <p>
+                    <p>
+                </div>
+
+            </div>
+            <div class="modal-footer" style="border:solid 1px #e0e0e0">
+            </div>
+            <button style="margin-left: 78%;margin-top: 25px;"
+                    onclick="saveConfig($!{configs.userId});" class="btn btn-primary btn-lg"
+                    type="button">
+                <i class="fa fa-check"></i>&nbsp;提交
+            </button>
+        </div>
+
+    </div>
+</div>
+
+</body>

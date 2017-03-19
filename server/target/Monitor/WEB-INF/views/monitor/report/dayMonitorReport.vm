@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    #include("/index/include.vm")
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>今日监控异常</title>
+
+    <style>
+        title td tr {
+            border: none;
+            padding: 0px;
+            margin: 0px;
+        }
+
+    </style>
+</head>
+
+<body class="gray-bg top-navigation">
+
+<div id="wrappe1r">
+    <div id="page-wrapper" class="gray-bg">
+        #include("/index/header.vm")
+        <div class="wrapper wrapper-content" style="padding:0px;">
+            <div class="container" style="width:101%;">
+                <div class="row" style="margin-left:-20px;">
+                    <div class="col-md-4" style="width: 20%;padding: 5px;">
+                        <div class="ibox float-e-margins">
+                            <div class="ibox-title">
+                                <span class="label label-primary pull-right">今天</span>
+                                <h5>$!{groups}&nbsp;异常总数</h5>
+                            </div>
+                            <div class="ibox-content">
+                                <h1 class="no-margins">${totle}</h1>
+                                <div class="stat-percent font-bold text-success">
+                                    <p>&nbsp;&nbsp;&nbsp;<span data-diameter="80" class="updating-chart"
+                                                               style="display: none;">9,6,5,9,4,7,3,2,9,8,7,4,5,1,2,9,5,4,7,2,7,7,3,5,2,2,10,8,2,8,4,4,4,1,7,4,7,9,5,3,6,8,6,5,4,9</span>
+                                        <svg class="peity" height="16" width="64">
+                                        </svg>
+                                </div>
+                                <small>总计异常数量</small>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-4" style="width: 80%;padding: 5px;">
+                        <div class="ibox float-e-margins">
+                            <div class="ibox-title">
+                                <span class="label label-primary pull-right">每小时</span>
+                                <h5>$!{groups}&nbsp;&nbsp;&nbsp;异常趋势</h5>
+                            </div>
+                            <div id="container" style="width: 100%;height: 200px;"></div>
+                              </div>
+                        </div>
+                    </div>
+
+                <div class="row" style="margin-left:-20px;">
+                    <div class="col-md-4" style="width: 20%;padding: 5px;overflow:auto;height:500px;margin-top:-130px;">
+                        <div class="ibox float-e-margins">
+                            <div class="ibox-title">
+                                <span class="label label-primary pull-right">每小时</span>
+                                <h5>每小时数量</h5>
+                                <table class="table" id="hoursTable" >
+                                    <thead>
+                                    <tr>
+                                        <th>小时</th>
+                                        <th>报警次数</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row" style="margin-left:-20px;">
+                        <div class="col-md-4" style="width: 20%;padding: 5px;margin-top:-30px;">
+                            <div class="ibox float-e-margins">
+                                <div class="ibox-title">
+                                    <span class="label label-warning pull-right">业务线报警</span>
+                                    <h5>业务线分布</h5>
+                                    <input type="hidden" value="" id="getGroups">
+                                    <table class="table" id="selectGroupsCount" >
+                                        <thead>
+                                        <tr>
+                                            <th>业务线名称</th>
+                                            <th>报警次数</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                    <div class="row" style="margin-left:-20px;">
+                        <div class="col-md-4" style="width: 20%;padding: 5px;margin-top:-30px;">
+                            <div class="ibox float-e-margins">
+                                <div class="ibox-title">
+                                    <span class="label label-warning pull-right">监控类型</span>
+                                    <h5>监控类型分布</h5>
+                                    <table class="table" id="selectmonitorNameCount" >
+                                        <thead>
+                                        <tr>
+                                            <th>监控类型</th>
+                                            <th>报警次数</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    <div class="col-lg-12" style="margin-left:35px;width:95%;margin-top:40px;">
+                        <div class="ibox float-e-margins">
+                            <div class="ibox-title">
+                                <h5>今日监控</h5>
+                            </div>
+                            <div class="ibox-content ibox-heading" style="margin-bottom:-70px;">
+                                <small><i class="fa fa-map-marker"></i>有<code>${totle}</code>条报警</small>
+                            </div>
+                            <div style="margin-top: 8px;">&nbsp;</div>
+                            <table id="listTable" style="TABLE-LAYOUT:fixed;"
+                                   class="">
+                                <tbody>
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                    <script>
+                        function  getGroups() {
+                            return $('#getGroups').val()
+                        }
+
+                        function loadData(key) {
+
+                            if (!key) {
+                                key = "$!{groups}";
+                            }
+                            groups = getGroups()
+                            $("#listTable").dataTable({
+                                "filter": true,//去掉搜索框
+                                "ordering": false, // 是否允许排序
+                                "paginationType": "full_numbers", // 页码类型
+                                "destroy": true,
+                                "processing": true,
+                                "serverSide": true,
+                                "scrollX": false, // 是否允许左右滑动
+                                "displayLength": 10, // 默认长度
+                                "bLengthChange": false, // 下啦选择每页显示
+                                "ajax": { // 请求地址
+                                    "url": "/monitor/report/dayMonitorData?t=" + new Date().getTime() + "&groups="+groups+"&hours=-1&checkCommand="+key+"&key="+ key,
+                                    "type": 'post'
+                                },
+
+                                "columns": [ // 数据映射
+                                    {
+                                        "data": "messages", "mRender": function (data, type, full) {
+                                        t = full["messagesTime"] ? laydate.now(full["messagesTime"], "YYYY-MM-DD hh:mm:ss") : "--";
+
+                                        return '<div class="ibox-content timeline" style="margin-top: -10px;margin-bottom: -10px;">' +
+                                                ' <div class="timeline-item" style="margin-top:-8px;">' +
+                                                '   <div class="row">' +
+                                                '     <div class="col-xs-8 date">' +
+                                                '         <i class="fa fa fa-comments"></i>' +
+                                                '<small class="text-navy">' + t + '</small>' +
+                                                '                        <br/>' +
+                                                '     </div>' +
+                                                '     <div class="col-xs-8 content no-top-border" style="background-color:#FFFFFF;margin-top:-5px;">' +
+                                                '          <p>' + data.replace(/\\n\\t/g, "</br>") + '</p>' +
+                                                '       </div>' +
+                                                '     </div>' +
+                                                '  </div>' +
+                                                '</div>'
+
+                                    }
+                                    },
+                                ],
+                                "fnRowCallback": function (row, data) { // 每行创建完毕的回调
+                                    $(row).data('recordId', data.recordId);
+                                }
+                            });
+                            setTimeout(function () {
+                                        $(".dataTables_scrollBody").css("overflow", "visible")
+                                    }, 100
+                            )
+                        }
+
+                        loadData();
+
+                    </script>
+
+                </div>
+            </div>
+
+        </div>
+
+        #include("/index/footer.vm")
+    </div>
+</div>
+<script src="/static/js/plugins/peity/jquery.peity.min.js"></script>
+<script src="/static/js/plugins/flot/jquery.flot.js"></script>
+<script src="/static/js/highcharts.js"></script>
+<script src="/static/js/highstock.js"></script>
+<script>//Flot Multiple Axes Line Chart
+
+
+
+$(function () {
+    $(document).ready(function () {
+        Highcharts.setOptions({
+            global: {
+                useUTC: false
+            }
+        });
+
+        $('#container').highcharts({
+            chart: {
+                type: 'spline',
+                animation: Highcharts.svg, // don't animate in old IE
+                marginRight: 10,
+//                events: {
+//                    load: function () {
+//
+//                        // set up the updating of the chart each second
+//                        var series = this.series[0];
+//                        setInterval(function () {
+//                            var x = (new Date()).getTime(), // current time
+//                                    y = Math.random();
+//                            series.addPoint([x, y], true, true);
+//                        }, 1000);
+//                    }
+//                }
+            },
+            colors:["#1ab394"],
+            title: {
+                text: ''
+            },
+            xAxis: {
+                type: 'datetime',
+                tickPixelInterval: 50
+            },
+            yAxis: {
+                title: {
+                    text: '异常次数'
+                },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#1ab394'
+                }]
+            },
+            tooltip: {
+                formatter: function () {
+                    return '<b>' + this.series.name + '</b><br/>' +
+                            Highcharts.dateFormat('%H', this.x) + '点后<br/>' +
+                            Highcharts.numberFormat(this.y, 2);
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            exporting: {
+                enabled: false
+            },
+            series: [{
+                name: '报警次数',
+                data: eval(post({},"/monitor/report/selectHoursCount?groups=$!{groups}")),
+            }]
+        });
+    });
+});
+//获取当前时间，格式YYYY-MM-DD
+function getNowFormatDate() {
+    var date = new Date();
+    var seperator1 = "-";
+    var year = date.getFullYear();
+    var month = date.getMonth() + 1;
+    var strDate = date.getDate();
+    if (month >= 1 && month <= 9) {
+        month = "0" + month;
+    }
+    if (strDate >= 0 && strDate <= 9) {
+        strDate = "0" + strDate;
+    }
+    var currentdate = year + seperator1 + month + seperator1 + strDate;
+    return currentdate;
+}
+
+function hoursTable() {
+
+    $("#hoursTable").dataTable({
+        "filter": false,//去掉搜索框
+        "ordering": false, // 是否允许排序
+        "paginationType": "full_numbers", // 页码类型
+        "destroy": true,
+        "processing": false,
+        "serverSide": true,
+        "scrollX": true, // 是否允许左右滑动
+        "displayLength": 10, // 默认长度
+        "bLengthChange": false, // 下啦选择每页显示
+        "language": {
+            "paginate": {
+                "last": "",
+                "next": "",
+                "sPrevious": "",
+                "sInfo":"",
+                "sFirst":"",
+            },
+            "sInfo":"",
+            "sInfoEmpty":"",
+        },
+        "ajax": { // 请求地址
+            "url": "/monitor/report/selectHoursCountData?t=" + new Date().getTime()+"&groups=$!{groups}",
+            "type": 'post'
+        },
+
+
+        "columns": [ // 数据映射
+            {"data":"hours","mRender":function (data,type,full) {
+                data = laydate.now(data, "YYYY-MM-DD hh:mm:ss");
+                data = data.split(" ")[1].split(":")[0]
+                return '<a href="/monitor/report/hours/hoursReportPage?hours='+data+'&groups=${groups}">' + data +"</a>";
+            }},
+            {"data":"cnt","mRender":function (data,type,full) {
+                t1 = getNowFormatDate().split(" ")[0]
+                key = full["hours"]
+                start = laydate.now(key, "YYYY-MM-DD hh:mm:ss");
+                t2 = start.split(" ")[1].split(":")[0];
+                start = t1+" "+t2+"00:00"
+                end = full["hours"]+3600000
+                end = laydate.now(end, "YYYY-MM-DD hh:mm:ss");
+                t2 = end.split(" ")[1].split(":")[0];
+                end = t1+" "+t2+"00:00"
+                return '<span onclick="selectGroupsCount(\''+start+'\',\''+end+'\')"><a href="javascript:void(0)">'+data+'</a></span>'
+            }}
+        ],
+        "fnRowCallback": function (row, data) { // 每行创建完毕的回调
+            $(row).data('recordId', data.recordId);
+        }
+    });
+}
+
+hoursTable();
+
+function selectmonitorNameCount(key) {
+    if(!key){
+        key="";
+    }
+    $('#getGroups').val(key)
+
+    $("#selectmonitorNameCount").dataTable({
+        "filter": false,//去掉搜索框
+        "ordering": false, // 是否允许排序
+        "paginationType": "full_numbers", // 页码类型
+        "destroy": true,
+        "processing": false,
+        "serverSide": true,
+        "scrollX": true, // 是否允许左右滑动
+        "displayLength": 10, // 默认长度
+        "bLengthChange": false, // 下啦选择每页显示
+        "language": {
+            "paginate": {
+                "last": "",
+                "next": "",
+                "sPrevious": "",
+                "sInfo":"",
+                "sFirst":"",
+            },
+            "sInfo":"",
+            "sInfoEmpty":"",
+        },
+        "ajax": { // 请求地址
+            "url": "/monitor/report/selectMonitorNameCount?t=" + new Date().getTime()+"&groups="+key,
+            "type": 'post'
+        },
+
+
+        "columns": [ // 数据映射
+            {"data":"monitorName"},
+            {"data":"cnt","mRender":function (data,type,full) {
+                key = full["monitorName"]
+                return '<span onclick="loadData(\''+key+'\')"><a href="javascript:void(0)">'+data+'</a></span>'
+            }}
+        ],
+        "fnRowCallback": function (row, data) { // 每行创建完毕的回调
+            $(row).data('recordId', data.recordId);
+        }
+    });
+}
+selectmonitorNameCount('$!{groups}');
+
+
+
+function selectGroupsCount(start, end) {
+    if(!start){
+        start="";
+    }
+    if(!end){
+        end = "";
+    }
+
+    $("#selectGroupsCount").dataTable({
+        "filter": false,//去掉搜索框
+        "ordering": false, // 是否允许排序
+        "paginationType": "full_numbers", // 页码类型
+        "destroy": true,
+        "processing": false,
+        "serverSide": true,
+        "scrollX": true, // 是否允许左右滑动
+        "displayLength": 10, // 默认长度
+        "bLengthChange": false, // 下啦选择每页显示
+        "language": {
+            "paginate": {
+                "last": "",
+                "next": "",
+                "sPrevious": "",
+                "sInfo":"",
+                "sFirst":"",
+            },
+            "sInfo":"",
+            "sInfoEmpty":"",
+        },
+        "ajax": { // 请求地址
+            "url": "/monitor/report/selectGroupsCount?t=" + new Date().getTime()+"&groups=$!{groups}&startT="+start+"&endT="+end,
+            "type": 'post'
+        },
+
+
+        "columns": [ // 数据映射
+            {"data":"groups"},
+            {"data":"cnt","mRender":function (data,type,full) {
+                key = full["groups"]
+
+                return '<span onclick="selectmonitorNameCount(\''+key+'\')"><a href="javascript:void(0)">'+data+'</a></span>'
+            }}
+        ],
+        "fnRowCallback": function (row, data) { // 每行创建完毕的回调
+            $(row).data('recordId', data.recordId);
+        }
+    });
+}
+selectGroupsCount("");
+</script>
+
+</body>
+
+</html>

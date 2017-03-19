@@ -1,0 +1,52 @@
+<div class="ibox float-e-margins">
+    <div class="ibox-title">
+        <h5>报警信息统计</h5>
+    </div>
+
+    <div class="ibox-content">
+        <div class="row">
+            <div class="col-xs-4">
+                <small class="stats-label"><B>检查类型</B></small>
+                #foreach($cc in $check)
+                <h6>${cc.name}</h6>
+                #end
+            </div>
+            <div class="col-xs-2">
+                <small class="stats-label"><B>正常</B></small>
+                #foreach($c in $check)
+                        <h6>${c.ok}</h6>
+                #end
+            </div>
+            <div class="col-xs-2">
+                <small class="stats-label"><B>危险</B></small>
+                #foreach($c in $check)
+                    #if($c.danger>0)
+                        <h6><font color="#ed5565">${c.danger}</font></h6>
+                    #else
+                        <h6>&nbsp;</h6>
+                    #end
+                #end
+            </div>
+            <div class="col-xs-2">
+                <small class="stats-label"><b>警告</b></small>
+                #foreach($c in $check)
+                    #if($c.warning >0)
+                    <h6>${c.warning}</h6>
+                #else
+                    <h6>&nbsp;</h6>
+                #end
+                #end
+            </div>
+            <div class="col-xs-2">
+                <small class="stats-label"><b>未知</b></small>
+                #foreach($c in $check)
+                    #if($c.unknown>0)
+                    <h6>${c.unknown}</h6>
+                #else
+                    <h6>&nbsp;</h6>
+                #end
+                #end
+            </div>
+       </div>
+    </div>
+</div>

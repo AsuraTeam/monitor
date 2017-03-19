@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:mvc="http://www.springframework.org/schema/mvc"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context-4.2.xsd">
+
+
+	<context:property-placeholder location="classpath:system.properties"/>
+
+	<!--自动会启用 RequestHandlerMapping RequestHandlerAdapter 默认的MessageConverter-->
+	<mvc:annotation-driven/>
+	
+	<mvc:resources mapping="static/**" location="/static/"/>
+
+	<!-- 设置使用注解的类所在的jar包 -->
+	<context:component-scan base-package="com.asura" >
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Service"/>
+	</context:component-scan>
+
+	<!-- velocityViewResolver velocityLayoutViewResolver 有两个视图解析器，目前只用 velocityViewResolver-->
+	<bean id="velocityViewResolver" class="org.springframework.web.servlet.view.velocity.VelocityViewResolver">
+		<property name="suffix" value=".vm"/>
+		<property name="exposeRequestAttributes" value="true"/>
+		<property name="allowRequestOverride" value="true"/>
+		<property name="exposeSpringMacroHelpers" value="true"/>
+		<property name="requestContextAttribute" value="req"/>
+		<property name="contentType" value="text/html;charset=UTF-8"/>
+	</bean>
+
+
+	<!--自动会启用 RequestHandlerMapping RequestHandlerAdapter 默认的MessageConverter-->
+	<mvc:annotation-driven validator="validator.validatorFactory"/>
+
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/**"/>
+			<mvc:exclude-mapping path="/static/**"/>
+			<bean class="com.asura.common.interceptor.AccessLogInterceptor"/>
+		</mvc:interceptor>
+		<mvc:interceptor>
+			<mvc:mapping path="/**"/>
+			<mvc:exclude-mapping path="/static/**"/>
+			<bean class="com.asura.common.interceptor.AllInterceptor"/>
+		</mvc:interceptor>
+	</mvc:interceptors>
+
+
+</beans>

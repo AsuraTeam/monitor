@@ -1,0 +1,224 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>各资源使用排序</title>
+
+    #include("/index/include.vm")
+
+    <style>
+        table th {
+            word-break: keep-all;
+            white-space: nowrap;
+        }
+
+        table td {
+            word-break: keep-all;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body class="top-navigation">
+<div id="wrapp11er">
+    <div id="page-wrapp1er" class="gray-bg">
+        #include("/index/header.vm")
+        <div class="w1rapper" style="padding: 0px;">
+            <div class="row" style="margin-left: -15px;margin-right: -26px;">
+                <div class="col-sm-2" style="margin-top:10px;margin-left:15px;">
+                    <script>
+                        url = "/resource/configure/groups/listData?draw=1&length=1000&start=1";
+                        result = post({}, url);
+                        data = result["data"]
+                        html = "<select style='height: 32px;wdith:200px;border: none;margin-top: 2px;'  data-live-search='true'   class='btn selectpicker bla bla bli form-control' id='groupsDataId' onchange='loadData($(this).val())'>"
+                        for (i = 0; i < data.length; i++) {
+                            if( "${groups}" == data[i]["groupsName"]){
+                                html += "<option value='" + data[i]["groupsId"] + "'>" + data[i]["groupsName"] + "</option>"
+                            }
+                        }
+                        html += "<option value=''>--------业务线选择--------</option>"
+                        for (i = 0; i < data.length; i++) {
+                            html += "<option value='" + data[i]["groupsId"] + "'>" + data[i]["groupsName"] + "</option>"
+                        }
+                        html += "</select>"
+                        document.write(html)
+                    </script>
+                </div>
+                <div class="col-sm-2" style="margin-top:10px;margin-left:-24px;">
+                    <select class="form-control" name="typeId" id="typeId">
+                        <option value="">--服务器选择--</option>
+                        #foreach( $conf in $types )
+                            <option
+                                    value='$!{conf.typeId}'>
+                                $!{conf.typeName}
+                            </option>
+                        #end
+                    </select>
+                </div>
+                <div class="col-sm-2" style="margin-top:10px;margin-left:-24px;">
+                    <select class="form-control" name="serviceId" id="serviceId">
+                        <option value="">--服务类型选择--</option>
+                        #foreach( $conf in $service )
+                            <option
+                                    value='$!{conf.serviceId}'>
+                                $!{conf.serviceName}
+                            </option>
+                        #end
+                    </select>
+                </div>
+                <div class="col-sm-1" style="margin-top:10px;margin-left:-24px;width:15%;">
+                    <select class="form-control" name="userId" id="userId">
+                        <option value="">--负责人--</option>
+                        #foreach( $conf in $user )
+                            <option
+                                    value='$!{conf.userId}'>
+                                $!{conf.userName}
+                            </option>
+                        #end
+                    </select>
+                </div>
+                <div class="col-sm-2" style="margin-top:10px;margin-left:-24px;">
+                    <select class="form-control" name="entId" id="entId">
+                        <option value="">--环境选择--</option>
+                        #foreach( $conf in $entname )
+                            <option
+                                    value='$!{conf.entId}'>
+                                $!{conf.entName}
+                            </option>
+                        #end
+                    </select>
+                </div>
+                <div class="col-sm-2" style="margin-left:-30px;">
+                    <input type="text" class="form-control" style="width:300px;margin-left:10px;margin-top:10px;" id="search_images" onkeyup="search_images($(this).val())" placeholder="图片搜索">
+                    <div class="col-md-2" id="show_search_images" style="display:none;position:absolute;margin-top:5px;background-color:#ffffff;margin-left:2px;z-index:999999">
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-12" style="margin-top:10px">
+                <table id="listTable"
+                       class="table  table-bordered table-hover dataTables-example">
+                    <thead>
+                    <tr role="rows">
+                        <th >所属业务线</th>
+                        <th >主机名</th>
+                        <th >ip地址</th>
+                        <th >指标名称</th>
+                        <th >指标结果</th>
+                        <th >最近修改时间</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<script>
+
+    function search_images(value){
+        $("#show_search_images").show()
+        url = "/monitor/configure/index/listData?start=1&length=100&draw=1";
+        result = post({"search[value]": value},url);
+        data = result["data"]
+        width = $("#search_images").css("width").replace(/px/,"")
+        $("#show_search_images").css("width", width)
+        html = "<div style='margin-left:-8px;float:left;text-align:left;margin-top:5px;'><span  onclick='$(\"#show_search_images\").hide()' style='text-align:left;width:"+width+"px;' class='btn-outline btn-danger btn search-ip'><div class='checkbox  checkbox-inline'><label for='inlineCheckbox'>关闭</label></div></div><br>"
+        for (i=0;i<data.length;i++){
+            html += "<div style='float:left;text-align:left;margin-left:-8px;'><span style='text-align:left;width:"+width+"px;' class='btn-outline btn-primary btn search-ip'><div class='checkbox  checkbox-inline'><input type='radio' name='select_image_name'  onclick=\"search_images_load('"+data[i]["indexName"]+"',"+i+")\" value='"+data[i]["indexName"].replace(/SLASH/g,"/")+"' id='inlineCheckbox"+i+"'><label for='inlineCheckbox"+i+"'> "+data[i]["indexName"].replace(/SLASH/g,"/")+"</label></div></div><br>"
+        }
+        $("#show_search_images").html(html)
+    }
+
+    function search_images_load(value){
+        value = value.replace(/\//g,"SLASH")
+        values = value.split(".")
+        groups = values[0]
+        name = ""
+        for(i=1;i<values.length;i++){
+            name += values[i]+"."
+        }
+        name = name.substring(0, name.length-1);
+        value = groups+"|"+name
+        loadData("", value, "")
+    }
+
+    function loadData(groups, name) {
+        if (!groups) {
+            groups = $('#groupsDataId').val()
+        }else{
+            $('#status').val(groups);
+        }
+        if (!name) {
+            name = "";
+            return;
+        }
+        entid = $('#entId').val()
+        userid = $('#userId').val()
+        typeid = $('#typeId').val()
+        serviceid = $('#serviceId').val()
+        if(!entid){
+            entid = ""
+        }
+        if(!userid){
+            userid = ""
+        }
+        if(!typeid){
+            typeid=""
+        }
+        if(!serviceid){
+            serviceid = ""
+        }
+        $("#listTable").dataTable({
+            "filter": false,//去掉搜索框
+            "ordering": false, // 是否允许排序
+            "paginationType": "full_numbers", // 页码类型
+            "destroy": true,
+            "processing": false,
+            "serverSide": true,
+            "scrollX": true, // 是否允许左右滑动
+            "displayLength": 10, // 默认长度
+            "ajax": { // 请求地址
+                "url": "/monitor/index/performance/listData?t=" + new Date().getTime() + "&groupsName="+groups+"&indexName=" + name+"&entname="+entid+"&username="+userid+"&typeId="+typeid+"&serverType="+serviceid,
+                "type": 'post'
+            },
+
+            "columns": [ // 数据映射
+                {"data": "groupsName","mRender":function (data) {
+                    return '<span onclick="loadData(\''+data+'\',\'\',\'\')">'+data+'</span>'
+                }},
+                {"data": "hostname","mRender":function (data) {
+                    return '<span onclick="loadData(\''+data+'\',\'\',\'\')">'+data+'</span>'
+                }},
+                {"data": "key","mRender":function (data) {
+                    return '<span>'+data+'</span>' +
+                            '<span title="点击到报表页面" style="margin-left:10px;" ' +
+                            'onClick="window.open(\'/monitor/graph/all/index?select='+name+'&ip='+data+'\')" class="close-link">' +
+                            '<i style="color:#BEBEBE;margin-top:-3px;font-size:15px;" class="fa fa-line-chart"></i> </span>'
+                }},
+                {"data": "value","mRender":function (data) {
+                    return name;
+                }},
+                {"data": "value","mRender":function (data) {
+                    return data;
+                }},
+                {"data": "lastModifyTime","mRender":function (data) {
+                    return data?laydate.now(data, "YYYY-MM-DD hh:mm:ss"):"--";
+                }},
+            ],
+            "fnRowCallback": function (row, data) { // 每行创建完毕的回调
+                $(row).data('recordId', data.recordId);
+            }
+        });
+    }
+
+</script>
+</div>
+</div>
+</div>
+</body>
+    #include("/index/footer.vm")
+</html>

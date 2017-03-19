@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.resource.dao.CmdbResourceNetworkAddressDao">
+    <select id="selectByAll" resultType="com.asura.resource.entity.CmdbResourceNetworkAddressEntity">
+        select 
+            a.id as id,
+            a.ip_prefix_id as ipPrefixId,
+            a.ip_subffix as ipSubffix,
+            a.status as status,
+            concat(b.network_prefix,".",a.ip_subffix) as ipAddress,
+            a.last_modify_time as lastModifyTime
+         from cmdb_resource_network_address a, cmdb_resource_network b
+         <where>
+             a.ip_prefix_id=b.network_id and a.ip_subffix>0
+             <if test="networkId != null">
+                and a.ip_prefix_id=#{networkId}
+             </if>
+             <if test="type != null">
+                 and a.status=#{type}
+             </if>
+             <if test="prefix != null">
+                 and b.network_prefix=#{prefix}
+             </if>
+         </where>
+        </select>
+
+    <insert id="save" parameterType="com.asura.resource.entity.CmdbResourceNetworkAddressEntity">
+        insert into cmdb_resource_network_address(
+            ip_prefix_id,
+            ip_subffix
+        )
+        values(        
+            #{ipPrefixId},
+            #{ipSubffix}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.resource.entity.CmdbResourceNetworkAddressEntity">
+        update cmdb_resource_network_address set   
+            status=#{status},
+             last_modify_time=#{lastModifyTime}
+         where  ip_prefix_id=#{ipPrefixId} and
+            ip_subffix=#{ipSubffix}
+    </update>
+
+</mapper>
+

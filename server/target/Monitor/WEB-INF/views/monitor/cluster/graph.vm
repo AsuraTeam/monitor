@@ -1,0 +1,204 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>监控集群图像展示</title><body class="gray-bg top-navigation">
+    #include("/index/include.vm")
+<script type="application/javascript" src="/static/js/monitor/graph/all/graph.js"></script>
+
+<div id="">
+    <div id="page-wrapper" class="gray-bg">
+        #include("/index/header.vm")
+        <body>
+        <script src="/static/js/plugins/highcharts.js"></script>
+        <style>
+            .imgdiv{
+                border:solid 1px #f0f0f0;margin-top:31px;margin-left:0px;float:left;
+            }
+        </style>
+        <div class="col-md-12" style=margin-top:10px;float:left;display:block;">
+            <div style="float:left">
+            <span class="form-group" onclick="window.location='/monitor/cluster/list'" style="float:left;">
+                <button  class="btn btn-outline btn-success" type="button">
+                    <i class="fa fa-mail-reply"></i>&nbsp;&nbsp;返回集群列表
+                </button>
+            </span>
+            </div>
+            <div style="float:left;margin-left:5px;" class="col-md-6">
+                <select  class="selectpicker bla bla bli form-control" data-live-search="true" onchange="load_img($(this).val())">
+
+                    #foreach($name in $names)
+                        #foreach($n in $types.get($name))
+                            <option value="${name}.${n}">${name}.${n.replace("SLASH", "/")}</option>
+                        #end
+                    #end
+                </select>
+            </div>
+        </div>
+        <div class="col-md-12"></div>
+
+
+        <title>集群监控查看</title>
+        <div class="col-md-4" style="float:left;margin-top:-40px;">
+            <div class="form-group">
+                <table class="table table-bordered table-hover">
+                    <tr>
+                        <th>所属业务线:</th>
+                        <td>&nbsp;$!{groupsName}</td>
+                    </tr>
+                    <th>集群名称:</th>
+                    <td>$!{clusterName}</td>
+                    <tr>
+                    </tr>
+                    <tr>
+                        <th>内存大小/已使用:</th>
+                        <td>$!{memSize}GB/$!{memUsed}GB</td>
+                    </tr>
+                    <tr>
+                        <th>CPU数量:</th>
+                        <td>$!{cpu}</td>
+                    </tr>
+                    <tr>
+                        <th>节点UP:</th>
+                        <td>${up}</td>
+                    </tr>
+                    <tr>
+                        <th>节点DOWN:</th>
+                        <td><a href="" title="$!{downHosts}">$!{down}</a></td>
+                    </tr>
+                    <tr>
+                        <br>
+                        <br>
+                    </tr>
+                </table>
+                <table class="table table-bordered table-hover">
+                    <tr>
+                        <th>当前系统负载<br>(15分钟， 5分钟, 1分钟):</th>
+                        <td>$!{load1},$!{load5},$!{load15}</td>
+                    </tr>
+                    <tr>
+                        <th>平均负载:</th>
+                        <td>$!{load1}</td>
+                    <tr>
+                    </tr>
+                    <th>当前流量(出口):</th>
+                    <td>$!{send}MiB</td>
+                    </tr>
+                    <tr>
+                        <th>当前流量(入口):</th>
+                        <td>$!{input}MiB</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="col-md-4" style="margin-top:0px;margin-left:-20px;width:34%;float:left;">
+            <div id="allimageBorder" class="col-md-4"
+                 style="border:solid 1px #f0f0f0;width: 100%;padding: 15px;margin-left:0px;height:auto;">
+                <div class="ibox float-e-margins">
+                    <input type="hidden" id="allimageBorderWidth" value="49">
+                    <div onclick="load_page('loadavg')" id="allimage" style="width: 100%;height: 373px;margin-bottom:-40px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4" style="margin-top:0px;margin-left:-20px;width:35%;float:left;">
+            <div id="allimageBorder" class="col-md-4"
+                 style="border:solid 1px #f0f0f0;width: 100%;padding: 15px;margin-left:0px;height:auto;">
+                <div class="ibox float-e-margins">
+                    <input type="hidden" id="allimageBorderWidth" value="49">
+                    <div onclick="load_page('cpu')" id="cpu" style="width: 100%;height: 373px;margin-bottom:-40px;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12" style="margin-top:10px;width:45%;float:left;">
+        </div>
+
+        <div class="col-md-12" style="margin-top:-40px;float:left;">
+            <div class="col-md-6 imgdiv">
+                <div class="ibox float-e-margins">
+                    <input type="hidden" id="allimageBorderWidth" value="49">
+                    <div onclick="load_page('traffic')" id="traffic" style="width: 100%;height: 373px;margin-bottom:-40px;"></div>
+                </div>
+            </div>
+            <div class="col-md-6 imgdiv">
+                <div class="ibox float-e-margins">
+                    <input type="hidden" id="allimageBorderWidth" value="49">
+                    <div onclick="load_page('memory')" id="memory" style="width: 100%;height: 373px;margin-bottom:-40px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <input type="hidden" id="select_data_type">
+
+        <script>//Flot Multiple Axes Line Chart
+
+        function reload_day_img(name, groups, ip) {
+            url = "/monitor/graph/all/listImg?ip="+ip+"&name="+name+"&groups="+groups;
+            window.location.href = url;
+        }
+
+        function load_page(t) {
+            select = ""
+            if (t=="memory"){
+                select = "memrory|system.mem.cache,memory|system.mem.cache,memory|system.mem.buffer,memory|system.mem.used,memory|system.swap.used,memory|system.swap.totle";
+            }
+            if (t=="cpu"){
+                select = "cpu|system.cpu.user,cpu|system.cpu.nice,cpu|system.cpu.iowait,cpu|system.cpu.steal,cpu|system.cpu.system";
+            }
+            if(t=="loadavg"){
+                select = "loadavg|system.load.1,loadavg|system.load.5,loadavg|system.load.15"
+            }
+            if(t=="traffic"){
+                select = "traffic|system.net.bytes.rcvd.eth0,traffic|system.net.bytes.send.eth0,traffic|system.net.packets_out.count.eth0,traffic|system.net.packets_in.count.eth0"
+            }
+            $.cookie("is_all_select", "2")
+            $.cookie("selectImages", select, {"path":"/"});
+            $.cookie("select_all_ip_textarea", "$!{hosts}".replace(/,/g, "\n"))
+            window.location = '/monitor/graph/all/index?ip=$!{ip}'
+        }
+
+        function load_img(name){
+            window.open('/monitor/cluster/cluster?groupsName=$!{groupsName}&clusterName=$!{clusterName}&select='+name)
+        }
+
+        function graphAll(ip, images_id, name_datas, title, resultType, imgType) {
+            cluser_graph_all(ip, images_id, name_datas, title, resultType, imgType, "$!{clusterName}");
+        }
+
+        var names = {}
+        names["loadavg"] = new Array();
+        names["loadavg"].push("system.load.1")
+        names["loadavg"].push("system.load.5")
+        names["loadavg"].push("system.load.15")
+        graphAll("", "allimage", names, "loadavg", "1")
+
+        var names = {}
+        names["cpu"] = new Array();
+        names["cpu"].push("system.cpu.user")
+        names["cpu"].push("system.cpu.nice")
+        names["cpu"].push("system.cpu.iowait")
+        names["cpu"].push("system.cpu.steal")
+        names["cpu"].push("system.cpu.system")
+        graphAll("", "cpu", names, "cpu", "1")
+
+        var names = {}
+        names["memory"] = new Array();
+        names["memory"].push("system.mem.cache")
+        names["memory"].push("system.mem.buffer")
+        names["memory"].push("system.mem.used")
+        names["memory"].push("system.swap.used")
+        names["memory"].push("system.swap.totle")
+        graphAll("", "memory", names, "memory", "line")
+
+
+        var names = {}
+        names["traffic"] = new Array();
+        names["traffic"].push("system.net.bytes.rcvd.eth0")
+        names["traffic"].push("system.net.bytes.send.eth0")
+        names["traffic"].push("system.net.packets_out.count.eth0")
+        names["traffic"].push("system.net.packets_in.count.eth0")
+        graphAll("", "traffic", names, "traffic")
+        </script>
+        </body>

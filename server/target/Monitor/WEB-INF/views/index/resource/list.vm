@@ -1,0 +1,26 @@
+
+#if($page.equals("resource/config"))
+<li class="dropdown">
+    <a aria-expanded="false" role="button" href="#" class="dropdown-toggle" data-toggle="dropdown">资源配置<span class="caret"></span></a>
+    <ul role="menu" class="dropdown-menu">
+        <li><a href="/resouce/configure/floor/list">机房配置</a>
+        </li>
+        <li><a href="/resouce/configure/cabinet/list">机柜配置</a>
+        </li>
+        <li><a href="/resouce/configure/entname/list">环境配置</a>
+        </li>
+        <li><a href="/resouce/configure/groups/list">业务线配置</a>
+        </li>
+        <li><a href="/resouce/configure/user/list">管理员配置</a>
+        </li>
+        <li><a href="/resouce/configure/serverType/list">服务器类型配置</a>
+        </li>
+        <li><a href="/resouce/configure/osType/list">系统类型配置</a>
+        </li>
+        <li><a href="/resouce/configure/server/list">服务器配置</a>
+        </li>
+    </ul>
+</li>
+#else
+
+#end

@@ -1,0 +1,37 @@
+#include("/index/include.vm")
+<script src="/static/js/plugins/highcharts.js"></script>
+<style>
+    .col-center-block {
+        float: none;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+</style>
+<br>
+#foreach($day in $days)
+<div id="${n}${name.replace('---','').replace(".","_").replace(" ","")}Border" class="col-md-12 col-center-block"
+     style="border:solid 1px #f0f0f0;width: 65%;margin:auto;">
+    <div class="ibox float-e-margins">
+        <div class="title-img">
+            <h5 align="center" style="margin-top: 10px;margin-left: 10px;">${name}&nbsp;${n.replace(
+                "SLASH","/").replace('---','&nbsp;')}&nbsp;&nbsp;${day}天</h5>
+        </div>
+        <input type="hidden" id="${n}${name.replace('---','').replace(".","_").replace(" ","")}BorderWidth${day}"
+               value="32">
+        <div class="animated pulse" id="${n}${name.replace('---','').replace(".","_").replace(" ","")}${day}"
+             style="width: 100%;height: 240px;margin-bottom:5px;text-align:center;"><img width="20%" height="50%;"
+                                                                                         src="/static/images/loading.gif">
+        </div>
+    </div>
+</div>
+#end
+
+<script>
+        #foreach($dayNumber in $days)
+        function load${n}${name.replace('---','').replace(".","_").replace(" ","").replace("-","")}${dayNumber}() {
+            graph_min("1ab394", '${n}${name.replace('---','').replace(" ","").replace(".","_")}${dayNumber}', "${n} ${name.replace("SLASH","/").replace('---',' ')} ${dayNumber}天", "${n} ${name.replace("SLASH","/").replace('---',' ')} ${dayNumber}天", "/monitor/graph/historyData?ip=${ip}&name=${name}&dayNumber=$!{dayNumber}&type=$n", "", "$!{startT}", "$!{endT}")
+        }
+        load${n}${name.replace('---','').replace(".","_").replace(" ","").replace("-","")}${dayNumber}();
+        #end
+</script>

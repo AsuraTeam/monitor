@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+
+<head>
+
+    #include("/index/include.vm")
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>运维可视化平台</title>
+
+
+</head>
+<style>
+    .table{width: 100%;}
+    .table tr{float: left;width:25%;padding: 0px;margin: 0px;}
+    .alarmdiv {
+        width: 120%;
+        margin-left:-15px;
+        margin-top:-10px;
+        margin-right:1px;
+        margin-bottom: -20px;
+    }
+</style>
+<body class="gray-bg top-navigation">
+<div style="display: none;">
+    <input id="alarmPlayStatus" value="1"/>
+    <iframe id="alarmPlay" src=""></iframe>
+</div>
+<div id="page-wrapper" class="gray-bg">
+    #include("/index/header.vm")
+    <script>
+        var LOADING;
+        function alarmPlay(id) {
+            clearInterval(LOADING);
+            cs = $('#displayStop' + id + 'Fa').attr('class');
+            if(!cs){
+                cs = ""
+            }
+            console.log(cs);
+            if (cs.indexOf("fa-stop") != -1) {
+                $('#displayStop' + id + 'Fa').removeClass('fa-stop');
+                $('#displayStop' + id + 'Fa').addClass('fa-play');
+                $('#alarmPlayStatus').val(1)
+
+            } else {
+                $('#displayStop' + id + 'Fa').removeClass('fa-play');
+                $('#displayStop' + id + 'Fa').addClass('fa-stop');
+                LOADING = setInterval(function () {
+                    $('#alarmPlay').attr("src", "/static/mp3/alarm.mp3");
+                }, 5000);
+                $('#alarmPlayStatus').val(0)
+            }
+
+        }
+
+        function loadGroupData(group){
+            $('#alarmInformationId').modal("toggle")
+            selectAlarmInformation(group);
+        }
+    </script>
+
+
+
+    <!-- 异常信息查看 -->
+    <div class="modal fade" id="alarmInformationId" tabindex="-1" style="z-index: 12050 !important;" role="dialog"  data-backdrop="false">
+        <div class="modal-dialog" style="width:100%;margin-top:-10px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">异常信息查看</h4>
+                </div>
+                <div class="modal-body fadeInUp">
+                    <table style="width: 100%" id="selectAlarmInformation" >
+                        <thead>
+                        <tr>
+                            <th style="width: 12%">ip地址</th>
+                            <th style="width: 8%">状态</th>
+                            <th style="width: 15%">系统名称</th>
+                            <th style="width: 50%">异常信息</th>
+                            <th style="width: 15%">监控类型</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+<div style="margin-top:-12px;">
+    <table id="alarmTable" class="table alarmTabl" style="margin-top:-20px;">
+
+    </table>
+    </div>
+
+
+
+
+
+</div>
+<script>
+    var cookieName = 'excludeGroups'
+    function  clearCookie() {
+        $.cookie(cookieName,"")
+        alarmTable()
+    }
+
+    function  excludeGroups(groups) {
+        old = $.cookie(cookieName)
+        old = old + "," +groups
+        $.cookie(cookieName,old);
+        alarmTable()
+    }
+
+    // 跳转到报表页面
+    function  reportPage(groups) {
+        window.open("/monitor/report/index?groups="+groups);
+    }
+
+    // 跳转到数据页面
+    function  loadPage(groups,status) {
+        if(!status){
+            status = ""
+        }
+        window.open("/monitor/data/list?groups="+groups+"&status="+status);
+    }
+    function selectAlarmInformation(key) {
+        if(!key){
+            key="";
+        }
+
+        $("#selectAlarmInformation").dataTable({
+            "filter": false,//去掉搜索框
+            "ordering": false, // 是否允许排序
+            "paginationType": "full_numbers", // 页码类型
+            "destroy": true,
+            "processing": false,
+            "serverSide": true,
+            "scrollX": false, // 是否允许左右滑动
+            "displayLength": 10, // 默认长度
+            "bLengthChange": false, // 下啦选择每页显示
+            "language": {
+                "paginate": {
+                    "last": "",
+                    "next": "",
+                    "sPrevious": "",
+                    "sInfo":"",
+                    "sFirst":"",
+                },
+                "sInfo":"",
+                "sInfoEmpty":"",
+            },
+            "ajax": { // 请求地址
+                "url": "/monitor/global/selectGroupsMonitorInfo?t=" + new Date().getTime()+"&groups="+key,
+                "type": 'post'
+            },
+
+
+            "columns": [ // 数据映射
+                {"data":"ip","sWidth":"15%"},
+                {"data":"status","sWidth":"15%"},
+                {"data":"name","sWidth":"15%"},
+                {"data":"info","sWidth":"40%"},
+                {"data":"monitorName","sWidth":"15%"},
+            ],
+            "fnRowCallback": function (row, data) { // 每行创建完毕的回调
+                $(row).data('recordId', data.recordId);
+            }
+        });
+    }
+
+    function alarmTable(status, key) {
+        if (!status) {
+            status = "";
+        }
+        if (!key) {
+            key = "";
+        }
+        if (key.length > 0 && key.length <= 5) {
+            return;
+        }
+
+        //排除的数据
+
+        exclude = $.cookie(cookieName);
+        if(!exclude){
+            exclude= ""
+        }
+
+        // 每次加载数据先清除声音
+        clearInterval(LOADING)
+        $("#alarmTable").dataTable({
+            "bLengthChange": false, // 下啦选择每页显示
+            "filter": false,//去掉搜索框
+            "ordering": false, // 是否允许排序
+            "paginationType": "full_numbers", // 页码类型
+            "destroy": true,
+            "processing": false,
+            "serverSide": true,
+            "displayLength": 10, // 默认长度
+            "language": {
+                "paginate": {
+                    "last": "",
+                    "next": "",
+                    "sPrevious": "",
+                    "sInfo":"",
+                    "sFirst":"",
+                },
+                "sInfo":"",
+                "sInfoEmpty":"",
+            },
+            "ajax": { // 请求地址
+                "url": "/monitor/global/indexData?t=" + new Date().getTime() + "&exclude="+exclude,
+                "type": 'post'
+            },
+
+            "columns": [ // 数据映射
+                {"data": "name","mRender":function (data,type,full) {
+                  totle = full["ok"]+full["warning"] + full["danger"] + full["unknown"]
+                    alarmPlayStat = $('#alarmPlayStatus').val();
+                    if(alarmPlayStat==1){
+                        alarmcss = "fa-stop"
+                    }else{
+                        alarmcss = 'fa-start'
+                    }
+
+                   html = '<div class="rows" style="margin-top: -5px;width: 300px;"><div class="col-sm-4 alarmdiv">'+
+                    '                <div class="ibox">'+
+                           '                    <div class="ibox-title" id="css'+full["id"]+'"><span title="点击忽略该组显示" style="margin-left:10px;" onClick="excludeGroups(\''+full["name"]+'\')" class="close-link"><i style="color:#BEBEBE;margin-top:-3px;font-size:15px;" class="fa fa-times"></i> </span><span title="点击到报表页面" style="margin-left:10px;" onClick="reportPage(\''+full["name"]+'\')" class="close-link"><i style="color:#BEBEBE;margin-top:-3px;font-size:15px;" class="fa fa-line-chart"></i> </span>'+
+                    '<span id="displayStop'+full["id"]+'" style="display: none" class="label label-default pull-right"'+
+    '                          onclick="alarmPlay('+full["id"]+')">'+
+    '                        <i id="displayStop'+full['id']+'Fa" class="fa '+ alarmcss +'"></i>'+
+    '                    </span>'+
+    '                        <h5 onClick="loadPage(\''+full["name"]+'\')">阿修罗 - '+full["name"]+'</h5>'+
+    '                    </div>'+
+'                    <div class="ibox-content">'+
+    '             <p style="text-align: center;margin-left: 10px;">'+
+        '               当前监控<strong>&nbsp;&nbsp;'+ totle+
+            '              </strong>&nbsp;项  <span title="点击清空设置" onclick="clearCookie()"><i class="fa fa-trash-o">&nbsp;</i></span>'+
+        '             </p>'+
+    '            <div class="row  m-t-sm">'+
+        '             <div class="col-sm-3 text-right">'+
+            '         <div class="font-bold">正常</div>'+
+            '            <span style="margin-top:9px;" onClick="loadPage(\''+full["name"]+'\',\'正常\')" class="btn btn-outline btn-primary">'+full["ok"]+'</span>'+
+            '          </div>'+
+        '            <div class="col-sm-3 text-right">'+
+            '        <div class="font-bold" onclick="loadGroupData(\''+full["name"]+'\')">危险</div>'+
+            '                  <span style="margin-top:9px;"  onClick="loadPage(\''+full["name"]+'\',\'危险\')" class="btn btn-outline btn-danger" >'+full["danger"]+'</span>'
+                    if (full["danger"] > 0 ) {
+                        $("#css"+full["id"]).css("background-color", "#ed5565")
+                        $("#displayStop"+full["id"]).show()
+                        if (!LOADING) {
+                            alarmPlay(full["id"])
+                        }
+                    }
+            html += '</div>'+
+        '<div class="col-sm-3 text-right">'+
+            '<div class="font-bold"  onclick="loadGroupData(\''+full["name"]+'\')">警告</div>'+
+            '<span style="margin-top:9px;" onClick="loadPage(\''+full["name"]+'\',\'警告\')" class="btn btn-outline btn-warning">'+full["warning"]+'</span>'
+                    if (full["warning"] > 0 ) {
+                        $("#css"+full["id"]).css("background-color", "#yellow")
+                    }
+
+          html += ' </div>'+
+        '     <div class="col-sm-3 text-right">'+
+            '   <div class="font-bold"  onclick="loadGroupData(\''+full["name"]+'\')">未知</div>'+
+            '   <span style="margin-top:9px;"  onClick="loadPage(\''+full["name"]+'\',\'未知\')" class="btn btn-outline btn-default">'+full["unknown"]+'</span>'
+                    if ( full["unknown"] > 0 ) {
+                        $("#css"+full["unknown"]).css("background-color", "#8f9d6a")
+                    }
+            html += '   </div>'+
+            ' </div>'+
+            '</div>'+
+'            </div>'+
+'            </div>'
+                    return html;
+                }},
+            ],
+            "fnRowCallback": function (row, data) { // 每行创建完毕的回调
+                $(row).data('recordId', data.recordId);
+            }
+        });
+    }
+    alarmTable();
+
+    // 35秒加载一次
+    var PAGELOAD;
+    count = 0
+    PAGELOAD = setInterval(function () {
+        alarmTable();
+        count += 1;
+        if(count>100 && $.cookie('isautoload')==0){
+            clearInterval(PAGELOAD);
+        }
+        if($.cookie('isautoload')==0){
+            $('#loadDataTag').val("off")
+        }else {
+            $('#loadDataTag').val("on")
+        }
+
+    },30000)
+
+    function setIsReload(status) {
+        $.cookie('isautoload',status)
+        if($.cookie('isautoload')==0){
+            $('#loadDataTag').val("off")
+        }else {
+            $('#loadDataTag').val("on")
+        }
+    }
+</script>
+</div>
+    &nbsp;<input type="text" style="margin-left:5px;width: 5%;float:left;" value="0" class="form-control" id="loadDataTag">
+    <button  class="btn btn-primary" style="margin-left: 2px;" onclick="setIsReload(1)">自动刷新</button>
+    <button  class="btn btn-default" onclick="setIsReload(0)">取消自动刷新</button>
+</body>
+
+#include("/index/footer.vm")
+
+
+</div>
+
+</body>
+
+</html>

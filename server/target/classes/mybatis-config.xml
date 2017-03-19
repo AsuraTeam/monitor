@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration 
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<!-- 标签按顺序写，否则 错误 -->
+<configuration>
+
+    <settings>
+        <setting name="cacheEnabled" value="false"/>
+        <setting name="lazyLoadingEnabled" value="false"/>
+        <setting name="aggressiveLazyLoading" value="false"/>
+        <!--sql 日志的前缀-->
+        <setting name="logPrefix" value="indra.sql."/>
+    </settings>
+
+    <plugins>
+        <!-- 分页查询时计算总数量是异步的 -->
+        <plugin interceptor="com.asura.framework.dao.mybatis.paginator.OffsetLimitInterceptor">
+            <property name="dialectClass" value="com.asura.framework.dao.mybatis.paginator.dialect.MySQLDialect"/>
+            <property name="asyncTotalCount" value="false"/>
+        </plugin>
+    </plugins>
+
+</configuration>
+
+
+

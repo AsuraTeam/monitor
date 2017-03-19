@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    #include("/index/include.vm")
+    <script src="/static/js/highcharts.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>网络地址报表</title>
+
+    <style>
+        title td tr {
+            border: none;
+            padding: 0px;
+            margin: 0px;
+        }
+
+        .no-border-right {
+            border-left:solid 1px #f0f0f0;
+            border-top:solid 1px #f0f0f0;
+            border-bottom:solid 1px #f0f0f0;
+        }
+    </style>
+</head>
+
+<body class="gray-bg top-navigation" style="background-color: #FeFeFe">
+
+<div id="wrappe1r">
+    <div id="page-wrapper" class="gray-bg">
+        #include("/index/header.vm")
+        <div class="wra1pper" style="padding:6px;">
+
+    <div class="col-md-3" style="width:25%;padding: 15px;margin-left:10px;border:solid 1px #f0f0f0;">
+        <div class="ibox float-e-margins" onclick="window.open('/resource/configure/network/list')">
+            <div class="">
+                <span class="label label-primary pull-right"></span>
+                <h3>网段信息</h3>
+            </div>
+            <div class="ibox-content">
+                <small>共有网段数量:<font color="red" style="font-size: 20px;margin-left: 10px;">$!{networkNumber}</font></small>
+            </div>
+        </div>
+    </div>
+
+            <div class="col-md-3" style="width:25%;padding: 15px;margin-left:5px;border:solid 1px #f0f0f0;">
+                <div class="ibox float-e-margins" onclick="window.open('/resource/configure/network/list')">
+                    <div class="">
+                        <span class="label label-primary pull-right"></span>
+                        <h3>IP总数</h3>
+                    </div>
+                    <div class="ibox-content">
+                        <small>总计ip数量:<font color="red" style="font-size: 20px;margin-left: 10px;">$!{totle}</font></small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3" style="width:24%;padding: 15px;margin-left:5px;border:solid 1px #f0f0f0;">
+                <div class="ibox float-e-margins" onclick="window.open('/resource/configure/network/list')">
+                    <div class="">
+                        <span class="label label-primary pull-right"></span>
+                        <h3>IP未使用信息</h3>
+                    </div>
+                    <div class="ibox-content">
+                        <small>未使用ip数量:<font color="red" style="font-size: 20px;margin-left: 10px;">$!{free}</font></small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3" style="width:24%;padding: 15px;margin-left:5px;border:solid 1px #f0f0f0;">
+                <div class="ibox float-e-margins" onclick="window.open('/resource/configure/network/list')">
+                    <div class="">
+                        <span class="label label-primary pull-right"></span>
+                        <h3>IP已使用信息</h3>
+                    </div>
+                    <div class="ibox-content">
+                        <small>已使用ip数量:<font color="red" style="font-size: 20px;margin-left: 10px;">$!{used}</font></small>
+                    </div>
+                </div>
+            </div>
+
+                    #foreach($ip in $addList)
+                        <div id="count${ip.replace(".","")}" style="float: left;width: 48%;border:solid 1px #f3f3f3;margin:10px;">加载中...</div>
+                    #end
+
+        </div>
+</div>
+</div>
+    </div>
+
+<script>
+
+var  colors = ["#1ab394",
+    "#f8ac59","#CC66CC",
+    "#1f90d8","#FFB94F","#1cc09f","#3c763d","#99389f","#017ebc"];
+
+
+
+    function getPie(title,name,type,pieId) {
+
+            // Radialize the colors
+            Highcharts.getOptions().colors = Highcharts.map(Highcharts.getOptions().colors, function (color) {
+                return {
+                    radialGradient: {
+                        cx: 0.5,
+                        cy: 0.3,
+                        r: 0.7
+                    },
+                    stops: [
+                        [0, color],
+                        [1, Highcharts.Color(color).brighten(-0.3).get('rgb')] // darken
+                    ]
+                };
+            });
+
+            // Build the chart
+            $('#'+pieId).highcharts({
+                chart: {
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false,
+                    type: 'pie'
+                },
+                colors:colors,
+                title: {
+                    text: title,
+                },
+                tooltip: {
+                    pointFormat: '{series.name}: <b>{point.y} {point.percentage:.1f}%</b>'
+                },
+                plotOptions: {
+                    pie: {
+                        showInLegend: true,
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                            style: {
+                                color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                            },
+                            connectorColor: 'silver'
+                        }
+                    }
+                },
+                series: [{
+                    name: name,
+                    data: post({prefix:type},'/resource/configure/network/countDataReport')
+
+                }]
+            });
+
+    }
+#foreach($ip in $addList)
+getPie("网段${ip}","${ip}段","${ip}","count${ip.replace(".","")}")
+#end
+</script>
+</body>
+
+</html>
