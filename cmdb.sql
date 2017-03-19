@@ -1,4 +1,9 @@
 set global max_allowed_packet=1000000000;
+SET character_set_client = utf8; 
+SET character_set_connection = utf8; 
+SET character_set_database = utf8; 
+SET character_set_results = utf8; 
+SET character_set_server = utf8; 
 set names utf8;
 create database cmdb;
 use cmdb;
@@ -100,7 +105,7 @@ CREATE TABLE `authority_user` (
   `login_faild_count` int(11) DEFAULT NULL COMMENT '登录失败次数',
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `uidx_auth_user_username` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -109,7 +114,7 @@ CREATE TABLE `authority_user` (
 
 LOCK TABLES `authority_user` WRITE;
 /*!40000 ALTER TABLE `authority_user` DISABLE KEYS */;
-INSERT INTO `authority_user` VALUES (3,'admin','21232f297a57a5a743894a0e4a801fc3',NULL,NULL);
+INSERT INTO `authority_user` VALUES (1,'admin','21232f297a57a5a743894a0e4a801fc3',NULL,NULL);
 /*!40000 ALTER TABLE `authority_user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -303,7 +308,7 @@ DROP TABLE IF EXISTS `cmdb_resource_network`;
 CREATE TABLE `cmdb_resource_network` (
   `network_id` int(11) NOT NULL AUTO_INCREMENT,
   `network_prefix` varchar(100) DEFAULT NULL COMMENT '前缀',
-  `last_modify_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `last_modify_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最近修改时间',
   `create_user` varchar(32) DEFAULT NULL COMMENT '创建人',
   `last_modify_user` varchar(32) DEFAULT NULL COMMENT '最近修改 用户',
   `create_time` bigint(20) DEFAULT NULL,
