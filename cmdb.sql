@@ -5,7 +5,7 @@ SET character_set_database = utf8;
 SET character_set_results = utf8; 
 SET character_set_server = utf8; 
 set names utf8;
-create database cmdb;
+create database cmdb DEFAULT CHARACTER SET utf8 ;
 use cmdb;
 --
 -- Table structure for table `authority_log`
