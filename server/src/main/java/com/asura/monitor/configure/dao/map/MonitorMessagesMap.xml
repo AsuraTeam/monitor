@@ -104,5 +104,21 @@
         )
     </insert>
 
+    <!--每个业务线的报警数据-->
+    <select id="selectGroupsNumber" resultType="com.asura.monitor.configure.entity.MonitorMessagesEntity">
+        select messages_time as messagesTime,b.groups_name as groupsName, count(b.groups_name) as cnt
+        from monitor_messages a, cmdb_resource_groups b where
+        a.groups_id=b.groups_id
+        and messages_time &gt;= #{start} and messages_time &lt;= #{end}
+        group  by b.groups_name order by 3 desc
+    </select>
+
+    <!--获取不同组时间段的总数-->
+    <select id="selectCountGroupsNumber" resultType="com.asura.monitor.configure.entity.MonitorMessagesEntity">
+        select count(*) as cnt from monitor_messages a,
+        cmdb_resource_groups b where a.groups_id=b.groups_id
+        and messages_time &gt;= #{start} and messages_time &lt;= #{end}
+    </select>
+
 </mapper>
 

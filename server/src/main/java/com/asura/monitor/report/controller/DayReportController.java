@@ -64,9 +64,6 @@ public class DayReportController {
         return Double.parseDouble(r);
     }
 
-
-
-
     /**
      * 报警次数分析
      * @param model

@@ -24,6 +24,15 @@ public class MonitorMessagesEntity extends BaseEntity{
     private String indexName;
     private String value;
     private String ip;
+    private String groupsName;
+
+    public String getGroupsName() {
+        return groupsName;
+    }
+
+    public void setGroupsName(String groupsName) {
+        this.groupsName = groupsName;
+    }
 
     public String getIndexName() {
         return indexName;

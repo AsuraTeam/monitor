@@ -71,23 +71,11 @@ public class MonitorCacheConfig {
     // 存放每个组对应的所有配置文件
     public static final String cacheGroupConfigKey = "cache_group_config_";
 
-    // 存放每个主机的业务线 cache_get_cache_host_groups_hostId
+    // 存放每个主机的业务线 cache_get_cache_host_groups_ip
     public static final String getCacheHostGroupsKey = "cache_get_cache_host_groups_";
 
-    // 存放每个业务线的可用的数据 cache_groups_is_success_groupsId
-    public static final String cacheGroupsIsSuccessKey = "cache_groups_is_success_";
-
-    // 存放每个业务线的不可用数据 cache_groups_is_faild_groupsId
-    public static final String cacheGroupsIsFaildKey = "cache_groups_is_faild_";
-
-    // 存放每个业务线的警告数据 cache_groups_is_warning_groupsId
-    public static final String cacheGroupsIsWarningKey = "cache_groups_is_warning_";
-
-    // 存放每个业务线的未知数据 cache_groups_is_unknown_groupsId
-    public static final String cacheGroupsIsUnknownKey = "cache_groups_is_unknown_";
-
     // 报警队列设置, 使用redis队列, 不保证数据
-    public static final String cacheAlarmQueueKey = "cache_alarm_queue";
+        public static final String cacheAlarmQueueKey = "cache_alarm_queue";
 
     //  缓存业务线的名称 cache_group_name_业务线ID, MAP类型
     public static final String cacheGroupName = "cache_group_name";

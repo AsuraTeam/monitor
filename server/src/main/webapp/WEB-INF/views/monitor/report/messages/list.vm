@@ -20,6 +20,29 @@
     </style>
 </head>
 <body class="top-navigation">
+
+<div class="modal fade" id="show_detail_html" tabindex="-1"
+     role="dialog" style="background-color: #FfFfFf; margin-top: 16px;"
+     data-backdrop="false">
+    <div class="modal-dialog"
+         style="margin-top: 0px; width: 50%; ">
+        <div class="modal-content"
+             style="height: auto; overflow-y:scroll;width: 100%; ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title">&nbsp;&nbsp;报警记录详情</h4>
+            </div>
+            <div  id="detail_html"  rows="15" style="margin-bottom: 0px;width: 100%;">
+                加载中...
+            </div>
+            <div style="margin-top:12px;">&nbsp;</div>
+        </div>
+    </div>
+</div>
+
+
 <div id="wrapp11er">
     <div id="page-wrapp1er" class="gray-bg">
         #include("/index/header.vm")
@@ -39,11 +62,12 @@
                                        class="table  table-bordered table-hover dataTables-example">
                                     <thead>
                                     <tr role="rows">
-                                        <th >发送日志</th>
+                                        <th >发送日期</th>
                                         <th >邮件报警次数</th>
                                         <th >短信告警次数</th>
                                         <th >微信告警次数</th>
                                         <th >钉钉告警次数</th>
+                                        <th >详情</th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -56,6 +80,19 @@
             </div>
 
             <script>
+                
+                function load_detail() {
+                    startTime = $('#startSendTime').val()
+                    endTime = $('#endSendTime').val()
+                    if(!startTime){
+                        startTime = ""
+                    }
+                    if(!endTime){
+                        endTime = ""
+                    }
+                    url = "/monitor/report/messages/detail/list?startT="+startTime+"&endT="+endTime;
+                    window.open(url);
+                }
 
                 function loadData() {
                     startTime = $('#startSendTime').val()
@@ -95,6 +132,9 @@
                             }},
                             {"data": "dingCount","mRender":function (data) {
                                 return data;
+                            }},
+                            {"data": "messagesTime","mRender":function (data) {
+                                return "<span><a onclick=\"load_detail('"+data+"')\">详情</a></span>";
                             }},
                         ],
                         "fnRowCallback": function (row, data) { // 每行创建完毕的回调
