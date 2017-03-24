@@ -51,27 +51,28 @@
         $('#addConfig').html(html);
         $('#add_getui_config').modal('toggle');
     }
+
     function updateConfig(id){
         url = "/resource/configure/"+site+"/detail";
         html = post({id:id}, url);
         $('#addConfig').html(html);
         $('#add_getui_config').modal('toggle');
     }
-    function deleteConfig(id){
 
-        url = "/resource/configure/"+site+"/delete";
+    function deleteConfig(id){
+        url = "/resource/configure/"+site+"/deleteSave";
         parent.layer.confirm("点击同意后,将删除数据", {
             btn: ['同意','不同意'], //按钮
             shade: false//不显示遮罩
         }, function(){
             result = post({id:id}, url);
             parent.layer.msg(JSON.stringify(result),  {icon:1})
-            location.reload();
+            $('#listTable').dataTable().fnReloadAjax();
         }, function(){
             parent.layer.msg("取消操作",  {icon:2})
         });
-
     }
+
     function saveConfig(id){
         data = get_form_data();
         if(id){

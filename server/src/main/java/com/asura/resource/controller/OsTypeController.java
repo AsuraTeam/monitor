@@ -3,19 +3,24 @@ package com.asura.resource.controller;
 import com.asura.framework.base.paging.PagingResult;
 import com.asura.framework.base.paging.SearchMap;
 import com.asura.framework.dao.mybatis.paginator.domain.PageBounds;
+import com.google.gson.Gson;
+import com.asura.common.controller.IndexController;
 import com.asura.common.response.PageResponse;
 import com.asura.common.response.ResponseVo;
+import com.asura.resource.entity.CmdbResourceOsTypeEntity;
+import com.asura.resource.entity.CmdbResourceServerEntity;
+import com.asura.resource.service.CmdbResourceOsTypeService;
+import com.asura.resource.service.CmdbResourceServerService;
 import com.asura.util.DateUtil;
 import com.asura.util.PermissionsCheck;
-import com.asura.resource.entity.CmdbResourceOsTypeEntity;
-import com.asura.resource.service.CmdbResourceOsTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * <p></p>
@@ -40,6 +45,13 @@ public class OsTypeController {
 
     @Autowired
     private PermissionsCheck permissionsCheck;
+
+    @Autowired
+    private IndexController indexController;
+
+    @Autowired
+    private CmdbResourceServerService serverService;
+
     /**
      * 列表
      * @return
@@ -80,8 +92,8 @@ public class OsTypeController {
      */
     @RequestMapping("save")
     @ResponseBody
-    public ResponseVo save(CmdbResourceOsTypeEntity entity, HttpSession session){
-        String user = permissionsCheck.getLoginUser(session);
+    public ResponseVo save(CmdbResourceOsTypeEntity entity, HttpServletRequest request){
+        String user = permissionsCheck.getLoginUser(request.getSession());
         entity.setLastModifyUser(user);
         entity.setCreateUser(user);
         if(entity.getOsId()!=null){
@@ -90,6 +102,8 @@ public class OsTypeController {
             entity.setCreateTime(DateUtil.getDateStampInteter());
             service.save(entity);
         }
+        Gson gson = new Gson();
+        indexController.logSave(request, "添加操作系统类型" + gson.toJson(entity));
         return ResponseVo.responseOk(null);
     }
 
@@ -109,8 +123,19 @@ public class OsTypeController {
      * 删除信息
      * @return
      */
-    @RequestMapping("delete")
-    public ResponseVo delete(){
+    @RequestMapping("deleteSave")
+    public ResponseVo delete(int id, HttpServletRequest request){
+        Gson gson = new Gson();
+        CmdbResourceOsTypeEntity result = service.findById(id, CmdbResourceOsTypeEntity.class);
+        SearchMap searchMap = new SearchMap();
+        searchMap.put("osName", result.getOsName());
+        List<CmdbResourceServerEntity> data = serverService.getDataList(searchMap, "selectByAll");
+        if (data.size() < 1) {
+            service.delete(result);
+            indexController.logSave(request, "删除操作系统类型" + gson.toJson(result));
+        }else{
+            return ResponseVo.responseError("请先删除引用的设备记录");
+        }
         return ResponseVo.responseOk(null);
     }
 }

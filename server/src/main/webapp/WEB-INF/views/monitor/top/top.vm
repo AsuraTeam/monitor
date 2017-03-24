@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>监控top图</title>
+    #include("/index/include.vm")
+</head>
+<body class="top-navigation">
+
+<div id="wrapp11er">
+    <div id="page-wrapp1er" class="gray-bg">
+        #include("/index/header.vm")
+        <script src="/static/js/monitor/go.js"></script>
+        <h1><span style="margin-left:70px;">监控TOP图</span></h1>
+        <div class="col-md-12">
+            <div class="form-group">
+                <div class="col-md-9">
+                    <div id="myDiagramDiv" style="border: solid 0px black; width:100%; height:700px"></div>
+                </div>
+                <div class="col-md-3" style="border-top:1px solid #f0f0f0; border-left:1px solid #f0f0f0;">
+                    <p>
+                    <p>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">类型:</label>&nbsp;&nbsp;
+                        <div class="checkbox checkbox-warning checkbox-inline">
+                            <input type="radio" name="vmType" id="inlineCheckbox1" value="1"
+                                   onchange="getGroups()">
+                            <label for="inlineCheckbox1"> 数据点</label>
+                        </div>
+                        <div class="checkbox checkbox-success checkbox-inline">
+                            <input type="radio" name="vmType" id="inlineCheckbox2" value="2"
+                                   onchange="getGroups()">
+                            <label for="inlineCheckbox2"> 连接点</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3" style="border-left:1px solid #f0f0f0;margin-top:10px;">
+                    <label class="col-sm-4 control-label">IP:</label>
+                    <div class="col-sm-8">
+                        <input type="text" name="ip" class="form-control" id="top_ip" value="$!{configs.ip}">
+                    </div>
+                </div>
+                <div class="col-md-3" style="border-left:1px solid #f0f0f0;margin-top:10px;">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">描述:</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="description" class="form-control" id="top_description"
+                                   value="$!{configs.description}" placeholder="连接点的信息">
+                        </div>
+                    </div>
+                </div>
+                </p>
+                </p>
+                <div class="col-md-3" style="border-left:1px solid #f0f0f0;margin-top:10px;">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">图标选择:</label>
+                        <div class="col-sm-8">
+                            <select class="form-control" onchange="$('#select_images').attr('src', $(this).val())" id="top_select_images">
+                                <option value="/static/images/monitor/服务器正常.png">服务器正常</option>
+                                <option value="/static/images/monitor/交换机.png">交换机</option>
+                                <option value="/static/images/monitor/云.png">云</option>
+                                <option value="/static/images/monitor/服务器失败.png">服务器失败</option>
+                                <option value="/static/images/monitor/防火墙.png">防火墙</option>
+                            </select>
+                            </p>
+                            <div style="border:1px solid #f0f0f0;padding:10px;">
+                                <img src="" id="select_images">
+                            </div>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3" style="border-left:1px solid #f0f0f0;margin-top:10px;">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">左聚焦:</label>
+                        <div class="col-sm-8">
+                            <input type="number" name="left" class="form-control" id="top_left"
+                                   value="$!{configs.left}">
+                        </div>
+                        <label class="col-sm-4 control-label">上聚焦:</label>
+                        <div class="col-sm-8" style="margin-top:10px;">
+                            <input type="number" name="top" class="form-control" id="top_top"
+                                   value="$!{configs.top}">
+                            <p>
+                            <p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3" style="border-left:1px solid #f0f0f0;margin-top:10px;">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">连接到:</label>
+                        <div class="col-sm-8">
+                            <input type="number" name="to" title="当前设备链接的目标设备的key" class="form-control" id="top_to" placeholder="当前设备链接的目标设备的key"
+                                   value="$!{configs.to}">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3" style="border-left:1px solid #f0f0f0;border-bottom:1px solid #f0f0f0;">
+                    <button style="margin-left: 66%;margin-top: 15px;margin-bottom: 10px;"
+                            onclick="saveConfig($!{configs.topId});" class="btn btn-primary btn-lg"
+                            type="button">
+                        <i class="fa fa-check"></i>&nbsp;添加
+                    </button>
+                </div>
+            </div>
+        </div>
+
+  <textarea id="mySavedModel" style="width:100%;height:300px">
+{"nodeDataArray":[],
+ "linkDataArray":[]
+}
+ </textarea>
+    </div>
+
+    <div class=" animated fadeInRight" style="margin-left:60px;">
+        <div class="col-sm-12">
+            <table id="listTable"
+                   class="table table-striped table-bordered table-hover dataTables-example">
+                <thead>
+                <tr nowrap="nowrap" role="rows">
+                    <th>IP地址</th>
+                    <th>连接描述</th>
+                    <th>左焦距</th>
+                    <th>上焦距</th>
+                    <th>图标</th>
+                    <th>连接到</th>
+                    <th>创建时间</th>
+                    <th>创建用户</th>
+                    <th>最近修改人</th>
+                    <th>编辑/删除</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+
+        function getKey(ip, datas){
+            url = "/resource/configure/server/listData"
+            result = post({start:1, length:2,draw:1, "hostIp":ip}, url)
+            key_ = result["data"][0]["serverId"]
+            for(i=0; i<datas.length; i++){
+                if(datas[i]["key"] == key_+""){
+                    console.log(datas[i]["key"] + " " + key_)
+                    parent.layer.msg("数据节点已存在了", {icon: 2});
+                    return
+                }
+            }
+            return key_
+        }
+
+
+        function init() {
+
+            // conversion functions for Bindings in the Node template:
+            if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
+            var $ = go.GraphObject.make;  // for conciseness in defining templates
+
+            myDiagram =
+                    $(go.Diagram, "myDiagramDiv",
+                            { "animationManager.isEnabled": false,
+                                initialContentAlignment: go.Spot.Center
+                            });
+
+            function nodeTypeImage(type) {
+                switch (type) {
+                    case "S2": return "/static/images/monitor/交换机.png";
+                    case "S3": return "/static/images/monitor/交换机.png";
+                    case "P1": return "/static/images/monitor/云.png";
+                    case "P2": return "/static/images/monitor/服务器正常.png";
+                    case "M4": return "/static/images/monitor/服务器正常.png";
+                    case "M5": return "/static/images/monitor/服务器失败.png";
+                    case "I1": return "/static/images/monitor/服务器正常.png";
+                    default: return "/static/images/monitor/服务器正常.png";
+                }
+                if (type.charAt(0) === "S") return
+                if (type.charAt(0) === "P") return "images/general processor.jpg";
+                if (type.charAt(0) === "M")
+                    return "images/pc.jpg";
+            }
+
+            function nodeProblemConverter(msg) {
+                if (msg == "danger") return "red";
+                if (msg == "warning") return "gold";
+                if (msg == "unknown") return "Gainsboro";
+                return null;
+            }
+
+            function nodeOperationConverter(s) {
+                if (s == "danger") return "red";
+                if (s == "warning") return "gold";
+                if (s == "unknown") return "Gainsboro";
+                if (s == "ok") return "lime";
+                return null;
+            }
+
+            function nodeStatusConverter(s) {
+                if (s == "danger") return "red";
+                if (s == "warning") return "gold";
+                if (s == "unknown") return "Gainsboro";
+                if (s == "ok") return "lime";
+                return "green";
+            }
+
+            myDiagram.nodeTemplate =
+                    $(go.Node, "Vertical",
+                            { locationObjectName: "ICON" },
+                            new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
+                            $(go.Panel, "Spot",
+                                    $(go.Panel, "Auto",
+                                            { name: "ICON" },
+                                            $(go.Shape,
+                                                    { fill: null, stroke: null },
+                                                    new go.Binding("background", "problem", nodeProblemConverter)),
+                                            $(go.Picture,
+                                                    { margin: 1},
+                                                    new go.Binding("source", "type", nodeTypeImage))
+                                    ),  // end Auto Panel
+                                    $(go.Shape, "Circle",
+                                            { alignment: go.Spot.TopLeft, alignmentFocus: go.Spot.TopLeft,
+                                                width: 12, height: 12, fill: "Chartreuse" },
+                                            new go.Binding("fill", "operation", nodeOperationConverter))
+                                    //new go.Binding("figure", "operation", nodeOperationConverter))
+                                    // $(go.Shape, "Triangle",
+                                    //  { alignment: go.Spot.TopRight, alignmentFocus: go.Spot.TopRight,
+                                    //    width: 12, height: 12, fill: "blue" },
+                                    // new go.Binding("fill", "status", nodeStatusConverter))
+                            ),  // end Spot Panel
+                            $(go.TextBlock,
+                                    new go.Binding("text"))
+                    );  // end Node
+
+
+            // conversion function for Bindings in the Link template:
+
+            function linkProblemConverter(msg) {
+                if (msg == "danger") return "red";
+                if (msg == "ok") return "lime";
+                if (msg == "warning") return "gold";
+                if (msg == "unknown") return "Gainsboro";
+                return "gray";
+            }
+
+            myDiagram.linkTemplate =
+                    $(go.Link, go.Link.AvoidsNodes,
+                            { corner: 3 },
+                            $(go.Shape,
+                                    { strokeWidth: 2, stroke: "gray" },
+                                    new go.Binding("stroke", "problem", linkProblemConverter))
+                    );
+
+
+            myDiagram.linkTemplate =
+                    $(go.Link, go.Link.AvoidsNodes,  // the whole link panel
+                            { corner: 3 },
+                            $(go.Shape,  // the link shape
+                                    { strokeWidth: 2, stroke: "gray" },
+                                    new go.Binding("stroke", "problem", linkProblemConverter)
+                            ),
+                            $(go.Panel, "Auto",
+                                    $(go.Shape,  // the label background, which becomes transparent around the edges
+                                            {
+                                                fill: $(go.Brush, "Radial",
+                                                        { 0: "rgb(240, 240, 240)", 0.3: "rgb(240, 240, 240)", 1: "rgba(240, 240, 240, 0)" }),
+                                                stroke: null
+                                            }),
+                                    $(go.TextBlock, "transition",  // the label text
+                                            {
+                                                textAlign: "center",
+                                                font: "9pt helvetica, arial, sans-serif",
+                                                margin: 4,
+                                                editable: true  // enable in-place editing
+                                            },
+                                            // editing the text automatically updates the model data
+                                            new go.Binding("text").makeTwoWay())
+                            )
+                    );
+
+            load();
+
+
+            // simulate some real-time problem monitoring, once every two seconds:
+            function randomProblems() {
+                var model = go.Model.fromJson(document.getElementById("mySavedModel").value);
+                // update all nodes
+                var arr = model.nodeDataArray;
+                for (var i = 0; i < arr.length; i++) {
+                    data = arr[i];
+                    data.problem = data["status"]
+                    data.status = data["status"]
+                    data.operation = data["status"]
+                    model.updateTargetBindings(data);
+                }
+                // and update all links
+                arr = model.linkDataArray;
+                for (i = 0; i < arr.length; i++) {
+                    data = arr[i];
+                    data.problem = data["status"]
+                    model.updateTargetBindings(data);
+                }
+                load()
+                console.log(1)
+            }
+            function loop() {
+                setTimeout(function() { randomProblems(); loop(); }, 7000);
+            }
+            loop();  // start the simulation
+        }
+
+        function load() {
+            myDiagram.model = go.Model.fromJson(document.getElementById("mySavedModel").value);
+        }
+
+        function saveConfig(){
+            list = {};
+            _data = {}
+            models = go.Model.fromJson(document.getElementById("mySavedModel").value);
+            nodeData = models.nodeDataArray;
+            _data["text"] = $("#top_ip").val()
+            lefts = $("#top_left").val()
+            tops = $("#top_top").val()
+            _data["loc"] =  lefts + " " + tops
+            _data["type"] = $("#top_select_images").val()
+            _data["status"] = "danger"
+            key = getKey(_data["text"], nodeData)
+            _data["key"] = key+""
+            nodeData.push(_data)
+            list["nodeDataArray"] = nodeData
+            var linkData = models.linkDataArray;
+            if($("#top_to").val()){
+                from = {}
+                from["from"] = key
+                from["to"] = $("#top_to").val()
+                from["status"] = "ok"
+                linkData.push(from)
+            }
+            list["linkDataArray"] = linkData
+            setTimeout(function(){
+                $("#mySavedModel").val(JSON.stringify(list))
+            },2000)
+        }
+
+        init();
+        if($("#top_key").val() == ""){
+            $("#top_key").val(1)
+        }
+        if($("#top_left").val() == ""){
+            $("#top_left").val(50)
+        }
+        if($("#top_top").val() == ""){
+            $("#top_top").val(310)
+        }
+    </script>

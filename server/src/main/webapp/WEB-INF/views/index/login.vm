@@ -40,7 +40,7 @@
                 </div>
                 <div class="loginbox-forgot form-group">
                 </div>
-                <button type="submit" title="登陆" class="btn btn-primary block full-width m-b" onclick="login()">登 录</button>
+                <button type="submit" title="登录" class="btn btn-primary block full-width m-b" onclick="login()">登 录</button>
 
 
                 <p class="text-muted text-center"> <a href="#"><small>使用OA用户进行登录</small></a>
@@ -60,7 +60,7 @@
            result = post(data,url);
            if(result==true)
            {
-               window.location.href="/"
+               window.location.href="/monitor/platform/server/list"
            }else{
                 $(".loginbox-forgot").html("<font color=red>用户或密码错误</font>");
            }

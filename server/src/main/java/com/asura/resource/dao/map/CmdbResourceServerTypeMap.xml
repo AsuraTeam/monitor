@@ -10,6 +10,7 @@
         depend,
         "" as tname,
         last_modify_user as lastModifyUser</sql>
+
     <select id="selectByAll" resultType="com.asura.resource.entity.CmdbResourceServerTypeEntity">
 
         select
@@ -29,8 +30,10 @@
         a.last_modify_user as lastModifyUser
         from cmdb_resource_server_type a,
             cmdb_resource_server_type b
-        where  a.depend=b.type_id and a.depend>0;
-
+        where  a.depend=b.type_id and a.depend>0
+        <if test="typeName != null">
+            and b.type_name=#{typeName}
+        </if>
      </select>
 
     <select id="findById" resultType="com.asura.resource.entity.CmdbResourceServerTypeEntity">
@@ -38,7 +41,7 @@
         <include refid="sqlId"/>
         from cmdb_resource_server_type c
         where c.depend is null
-        and type_id=#{type_id}
+        and type_id=#{typeId}
         union all
         select
         a.type_id as typeId,
@@ -53,11 +56,7 @@
         from cmdb_resource_server_type a,
         cmdb_resource_server_type b
         where  a.depend=b.type_id and a.depend>0
-        and a.type_id=#{type_id}
-        <if test="typeName != null">
-            and type_name=#{typeName}
-        </if>
-
+        and a.type_id=#{typeId}
     </select>
 
     <insert id="save" parameterType="com.asura.resource.entity.CmdbResourceServerTypeEntity">

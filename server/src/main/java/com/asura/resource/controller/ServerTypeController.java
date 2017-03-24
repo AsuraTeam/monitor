@@ -3,19 +3,24 @@ package com.asura.resource.controller;
 import com.asura.framework.base.paging.PagingResult;
 import com.asura.framework.base.paging.SearchMap;
 import com.asura.framework.dao.mybatis.paginator.domain.PageBounds;
+import com.google.gson.Gson;
+import com.asura.common.controller.IndexController;
 import com.asura.common.response.PageResponse;
 import com.asura.common.response.ResponseVo;
+import com.asura.resource.entity.CmdbResourceServerEntity;
+import com.asura.resource.entity.CmdbResourceServerTypeEntity;
+import com.asura.resource.service.CmdbResourceServerService;
+import com.asura.resource.service.CmdbResourceServerTypeService;
 import com.asura.util.DateUtil;
 import com.asura.util.PermissionsCheck;
-import com.asura.resource.entity.CmdbResourceServerTypeEntity;
-import com.asura.resource.service.CmdbResourceServerTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * <p></p>
@@ -35,11 +40,9 @@ import javax.servlet.http.HttpSession;
 @Controller
 @RequestMapping("/resource/configure/serverType/")
 public class ServerTypeController {
+
     @Autowired
     private CmdbResourceServerTypeService service ;
-
-
-
 
     @Autowired
     private PermissionsCheck permissionsCheck;
@@ -47,6 +50,13 @@ public class ServerTypeController {
     private SearchMap searchMapNull = new SearchMap();
 
     private PageBounds pageBoundsNull = PageResponse.getPageBounds(100000,1);
+
+    @Autowired
+    private IndexController indexController;
+
+    @Autowired
+    private CmdbResourceServerService serverService;
+
     /**
      * 列表
      * @return
@@ -92,16 +102,14 @@ public class ServerTypeController {
     }
 
 
-
-
     /**
      * 保存
      * @return
      */
     @RequestMapping("save")
     @ResponseBody
-    public ResponseVo save(CmdbResourceServerTypeEntity entity, HttpSession session){
-        String user = permissionsCheck.getLoginUser(session);
+    public ResponseVo save(CmdbResourceServerTypeEntity entity, HttpServletRequest request){
+        String user = permissionsCheck.getLoginUser(request.getSession());
         entity.setLastModifyUser(user);
         entity.setCreateUser(user);
         if(entity.getTypeId()!=null){
@@ -110,6 +118,8 @@ public class ServerTypeController {
             entity.setCreateTime(DateUtil.getDateStampInteter());
             service.save(entity);
         }
+        Gson gson = new Gson();
+        indexController.logSave(request, "添加操作系统类型" + gson.toJson(entity));
         return ResponseVo.responseOk(null);
     }
 
@@ -122,7 +132,7 @@ public class ServerTypeController {
     public String detail(int id, Model model){
         CmdbResourceServerTypeEntity result = service.findById(id,CmdbResourceServerTypeEntity.class);
         model.addAttribute("configs",result);
-        model = getData(model);
+        getData(model);
         return "/resource/configure/serverType/add";
     }
 
@@ -130,8 +140,19 @@ public class ServerTypeController {
      * 删除信息
      * @return
      */
-    @RequestMapping("delete")
-    public ResponseVo delete(){
+    @RequestMapping("deleteSave")
+    public ResponseVo delete(int id, HttpServletRequest request){
+        Gson gson = new Gson();
+        CmdbResourceServerTypeEntity result = service.findById(id, CmdbResourceServerTypeEntity.class);
+        SearchMap searchMap = new SearchMap();
+        searchMap.put("typeName", result.getTypeName());
+        List<CmdbResourceServerEntity> data = serverService.getDataList(searchMap, "selectByAll");
+        if (data.size() < 1) {
+            service.delete(result);
+            indexController.logSave(request, "删除设备类型:" + gson.toJson(result));
+        }else{
+            return ResponseVo.responseError("请先删除引用的设备记录");
+        }
         return ResponseVo.responseOk(null);
     }
 }
