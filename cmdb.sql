@@ -294,7 +294,6 @@ CREATE TABLE `cmdb_resource_inventory` (
 
 LOCK TABLES `cmdb_resource_inventory` WRITE;
 /*!40000 ALTER TABLE `cmdb_resource_inventory` DISABLE KEYS */;
-INSERT INTO `cmdb_resource_inventory` VALUES (1,'租住','3,5,7,9,28',NULL,-20,0,'zhaozq14','1484557695',265),(2,'服务','11,17,30,31,32',NULL,23,30,'zhaozq14','1484710237',220),(3,'民宿','1',NULL,20,20,'zhaozq14','1484278784',67),(4,'家修','15',NULL,67,68,'zhaozq14','1484710237',48),(5,'阿修罗寓','27',NULL,20,20,'zhaozq14','1484278864',40);
 /*!40000 ALTER TABLE `cmdb_resource_inventory` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -802,7 +801,7 @@ CREATE TABLE `monitor_item` (
   `arg3` varchar(2000) DEFAULT NULL,
   `arg4` varchar(2000) DEFAULT NULL,
   `is_valid` int(11) DEFAULT NULL COMMENT '是否有效',
-  `last_modify_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '最近修改时间',
+  `last_modify_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最近修改时间',
   `last_modify_user` varchar(20) DEFAULT NULL COMMENT '最近修改人',
   `template_id` varchar(1000) DEFAULT NULL COMMENT '使用模板,可以使用多个用逗号分隔',
   `arg5` varchar(2000) DEFAULT NULL COMMENT '第5个参数',
@@ -1208,3 +1207,23 @@ alter table monitor_cluster_configure add unique index uidx_cluster_name (cluste
 ** 脚本超时时间20170315补丁
 */
 alter table monitor_scripts add time_out int comment "脚本超时时间";
+
+
+/**
+* 20170325监控top图使用的
+*/
+CREATE TABLE `monitor_top` (
+  `top_id` int(11) NOT NULL COMMENT '主键',
+  `server_id` int(11) DEFAULT NULL COMMENT 'top的ip地址，依赖cmdb',
+  `description` varchar(200) DEFAULT NULL COMMENT '描述信息',
+  `top_comm` varchar(200) DEFAULT NULL COMMENT 'top链接的描述信息',
+  `top_left` int(11) DEFAULT NULL COMMENT '图像离页面左面的距离',
+  `top` int(11) DEFAULT NULL COMMENT '图像离页面上方的距离',
+  `top_to` varchar(10) DEFAULT NULL COMMENT '图像连接到的设备ID',
+  `top_graph_id` int(11) DEFAULT NULL COMMENT 'top图像的id，一个组的ID',
+  `image_name` varchar(300) DEFAULT NULL COMMENT '图像名称',
+  PRIMARY KEY (`top_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+select "\n\n\n        友情提示:     \n\n请将你的数据库配置成utf8\n请修改mysql的配置文件永久生效\n数据库授权不要写成127.0.0.1的\n请对server的IP地址授权\n\n\n" as "";
