@@ -9,8 +9,7 @@
         <div class="modal-content"
              style="height: auto; width: 100%; ">
             <div class="modal-header">
-                <button type="button" class="close data-dismiss=" modal
-                ">
+                <button type="button" class="close" data-dismiss="modal">
                 <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
                 </button>
                 <h4 class="modal-title">&nbsp;&nbsp;报警消息通道配置</h4>
@@ -210,9 +209,9 @@
                                         <div class="checkbox checkbox-primary checkbox-inline" style="margin-left: -10%;">
                                             <input type="checkbox" onchange="change(this)" name="smtpAuth"
                                                    id="checkbox5"
-                                                   class="form-control" #if( $configs.smtpAuth == 1 )
+                                                   class="form-control" #if( $configs.smtpAuth == "1" )
                                                    checked   #end
-                                                   value="#if($configs.smtpAuth)$!{configs.smtpAuth}#else 0 #end">
+                                                   value="$!{configs.smtpAuth}">
                                             <label for="checkbox5 control-label">&nbsp;</label></strong>
                                         </div>
                                     </div>
@@ -225,7 +224,7 @@
                             <div class="form-group">
                                 <label class="col-sm-5 control-label">SMTP用户名:</label>
                                 <div class="col-sm-7">
-                                    <input type="text" name="smtpUser" class="form-control"
+                                    <input type="text" name="smtpUser"  title="如果邮件服务器不需要登陆认证就不写" placeholder="如果邮件服务器不需要登陆认证就不写" class="form-control"
                                            value="$!{configs.smtpUser}">
                                 </div>
                             </div>
@@ -234,7 +233,7 @@
                             <div class="form-group">
                                 <label class="col-sm-5 control-label">SMTP密码:</label>
                                 <div class="col-sm-7">
-                                    <input type="text" name="smtpPass" class="form-control"
+                                    <input type="text" name="smtpPass" placeholder="如果邮件服务器不需要登陆认证就不写"  title="如果邮件服务器不需要登陆认证就不写" class="form-control"
                                            value="$!{configs.smtpPass}">
                                 </div>
                             </div>

@@ -142,15 +142,18 @@
         function getKey(ip, datas){
             url = "/resource/configure/server/listData"
             result = post({start:1, length:2,draw:1, "hostIp":ip}, url)
-            key_ = result["data"][0]["serverId"]
-            for(i=0; i<datas.length; i++){
-                if(datas[i]["key"] == key_+""){
-                    console.log(datas[i]["key"] + " " + key_)
-                    parent.layer.msg("数据节点已存在了", {icon: 2});
-                    return
+            if (result["data"].length > 0){
+                key_ = result["data"][0]["serverId"]
+                for(i=0; i<datas.length; i++){
+                    if(datas[i]["key"] == key_+""){
+                        console.log(datas[i]["key"] + " " + key_)
+                        parent.layer.msg("数据节点已存在了", {icon: 2});
+                        return
+                    }
                 }
+                return key_
             }
-            return key_
+            return ""
         }
 
 
@@ -175,7 +178,7 @@
                     case "M4": return "/static/images/monitor/服务器正常.png";
                     case "M5": return "/static/images/monitor/服务器失败.png";
                     case "I1": return "/static/images/monitor/服务器正常.png";
-                    default: return "/static/images/monitor/服务器正常.png";
+                    default: return "/static/images/monitor/云.png";
                 }
                 if (type.charAt(0) === "S") return
                 if (type.charAt(0) === "P") return "images/general processor.jpg";
@@ -306,7 +309,7 @@
                 console.log(1)
             }
             function loop() {
-                setTimeout(function() { randomProblems(); loop(); }, 7000);
+                setTimeout(function() { randomProblems(); loop(); }, 2000);
             }
             loop();  // start the simulation
         }
@@ -327,6 +330,10 @@
             _data["type"] = $("#top_select_images").val()
             _data["status"] = "danger"
             key = getKey(_data["text"], nodeData)
+            if(key.length < 1){
+                parent.layer.msg("资产没有这个节点", {icon: 2});
+                return
+            }
             _data["key"] = key+""
             nodeData.push(_data)
             list["nodeDataArray"] = nodeData

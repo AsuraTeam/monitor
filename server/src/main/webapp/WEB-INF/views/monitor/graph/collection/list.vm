@@ -125,14 +125,14 @@
 
             "columns": [ // 数据映射
                 {"data": "ip","mRender":function (data) {
-                    if (data.length > 100){
-                        return "<span title='"+data+"'>"+data.substring(0, 100)+"</span>"
+                    if (data.length > 60){
+                        return "<span title='"+data+"'>"+data.substring(0, 60)+"</span>"
                     }
                     return data;
                 }},
                 {"data": "images","mRender":function (data) {
-                    if(data.length>50){
-                        return "<span>"+data.substring(0,50)+"</span>";
+                    if(data.length > 40){
+                        return "<span>"+data.substring(0, 40)+"</span>";
                     }
                     return data;
                 }},
@@ -140,6 +140,9 @@
                     return data;
                 }},
                 {"data": "description","mRender":function (data) {
+                    if(data.length > 30){
+                        return "<span>"+data.substring(0, 30)+"</span>";
+                    }
                     return data;
                 }},
                 {"data": "lastModifyTime","mRender":function (data) {
