@@ -98,10 +98,13 @@ public class CacheController {
      */
     @RequestMapping("item/setCache")
     @ResponseBody
-    public String setItemCache() {
+    public String setItemCache(MonitorItemService monitorItemService) {
+        if (monitorItemService == null){
+            monitorItemService = itemService;
+        }
         SearchMap searchMap = new SearchMap();
         ArrayList<String> items = new ArrayList();
-        PagingResult<MonitorItemEntity> result = itemService.findAll(searchMap, PageResponse.getPageBounds(10000000, 1), "selectByAll");
+        PagingResult<MonitorItemEntity> result = monitorItemService.findAll(searchMap, PageResponse.getPageBounds(10000000, 1), "selectByAll");
         for (MonitorItemEntity m : result.getRows()) {
             redisUtil.set(MonitorCacheConfig.cacheItemKey + m.getItemId(), gson.toJson(m));
             if (m.getIsDefault() != null && m.getIsDefault().equals("1")){
@@ -119,9 +122,12 @@ public class CacheController {
      */
     @RequestMapping("messages/setCache")
     @ResponseBody
-    public String setMessagesCache() {
+    public String setMessagesCache(MonitorMessageChannelService monitorMessageChannelService) {
+        if (monitorMessageChannelService == null){
+            monitorMessageChannelService = channelService;
+        }
         SearchMap searchMap = new SearchMap();
-        PagingResult<MonitorMessageChannelEntity> result = channelService.findAll(searchMap, PageResponse.getPageBounds(10, 1), "selectByAll");
+        PagingResult<MonitorMessageChannelEntity> result = monitorMessageChannelService.findAll(searchMap, PageResponse.getPageBounds(10, 1), "selectByAll");
         for (MonitorMessageChannelEntity m : result.getRows()) {
             redisUtil.set(MonitorCacheConfig.cacheChannelKey + m.getChannelTp(), gson.toJson(m));
         }
@@ -149,9 +155,12 @@ public class CacheController {
      */
     @RequestMapping("script/setCache")
     @ResponseBody
-    public String setScriptCache() {
+    public String setScriptCache(MonitorScriptsService monitorScriptsService) {
+        if(monitorScriptsService == null){
+            monitorScriptsService = scriptsService;
+        }
         SearchMap searchMap = new SearchMap();
-        PagingResult<MonitorScriptsEntity> result = scriptsService.findAll(searchMap, PageResponse.getPageBounds(10000000, 1), "selectByAll");
+        PagingResult<MonitorScriptsEntity> result = monitorScriptsService.findAll(searchMap, PageResponse.getPageBounds(10000000, 1), "selectByAll");
         for (MonitorScriptsEntity m : result.getRows()) {
             redisUtil.set(MonitorCacheConfig.cacheScriptKey + m.getScriptsId(), gson.toJson(m));
         }
@@ -166,10 +175,13 @@ public class CacheController {
      */
     @RequestMapping("contactGroup/setCache")
     @ResponseBody
-    public String setContactGroupCache() {
+    public String setContactGroupCache(MonitorContactGroupService monitorContactGroupService) {
+        if (monitorContactGroupService == null){
+            monitorContactGroupService = contactGroupService;
+        }
         SearchMap searchMap = new SearchMap();
         String groups = "";
-        PagingResult<MonitorContactGroupEntity> result = contactGroupService.findAll(searchMap, PageResponse.getPageBounds(10000000, 1), "selectByAll");
+        PagingResult<MonitorContactGroupEntity> result = monitorContactGroupService.findAll(searchMap, PageResponse.getPageBounds(10000000, 1), "selectByAll");
         for (MonitorContactGroupEntity m : result.getRows()) {
             redisUtil.set(MonitorCacheConfig.cacheContactGroupKey + m.getGroupId(), gson.toJson(m));
             if(m.getIsAdmin()==1){
@@ -201,8 +213,11 @@ public class CacheController {
      */
     @RequestMapping("configure/setServerCache")
     @ResponseBody
-    public String setServerCache() {
-        List<CmdbResourceServerEntity> result = service.getDataList(null, "selectAllIp");
+    public String setServerCache(CmdbResourceServerService resourceServerService) {
+        if (resourceServerService == null){
+            resourceServerService = service;
+        }
+        List<CmdbResourceServerEntity> result = resourceServerService.getDataList(null, "selectAllIp");
         redisUtil.setHostId(result);
         return "ok";
     }
@@ -302,7 +317,10 @@ public class CacheController {
      */
     @RequestMapping("configure/makeAllHostKey")
     @ResponseBody
-    public String makeAllHostKey(){
+    public String makeAllHostKey(MonitorConfigureService monitorConfigureService){
+        if (monitorConfigureService  == null){
+            monitorConfigureService= configureService;
+        }
         Jedis jedis = redisUtil.getJedis();
         SearchMap searchMap = new SearchMap();
         searchMap.put("isValid",1);
@@ -314,7 +332,7 @@ public class CacheController {
         // 存放每个组拥有的所有配置文件的ID
         Map<String, HashSet> groupMap = new HashMap();
 
-        PagingResult<MonitorConfigureEntity> result = configureService.findAll(searchMap, PageResponse.getPageBounds(1000000, 1), "selectByAll");
+        PagingResult<MonitorConfigureEntity> result = monitorConfigureService.findAll(searchMap, PageResponse.getPageBounds(1000000, 1), "selectByAll");
         for (MonitorConfigureEntity m : result.getRows()) {
 
             if(m.getHosts()!=null) {
@@ -355,16 +373,22 @@ public class CacheController {
      */
     @RequestMapping("cache/groups")
     @ResponseBody
-    public String cacheGroups(){
+    public String cacheGroups(CmdbResourceGroupsService resourceGroupsService, CmdbResourceServerService resourceServerService){
+        if (resourceGroupsService == null){
+            resourceGroupsService = cmdbResourceGroupsService;
+        }
+        if (resourceServerService == null ){
+            resourceServerService = service;
+        }
         Map map = new HashMap();
-        PagingResult<CmdbResourceGroupsEntity> result = cmdbResourceGroupsService.findAll(null,PageResponse.getPageBounds(10000000, 1));
+        PagingResult<CmdbResourceGroupsEntity> result = resourceGroupsService.findAll(null,PageResponse.getPageBounds(10000000, 1));
         SearchMap searchMap;
         for (CmdbResourceGroupsEntity entity:result.getRows()){
             HashSet<String> hosts = new HashSet<>();
             searchMap = new SearchMap();
             map.put(entity.getGroupsId(), entity.getGroupsName());
             searchMap.put("groupsId", entity.getGroupsId());
-            List<CmdbResourceServerEntity> servers = service.getDataList(searchMap, "selectAllIp");
+            List<CmdbResourceServerEntity> servers = resourceServerService.getDataList(searchMap, "selectAllIp");
             for (CmdbResourceServerEntity serverEntity:servers){
                 hosts.add(serverEntity.getServerId()+"");
             }
@@ -398,16 +422,16 @@ public class CacheController {
     @RequestMapping("cache/all")
     @ResponseBody
     public String allCache(){
-        makeAllHostKey();
+        makeAllHostKey(null);
         setConfigureCache();
-        setServerCache();
-        setItemCache();
-        setScriptCache();
-        setContactGroupCache();
+        setServerCache(service);
+        setItemCache(itemService);
+        setScriptCache(scriptsService);
+        setContactGroupCache(contactGroupService);
         setTemplateCache();
         setGroupsCache();
-        cacheGroups();
-        setMessagesCache();
+        cacheGroups(cmdbResourceGroupsService, service);
+        setMessagesCache(channelService);
         return "ok";
     }
 

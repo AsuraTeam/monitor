@@ -30,7 +30,7 @@ public class MakeCacheThread extends Thread {
     @Override
     public void run() {
         cacheController.setConfigureCache();
-        cacheController.makeAllHostKey();
+        cacheController.makeAllHostKey(null);
         SaveController saveController = new SaveController();
         for (String hostId : hosts){
             saveController.initMonitor(hostId);

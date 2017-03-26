@@ -9,6 +9,7 @@ import com.asura.util.CheckUtil;
 import com.asura.util.RedisUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.ComponentScan;
 
 import java.lang.reflect.Type;
 import java.net.InetAddress;
@@ -33,6 +34,7 @@ import java.util.concurrent.LinkedTransferQueue;
  * @version 1.0
  * @since 1.0
  */
+@ComponentScan
 public class UDPServer {
 
     public static final Logger logger = LoggerFactory.getLogger(UDPServer.class);
@@ -110,6 +112,8 @@ public class UDPServer {
             redisUtil.set(key, "1");
         }
     }
+
+
 
     /**
      * 初始化udp端口

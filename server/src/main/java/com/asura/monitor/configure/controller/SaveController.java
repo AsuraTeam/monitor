@@ -237,7 +237,7 @@ public class SaveController {
             contactGroupService.save(entity);
         }
         indexController.logSave(request, "添加监控联系组" + GSON.toJson(entity));
-        cacheController.setContactGroupCache();
+        cacheController.setContactGroupCache(contactGroupService);
         return ResponseVo.responseOk(null);
     }
 
@@ -341,7 +341,7 @@ public class SaveController {
             itemService.save(entity);
         }
         indexController.logSave(request, "添加监控项目" + GSON.toJson(entity));
-        cacheController.setItemCache();
+        cacheController.setItemCache(itemService);
         if (entity.getIsDefault() != null && entity.getIsDefault().equals("1")) {
             cacheController.setDefaultMonitorChange();
         }else{

@@ -197,7 +197,7 @@
                             <div class="form-group">
                                 <label class="col-sm-5 control-label">邮件服务器地址:</label>
                                 <div class="col-sm-7">
-                                    <input type="text" name="smtpServer" class="form-control"
+                                    <input type="text" name="smtpServer" title="可以不带端口默认25，ssl使用465,比如qq邮箱, smtp.qq.com:465" class="form-control"
                                            value="$!{configs.smtpServer}">
                                 </div>
                             </div>

@@ -6,6 +6,7 @@ import com.asura.framework.dao.mybatis.paginator.domain.PageBounds;
 import com.asura.common.response.PageResponse;
 import com.asura.common.response.ResponseVo;
 import com.asura.monitor.configure.controller.CacheController;
+import com.asura.resource.service.CmdbResourceServerService;
 import com.asura.util.DateUtil;
 import com.asura.util.PermissionsCheck;
 import com.asura.resource.entity.CmdbResourceGroupsEntity;
@@ -40,6 +41,8 @@ public class GroupsController {
     @Autowired
     private CmdbResourceGroupsService service ;
 
+    @Autowired
+    private CmdbResourceServerService serverService;
 
     @Autowired
     private PermissionsCheck permissionsCheck;
@@ -99,7 +102,7 @@ public class GroupsController {
             entity.setCreateTime(DateUtil.getDateStampInteter());
             service.save(entity);
         }
-        cacheController.cacheGroups();
+        cacheController.cacheGroups(service, serverService);
         return ResponseVo.responseOk(null);
     }
 

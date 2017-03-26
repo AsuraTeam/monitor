@@ -404,7 +404,7 @@ public class ServerController {
         redisUtil.del(MonitorCacheConfig.cacheHostIdToIp+id);
         service.delete(resourceServerEntity);
         indexController.logSave(request,"删除资产数据 " + gson.toJson(resourceServerEntity));
-        cacheController.cacheGroups();
+        cacheController.cacheGroups(groupsService, service);
         return ResponseVo.responseOk(null);
     }
 

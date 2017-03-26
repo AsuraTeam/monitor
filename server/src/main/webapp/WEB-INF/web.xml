@@ -22,6 +22,7 @@
         <listener-class>com.asura.monitor.socket.InitListener</listener-class>
     </listener>
 
+
     <!--default servlet-->
     <servlet>
         <servlet-name>dispatcherServlet</servlet-name>
