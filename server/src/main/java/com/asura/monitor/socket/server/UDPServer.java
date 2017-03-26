@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import com.asura.monitor.configure.conf.MonitorCacheConfig;
 import com.asura.monitor.configure.entity.PushServerEntity;
 import com.asura.monitor.socket.thread.StartUDPServerThread;
+import com.asura.util.CheckUtil;
 import com.asura.util.RedisUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,10 +100,23 @@ public class UDPServer {
     }
 
     /**
+     * 设置报警开关
+     */
+    static void setAlarmSwitch(){
+        RedisUtil redisUtil = new RedisUtil();
+        String key = MonitorCacheConfig.cacheAlarmSwitch;
+        String result = redisUtil.get(key);
+        if (! CheckUtil.checkString(result)){
+            redisUtil.set(key, "1");
+        }
+    }
+
+    /**
      * 初始化udp端口
      */
     public static void startPort() {
         if (threadMap == null){
+            setAlarmSwitch();
             threadMap = new HashMap<>();
             threadMap.put("counter", 0L);
             slowMap = new HashMap<>();

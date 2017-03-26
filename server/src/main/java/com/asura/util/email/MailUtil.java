@@ -2,8 +2,10 @@ package com.asura.util.email;
 
 import org.apache.log4j.Logger;
 
+import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
@@ -30,20 +32,33 @@ public class MailUtil {
         Properties properties = System.getProperties();
 
         // 设置邮件服务器
-        properties.setProperty("mail.smtp.host", host);
-
+        String[] hosts = host.split(":");
+        properties.setProperty("mail.smtp.host", hosts[0]);
+        if (hosts.length > 1){
+            properties.setProperty("mail.smtp.port", hosts[1]);
+        }
         properties.put("mail.smtp.connectiontimeout", "1000"); //
         properties.put("mail.smtp.timeout", "1000");   //
-
         // 是否开启密码验证
+        // 获取默认的 Session 对象。
+        Session session;
         if(mailEntity.isAuth()) {
+            logger.info("使用密码验证发送邮件");
             properties.put("mail.smtp.auth", "true");
             properties.setProperty("mail.user", mailEntity.getUsername());
             properties.setProperty("mail.password", mailEntity.getPassword());
+            if (hosts.length > 1 && hosts[1].equals("465")) {
+                final String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
+                properties.setProperty("mail.smtp.socketFactory.class", SSL_FACTORY);
+                properties.setProperty("mail.smtp.socketFactory.fallback", "false");
+                properties.setProperty("mail.smtp.socketFactory.port", "465");
+            }
+            MyAuthenticator auth = new MyAuthenticator(mailEntity.getUsername(), mailEntity.getPassword());
+            session = Session.getDefaultInstance(properties, auth);
+        }else{
+            session = Session.getDefaultInstance(properties);
         }
 
-        // 获取默认的 Session 对象。
-        Session session = Session.getDefaultInstance(properties);
         try{
             // 创建默认的 MimeMessage 对象。
             MimeMessage message = new MimeMessage(session);
@@ -78,12 +93,29 @@ public class MailUtil {
 
 //    public static void main(String[] args) {
 //        MailEntity mailEntity = new MailEntity();
-//        mailEntity.setAuth(false);
-//        mailEntity.setHost("172.27.13.182");
-//        mailEntity.setReceiver("zhaozq14@asura.com,270851812@qq.com");
-//        mailEntity.setSender("监控系统<v@asura.com>");
+//        mailEntity.setAuth(true);
+//        mailEntity.setUsername("@qq.com");
+//        mailEntity.setPassword("");
+//        mailEntity.setHost("smtp.qq.com:465");
+//        mailEntity.setReceiver("@qq.com");
+//        mailEntity.setSender("@qq.com");
 //        mailEntity.setMessage("");
 //        mailEntity.setSubject("www报警啦");
 //        sendMail(mailEntity);
 //    }
+}
+
+// SMTP验证类(内部类)，继承javax.mail.Authenticator
+class MyAuthenticator extends Authenticator {
+    private String strUser;
+    private String strPwd;
+
+    public MyAuthenticator(String user, String password) {
+        this.strUser = user;
+        this.strPwd = password;
+    }
+
+    protected PasswordAuthentication getPasswordAuthentication() {
+        return new PasswordAuthentication(strUser, strPwd);
+    }
 }
