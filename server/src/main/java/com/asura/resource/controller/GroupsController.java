@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import com.asura.common.controller.IndexController;
 import com.asura.common.response.PageResponse;
 import com.asura.common.response.ResponseVo;
+import com.asura.monitor.configure.conf.MonitorCacheConfig;
 import com.asura.monitor.configure.controller.CacheController;
 import com.asura.resource.entity.CmdbResourceGroupsEntity;
 import com.asura.resource.entity.CmdbResourceServerEntity;
@@ -14,6 +15,7 @@ import com.asura.resource.service.CmdbResourceGroupsService;
 import com.asura.resource.service.CmdbResourceServerService;
 import com.asura.util.DateUtil;
 import com.asura.util.PermissionsCheck;
+import com.asura.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -133,6 +135,7 @@ public class GroupsController {
     @RequestMapping("deleteSave")
     @ResponseBody
     public ResponseVo delete(int id, HttpServletRequest request){
+        RedisUtil redisUtil = new RedisUtil();
         CmdbResourceGroupsEntity result = service.findById(id, CmdbResourceGroupsEntity.class);
         Gson gson = new Gson();
         SearchMap searchMap = new SearchMap();
@@ -140,10 +143,12 @@ public class GroupsController {
         List<CmdbResourceServerEntity> data = serverService.getDataList(searchMap, "selectByAll");
         if (data.size() < 1) {
             service.delete(result);
+            redisUtil.del(MonitorCacheConfig.cacheGroupsHosts+result.getGroupsId());
             indexController.logSave(request, "删除组数据:" + gson.toJson(result));
         }else{
             return ResponseVo.responseError("请先删除引用的设备记录" + data.get(0).getIpAddress());
         }
+        cacheController.cacheGroups(service, serverService);
         return ResponseVo.responseOk(null);
     }
 }
