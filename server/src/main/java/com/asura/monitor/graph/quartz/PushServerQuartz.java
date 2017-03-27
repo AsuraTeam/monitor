@@ -11,6 +11,7 @@ import com.asura.monitor.graph.util.FileWriter;
 import com.asura.monitor.socket.server.UDPServer;
 import com.asura.resource.service.CmdbResourceGroupsService;
 import com.asura.resource.service.CmdbResourceServerService;
+import com.asura.util.CheckUtil;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -69,17 +70,43 @@ public class PushServerQuartz {
      * 生成缓存数据
      */
     void setCache(){
-        String tempPath = System.getProperty("java.io.tmpdir") + System.getProperty("file.separator")+"cacheLock";
-        if (FileRender.readFile(tempPath).length() < 5) {
-            FileWriter.writeFile(tempPath, System.currentTimeMillis() / 1000 + "", false);
-            cacheController.makeAllHostKey(configureService);
-            cacheController.setItemCache(itemService);
-            cacheController.setMessagesCache(channelService);
-            cacheController.setServerCache(service);
-            cacheController.setScriptCache(scriptsService);
-            cacheController.cacheGroups(resourceGroupsService, service);
-            cacheController.setContactGroupCache(contactGroupService);
-
+        try {
+            String tempPath = System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + "cacheLock";
+            if (FileRender.readFile(tempPath).length() < 5) {
+                FileWriter.writeFile(tempPath, System.currentTimeMillis() / 1000 + "", false);
+                makeCache();
+            } else {
+                clearCache(tempPath, 3600);
+            }
+        }catch (Exception e){
+            LOGGER.error("生成缓存任务计划错误:", e);
         }
     }
+
+    void makeCache(){
+        cacheController.makeAllHostKey(configureService);
+        cacheController.setItemCache(itemService);
+        cacheController.setMessagesCache(channelService);
+        cacheController.setServerCache(service);
+        cacheController.setScriptCache(scriptsService);
+        cacheController.cacheGroups(resourceGroupsService, service);
+        cacheController.setContactGroupCache(contactGroupService);
+    }
+
+    /**
+     * 清空cache数据
+     * @param tempPath
+     */
+    public static void clearCache(String tempPath, long expiredTime){
+        String lockTime = FileRender.readFile(tempPath);
+        if (CheckUtil.checkString(lockTime)) {
+            long lastTime = Long.valueOf(lockTime.trim());
+            if (System.currentTimeMillis() / 1000 - lastTime > expiredTime) {
+                FileWriter.writeFile(tempPath, "0", false);
+            }
+        }
+    }
+
 }
+
+

@@ -21,6 +21,7 @@
         <if test="groupsName != null">
             and groups_name=#{groupsName}
         </if>
+        ORDER by groups_id desc
         </select>
 
     <select id="findById" resultType="com.asura.resource.entity.CmdbResourceGroupsEntity">

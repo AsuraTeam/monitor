@@ -3,21 +3,26 @@ package com.asura.resource.controller;
 import com.asura.framework.base.paging.PagingResult;
 import com.asura.framework.base.paging.SearchMap;
 import com.asura.framework.dao.mybatis.paginator.domain.PageBounds;
+import com.google.gson.Gson;
+import com.asura.common.controller.IndexController;
 import com.asura.common.response.PageResponse;
 import com.asura.common.response.ResponseVo;
 import com.asura.monitor.configure.controller.CacheController;
+import com.asura.resource.entity.CmdbResourceGroupsEntity;
+import com.asura.resource.entity.CmdbResourceServerEntity;
+import com.asura.resource.service.CmdbResourceGroupsService;
 import com.asura.resource.service.CmdbResourceServerService;
 import com.asura.util.DateUtil;
 import com.asura.util.PermissionsCheck;
-import com.asura.resource.entity.CmdbResourceGroupsEntity;
-import com.asura.resource.service.CmdbResourceGroupsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.List;
 
 /**
  * <p></p>
@@ -49,6 +54,9 @@ public class GroupsController {
 
     @Autowired
     private CacheController cacheController;
+
+    @Autowired
+    private IndexController indexController;
 
     /**
      * 列表
@@ -122,8 +130,20 @@ public class GroupsController {
      * 删除信息
      * @return
      */
-    @RequestMapping("delete")
-    public ResponseVo delete(){
+    @RequestMapping("deleteSave")
+    @ResponseBody
+    public ResponseVo delete(int id, HttpServletRequest request){
+        CmdbResourceGroupsEntity result = service.findById(id, CmdbResourceGroupsEntity.class);
+        Gson gson = new Gson();
+        SearchMap searchMap = new SearchMap();
+        searchMap.put("groupsName", result.getGroupsName());
+        List<CmdbResourceServerEntity> data = serverService.getDataList(searchMap, "selectByAll");
+        if (data.size() < 1) {
+            service.delete(result);
+            indexController.logSave(request, "删除组数据:" + gson.toJson(result));
+        }else{
+            return ResponseVo.responseError("请先删除引用的设备记录" + data.get(0).getIpAddress());
+        }
         return ResponseVo.responseOk(null);
     }
 }

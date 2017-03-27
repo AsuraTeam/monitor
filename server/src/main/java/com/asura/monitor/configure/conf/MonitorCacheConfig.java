@@ -146,4 +146,7 @@ public class MonitorCacheConfig {
     // 上报agent的cpu数量
     public static final String cacheAgentCpu = "cache_agent_cpu_";
 
+    // 缓存服务器端口号 + 服务器IP地址
+    public static final String getCachePushServerPort = "cache_push_server_port_";
+
 }
