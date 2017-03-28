@@ -2,6 +2,7 @@ package com.asura.monitor.configure.controller;
 
 import com.asura.framework.base.paging.SearchMap;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.asura.common.controller.IndexController;
 import com.asura.common.response.ResponseVo;
 import com.asura.monitor.configure.conf.MonitorCacheConfig;
@@ -28,6 +29,8 @@ import com.asura.util.DateUtil;
 import com.asura.util.LdapAuthenticate;
 import com.asura.util.PermissionsCheck;
 import com.asura.util.RedisUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,8 +38,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import static com.asura.monitor.configure.conf.MonitorCacheConfig.cacheGroupsKey;
 import static com.asura.monitor.configure.conf.MonitorCacheConfig.cacheHostCnfigureKey;
@@ -100,6 +105,8 @@ public class SaveController {
     private CacheController cacheController;
 
     private final ConfigureUtil CONFIGURE_UTIL = new ConfigureUtil();
+
+    private final Logger LOGGER = LoggerFactory.getLogger(SaveController.class);
 
     /**
      * 模板列表
@@ -275,6 +282,21 @@ public class SaveController {
     }
 
     /**
+     *  获取最大的脚本ID
+     * @return
+     */
+    int getMaxScriptId(){
+        List<MonitorScriptsEntity> r = scriptsService.getDataList(null, "selectMaxId");
+        int id;
+        try {
+            id = r.get(0).getScriptsId() + 1;
+        } catch (Exception e) {
+            id = 1;
+        }
+        return id;
+    }
+
+    /**
      * 脚本配置
      *
      * @param entity
@@ -295,13 +317,7 @@ public class SaveController {
         if (entity.getScriptsId() != null) {
             scriptsService.update(entity);
         } else {
-            List<MonitorScriptsEntity> r = scriptsService.getDataList(null, "selectMaxId");
-            int id;
-            try {
-                id = r.get(0).getScriptsId() + 1;
-            } catch (Exception e) {
-                id = 1;
-            }
+            int id = getMaxScriptId();
             entity.setScriptsId(id);
             scriptsService.save(entity);
         }
@@ -312,6 +328,21 @@ public class SaveController {
         return ResponseVo.responseOk(null);
     }
 
+
+    /**
+     *
+     * @return
+     */
+    int getMaxItemId(){
+        List<MonitorItemEntity> r = itemService.getDataList(null, "selectMaxId");
+        int id;
+        try {
+            id = r.get(0).getItemId() + 1;
+        } catch (Exception e) {
+            id = 1;
+        }
+        return id;
+    }
 
     /**
      * 项目配置
@@ -330,13 +361,7 @@ public class SaveController {
         if (entity.getItemId() != null) {
             itemService.update(entity);
         } else {
-            List<MonitorItemEntity> r = itemService.getDataList(null, "selectMaxId");
-            int id;
-            try {
-                id = r.get(0).getItemId() + 1;
-            } catch (Exception e) {
-                id = 1;
-            }
+            int id = getMaxItemId();
             entity.setItemId(id);
             itemService.save(entity);
         }
@@ -349,6 +374,44 @@ public class SaveController {
         }
         return ResponseVo.responseOk(null);
     }
+
+    /**
+     * 项目模板导入功能
+     * 2017-03-28
+     * @param data
+     * @param request
+     * @return
+     */
+    @RequestMapping("item/importSave")
+    @ResponseBody
+    public ResponseVo importSave(String data, HttpServletRequest request) {
+        try {
+            Type type = new TypeToken<Map<String, String>>() {
+            }.getType();
+            Map<String, String>  map = GSON.fromJson(data, Map.class);
+            String script = map.get("scripts");
+            String item = map.get("item");
+            MonitorItemEntity itemEntity = GSON.fromJson(item, MonitorItemEntity.class);
+            MonitorScriptsEntity scriptsEntity = GSON.fromJson(script, MonitorScriptsEntity.class);
+            int scriptId = getMaxScriptId();
+            scriptsEntity.setScriptsId(scriptId);
+            itemEntity.setItemId(getMaxItemId());
+            itemEntity.setScriptId(scriptId);
+            try {
+                scriptsService.save(scriptsEntity);
+                itemService.save(itemEntity);
+            }catch (Exception e){
+                scriptsService.delete(scriptsEntity);
+                itemService.delete(itemEntity);
+            }
+            indexController.logSave(request, "导入项目模板");
+            return ResponseVo.responseOk("保存成功,请点击编辑确认没问题后再点击保存按钮");
+        }catch (Exception e){
+            LOGGER.error("导入模板失败ERROR", e);
+            return ResponseVo.responseError("导入失败");
+        }
+    }
+
 
     /**
      * 项目配置删除

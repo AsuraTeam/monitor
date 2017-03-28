@@ -325,6 +325,24 @@ public class ListDataController {
         return redisUtil.get(MonitorCacheConfig.cacheItemKey + name);
     }
 
+    /**
+     * 项目模板导出
+     * @param id
+     * @return
+     */
+    @RequestMapping(value ="item/export", produces = {"application/text;charset=UTF-8"})
+    @ResponseBody
+    public String itemAdd(int id) {
+        Gson gson = new Gson();
+        Map<String, String> map = new HashMap<>();
+        MonitorItemEntity result = itemService.findById(id, MonitorItemEntity.class);
+        int scriptId = result.getScriptId();
+        MonitorScriptsEntity scriptsEntity = scriptsService.findById(scriptId, MonitorScriptsEntity.class);
+        map.put("item", gson.toJson(result));
+        map.put("scripts", gson.toJson(scriptsEntity));
+        return gson.toJson(map);
+    }
+
 
     /**
      * 获取模板里的项目

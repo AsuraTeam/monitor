@@ -523,10 +523,10 @@ public class ServerController {
         String groupsName = "自动生成组1";
         SearchMap searchMap = new SearchMap();
         searchMap.put("groupsName", groupsName);
-        PageBounds pageBounds = PageResponse.getPageBounds(10, 1);
+        PageBounds pageBounds = PageResponse.getPageBounds(3, 1);
         PagingResult<CmdbResourceGroupsEntity> result = groupsService.findAll(searchMap, pageBounds);
         if (result.getTotal() < 1) {
-             for (int i = 1; i < 11 ; i++ ) {
+             for (int i = 1; i < 3 ; i++ ) {
                 CmdbResourceGroupsEntity entity = new CmdbResourceGroupsEntity();
                 entity.setCreateTime(DateUtil.getDateStampInteter());
                 entity.setGroupsName("自动生成组"+i);

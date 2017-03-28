@@ -44,7 +44,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class AddController {
 
     @Autowired
-    private com.asura.monitor.configure.service.MonitorInformationService informationService ;
+    private com.asura.monitor.configure.service.MonitorInformationService informationService;
 
     @Autowired
     private MonitorItemService itemService;
@@ -71,19 +71,20 @@ public class AddController {
     private MonitorTemplateService templateService;
 
     private SearchMap searchMapNull = new SearchMap();
-    private PageBounds pageBoundsNull = PageResponse.getPageBounds(10000,1);
+    private PageBounds pageBoundsNull = PageResponse.getPageBounds(10000, 1);
 
     /**
      * 模板列表
+     *
      * @return
      */
     @RequestMapping("template/add")
-    public String templateAdd(int id,Model model){
-        if(id>0){
-            MonitorTemplateEntity result = templateService.findById(id,MonitorTemplateEntity.class);
-            model.addAttribute("configs",result);
+    public String templateAdd(int id, Model model) {
+        if (id > 0) {
+            MonitorTemplateEntity result = templateService.findById(id, MonitorTemplateEntity.class);
+            model.addAttribute("configs", result);
         }
-        model.addAttribute("items",itemService.findAll(searchMapNull,pageBoundsNull,"selectByAll").getRows());
+        model.addAttribute("items", itemService.findAll(searchMapNull, pageBoundsNull, "selectByAll").getRows());
         return "monitor/configure/template/add";
     }
 
@@ -91,19 +92,20 @@ public class AddController {
      *
      */
     @RequestMapping("template")
-    public String add(){
-          return "monitor/configure/messages/template";
+    public String add() {
+        return "monitor/configure/messages/template";
     }
 
     /**
      * 监控组配置
+     *
      * @return
      */
     @RequestMapping("groups/add")
-    public String groupsAdd(int id,Model model){
-        if(id>0){
-            MonitorGroupsEntity result = groupsService.findById(id,MonitorGroupsEntity.class);
-            model.addAttribute("configs",result);
+    public String groupsAdd(int id, Model model) {
+        if (id > 0) {
+            MonitorGroupsEntity result = groupsService.findById(id, MonitorGroupsEntity.class);
+            model.addAttribute("configs", result);
         }
         return "monitor/configure/groups/add";
     }
@@ -111,89 +113,95 @@ public class AddController {
 
     /**
      * 消息通道配置
+     *
      * @return
      */
     @RequestMapping("messages/add")
-    public String messagesAdd(int id,Model model){
-        if(id>0){
-            MonitorMessageChannelEntity result = channelService.findById(id,MonitorMessageChannelEntity.class);
-            model.addAttribute("configs",result);
+    public String messagesAdd(int id, Model model) {
+        if (id > 0) {
+            MonitorMessageChannelEntity result = channelService.findById(id, MonitorMessageChannelEntity.class);
+            model.addAttribute("configs", result);
         }
         return "monitor/configure/messages/add";
     }
 
 
-
     /**
      * 联系人配置
+     *
      * @return
      */
     @RequestMapping("contacts/add")
-    public String contactsAdd(int id,Model model){
-        if(id>0){
-            MonitorContactsEntity result = contactsService.findById(id,MonitorContactsEntity.class);
-            model.addAttribute("configs",result);
+    public String contactsAdd(int id, Model model) {
+        if (id > 0) {
+            MonitorContactsEntity result = contactsService.findById(id, MonitorContactsEntity.class);
+            model.addAttribute("configs", result);
         }
         return "monitor/configure/contacts/add";
     }
 
     /**
      * 联系组配置
+     *
      * @return
      */
     @RequestMapping("contactGroup/add")
-    public String contactGroupAdd(int id,Model model){
-        if(id>0){
-            MonitorContactGroupEntity result = contactGroupService.findById(id,MonitorContactGroupEntity.class);
-            model.addAttribute("configs",result);
+    public String contactGroupAdd(int id, Model model) {
+        if (id > 0) {
+            MonitorContactGroupEntity result = contactGroupService.findById(id, MonitorContactGroupEntity.class);
+            model.addAttribute("configs", result);
         }
         return "monitor/configure/contactGroup/add";
     }
 
 
-
     /**
      * 脚本配置
+     *
      * @return
      */
     @RequestMapping("script/add")
-    public String scriptAdd(int id,Model model){
-        if(id>0){
-            MonitorScriptsEntity result = scriptsService.findById(id,MonitorScriptsEntity.class);
-            model.addAttribute("configs",result);
+    public String scriptAdd(int id, Model model) {
+        if (id > 0) {
+            MonitorScriptsEntity result = scriptsService.findById(id, MonitorScriptsEntity.class);
+            model.addAttribute("configs", result);
         }
         return "monitor/configure/script/add";
     }
 
     /**
      * 项目配置
+     *
      * @return
      */
     @RequestMapping("item/add")
-    public String itemAdd(int id,Model model){
-        if(id>0){
-            MonitorItemEntity result = itemService.findById(id,MonitorItemEntity.class);
-            model.addAttribute("configs",result);
+    public String itemAdd(int id, Model model) {
+        if (id > 0) {
+            MonitorItemEntity result = itemService.findById(id, MonitorItemEntity.class);
+            model.addAttribute("configs", result);
         }
-        model.addAttribute("scripts", scriptsService.findAll(searchMapNull,pageBoundsNull,"selectByAll").getRows());
+        model.addAttribute("scripts", scriptsService.findAll(searchMapNull, pageBoundsNull, "selectByAll").getRows());
         return "monitor/configure/item/add";
     }
 
+
+
     /**
      * 监控配置
+     *
      * @return
      */
     @RequestMapping("configure/add")
-    public String configureAdd(int id,Model model){
-        if(id>0){
-            MonitorConfigureEntity result = configureService.findById(id,MonitorConfigureEntity.class);
-            if(result.getScriptId()!=null){
-                MonitorScriptsEntity scriptsEntity = scriptsService.findById(result.getScriptId(),MonitorScriptsEntity.class);
+    public String configureAdd(int id, Model model) {
+        if (id > 0) {
+            MonitorConfigureEntity result = configureService.findById(id, MonitorConfigureEntity.class);
+            if (result.getScriptId() != null) {
+                MonitorScriptsEntity scriptsEntity = scriptsService.findById(result.getScriptId(), MonitorScriptsEntity.class);
                 model.addAttribute("fileName", scriptsEntity.getFileName());
             }
-            model.addAttribute("configs",result);
+            model.addAttribute("configs", result);
         }
-        model.addAttribute("scripts", scriptsService.findAll(searchMapNull,pageBoundsNull,"selectByAll").getRows());
+        model.addAttribute("scripts", scriptsService.findAll(searchMapNull, pageBoundsNull, "selectByAll").getRows());
         return "monitor/configure/configure/add";
     }
 }

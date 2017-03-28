@@ -184,7 +184,12 @@
                 },
                 {"data": "lastModifyUser"},
                 {"data": "lastModifyTime","mRender":function (data) {
-                    return data?laydate.now(data, "YYYY-MM-DD hh:mm:ss"):"--";
+                    if(data){
+                        var date2 = new Date(data);
+                        var localeString = date2.toLocaleString();
+                        return localeString;
+                    }
+                     return "";
                 }},
                 {"sWidth": "150px", "data": "scriptsId", "mRender": function(data, type, full) {
                     return '<button type="button" onclick="addConfig('+data+')" class="btn btn-sm btn-warning">编辑</button>&nbsp;'+
