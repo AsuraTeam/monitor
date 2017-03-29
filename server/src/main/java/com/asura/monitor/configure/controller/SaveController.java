@@ -397,6 +397,8 @@ public class SaveController {
             scriptsEntity.setScriptsId(scriptId);
             itemEntity.setItemId(getMaxItemId());
             itemEntity.setScriptId(scriptId);
+            //防止默认监控
+            itemEntity.setIsDefault("0");
             try {
                 scriptsService.save(scriptsEntity);
                 itemService.save(itemEntity);
@@ -518,6 +520,17 @@ public class SaveController {
         entity.setLastModifyUser(user);
         entity.setLastModifyTime(DateUtil.getTimeStamp());
         String[] hosts;
+        try {
+            entity.setArg1(entity.getArg1().replace("\n", ""));
+            entity.setArg2(entity.getArg2().replace("\n", ""));
+            entity.setArg3(entity.getArg3().replace("\n", ""));
+            entity.setArg4(entity.getArg4().replace("\n", ""));
+            entity.setArg5(entity.getArg5().replace("\n", ""));
+            entity.setArg6(entity.getArg6().replace("\n", ""));
+            entity.setArg7(entity.getArg7().replace("\n", ""));
+            entity.setArg8(entity.getArg8().replace("\n", ""));
+        }catch (Exception e){
+        }
         if (entity.getConfigureId() != null) {
             MonitorConfigureEntity configureEntity = configureService.findById(entity.getConfigureId(), MonitorConfigureEntity.class);
             hosts = configureEntity.getHosts().split(",");

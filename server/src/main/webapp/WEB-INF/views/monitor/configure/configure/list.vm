@@ -311,6 +311,9 @@
                 {"data": "gname"},
                 {"data": "hosts", "mRender":function (data) {
                     if(data) {
+                        if (data.substring(data.length, data.length-1) == ","){
+                            data = data.substring(0, data.length-1);
+                        }
                         return '<a onclick="show_hosts(\'' + data + '\')">' + (data.split(",").length ) + '<span style="margin-left: 20px;"></span><i class="fa fa-users"></i></a>';
                     }
                 }},
