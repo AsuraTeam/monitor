@@ -17,7 +17,7 @@ package com.asura.monitor.configure.conf;
  */
 public class MonitorCacheConfig {
 
-    // 存放每个主机对应的在cmdb的id
+    // 存放每个主机对应的在cmdb的id id_ip
     public static final String hostsIdKey = "cache_hosts_id_";
 
     // 存放有配置的主机的配置信息
@@ -75,7 +75,7 @@ public class MonitorCacheConfig {
     public static final String getCacheHostGroupsKey = "cache_get_cache_host_groups_";
 
     // 报警队列设置, 使用redis队列, 不保证数据
-        public static final String cacheAlarmQueueKey = "cache_alarm_queue";
+    public static final String cacheAlarmQueueKey = "cache_alarm_queue";
 
     //  缓存业务线的名称 cache_group_name_业务线ID, MAP类型
     public static final String cacheGroupName = "cache_group_name";

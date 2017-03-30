@@ -15,7 +15,7 @@ import java.util.Map;
 @Component
 public class PageResponse {
 
-    public static String getMap(PagingResult result, int draw){
+    public static String getMap(PagingResult result, int draw) {
         Gson gson = new Gson();
         Map map = new HashMap();
         map.put("data", result.getRows());
@@ -27,12 +27,12 @@ public class PageResponse {
 
 
     /**
-     *
      * @param list
      * @param draw
+     *
      * @return
      */
-    public static String getList(List list, int draw){
+    public static String getList(List list, int draw) {
         Gson gson = new Gson();
         Map map = new HashMap();
         map.put("data", list);
@@ -44,20 +44,20 @@ public class PageResponse {
 
 
     /**
-     *
      * @param length
      * @param start
+     *
      * @return
      */
     public static PageBounds getPageBounds(int length, int start) {
         int page = 1;
-        if(start == 0){
+        if (start == 0) {
             start = 1;
         }
         try {
             if (length <= 0) length = 10;
-             page = start / length + 1;
-        }catch (Exception e){
+            page = start / length + 1;
+        } catch (Exception e) {
             page = 1;
             length = 10;
         }
@@ -66,32 +66,32 @@ public class PageResponse {
     }
 
     /**
-     *
      * @param start
      * @param length
      * @param number
+     *
      * @return
      */
-    public  static  boolean checkPaging(int start, int length, int number){
+    public static boolean checkPaging(int start, int length, int number) {
         int page = 1;
-        if(start==0){
+        if (start == 0) {
             start = 1;
         }
         try {
-            if (length <= 0){
+            if (length <= 0) {
                 length = 10;
             }
             page = start / length + 1;
-        }catch (Exception e){
+        } catch (Exception e) {
             page = 1;
             length = 10;
         }
 
-        if (page==1 && number <= length){
+        if (page == 1 && number <= length) {
             return true;
         }
 
-        if (number  > start && number <= (page) * length ) {
+        if (number > start && number <= (page) * length) {
             return true;
         }
         return false;

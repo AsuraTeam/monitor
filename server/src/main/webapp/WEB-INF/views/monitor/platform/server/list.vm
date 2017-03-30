@@ -32,6 +32,41 @@
     </div>
 </div>
 
+
+<!-- 异常信息查看 -->
+<div class="modal fade" id="alarmInformationId" tabindex="-1" style="z-index: 12050 !important;" role="dialog"  data-backdro
+<div class="modal-dialog" style="width:100%;margin-top:-10px;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title">异常信息查看</h4>
+        </div>
+        <div class="modal-body fadeInUp" style="overflow: scroll">
+            <table style="width: 120%;overflow: scroll;" class="table  table-bordered table-hover dataTables-example"
+            id="selectAlarmInformation" >
+                <thead>
+                <tr>
+                    <th>ip地址</th>
+                    <th>状态</th>
+                    <th>指标名称</th>
+                    <th>输出信息</th>
+                    <th>监控类型</th>
+                    <th>时间</th>
+                    <th>清除</th>
+                    <th>处理故障</th>
+                    <th>历史图</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 <div class=" animated fadeInRight">
     <div class="row">
         <div class="col-sm-12">
@@ -70,6 +105,78 @@
 <script>
     var site = "platform/server/"
 
+    function selectAlarmInformation( server) {
+        $('#alarmInformationId').modal("toggle")
+        $("#selectAlarmInformation").dataTable({
+            "filter": false,//去掉搜索框
+            "ordering": false, // 是否允许排序
+            "paginationType": "full_numbers", // 页码类型
+            "destroy": true,
+            "processing": false,
+            "serverSide": true,
+            "scrollX": true, // 是否允许左右滑动
+            "displayLength": 10, // 默认长度
+//            "bLengthChange": false, // 下啦选择每页显示
+            "ajax": { // 请求地址
+                "url": "/monitor/global/messages?t=" + new Date().getTime()+"&server="+server,
+                "type": 'post'
+            },
+            "columns": [ // 数据映射
+                {"data":"server", "mRender":function (data, type, full) {
+                    return data;
+                }},
+                {"data":"status","mRender":function (data) {
+                    if(data=="1"){
+                        return "正常";
+                    }
+                    if(data=="2"){
+                        return "<font color='red'>危险</font>";
+                    }
+                    if(data=="3"){
+                        return "<font color='warning'>警告</font>";
+                    }
+                    if(data=="4"){
+                        return "<font color='#f5f5f5'>未知</font>";
+                    }
+                }},
+                {"data":"name","mRender":function (data) {
+                    return data.replace(/SLASH/g, "/");
+                }},
+                {"data":"messages","mRender":function (data) {
+                    if(data.length>50){
+                        return "<span title='"+data+"'>"+ data.substring(0, 50) + "</span>";
+                    }
+                    return data;
+                }},
+                {"data":"command"},
+                {"data": "time","mRender":function (data) {
+                    if (data.indexOf("000") == -1){
+                        data = data +"000"
+                    }
+                    return data?laydate.now(data, "YYYY-MM-DD hh:mm:ss"):"--";
+                }},
+                {"data":"server", "mRender":function (data) {
+                    return "<a class='text-info' href='#' onclick=\"clearExpireServer('"+data+"')\"><i class='fa fa-trash-o'></i></a>";
+                }},
+                {"data":"id", "mRender":function (data,type,full) {
+                    return "<a target='_self' href='/monitor/platform/alarm/list'><i class='fa fa-bug'></i></a>";
+                }},
+                {"data":"id", "mRender":function (data,type,full) {
+                    if (full["name"] == "agent") {
+                        return "<span onclick='window.open(\"/monitor/graph/all/index?ip=" + full["server"]+"\")'><i class='fa fa-area-chart'></i></span>";
+                    } else {
+                        name = full["groups"] + "|" + full["name"].replace(/\//g, "---")
+                        return "<span onclick='window.open(\"/monitor/graph/all/index?ip=" + full["server"] + "&select=" + name + "&width=100\")'><i class='fa fa-area-chart'></i></span>";
+                    }
+                }}
+            ],
+            "fnRowCallback": function (row, data) { // 每行创建完毕的回调
+                $(row).data('recordId', data.recordId);
+            }
+        });
+    }
+
+
     function update() {
         url = "/monitor/platform/server/update";
         post({},url)
@@ -103,12 +210,12 @@
                 {"data": "hostname", "mRender":function (data) {
                     return data;
                 }},
-                {"data": "status","mRender":function (data) {
+                {"data": "status","mRender":function (data, type, full) {
                     k = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
                     if (data=="UP"){
-                        return '<span title="数据5分钟内更新正常" class="label label-primary">'+k+k+k+data+k+k+k+'</span>';
+                        return '<span onclick="selectAlarmInformation(\''+full["ip"]+'\')" title="数据5分钟内更新正常" class="label label-primary">'+k+k+k+data+k+k+k+'</span>';
                     }else{
-                        return '<span title="5分钟内没有接收到数据" class="label label-danger">'+k+k+k+data+k+k+'</span>';
+                        return '<span onclick="selectAlarmInformation(\''+full["ip"]+'\')" title="5分钟内没有接收到数据" class="label label-danger">'+k+k+k+data+k+k+'</span>';
                     }
                 }},
                 {"data": "cpu","mRender":function (data) {

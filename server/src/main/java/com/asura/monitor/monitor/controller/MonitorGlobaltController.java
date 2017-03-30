@@ -15,6 +15,7 @@ import com.asura.monitor.monitor.service.MonitorInformationService;
 import com.asura.monitor.monitor.service.MonitorMessagesService;
 import com.asura.util.CheckUtil;
 import com.asura.util.DateUtil;
+import com.asura.util.IpUtil;
 import com.asura.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -39,7 +40,7 @@ import static com.asura.util.RedisUtil.app;
  * <BR>-----------------------------------------------
  * <BR>
  * </PRE>
- *  全局监控图
+ * 全局监控图
  *
  * @author zhaozq14
  * @version 1.0
@@ -58,14 +59,14 @@ public class MonitorGlobaltController {
 
     private static final Gson gson = new Gson();
 
-    private static RedisUtil redisUtil = new RedisUtil();
+    private static final RedisUtil redisUtil = new RedisUtil();
 
     private static Map<String, String> ID_TO_HOST;
     // 缓存每个组里的主机ID
     private static Map<String, String> GROUP_HOSTS;
-    private static long CACHE_HOSTS_TIME ;
+    private static long CACHE_HOSTS_TIME;
     private static final String separator = System.getProperty("file.separator");
-    private static final String tempDir = System.getProperty("java.io.tmpdir") + separator + "monitor" + separator;
+    private static final String tempDir = FileWriter.dataDir + separator + "monitor" + separator;
 
     /**
      * 监控入口
@@ -75,9 +76,6 @@ public class MonitorGlobaltController {
      * @return
      */
     public ArrayList<CheckCountEntity> getIndexData(SearchMap searchMap) {
-
-        //List<CmdbMonitorMessagesEntity> result = messagesService.getMessageList(searchMap,"selectGroups");
-        //model.addAttribute("groups",result);
 
         List<CmdbMonitorMessagesEntity> groupsInfo = messagesService.getMessageList(searchMap, "selectGroupsMonitorInfo");
         ArrayList<String> groups = new ArrayList();
@@ -293,9 +291,9 @@ public class MonitorGlobaltController {
     static Map getMessagesMap(ArrayList<MessagesEntity> messagesEntities, Map dataMap) {
         Map map = new HashMap();
         int totle = 0;
-        if (dataMap.size()==0){
+        if (dataMap == null || dataMap.size() == 0) {
             totle = messagesEntities.size();
-        }else {
+        } else {
             totle = dataMap.size();
         }
         map.put("data", messagesEntities);
@@ -305,64 +303,44 @@ public class MonitorGlobaltController {
     }
 
     /**
-     * 获取监控异常的数据
      *
+     * @param groupsName
      * @param groupsId
      * @param status
-     * @param groupsName
-     * @param start
-     * @param length
-     *
+     * @param server
+     * @param messagesEntities
      * @return
      */
-    @RequestMapping(value = "messages", produces = {"application/json;charset=utf-8"})
-    @ResponseBody
-    public String messages(String groupsId, String status, String groupsName, int start, int length, String server) throws Exception {
-        if (groupsId.equals("999999999")) {
-            Map map = getAgentMessages(status, length, start);
-            return gson.toJson(map);
-        }
-
+    ArrayList<MessagesEntity> getMessagesList(String groupsName, String groupsId, String status, String server, ArrayList<MessagesEntity> messagesEntities){
         Jedis jedis = redisUtil.getJedis();
         String datas = FileRender.readLastLine(tempDir.concat("groupsMap_").concat(groupsId).concat("_").concat(status));
+        if (! CheckUtil.checkString(datas)) {
+            IndexData("");
+        }
         Map<String, String> dataMap = gson.fromJson(datas, HashMap.class);
 
         String[] data;
         String hostId;
         String path;
         status = FileRender.replace(status);
-        ArrayList<MessagesEntity> messagesEntities = new ArrayList<>();
         String messages;
         String[] messagesData;
         MessagesEntity messagesEntity;
-        int count = 0;
+
+        if (dataMap == null || dataMap.size() < 1 ) { return  messagesEntities;  }
         // 获取到该组的hostId和脚本Id，拼接出来日志路径
         for (Map.Entry<String, String> entry : dataMap.entrySet()) {
-            // 分页检查
-            if (!PageResponse.checkPaging(start, length, count)) {
-                count += 1;
-                if(server==null||server.length()<1) {
-                    continue;
-                }
-            }
-            count += 1;
             data = entry.getKey().split("_");
             try {
                 StringBuilder pathBuilder = new StringBuilder();
-                pathBuilder.append(data[1])
-                        .append("_")
-                        .append(status)
-                        .append("_")
-                        .append(data[3])
-                        .append("_")
-                        .append(data[4]);
+                pathBuilder.append(data[1]).append("_").append(status).append("_").append(data[3]).append("_").append(data[4]);
                 path = FileRender.replace(pathBuilder.toString());
             } catch (Exception e) {
                 continue;
             }
 
             hostId = FileRender.replace(data[2]);
-            if (server != null && server.length() > 0 && !hostId.equals(server)){
+            if (CheckUtil.checkString(server) && !hostId.equals(server)) {
                 continue;
             }
             String file = FileWriter.getMonitorFile(hostId, path);
@@ -384,95 +362,152 @@ public class MonitorGlobaltController {
             messagesEntity.setServerId(hostId);
             messagesEntity.setCommand(getScriptName(jedis, data[1]));
             messagesEntities.add(messagesEntity);
-
         }
         jedis.close();
-        if (server!=null&&server.length()>0){
-            dataMap = new HashMap<>(messagesEntities.size());
-        }
-        Map map = getMessagesMap(messagesEntities, dataMap);
-        return gson.toJson(map);
+        return messagesEntities;
     }
 
+    /**
+     * 获取监控异常的数据
+     *
+     * @param groupsId
+     * @param status
+     * @param groupsName
+     * @param start
+     * @param length
+     *
+     * @return
+     */
+    @RequestMapping(value = "messages", produces = {"application/json;charset=utf-8"})
+    @ResponseBody
+    public String messages(String groupsId, String status, String groupsName, int start, int length, String server) throws Exception {
+        if (groupsId != null && groupsId.equals("999999999")) {
+            Map map = getAgentMessages(status, length, start);
+            return gson.toJson(map);
+        }
+
+        // 单独获取某个IP地址的，没有传入groupsId
+        if (groupsId == null) {
+            groupsId = redisUtil.get(MonitorCacheConfig.getCacheHostGroupsKey.concat(server));
+        }
+
+        // 获取serverId
+        if (IpUtil.isIP(server)) {
+            server = redisUtil.get(MonitorCacheConfig.hostsIdKey.concat(server));
+        }
+        groupsId = FileRender.replace(groupsId);
+        server = FileRender.replace(server);
+        ArrayList<MessagesEntity>  messagesEntities = new ArrayList<>();
+        if (CheckUtil.checkString(status)){
+            getMessagesList(groupsName, groupsId, status, server, messagesEntities );
+        }else{
+            List<String> strings = new ArrayList<>();
+            strings.add("1");
+            strings.add("2");
+            strings.add("3");
+            strings.add("4");
+            for (String sta: strings) {
+                getMessagesList(groupsName, groupsId, sta, server, messagesEntities);
+            }
+        }
+        Map sizeMap = new HashMap();
+        ArrayList<MessagesEntity> datas = new ArrayList<>();
+        int count = 0;
+        for (MessagesEntity entity: messagesEntities) {
+            count += 1;
+            sizeMap.put(count, 1);
+            // 分页检查
+            if (!PageResponse.checkPaging(start, length, count)) {
+                    continue;
+            }
+            datas.add(entity);
+        }
+        Map map = getMessagesMap(datas, sizeMap);
+        return gson.toJson(map);
+    }
 
 
     /**
      *
      * @param temp
      * @param oldMap
+     * @param okMap
+     * @param type
      * @return
      */
-    CheckCountEntity getTempData(CheckCountEntity temp,Map<String,String> oldMap, Map<String,String> okMap,String type) {
+    CheckCountEntity getTempData(CheckCountEntity temp, Map<String, String> oldMap, Map<String, String> okMap, String type) {
 
-    if(oldMap==null)
-    {
-        oldMap = new HashMap<>();
-    }
+        if (oldMap == null) {
+            oldMap = new HashMap<>();
+        }
 
-    for(Map.Entry<String, String> map :okMap.entrySet())
-    {
-        oldMap.put(map.getKey(), map.getValue());
-    }
-    switch (type)
-    {
-        case "ok":
-            temp.setOkMap(oldMap);
-            break;
-        case "warning":
-            temp.setWarningMap(oldMap);
-            break;
-        case "faild":
-            temp.setFaildMap(oldMap);
-            break;
-        case "unknown":
-            temp.setUnknownMap(oldMap);
-            break;
-    }
+        for (Map.Entry<String, String> map : okMap.entrySet()) {
+            oldMap.put(map.getKey(), map.getValue());
+        }
+        switch (type) {
+            case "ok":
+                temp.setOkMap(oldMap);
+                break;
+            case "warning":
+                temp.setWarningMap(oldMap);
+                break;
+            case "faild":
+                temp.setFaildMap(oldMap);
+                break;
+            case "unknown":
+                temp.setUnknownMap(oldMap);
+                break;
+        }
         return temp;
-}
+    }
 
     /**
      *
      * @param temp
+     * @param type
+     * @param okMap
+     * @return
      */
-    CheckCountEntity setIndexDataMap(CheckCountEntity temp, String type, Map<String,String> okMap){
-        if (okMap==null){
+    CheckCountEntity setIndexDataMap(CheckCountEntity temp, String type, Map<String, String> okMap) {
+        if (okMap == null) {
             okMap = new HashMap();
         }
-        switch (type){
+        switch (type) {
             case "ok":
                 temp.setOk(temp.getOk() + okMap.size());
-                temp = getTempData(temp,temp.getOkMap(),okMap,"ok");
+                temp = getTempData(temp, temp.getOkMap(), okMap, "ok");
                 break;
             case "danger":
                 temp.setDanger(temp.getDanger() + okMap.size());
-                temp = getTempData(temp,temp.getFaildMap(),okMap,"faild");
+                temp = getTempData(temp, temp.getFaildMap(), okMap, "faild");
                 break;
             case "warning":
                 temp.setWarning(temp.getWarning() + okMap.size());
-                temp = getTempData(temp,temp.getWarningMap(),okMap,"warning");
+                temp = getTempData(temp, temp.getWarningMap(), okMap, "warning");
                 break;
             case "unknown":
                 temp.setUnknown(temp.getUnknown() + okMap.size());
-                temp = getTempData(temp,temp.getUnknownMap(),okMap,"unknown");
+                temp = getTempData(temp, temp.getUnknownMap(), okMap, "unknown");
                 break;
         }
         return temp;
     }
 
     /**
-     *
      * @param exclude
+     *
      * @return
      */
-    public ArrayList getExclude(String exclude){
+    public ArrayList getExclude(String exclude) {
         // 获取排除的数据
-        if(exclude.length()>3) {
+        if (exclude.length() > 3) {
             ArrayList arr = new ArrayList();
             String[] excludeS = exclude.split(",");
-            for(String s:excludeS){
-                if(s.length()<1){continue;}
-                if(!arr.contains(s)){
+            for (String s : excludeS) {
+                if (s.length() < 1) {
+                    continue;
+                }
+                if (!arr.contains(s)) {
                     arr.add(s);
                 }
             }
@@ -483,64 +518,67 @@ public class MonitorGlobaltController {
 
     /**
      * 获取组的数据
+     *
      * @return
      */
-    static Map<String, String> getGroupsMap(){
+    static Map<String, String> getGroupsMap() {
         String groups = redisUtil.get(MonitorCacheConfig.cacheGroupName);
         Map<String, String> groupMap;
-        if(groups != null && groups.length()>0) {
+        if (CheckUtil.checkString(groups)) {
             groupMap = gson.fromJson(groups, HashMap.class);
-        }else {
+        } else {
             groupMap = new HashMap<>();
         }
         return groupMap;
     }
 
 
-
     /**
      * MonitorCacheConfig.cacheAgentUnreachable
      * MonitorCacheConfig.cacheAgentIsOk
+     *
      * @return
      */
-    public static Map<String,String> getAgentOkMap(String key, String groups){
-        Map<String,String> okMap = new HashMap<>();
-        Map<String,String> groupMap = getGroupsMap();
+    public static Map<String, String> getAgentOkMap(String key, String groups) {
+        Map<String, String> okMap = new HashMap<>();
+        Map<String, String> groupMap = getGroupsMap();
         Jedis jedis = redisUtil.getJedis();
-        for(Map.Entry<String,String> entry: groupMap.entrySet()) {
+        for (Map.Entry<String, String> entry : groupMap.entrySet()) {
             // 如果指定组的话就判断组
-            if (CheckUtil.checkString(groups)){
-                if (!entry.getKey().equals(groups)){
+            if (CheckUtil.checkString(groups)) {
+                if (!entry.getKey().equals(groups)) {
                     continue;
                 }
             }
-            String isOk = jedis.get(app+"_"+key + "_" + entry.getKey());
-            if (isOk != null && isOk.length() > 0) {
-                Map<String,String> map = gson.fromJson(isOk, HashMap.class);
-                for(Map.Entry<String,String> ok: map.entrySet()) {
-                    okMap.put(ok.getKey(),ok.getValue());
+            String isOk = jedis.get(app + "_" + key + "_" + entry.getKey());
+            if (CheckUtil.checkString(isOk)) {
+                Map<String, String> map = gson.fromJson(isOk, HashMap.class);
+                for (Map.Entry<String, String> ok : map.entrySet()) {
+                    okMap.put(ok.getKey(), ok.getValue());
                 }
             }
         }
         jedis.close();
-        return  okMap;
+        return okMap;
     }
 
     /**
      * 获取每个组里的主机
+     *
      * @param groupsId
+     *
      * @return
      */
-    List<String> getHosts(String groupsId, Jedis jedis){
+    List<String> getHosts(String groupsId, Jedis jedis) {
         List<String> hosts = new ArrayList<>();
         String hostsData = "";
-        if (GROUP_HOSTS.containsKey(groupsId)){
+        if (GROUP_HOSTS.containsKey(groupsId)) {
             hostsData = GROUP_HOSTS.get(groupsId);
-        }else {
-            hostsData = jedis.get(app+"_"+MonitorCacheConfig.cacheGroupsHosts + groupsId);
+        } else {
+            hostsData = jedis.get(app + "_" + MonitorCacheConfig.cacheGroupsHosts + groupsId);
             GROUP_HOSTS.put(groupsId, hostsData);
         }
-        if (hostsData != null && hostsData.length()>0){
+        if (CheckUtil.checkString(hostsData)) {
             hosts = gson.fromJson(hostsData, ArrayList.class);
         }
         return hosts;
@@ -548,44 +586,47 @@ public class MonitorGlobaltController {
 
     /**
      * 获取agent不可达的数据
+     *
      * @return
      */
-    CheckCountEntity getAgentUnreachable(){
-        Map<String,String> map = getAgentOkMap(MonitorCacheConfig.cacheAgentUnreachable, "");
-        Map<String,String> okMap = getAgentOkMap(MonitorCacheConfig.cacheAgentIsOk, "");
+    CheckCountEntity getAgentUnreachable() {
+        Map<String, String> map = getAgentOkMap(MonitorCacheConfig.cacheAgentUnreachable, "");
+        Map<String, String> okMap = getAgentOkMap(MonitorCacheConfig.cacheAgentIsOk, "");
         CheckCountEntity temp = new CheckCountEntity();
-            temp.setName("监控Agent状态");
-            temp.setDanger(map.size());
-            temp.setOk(okMap.size());
-            temp.setUnknown(0);
-            temp.setWarning(0);
-            temp.setId(999999999);
-        return  temp;
+        temp.setName("监控Agent状态");
+        temp.setDanger(map.size());
+        temp.setOk(okMap.size());
+        temp.setUnknown(0);
+        temp.setWarning(0);
+        temp.setId(999999999);
+        return temp;
     }
 
     /**
      * 获取每个组里的所有host的数据状态
+     *
      * @param hosts
+     *
      * @return
      */
-    List<Map<String, Map<String,String>>> getHostStatus(List<String> hosts, Jedis jedis){
+    List<Map<String, Map<String, String>>> getHostStatus(List<String> hosts, Jedis jedis) {
         String[] key = new String[hosts.size()];
         int count = 0;
-        for (String  host:hosts){
-            key[count] = app + "_" + MonitorCacheConfig.cacheHostStatusMap+host;
+        for (String host : hosts) {
+            key[count] = app + "_" + MonitorCacheConfig.cacheHostStatusMap + host;
             count += 1;
         }
-        if (key.length < 1){
+        if (key.length < 1) {
             return new ArrayList<>();
         }
-        List<Map<String, Map<String,String>>> returnData = new ArrayList<>();
+        List<Map<String, Map<String, String>>> returnData = new ArrayList<>();
         List<String> hostStatus = jedis.mget(key);
-        for (String result: hostStatus) {
-            Map<String, Map<String,String>> data = new HashMap<>();
-            if (result != null && result.length() > 0) {
+        for (String result : hostStatus) {
+            Map<String, Map<String, String>> data = new HashMap<>();
+            if (CheckUtil.checkString(result)) {
                 Map<String, String> redisData = gson.fromJson(result, HashMap.class);
-                for (Map.Entry<String,String> map: redisData.entrySet()) {
-                    data.put(map.getKey(), gson.fromJson(map.getValue(),HashMap.class));
+                for (Map.Entry<String, String> map : redisData.entrySet()) {
+                    data.put(map.getKey(), gson.fromJson(map.getValue(), HashMap.class));
                 }
             }
             returnData.add(data);
@@ -595,26 +636,26 @@ public class MonitorGlobaltController {
     }
 
     /**
-     *
      * @param faildCheck
      * @param data
+     *
      * @return
      */
-    ArrayList<CheckCountEntity> getCheckCount(ArrayList<CheckCountEntity>  faildCheck,  ArrayList<CheckCountEntity> data ){
-        for (CheckCountEntity c:faildCheck){
+    ArrayList<CheckCountEntity> getCheckCount(ArrayList<CheckCountEntity> faildCheck, ArrayList<CheckCountEntity> data) {
+        for (CheckCountEntity c : faildCheck) {
             if (!data.contains(c)) {
 
-                if (c.getOk()>0) {
-                    FileWriter.writeFile(tempDir + "groupsMap_" + c.getId() +"_1", gson.toJson(c.getOkMap()), false);
+                if (c.getOk() > 0) {
+                    FileWriter.writeFile(tempDir + "groupsMap_" + c.getId() + "_1", gson.toJson(c.getOkMap()), false);
                 }
-                if(c.getUnknown()>0){
+                if (c.getUnknown() > 0) {
                     FileWriter.writeFile(tempDir + "groupsMap_" + c.getId() + "_4", gson.toJson(c.getUnknownMap()), false);
                 }
-                if(c.getWarning()>0){
-                    FileWriter.writeFile(tempDir + "groupsMap_" + c.getId() +"_3", gson.toJson(c.getWarningMap()), false);
+                if (c.getWarning() > 0) {
+                    FileWriter.writeFile(tempDir + "groupsMap_" + c.getId() + "_3", gson.toJson(c.getWarningMap()), false);
                 }
-                if(c.getDanger()>0){
-                    FileWriter.writeFile(tempDir + "groupsMap_" + c.getId() +"_2", gson.toJson(c.getFaildMap()), false);
+                if (c.getDanger() > 0) {
+                    FileWriter.writeFile(tempDir + "groupsMap_" + c.getId() + "_2", gson.toJson(c.getFaildMap()), false);
                 }
                 c.setUnknownMap(null);
                 c.setWarningMap(null);
@@ -625,27 +666,28 @@ public class MonitorGlobaltController {
         }
         return data;
     }
+
     /**
      * 从redis获取实时监控状态
      */
-    @RequestMapping(value="IndexData", produces = {"application/json;charset=utf-8"})
+    @RequestMapping(value = "IndexData", produces = {"application/json;charset=utf-8"})
     @ResponseBody
-    public String IndexData(String exclude){
-        if (GROUP_HOSTS==null){
-            CACHE_HOSTS_TIME = System.currentTimeMillis()/1000;
+    public String IndexData(String exclude) {
+        if (GROUP_HOSTS == null) {
+            CACHE_HOSTS_TIME = System.currentTimeMillis() / 1000;
             GROUP_HOSTS = new HashMap<>();
         }
-        if (System.currentTimeMillis()/1000 -  CACHE_HOSTS_TIME > 600 ){
+        if (System.currentTimeMillis() / 1000 - CACHE_HOSTS_TIME > 600) {
             GROUP_HOSTS = new HashMap<>();
-            CACHE_HOSTS_TIME = System.currentTimeMillis()/1000;
+            CACHE_HOSTS_TIME = System.currentTimeMillis() / 1000;
         }
         ArrayList excludeGroups = getExclude(exclude);
-        Map<String,String> groupMap = getGroupsMap();
+        Map<String, String> groupMap = getGroupsMap();
 
         // 组名数据
         ArrayList<String> groupsArray = new ArrayList();
-        for(Map.Entry<String,String> entry: groupMap.entrySet()){
-            if(!excludeGroups.contains(entry.getValue())) {
+        for (Map.Entry<String, String> entry : groupMap.entrySet()) {
+            if (!excludeGroups.contains(entry.getValue())) {
                 groupsArray.add(entry.getValue());
             }
         }
@@ -654,7 +696,7 @@ public class MonitorGlobaltController {
         // 获取一个redis链接
         ArrayList<CheckCountEntity> check = new ArrayList<>();
         ArrayList<CheckCountEntity> faildCheck = new ArrayList<>();
-        for(String  name:groupsArray) {
+        for (String name : groupsArray) {
             CheckCountEntity temp = new CheckCountEntity();
             temp.setName(name);
 
@@ -662,16 +704,20 @@ public class MonitorGlobaltController {
                 String groupsId = entry.getKey();
                 if (entry.getValue().equals(name)) {
                     List<String> hosts = getHosts(groupsId, jedis);
-                    if (hosts.size()==0) { continue; }
-                    List<Map<String,Map<String,String>>> hostMap = getHostStatus(hosts, jedis);
-                    for (Map<String,Map<String,String>> map :hostMap) {
-                        if (map == null) {continue;}
+                    if (hosts.size() == 0) {
+                        continue;
+                    }
+                    List<Map<String, Map<String, String>>> hostMap = getHostStatus(hosts, jedis);
+                    for (Map<String, Map<String, String>> map : hostMap) {
+                        if (map == null) {
+                            continue;
+                        }
                         temp = setIndexDataMap(temp, "danger", map.get("faild"));
-                        if (map.get("faild")!=null && map.get("faild").size()>0){
-                            for (Map.Entry<String, String> faild: map.get("faild").entrySet()){
-                                if(System.currentTimeMillis()/1000 - Integer.valueOf(faild.getValue()) > 600){
+                        if (map.get("faild") != null && map.get("faild").size() > 0) {
+                            for (Map.Entry<String, String> faild : map.get("faild").entrySet()) {
+                                if (System.currentTimeMillis() / 1000 - Integer.valueOf(faild.getValue()) > 600) {
                                     String id = faild.getKey().split("_")[2];
-                                    String key = RedisUtil.app + "_" + MonitorCacheConfig.cacheHostStatusMap+id;
+                                    String key = RedisUtil.app + "_" + MonitorCacheConfig.cacheHostStatusMap + id;
                                     jedis.del(key);
                                 }
                             }
@@ -683,15 +729,15 @@ public class MonitorGlobaltController {
                     }
                 }
 
-                 if(temp.getDanger() > 0 || temp.getUnknown() > 0 || temp.getWarning() > 0 ){
-                     if(!faildCheck.contains(temp)) {
-                         faildCheck.add(temp);
-                     }
-                 }else {
-                     if (!check.contains(temp)) {
-                         check.add(temp);
-                     }
-                 }
+                if (temp.getDanger() > 0 || temp.getUnknown() > 0 || temp.getWarning() > 0) {
+                    if (!faildCheck.contains(temp)) {
+                        faildCheck.add(temp);
+                    }
+                } else {
+                    if (!check.contains(temp)) {
+                        check.add(temp);
+                    }
+                }
             }
         }
 
@@ -699,14 +745,14 @@ public class MonitorGlobaltController {
 
         // agent不可达的数据
         CheckCountEntity temp = getAgentUnreachable();
-        if (temp.getName() !=null){
-          data.add(temp);
+        if (temp.getName() != null) {
+            data.add(temp);
         }
         data = getCheckCount(faildCheck, data);
         data = getCheckCount(check, data);
         try {
             jedis.close();
-        }catch (Exception e){
+        } catch (Exception e) {
         }
         // 添加agent的数据
         Map map = new HashMap();
@@ -720,28 +766,32 @@ public class MonitorGlobaltController {
 
     /**
      * 获取监控信息
+     *
      * @param draw
+     *
      * @return
      */
-    @RequestMapping(value="indexData",produces = {"application/json;charset=utf-8"})
+    @RequestMapping(value = "indexData", produces = {"application/json;charset=utf-8"})
     @ResponseBody
-    public  String indexData(int draw, String exclude){
+    public String indexData(int draw, String exclude) {
         SearchMap searchMap = new SearchMap();
 
         // 获取排除的数据
-        if(exclude.length()>3) {
+        if (exclude.length() > 3) {
             ArrayList arr = new ArrayList();
             String[] excludeS = exclude.split(",");
-            for(String s:excludeS){
-                if(s.length()<1){continue;}
-                if(!arr.contains(s)){
+            for (String s : excludeS) {
+                if (s.length() < 1) {
+                    continue;
+                }
+                if (!arr.contains(s)) {
                     arr.add(s);
                 }
             }
             searchMap.put("exclude", arr);
         }
 
-       ArrayList<CheckCountEntity> result = getIndexData(searchMap);
+        ArrayList<CheckCountEntity> result = getIndexData(searchMap);
         Map map = new HashMap();
         map.put("data", result);
         map.put("recordsTotal", 0);
@@ -753,16 +803,18 @@ public class MonitorGlobaltController {
 
     /**
      * 清除无效的服务器
+     *
      * @param server
+     *
      * @return
      */
     @RequestMapping("clearServer")
     @ResponseBody
-    public String clearServer(String  server){
-        String id = redisUtil.get(MonitorCacheConfig.hostsIdKey+server);
-        if (id!=null){
-            redisUtil.del(MonitorCacheConfig.cacheHostIsUpdate+id);
-            redisUtil.del(MonitorCacheConfig.hostsIdKey+server);
+    public String clearServer(String server) {
+        String id = redisUtil.get(MonitorCacheConfig.hostsIdKey + server);
+        if (id != null) {
+            redisUtil.del(MonitorCacheConfig.cacheHostIsUpdate + id);
+            redisUtil.del(MonitorCacheConfig.hostsIdKey + server);
         }
         return "ok";
     }
