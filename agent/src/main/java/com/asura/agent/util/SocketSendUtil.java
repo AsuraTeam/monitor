@@ -59,16 +59,20 @@ public class SocketSendUtil {
         if (redisUtil == null) {
             redisUtil = new RedisUtil();
         }
+        if (serverList == null ){
+            serverList = new ArrayList<>();
+        }
         String pushServers = redisUtil.get(MonitorCacheConfig.cachePushServer);
         if (pushServers != null && pushServers.length() > 0) {
-            String[] servers = pushServers.split(",");
-            for (String serv : servers) {
+            Type type = new TypeToken<ArrayList<PushServerEntity>>() {
+            }.getType();
+            List<PushServerEntity> serverEntities = new Gson().fromJson(pushServers, type);
+            for (PushServerEntity serverEntity : serverEntities) {
                 try {
-                    addr = InetAddress.getByName(serv);
+                    addr = InetAddress.getByName(serverEntity.getIp());
                     if (!serverList.contains(addr)) {
                         logger.info("添加push服务Redis " + addr);
                         serverList.add(addr);
-
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
