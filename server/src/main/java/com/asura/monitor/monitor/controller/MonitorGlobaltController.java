@@ -572,7 +572,6 @@ public class MonitorGlobaltController {
      * 获取每个组里的主机
      *
      * @param groupsId
-     *
      * @return
      */
     List<String> getHosts(String groupsId, Jedis jedis) {
@@ -616,6 +615,7 @@ public class MonitorGlobaltController {
      * @return
      */
     List<Map<String, Map<String, String>>> getHostStatus(List<String> hosts, Jedis jedis, HashSet hostCount) {
+
         String[] key = new String[hosts.size()];
         int count = 0;
         for (String host : hosts) {
@@ -680,11 +680,11 @@ public class MonitorGlobaltController {
      * @param gid
      * @return
      */
-    CheckCountEntity getGroupsAdmin(String gid, CheckCountEntity temp){
+    CheckCountEntity getGroupsAdmin(String gid, CheckCountEntity temp, Jedis jedis){
         SearchMap searchMap = new SearchMap();
         searchMap.put("groupsId", gid);
-        String key = MonitorCacheConfig.cacheServerAdmin.concat(gid);
-        String admin = redisUtil.get(key);
+        String key = RedisUtil.app.concat("_").concat(MonitorCacheConfig.cacheServerAdmin.concat(gid));
+        String admin = jedis.get(key);
         if (CheckUtil.checkString(admin)){
             temp.setUser(admin);
             return temp;
@@ -729,20 +729,23 @@ public class MonitorGlobaltController {
         ArrayList<CheckCountEntity> check = new ArrayList<>();
         ArrayList<CheckCountEntity> faildCheck = new ArrayList<>();
         HashSet hostCount;
+        List<String> hosts;
+        List<Map<String, Map<String, String>>> hostMap;
+        String groupsId;
         for (String name : groupsArray) {
             hostCount = new HashSet();
             CheckCountEntity temp = new CheckCountEntity();
             temp.setName(name);
 
             for (Map.Entry<String, String> entry : groupMap.entrySet()) {
-                String groupsId = entry.getKey();
+                groupsId = entry.getKey();
                 if (entry.getValue().equals(name)) {
-                    List<String> hosts = getHosts(groupsId, jedis);
+                    hosts = getHosts(groupsId, jedis);
                     if (hosts.size() == 0) {
                         continue;
                     }
 
-                    List<Map<String, Map<String, String>>> hostMap = getHostStatus(hosts, jedis, hostCount);
+                    hostMap = getHostStatus(hosts, jedis, hostCount);
                     for (Map<String, Map<String, String>> map : hostMap) {
                         if (map == null) {
                             continue;
@@ -762,7 +765,7 @@ public class MonitorGlobaltController {
                         temp = setIndexDataMap(temp, "unknown", map.get("unknown"));
                         temp.setId(Integer.valueOf(entry.getKey()));
                         if (! CheckUtil.checkString(temp.getUser()))
-                            temp = getGroupsAdmin(groupsId, temp);
+                            temp = getGroupsAdmin(groupsId, temp, jedis);
                         }
                     }
                 }

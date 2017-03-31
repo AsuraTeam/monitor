@@ -298,9 +298,16 @@
 
     function getUser(user) {
         if (user){
-            return user;
+            return  '<span>负责人:</span>'+user;
         }
-        return "";
+        return "<br>";
+    }
+
+    function getHostSize(size) {
+        if (size+"" == "0"){
+            return "<br>"
+        }
+        return    '<span>主机:'+size+'</span><br>'
     }
 
     function setData(data,type,full) {
@@ -351,9 +358,7 @@
                 '      <p style="text-align: center; ">'+
                 '               当前监控<strong>&nbsp;&nbsp;'+ totle+
                 '              </strong>&nbsp;项  <span title="点击清空排除业务线的设置" onclick="clearCookie()">' +
-                '              <i class="fa fa-trash-o">&nbsp;</i></span>' +
-                '               <span>主机:'+full["hostSize"]+'</span><br>' +
-                '               <span>负责人:</span>'+getUser(full["user"])+
+                '              <i class="fa fa-trash-o">&nbsp;</i></span>' + getHostSize(full["hostSize"])+ getUser(full["user"])+
                 '      </p>'+
                 '      <div class="row m-t-sm">'+
                 '          <div class="col-sm-3" style="float: left">'+
