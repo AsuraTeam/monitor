@@ -13,6 +13,8 @@ import com.asura.monitor.monitor.entity.CmdbMonitorInformationEntity;
 import com.asura.monitor.monitor.entity.CmdbMonitorMessagesEntity;
 import com.asura.monitor.monitor.service.MonitorInformationService;
 import com.asura.monitor.monitor.service.MonitorMessagesService;
+import com.asura.resource.entity.CmdbResourceServerEntity;
+import com.asura.resource.service.CmdbResourceServerService;
 import com.asura.util.CheckUtil;
 import com.asura.util.DateUtil;
 import com.asura.util.IpUtil;
@@ -26,6 +28,7 @@ import redis.clients.jedis.Jedis;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -56,6 +59,9 @@ public class MonitorGlobaltController {
 
     @Autowired
     private MonitorInformationService monitorService;
+
+    @Autowired
+    private CmdbResourceServerService resourceServerService;
 
     private static final Gson gson = new Gson();
 
@@ -392,7 +398,7 @@ public class MonitorGlobaltController {
         }
 
         // 获取serverId
-        if (IpUtil.isIP(server)) {
+        if (server != null && IpUtil.isIP(server)) {
             server = redisUtil.get(MonitorCacheConfig.hostsIdKey.concat(server));
         }
         groupsId = FileRender.replace(groupsId);
@@ -402,8 +408,8 @@ public class MonitorGlobaltController {
             getMessagesList(groupsName, groupsId, status, server, messagesEntities );
         }else{
             List<String> strings = new ArrayList<>();
-            strings.add("1");
             strings.add("2");
+            strings.add("1");
             strings.add("3");
             strings.add("4");
             for (String sta: strings) {
@@ -609,7 +615,7 @@ public class MonitorGlobaltController {
      *
      * @return
      */
-    List<Map<String, Map<String, String>>> getHostStatus(List<String> hosts, Jedis jedis) {
+    List<Map<String, Map<String, String>>> getHostStatus(List<String> hosts, Jedis jedis, HashSet hostCount) {
         String[] key = new String[hosts.size()];
         int count = 0;
         for (String host : hosts) {
@@ -619,6 +625,7 @@ public class MonitorGlobaltController {
         if (key.length < 1) {
             return new ArrayList<>();
         }
+        int counter = 0;
         List<Map<String, Map<String, String>>> returnData = new ArrayList<>();
         List<String> hostStatus = jedis.mget(key);
         for (String result : hostStatus) {
@@ -628,7 +635,9 @@ public class MonitorGlobaltController {
                 for (Map.Entry<String, String> map : redisData.entrySet()) {
                     data.put(map.getKey(), gson.fromJson(map.getValue(), HashMap.class));
                 }
+                hostCount.add(hosts.get(counter));
             }
+            counter += 1;
             returnData.add(data);
         }
         jedis.close();
@@ -644,7 +653,6 @@ public class MonitorGlobaltController {
     ArrayList<CheckCountEntity> getCheckCount(ArrayList<CheckCountEntity> faildCheck, ArrayList<CheckCountEntity> data) {
         for (CheckCountEntity c : faildCheck) {
             if (!data.contains(c)) {
-
                 if (c.getOk() > 0) {
                     FileWriter.writeFile(tempDir + "groupsMap_" + c.getId() + "_1", gson.toJson(c.getOkMap()), false);
                 }
@@ -665,6 +673,30 @@ public class MonitorGlobaltController {
             }
         }
         return data;
+    }
+
+    /**
+     * 获取管理员
+     * @param gid
+     * @return
+     */
+    CheckCountEntity getGroupsAdmin(String gid, CheckCountEntity temp){
+        SearchMap searchMap = new SearchMap();
+        searchMap.put("groupsId", gid);
+        String key = MonitorCacheConfig.cacheServerAdmin.concat(gid);
+        String admin = redisUtil.get(key);
+        if (CheckUtil.checkString(admin)){
+            temp.setUser(admin);
+            return temp;
+        }
+        String admins = "";
+        List<CmdbResourceServerEntity> data = resourceServerService.getDataList(searchMap, "selectAdmin");
+        for (CmdbResourceServerEntity entity:data){
+            admins += entity.getUserName().concat(",");
+        }
+        redisUtil.setex(key, 1200, admins);
+        temp.setUser(admins);
+        return temp;
     }
 
     /**
@@ -696,7 +728,9 @@ public class MonitorGlobaltController {
         // 获取一个redis链接
         ArrayList<CheckCountEntity> check = new ArrayList<>();
         ArrayList<CheckCountEntity> faildCheck = new ArrayList<>();
+        HashSet hostCount;
         for (String name : groupsArray) {
+            hostCount = new HashSet();
             CheckCountEntity temp = new CheckCountEntity();
             temp.setName(name);
 
@@ -707,7 +741,8 @@ public class MonitorGlobaltController {
                     if (hosts.size() == 0) {
                         continue;
                     }
-                    List<Map<String, Map<String, String>>> hostMap = getHostStatus(hosts, jedis);
+
+                    List<Map<String, Map<String, String>>> hostMap = getHostStatus(hosts, jedis, hostCount);
                     for (Map<String, Map<String, String>> map : hostMap) {
                         if (map == null) {
                             continue;
@@ -726,9 +761,14 @@ public class MonitorGlobaltController {
                         temp = setIndexDataMap(temp, "warning", map.get("warning"));
                         temp = setIndexDataMap(temp, "unknown", map.get("unknown"));
                         temp.setId(Integer.valueOf(entry.getKey()));
+                        if (! CheckUtil.checkString(temp.getUser()))
+                            temp = getGroupsAdmin(groupsId, temp);
+                        }
                     }
                 }
 
+                // 2017-03-30 添加主机数和管理员
+                temp.setHostSize(hostCount.size());
                 if (temp.getDanger() > 0 || temp.getUnknown() > 0 || temp.getWarning() > 0) {
                     if (!faildCheck.contains(temp)) {
                         faildCheck.add(temp);
@@ -738,11 +778,9 @@ public class MonitorGlobaltController {
                         check.add(temp);
                     }
                 }
-            }
         }
 
         ArrayList<CheckCountEntity> data = new ArrayList<>();
-
         // agent不可达的数据
         CheckCountEntity temp = getAgentUnreachable();
         if (temp.getName() != null) {
@@ -760,7 +798,6 @@ public class MonitorGlobaltController {
         map.put("recordsTotal", 0);
         map.put("recordsFiltered", 0);
         map.put("draw", 1);
-//        clearExpireGroupData();
         return gson.toJson(map);
     }
 

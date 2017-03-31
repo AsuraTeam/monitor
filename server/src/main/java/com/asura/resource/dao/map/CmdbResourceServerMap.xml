@@ -57,6 +57,13 @@
         ip_address like concat("%",#{ipAddress},"%")
     </select>
 
+    <!-- 查询管理员  -->
+    <select id="selectAdmin" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
+         select  distinct user_name as userName
+          from cmdb_resource_server a, cmdb_resource_user b
+          where a.user_id=b.user_id and a.groups_id=#{groupsId} limit 3
+    </select>
+
     <select id="selectByAll" parameterType="map" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
         select
         <include refid="sqlId"/>

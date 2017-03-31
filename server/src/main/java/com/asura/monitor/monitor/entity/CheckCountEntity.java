@@ -22,15 +22,36 @@ public class CheckCountEntity {
     // 危险的数量
     private int danger;
 
+    // 设置管理员
+    private String user;
+
     // 所有的数据
     private Map<String,String> okMap;
     private Map<String,String> faildMap;
     private Map<String,String> unknownMap;
     private Map<String,String> warningMap;
 
+    // 存放主机数量
+    private int hostSize;
+
     // id
     private  int id;
 
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
+    }
+
+    public int getHostSize() {
+        return hostSize;
+    }
+
+    public void setHostSize(int hostSize) {
+        this.hostSize = hostSize;
+    }
 
     public Map<String, String> getOkMap() {
         return okMap;

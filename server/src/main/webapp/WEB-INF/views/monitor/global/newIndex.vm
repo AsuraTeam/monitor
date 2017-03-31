@@ -296,6 +296,13 @@
     }
     getData();
 
+    function getUser(user) {
+        if (user){
+            return user;
+        }
+        return "";
+    }
+
     function setData(data,type,full) {
         totle = full["ok"]+full["warning"] + full["danger"] + full["unknown"]
         alarmPlayStat = $('#alarmPlayStatus').val();
@@ -320,6 +327,7 @@
                 alarmPlay(full["id"])
             }
         }
+
 //        selectAlarmInformation(groupsId, status, groupsName) {
         html = '<div class="col-md-3" style="padding-left: 5px;padding-right: 5px;border: 1px solid #f3f3f3;" ">'+
                 '  <div class="ibox">'+
@@ -342,7 +350,10 @@
                 '   <div class="ibox-content">'+
                 '      <p style="text-align: center; ">'+
                 '               当前监控<strong>&nbsp;&nbsp;'+ totle+
-                '              </strong>&nbsp;项  <span title="点击清空设置" onclick="clearCookie()"><i class="fa fa-trash-o">&nbsp;</i></span>'+
+                '              </strong>&nbsp;项  <span title="点击清空排除业务线的设置" onclick="clearCookie()">' +
+                '              <i class="fa fa-trash-o">&nbsp;</i></span>' +
+                '               <span>主机:'+full["hostSize"]+'</span><br>' +
+                '               <span>负责人:</span>'+getUser(full["user"])+
                 '      </p>'+
                 '      <div class="row m-t-sm">'+
                 '          <div class="col-sm-3" style="float: left">'+

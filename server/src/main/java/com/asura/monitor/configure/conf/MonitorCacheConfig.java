@@ -149,4 +149,7 @@ public class MonitorCacheConfig {
     // 缓存服务器端口号 + 服务器IP地址
     public static final String getCachePushServerPort = "cache_push_server_port_";
 
+    // 2017-03-30 _groupsId
+    public static final String cacheServerAdmin = "cache_monitor_server_admin_";
+
 }
