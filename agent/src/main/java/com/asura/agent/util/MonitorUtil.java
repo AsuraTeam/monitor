@@ -182,9 +182,8 @@ public class MonitorUtil {
      * 2017-02-03
      */
     public static MonitorScriptsEntity getScripts(String scriptsId) {
-        String scriptUrl = Configure.get("sysInfoScriptApi");
         for (int i = 0; i < 5; i++) {
-            String script = HttpUtil.sendPost(scriptUrl, "scriptsId=" + scriptsId);
+            String script = HttpSendUtil.sendPost("monitor/scripts/api/scripts", "scriptsId=" + scriptsId);
             if (script != null && script.length() > 1) {
                 MonitorScriptsEntity scriptsEntity = gson.fromJson(script, MonitorScriptsEntity.class);
                 return scriptsEntity;
@@ -282,7 +281,7 @@ public class MonitorUtil {
             mess += "&weixin=" + entity.getWeixin() ;
         }
         logger.info(mess);
-        logger.info(HttpUtil.sendPost(url, mess));
+        logger.info(HttpSendUtil.sendPost(url, mess));
     }
 
     /**

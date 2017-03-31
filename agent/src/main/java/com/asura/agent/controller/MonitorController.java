@@ -20,7 +20,7 @@ import com.asura.agent.util.Base64Util;
 import com.asura.agent.util.CommandUtil;
 import com.asura.agent.util.DateUtil;
 import com.asura.agent.util.FileIoUtil;
-import com.asura.agent.util.HttpUtil;
+import com.asura.agent.util.HttpSendUtil;
 import com.asura.agent.util.IpUtil;
 import com.asura.agent.util.MonitorUtil;
 import com.asura.agent.util.RedisUtil;
@@ -48,7 +48,6 @@ import java.util.concurrent.LinkedTransferQueue;
 
 import static com.asura.agent.conf.MonitorCacheConfig.cacheContactGroupKey;
 import static com.asura.agent.conf.MonitorCacheConfig.cacheContactKey;
-import static com.asura.agent.util.HttpUtil.sendPost;
 import static com.asura.agent.util.MonitorUtil.getAdminGroup;
 import static com.asura.agent.util.MonitorUtil.getGroupData;
 import static com.asura.agent.util.MonitorUtil.getIsValidHosts;
@@ -93,7 +92,7 @@ import static com.asura.agent.util.RedisUtil.app;
 public class MonitorController {
 
     // 版本号
-    private final String VERSION = "1.0.0.6";
+    private final String VERSION = "1.0.0.7";
 
     private final Logger logger = LoggerFactory.getLogger(MonitorController.class);
 
@@ -148,9 +147,9 @@ public class MonitorController {
     // 存放自己所属的业务线
     private static String HOST_GROUP;
     // 存放成功的接口
-    private static String successApiUrl;
+    private static final String successApiUrl = "/monitor/api/success";
     // 存放失败的接口
-    private static String faildApiUrl;
+    private static final String faildApiUrl = "/monitor/api/faild";
     // 报警，如果redis队列失败，直接调接口发送
     // 报警判断，存放每个脚本存放的报警次数，达到几次后发送报警消息到队列
     // 每次发送报警的数据记录到库里
@@ -235,8 +234,8 @@ public class MonitorController {
         SCRIPT_RUNTIME = new HashMap<>();
         SCRIPT_ARGV = new HashMap<>();
         CONFIGS = new HashMap<>();
-        successApiUrl = Configure.get("successApiUrl");
-        faildApiUrl = Configure.get("faildApiUrl");
+//        successApiUrl = Configure.get("successApiUrl");
+//        faildApiUrl = Configure.get("faildApiUrl");
         ALARM_MAP = new HashMap<>();
         ALARM_COUNT = new HashMap<>();
         ALARM_INTERVAL = new HashMap<>();
@@ -383,7 +382,7 @@ public class MonitorController {
             UPDATE_SERVER_TIME = null;
             return;
         }
-        String url = Configure.get("sysInfoApiUrl").replace("/monitor/api/sysInfo", "/resource/configure/server/auto");
+        String url = "/resource/configure/server/auto";
         Properties props = System.getProperties();
         StringBuilder sb = new StringBuilder();
         sb.append("os=")
@@ -395,7 +394,7 @@ public class MonitorController {
                 .append(CommandUtil.getMemorySize())
                 .append("&disk=")
                 .append(CommandUtil.getDiskSize());
-        HttpUtil.sendPost(url, sb.toString());
+        HttpSendUtil.sendPost(url, sb.toString());
         logger.info("上传数据到cmdb" + sb.toString());
     }
 
@@ -644,10 +643,10 @@ public class MonitorController {
      * 上传客户端的信息到服务端
      */
     void pushServerInfo() {
-        String pushUrl = Configure.get("sysInfoApiUrl");
+        String pushUrl = "monitor/api/sysInfo";
         String os = System.getProperty("os.name");
-        String scriptUrl = Configure.get("sysInfoScriptApi");
-        String script = HttpUtil.sendPost(scriptUrl, "os=" + os);
+        String scriptUrl = "monitor/scripts/api/scripts";
+        String script = HttpSendUtil.sendPost(scriptUrl, "os=" + os);
         if (script != null && script.length() > 1) {
             MonitorSystemScriptsEntity scriptsEntity = gson.fromJson(script, MonitorSystemScriptsEntity.class);
             script = scriptsEntity.getScriptsContent();
@@ -662,7 +661,8 @@ public class MonitorController {
         }
         String result = runScript(file, 10);
         info(isDebug ? "系统信息获取到: " + result : null);
-        logger.info(sendPost(pushUrl, "sysInfo=" + Base64Util.encode(result)));
+        String data = HttpSendUtil.sendPost(pushUrl,"sysInfo=" + Base64Util.encode(result));
+        logger.info(data);
     }
 
     /**
@@ -1036,9 +1036,9 @@ public class MonitorController {
             }
         }
         // 通知服务端做报警处理
-        String url = Configure.get("noticeSendUrl");
+        String url = "/monitor/api/send/messages";
         if (isOk) {
-            logger.info("发送报警消息" + HttpUtil.sendPost(url, "") + " " + url);
+            logger.info("发送报警消息" + HttpSendUtil.sendPost(url, "") + " " + url);
         } else {
             sendPostMessages(messages, url);
         }
@@ -1938,7 +1938,7 @@ public class MonitorController {
      * @param data
      */
     void pushData(String url, String data) {
-        info(sendPost(url, "lentity=" + Base64Util.encode(data)));
+        info(HttpSendUtil.sendPost(url,"lentity=" + Base64Util.encode(data)));
     }
 
     /**
@@ -1964,9 +1964,7 @@ public class MonitorController {
                 // 前30次走http方式发送数据
                 if (udpSendNumber > 20) {
                     if (SocketSendUtil.getServerListSize() > 0) {
-
                         info(isDebug ? "通过udp的socket端口上传数据 " : null);
-
                         SocketSendUtil.sendData(data);
                     } else {
                         pushData(url, data);
@@ -2003,15 +2001,10 @@ public class MonitorController {
                         setAlarmMap("ok", id);
                         if (getAlarmStatus(id)) {
                             //  发送报警信息
-
                             info(isDebug ? "remove ALARM_COUNT: " + id : null);
-
                             ALARM_COUNT.remove(id);
-
                             info(isDebug ? "添加恢复报警到队列啦..." : null);
-
                             queue.add(pushEntity);
-
                         }
                         break;
                     case "2":

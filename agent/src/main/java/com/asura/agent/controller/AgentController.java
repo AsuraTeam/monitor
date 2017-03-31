@@ -6,6 +6,7 @@ import com.asura.agent.configure.Configure;
 import com.asura.agent.entity.PushEntity;
 import com.asura.agent.thread.GetDataThread;
 import com.asura.agent.util.FileIoUtil;
+import com.asura.agent.util.HttpSendUtil;
 import com.asura.agent.util.HttpUtil;
 import com.asura.agent.util.Md5Util;
 import org.slf4j.Logger;
@@ -121,7 +122,7 @@ public class AgentController {
      */
     public String execCommand() {
 
-        String url = Configure.getUrl();
+        String url = "/monitor/graph/all/push";
         if(url==null||url.length()<3){
             logger.error("url参数没有配置");
             return "";
@@ -165,7 +166,7 @@ public class AgentController {
             return "";
         }
         logger.info("lentity="+gson.toJson(pushEntities));
-        String reuslt = HttpUtil.sendPost(url,"lentity="+gson.toJson(pushEntities));
+        String reuslt = HttpSendUtil.sendPost(url,"lentity="+gson.toJson(pushEntities));
         return reuslt;
     }
 

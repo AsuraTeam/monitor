@@ -3,7 +3,6 @@ package com.asura.agent.util;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.asura.agent.conf.MonitorCacheConfig;
-import com.asura.agent.configure.Configure;
 import com.asura.agent.entity.PushServerEntity;
 import com.asura.agent.thread.SocketThread;
 import org.slf4j.Logger;
@@ -57,26 +56,25 @@ public class SocketSendUtil {
      */
     static void setServerList() {
         InetAddress addr;
-        try {
-            String pushServers = redisUtil.get(MonitorCacheConfig.cachePushServer);
-            if (pushServers != null && pushServers.length() > 0) {
-                String[] servers = pushServers.split(",");
-                for (String serv : servers) {
+        if (redisUtil == null) {
+            redisUtil = new RedisUtil();
+        }
+        String pushServers = redisUtil.get(MonitorCacheConfig.cachePushServer);
+        if (pushServers != null && pushServers.length() > 0) {
+            String[] servers = pushServers.split(",");
+            for (String serv : servers) {
+                try {
                     addr = InetAddress.getByName(serv);
                     if (!serverList.contains(addr)) {
                         logger.info("添加push服务Redis " + addr);
                         serverList.add(addr);
+
                     }
-                }
-            } else {
-                String ip = Configure.get("push.server") != "" ? Configure.get("push.server") : null;
-                if (ip != null) {
-                    logger.info("添加push服务配置文件 " + ip);
-                    serverList.add(InetAddress.getByName(ip));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    logger.error("获取push server失败 1", e);
                 }
             }
-        } catch (Exception e) {
-            logger.error("获取push server失败", e);
         }
     }
 
@@ -86,8 +84,9 @@ public class SocketSendUtil {
      * @return
      */
     public static InetAddress getServer(InetAddress address) {
-        if (serverList.size() > 0) {
+        if (serverList != null && serverList.size() > 0) {
             if (address == null) {
+                random = new Random();
                 int id = random.nextInt(serverList.size());
                 return serverList.get(id);
             }
@@ -97,8 +96,25 @@ public class SocketSendUtil {
                     return serverList.get(i);
                 }
             }
+        } else {
+            serverList = new ArrayList<>();
+            setServerList();
+            return getServer(null);
         }
         return null;
+    }
+
+    /**
+     * @param addr
+     *
+     * @return
+     */
+    static boolean checkServerValid(String addr) {
+        String port = redisUtil.get(MonitorCacheConfig.getCachePushServerPort.concat(addr.toString().replace("/", "")).trim());
+        if (port.length() > 1) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -118,7 +134,7 @@ public class SocketSendUtil {
                 try {
                     InetAddress address = InetAddress.getByName(entity.getIp());
                     if (!serverList.contains(address)) {
-                        if (SocketThread.sendData("[{}]", address, 50329)) {
+                        if (SocketThread.sendData("[{}]", address, 50329) && checkServerValid(address.toString())) {
                             logger.info("获取到PUSH服务器地址" + entity.getIp());
                             serverList.add(address);
                         }
