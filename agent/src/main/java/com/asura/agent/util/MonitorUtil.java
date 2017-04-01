@@ -320,4 +320,16 @@ public class MonitorUtil {
         HashSet hosts = gson.fromJson(allHosts, HashSet.class);
         return hosts;
     }
+
+    /**
+     * 设置文件可执行权限
+     * @param filePath
+     */
+    public static void setFileExec(String filePath){
+        if (separator.equals("/")) {
+            File file = new File(filePath);
+            if (file.exists())
+            file.setExecutable(true);
+        }
+    }
 }

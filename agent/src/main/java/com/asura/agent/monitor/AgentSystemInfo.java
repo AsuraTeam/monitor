@@ -8,6 +8,8 @@ import com.asura.agent.util.CommandUtil;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -51,12 +53,15 @@ public class AgentSystemInfo {
     static void getDiskMap(Map map){
         Map diskMap = new HashMap();
         File[] roots = File.listRoots();
-        // 获取磁盘分区列表
+        // 获取磁盘分区列表\
+        int count = 0;
         for (File file : roots) {
             diskMap.put("磁盘"+file.getPath() + "总大小:", getDiskSpace(file.getTotalSpace()));
             diskMap.put("磁盘"+ file.getPath()+"未使用:", getDiskSpace(file.getFreeSpace()));
             diskMap.put("磁盘"+file.getPath() + "已使用:", getDiskSpace(file.getUsableSpace()));
+            count += file.getTotalSpace() / 1024 /1024 /1024 ;
         }
+        diskMap.put("磁盘总大小", count);
         map.put("磁盘信息", diskMap);
     }
 
