@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.monitor.graph.dao.MonitorImagesMergerDao">
+     <sql id="baseSql">
+        select 
+            image_id as imageId,
+            image_tp as imageTp,
+            image_left as imageLeft,
+            image_top as imageTop,
+            image_to as imageTo,
+            is_grid as isGrid,
+            image_grid_size as imageGridSize,
+            is_legend as isLegend,
+            image_legend_location as imageLegendLocation,
+            image_data_source as imageDataSource,
+            image_data_tp as imageDataTp,
+            image_background_colr as imageBackgroundColr,
+            image_color as imageColor,
+            image_name as imageName,
+            image_line_size as imageLineSize,
+            last_modify_time as lastModifyTime,
+            last_modify_user as lastModifyUser,
+            description as description,
+            tilte as tilte,
+            images_width as imagesWidth,
+            images_height as imagesHeight,
+            images_data_interval as imagesDataInterval,
+            images_left_title as imagesLeftTitle,
+            images_sub_title as imagesSubTitle
+         from monitor_images_merger 
+     </sql>
+    <select id="selectByAll" resultType="com.asura.monitor.graph.entity.MonitorImagesMergerEntity">
+         <include refid="baseSql" />
+     </select>
+      <select id="findById" resultType="com.asura.monitor.graph.entity.MonitorImagesMergerEntity">
+                   <include refid="baseSql" />
+            where image_id=#{imageId}       </select>
+
+    <insert id="save" parameterType="com.asura.monitor.graph.entity.MonitorImagesMergerEntity">
+        insert into monitor_images_merger(
+            image_id,
+            image_tp,
+            image_left,
+            image_top,
+            image_to,
+            is_grid,
+            image_grid_size,
+            is_legend,
+            image_legend_location,
+            image_data_source,
+            image_data_tp,
+            image_background_colr,
+            image_color,
+            image_name,
+            image_line_size,
+            last_modify_time,
+            last_modify_user,
+            description,
+            tilte,
+            images_width,
+            images_height,
+            images_data_interval,
+            images_left_title,
+            images_sub_title
+        ) 
+        values(        
+            #{imageId},
+            #{imageTp},
+            #{imageLeft},
+            #{imageTop},
+            #{imageTo},
+            #{isGrid},
+            #{imageGridSize},
+            #{isLegend},
+            #{imageLegendLocation},
+            #{imageDataSource},
+            #{imageDataTp},
+            #{imageBackgroundColr},
+            #{imageColor},
+            #{imageName},
+            #{imageLineSize},
+            #{lastModifyTime},
+            #{lastModifyUser},
+            #{description},
+            #{tilte},
+            #{imagesWidth},
+            #{imagesHeight},
+            #{imagesDataInterval},
+            #{imagesLeftTitle},
+            #{imagesSubTitle}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.monitor.graph.entity.MonitorImagesMergerEntity">
+        update monitor_images_merger set   
+            image_id=#{imageId},
+            image_tp=#{imageTp},
+            image_left=#{imageLeft},
+            image_top=#{imageTop},
+            image_to=#{imageTo},
+            is_grid=#{isGrid},
+            image_grid_size=#{imageGridSize},
+            is_legend=#{isLegend},
+            image_legend_location=#{imageLegendLocation},
+            image_data_source=#{imageDataSource},
+            image_data_tp=#{imageDataTp},
+            image_background_colr=#{imageBackgroundColr},
+            image_color=#{imageColor},
+            image_name=#{imageName},
+            image_line_size=#{imageLineSize},
+            last_modify_time=#{lastModifyTime},
+            last_modify_user=#{lastModifyUser},
+            description=#{description},
+            tilte=#{tilte},
+            images_width=#{imagesWidth},
+            images_height=#{imagesHeight},
+            images_data_interval=#{imagesDataInterval},
+            images_left_title=#{imagesLeftTitle},
+            images_sub_title=#{imagesSubTitle}
+         where image_id=#{imageId}
+    </update>
+
+    <delete id="delete" parameterType="com.asura.monitor.graph.entity.MonitorImagesMergerEntity">
+        delete from monitor_images_merger where image_id=#{imageId}
+    </delete>
+
+</mapper>
+

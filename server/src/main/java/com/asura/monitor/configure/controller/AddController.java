@@ -19,6 +19,7 @@ import com.asura.monitor.configure.service.MonitorItemService;
 import com.asura.monitor.configure.service.MonitorMessageChannelService;
 import com.asura.monitor.configure.service.MonitorScriptsService;
 import com.asura.monitor.configure.service.MonitorTemplateService;
+import com.asura.util.CheckUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -192,12 +193,15 @@ public class AddController {
      * @return
      */
     @RequestMapping("configure/add")
-    public String configureAdd(int id, Model model) {
+    public String configureAdd(int id, Model model, String copy) {
         if (id > 0) {
             MonitorConfigureEntity result = configureService.findById(id, MonitorConfigureEntity.class);
             if (result.getScriptId() != null) {
                 MonitorScriptsEntity scriptsEntity = scriptsService.findById(result.getScriptId(), MonitorScriptsEntity.class);
                 model.addAttribute("fileName", scriptsEntity.getFileName());
+            }
+            if (CheckUtil.checkString(copy)){
+                result.setConfigureId(0);
             }
             model.addAttribute("configs", result);
         }

@@ -531,7 +531,7 @@ public class SaveController {
             entity.setArg8(entity.getArg8().replace("\n", ""));
         }catch (Exception e){
         }
-        if (entity.getConfigureId() != null) {
+        if (entity.getConfigureId() != null && entity.getConfigureId() > 0 ) {
             MonitorConfigureEntity configureEntity = configureService.findById(entity.getConfigureId(), MonitorConfigureEntity.class);
             hosts = configureEntity.getHosts().split(",");
             // 删除老的机器的监控配置

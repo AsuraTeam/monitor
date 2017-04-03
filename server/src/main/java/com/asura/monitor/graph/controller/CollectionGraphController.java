@@ -9,6 +9,7 @@ import com.asura.common.response.PageResponse;
 import com.asura.common.response.ResponseVo;
 import com.asura.monitor.graph.entity.MonitorImagesCollectionEntity;
 import com.asura.monitor.graph.service.MonitorImagesCollectionService;
+import com.asura.util.CheckUtil;
 import com.asura.util.DateUtil;
 import com.asura.util.PermissionsCheck;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,7 +94,7 @@ public class CollectionGraphController {
         SearchMap searchMap = new SearchMap();
         searchMap.put("user", user);
         String search = request.getParameter("search[value]");
-        if (search != null && search.length()>1){
+        if (CheckUtil.checkString(search)){
             searchMap.put("key", search);
         }
         PagingResult<MonitorImagesCollectionEntity> result = collectionService.findAll(searchMap, pageBounds, "selectByAll");

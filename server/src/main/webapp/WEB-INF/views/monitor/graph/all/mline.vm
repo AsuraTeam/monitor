@@ -104,7 +104,7 @@ function syncExtremes(e) {
 
 
 function graphAll(ip, images_id) {
-    colors =  ['#fe235b', '#7328BF', '#aaeeee', '#ff0066', '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee', '#2b908f', '#90ee7e'];
+    colors =  ['#EAB839', '#74F1F1', '#79EA59','#ff0066', '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee', '#2b908f', '#90ee7e'];
     startT = $('#startSendTime').val()
     endT = $('#endSendTime').val()
     if (!startT) {

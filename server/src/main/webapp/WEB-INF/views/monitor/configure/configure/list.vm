@@ -118,7 +118,7 @@
                             <th>是否有效</th>
                             <th>缓存</th>
                             <th>描述信息</th>
-                            <th>编辑/删除</th>
+                            <th>编辑/删除/克隆</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -132,12 +132,15 @@
 
 <script>
     var site = "configure"
-    function addConfig(id){
+    function addConfig(id, copy){
         if(!id){
             id=0;
         }
+        if(!copy){
+            copy = ""
+        }
         url = "/monitor/configure/"+site+"/add";
-        html = post({id:id}, url);
+        html = post({id:id, copy:copy}, url);
         $('#addConfig').html(html);
         $('#add_getui_config').modal('toggle');
         if(!id){
@@ -340,7 +343,8 @@
                 }},
                 {"data": "configureId", "mRender": function(data, type, full) {
                     return '<button type="button" onclick="addConfig('+data+')" class="btn btn-sm btn-warning">编辑</button>&nbsp;'+
-                           '<button type="button" onClick="deleteConfig('+data+')" class="btn btn-sm btn-danger">删除</button>';
+                           '<button type="button" onClick="deleteConfig('+data+')" class="btn btn-sm btn-danger">删除</button>&nbsp;' +
+                            '<button type="button" onclick="addConfig('+data+',1)" class="btn btn-sm btn-success">克隆</button>&nbsp;';
                 }
                 },
             ],

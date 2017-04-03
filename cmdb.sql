@@ -1226,4 +1226,35 @@ CREATE TABLE `monitor_top` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
+
+/**
+* 图像合并功能20170401
+**/
+CREATE TABLE `monitor_images_merger` (
+  `image_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `image_tp` varchar(20) DEFAULT NULL COMMENT '图像类型',
+  `image_left` int(11) DEFAULT NULL COMMENT '图像左面位置',
+  `image_top` int(11) DEFAULT NULL COMMENT '图像上面位置',
+  `image_to` varchar(10) DEFAULT NULL COMMENT '所属图像',
+  `is_grid` varchar(2) DEFAULT NULL COMMENT '是否显示网格',
+  `image_grid_size` varchar(10) DEFAULT NULL COMMENT '网格粗细',
+  `is_legend` varchar(2) DEFAULT NULL COMMENT '是否显示图例',
+  `image_legend_location` varchar(10) DEFAULT NULL COMMENT '图例位置',
+  `image_data_source` text COMMENT '数据源',
+  `image_data_tp` varchar(10) DEFAULT NULL COMMENT '数据类型',
+  `image_background_colr` varchar(10) DEFAULT NULL COMMENT '背景颜色',
+  `image_color` varchar(10) DEFAULT NULL COMMENT '图像颜色',
+  `image_name` varchar(200) DEFAULT NULL COMMENT '图像名称',
+  `image_line_size` varchar(2) DEFAULT NULL COMMENT '线条粗细',
+  `last_modify_time` varchar(32) DEFAULT NULL COMMENT '最近修改时间',
+  `last_modify_user` varchar(100) DEFAULT NULL COMMENT '最近修改用户',
+  `description` varchar(100) DEFAULT NULL COMMENT '描述信息',
+  `tilte` varchar(100) DEFAULT NULL COMMENT '图像title',
+  `images_width` varchar(10) DEFAULT NULL COMMENT '图像宽度',
+  `images_height` varchar(10) DEFAULT NULL COMMENT '图像高度',
+  `images_data_interval` varchar(10) DEFAULT NULL COMMENT '图像数据时长',
+  PRIMARY KEY (`image_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8
+
+
 select "\n\n\n        友情提示:     \n\n请将你的数据库配置成utf8\n请修改mysql的配置文件永久生效\n数据库授权不要写成127.0.0.1的\n请对server的IP地址授权\n\n\n" as "";
