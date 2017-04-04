@@ -5,6 +5,7 @@ import com.asura.framework.base.paging.SearchMap;
 import com.asura.framework.base.util.JsonEntityTransform;
 import com.asura.framework.dao.mybatis.paginator.domain.PageBounds;
 import com.google.gson.Gson;
+import com.asura.common.controller.IndexController;
 import com.asura.common.response.PageResponse;
 import com.asura.common.response.ResponseVo;
 import com.asura.monitor.graph.thread.CommentThread;
@@ -22,6 +23,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -59,6 +61,8 @@ public class NetworkController {
 
     private Gson gson = new Gson();
 
+    @Autowired
+    private IndexController indexController;
 
     /**
      * 列表
@@ -70,41 +74,42 @@ public class NetworkController {
         return "/resource/configure/network/list";
     }
 
-    public PagingResult<CmdbResourceNetworkEntity> getData(int length, int start,String sqlId) {
-        PageBounds pageBounds = PageResponse.getPageBounds(length,start);
+    public PagingResult<CmdbResourceNetworkEntity> getData(int length, int start, String sqlId) {
+        PageBounds pageBounds = PageResponse.getPageBounds(length, start);
         SearchMap searchMap = new SearchMap();
         return service.findAll(searchMap, pageBounds, sqlId);
     }
 
     /**
      * 获取IP地址使用的和未使用的
+     *
      * @param type
+     *
      * @return
      */
     @RequestMapping("getIpStatus")
     @ResponseBody
-    public String getIpStatus(int type,int networkId){
-        PageBounds pageBounds = PageResponse.getPageBounds(10000,1);
+    public String getIpStatus(int type, int networkId) {
+        PageBounds pageBounds = PageResponse.getPageBounds(10000, 1);
         SearchMap searchMap = new SearchMap();
-        searchMap.put("networkId",networkId);
-        searchMap.put("type",type);
-        PagingResult<CmdbResourceNetworkAddressEntity> result = networkAddressService.findAll(searchMap,pageBounds,"selectByAll");
+        searchMap.put("networkId", networkId);
+        searchMap.put("type", type);
+        PagingResult<CmdbResourceNetworkAddressEntity> result = networkAddressService.findAll(searchMap, pageBounds, "selectByAll");
         Map map = new HashMap();
         map.put("data", result.getRows());
         return JsonEntityTransform.Object2Json(map);
     }
 
     /**
-     *
      * @return
      */
-    public ArrayList getNetwork(){
+    public ArrayList getNetwork() {
 
-        PagingResult<CmdbResourceNetworkEntity> network1 = getData(10000, 1,"selectNetwork");
+        PagingResult<CmdbResourceNetworkEntity> network1 = getData(10000, 1, "selectNetwork");
         //  先获取网段
         ArrayList<String> network = new ArrayList<>();
-        for(CmdbResourceNetworkEntity c:network1.getRows()) {
-            if(!network.contains(c.getNetworkPrefix())) {
+        for (CmdbResourceNetworkEntity c : network1.getRows()) {
+            if (!network.contains(c.getNetworkPrefix())) {
                 network.add(c.getNetworkPrefix());
             }
         }
@@ -119,49 +124,49 @@ public class NetworkController {
     @RequestMapping(value = "listData", produces = {"application/json;charset=UTF-8"})
     @ResponseBody
     public String listData(int draw, int start, int length) {
-        PagingResult<CmdbResourceNetworkEntity> result = getData(length*2, start, "selectByAll");
+        PagingResult<CmdbResourceNetworkEntity> result = getData(length * 2, start, "selectByAll");
 
-        PagingResult<CmdbResourceNetworkEntity> network1 = getData(10000, 1,"selectNetwork");
+        PagingResult<CmdbResourceNetworkEntity> network1 = getData(10000, 1, "selectNetwork");
         //  先获取网段
         ArrayList<String> network = getNetwork();
 
 
         ArrayList<String> netTag = new ArrayList<>();
         ArrayList<CmdbResourceNetworkEntity> list = new ArrayList<>();
-        for(String n:network) {
+        for (String n : network) {
             CmdbResourceNetworkEntity entity = new CmdbResourceNetworkEntity();
             for (CmdbResourceNetworkEntity c : result.getRows()) {
 
-                if(c.getNetworkPrefix().equals(n)) {
-                    System.out.println(c.getNetworkPrefix());
-                    if(entity.getUsed()==0&&entity.getFree()==0){
+                if (c.getNetworkPrefix().equals(n)) {
+                    if (entity.getUsed() == 0 && entity.getFree() == 0) {
                         entity.setNetworkId(c.getNetworkId());
                         entity.setNetworkPrefix(c.getNetworkPrefix());
                         entity.setDescription(c.getDescription());
                         entity.setLastModifyTime(c.getLastModifyTime());
                         entity.setNetworkSuffix(c.getNetworkSuffix());
+                        entity.setVlan(c.getVlan());
                     }
-                    if(c.getStatus()==1) {
+                    if (c.getStatus() == 1) {
                         netTag.add(c.getNetworkPrefix());
                         entity.setUsed(c.getCnt());
                     }
-                    if(c.getStatus()==0) {
+                    if (c.getStatus() == 0) {
                         netTag.add(c.getNetworkPrefix());
                         entity.setFree(c.getCnt());
                     }
                 }
             }
-            if(entity.getNetworkPrefix()!=null) {
+            if (entity.getNetworkPrefix() != null) {
                 list.add(entity);
             }
         }
 
         // 补充没有的数据
-            for(CmdbResourceNetworkEntity c:network1.getRows()) {
-                if(!netTag.contains(c.getNetworkPrefix())){
-                    list.add(c);
-                }
+        for (CmdbResourceNetworkEntity c : network1.getRows()) {
+            if (!netTag.contains(c.getNetworkPrefix())) {
+                list.add(c);
             }
+        }
 
         Map map = new HashMap();
         map.put("data", list);
@@ -171,12 +176,14 @@ public class NetworkController {
         return JsonEntityTransform.Object2Json(map);
     }
 
+    /**
+     *
+     */
     @RequestMapping(value = "ping", produces = {"application/json;charset=UTF-8"})
     @ResponseBody
     public void ping() {
         String prefix;
-        String ip;
-        PagingResult<CmdbResourceNetworkEntity> result = getData(10000, 1,"selectNetwork");
+        PagingResult<CmdbResourceNetworkEntity> result = getData(10000, 1, "selectNetwork");
         NetworkPing ping;
 
         PagingResult<CmdbResourceNetworkAddressEntity> add = networkAddressService.findAll(null, null, "selectByAll");
@@ -187,8 +194,7 @@ public class NetworkController {
 
         for (CmdbResourceNetworkEntity c : result.getRows()) {
             prefix = c.getNetworkPrefix();
-
-            ping = new NetworkPing(networkAddressService, c.getNetworkId(), addList,prefix);
+            ping = new NetworkPing(networkAddressService, c.getNetworkId(), addList, prefix);
             ping.start();
             CommentThread.sleep();
         }
@@ -247,14 +253,14 @@ public class NetworkController {
     /**
      * 生产画饼图的数据
      */
-    public ArrayList setServerEntity(List<CmdbResourceNetworkEntity> result){
+    public ArrayList setServerEntity(List<CmdbResourceNetworkEntity> result) {
         ArrayList list = new ArrayList();
         ServerReportEntity entity;
-        for(CmdbResourceNetworkEntity c:result){
+        for (CmdbResourceNetworkEntity c : result) {
             entity = new ServerReportEntity();
-            if(c.getStatus()==0) {
+            if (c.getStatus() == 0) {
                 entity.setName("free");
-            }else {
+            } else {
                 entity.setName("used");
             }
 
@@ -265,17 +271,32 @@ public class NetworkController {
     }
 
     /**
-     *
      * @param prefix
+     *
      * @return
      */
-    @RequestMapping(value = "countDataReport",produces = {"application/json;charset=utf-8"})
+    @RequestMapping(value = "countDataReport", produces = {"application/json;charset=utf-8"})
     @ResponseBody
-    public String countDataReport(String prefix){
+    public String countDataReport(String prefix) {
         SearchMap searchMap = new SearchMap();
-        searchMap.put("networkPrefix",prefix);
-        List<CmdbResourceNetworkEntity> result = service.getDataList(searchMap,"selectByAll");
+        searchMap.put("networkPrefix", prefix);
+        List<CmdbResourceNetworkEntity> result = service.getDataList(searchMap, "selectByAll");
         ArrayList list = setServerEntity(result);
         return gson.toJson(list);
+    }
+
+    /**
+     * 删除信息
+     * @return
+     */
+    @RequestMapping("deleteSave")
+    public ResponseVo delete(int id, HttpServletRequest request){
+        Gson gson = new Gson();
+        CmdbResourceNetworkEntity result = service.findById(id, CmdbResourceNetworkEntity.class);
+        if (result != null) {
+            service.delete(result);
+            indexController.logSave(request, "删除网络地址段:" + gson.toJson(result));
+        }
+        return ResponseVo.responseOk(null);
     }
 }

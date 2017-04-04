@@ -176,7 +176,7 @@ function graph(color, id, title, ytitle, url, chartype,lstartT,lendT) {
 
     $('#' + id).highcharts({
         chart: {
-            type: chartype,
+            type: "area",
             zoomType: 'x'
 
         },
@@ -217,6 +217,10 @@ function graph(color, id, title, ytitle, url, chartype,lstartT,lendT) {
                 },
                 pointInterval: 3600000, // one hour
                 pointStart: Date.UTC(2015, 4, 31, 0, 0, 0)
+            },
+            series: {
+                lineWidth : 0.8,
+                fillOpacity: 0.15,
             }
         },
         tooltip: {
@@ -445,10 +449,10 @@ function graph_min(color, id, title, ytitle, url, chartype,lstartT,lendT) {
         },
         plotOptions: {
             spline: {
-                lineWidth: 1.2,
+                lineWidth: 0.2,
                 states: {
                     hover: {
-                        lineWidth: 1.6
+                        lineWidth: 0.6
                     }
                 },
                 marker: {
@@ -456,7 +460,10 @@ function graph_min(color, id, title, ytitle, url, chartype,lstartT,lendT) {
                 },
                 pointInterval: 3600000, // one hour
                 pointStart: Date.UTC(2015, 4, 31, 0, 0, 0),
-
+            },
+            series: {
+                lineWidth : 0.8,
+                fillOpacity: 0.15,
             }
         },
         legend: {
@@ -579,6 +586,25 @@ function get_graph_all(image_id, ips,title, groups, names, type,     startT, end
                 return '<b>' + this.series.name + '</b><br/>' +
                     Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +
                     Highcharts.numberFormat(this.y, 2);
+            }
+        },
+        plotOptions: {
+            spline: {
+                lineWidth: 0.2,
+                states: {
+                    hover: {
+                        lineWidth: 0.6
+                    }
+                },
+                marker: {
+                    enabled: false
+                },
+                pointInterval: 3600000, // one hour
+                pointStart: Date.UTC(2015, 4, 31, 0, 0, 0),
+            },
+            series: {
+                lineWidth : 0.8,
+                fillOpacity: 0.15,
             }
         },
         legend: {
@@ -716,6 +742,25 @@ function realtime_graph(id, server, groups, name) {
                 return '<b>' + this.series.name + '</b><br/>' +
                     Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +
                     Highcharts.numberFormat(this.y, 2);
+            }
+        },
+        plotOptions: {
+            spline: {
+                lineWidth: 0.2,
+                states: {
+                    hover: {
+                        lineWidth: 0.6
+                    }
+                },
+                marker: {
+                    enabled: false
+                },
+                pointInterval: 3600000, // one hour
+                pointStart: Date.UTC(2015, 4, 31, 0, 0, 0),
+            },
+            series: {
+                lineWidth : 0.8,
+                fillOpacity: 0.15,
             }
         },
         legend: {

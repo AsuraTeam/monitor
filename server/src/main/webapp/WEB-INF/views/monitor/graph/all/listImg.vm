@@ -30,7 +30,7 @@
 <script>
         #foreach($dayNumber in $days)
         function load${n}${name.replace('---','').replace(".","_").replace(" ","").replace("-","")}${dayNumber}() {
-            graph_min("1ab394", '${n}${name.replace('---','').replace(" ","").replace(".","_")}${dayNumber}', "${n} ${name.replace("SLASH","/").replace('---',' ')} ${dayNumber}天", "${n} ${name.replace("SLASH","/").replace('---',' ')} ${dayNumber}天", "/monitor/graph/historyData?ip=${ip}&name=${name}&dayNumber=$!{dayNumber}&type=$n", "", "$!{startT}", "$!{endT}")
+            graph_min("1ab394", '${n}${name.replace('---','').replace(" ","").replace(".","_")}${dayNumber}', "${n} ${name.replace("SLASH","/").replace('---',' ')} ${dayNumber}天", "${n} ${name.replace("SLASH","/").replace('---',' ')} ${dayNumber}天", "/monitor/graph/historyData?ip=${ip}&name=${name}&dayNumber=$!{dayNumber}&type=$n", "area", "$!{startT}", "$!{endT}")
         }
         load${n}${name.replace('---','').replace(".","_").replace(" ","").replace("-","")}${dayNumber}();
         #end

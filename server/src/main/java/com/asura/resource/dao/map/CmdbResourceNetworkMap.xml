@@ -7,16 +7,17 @@
          a.network_prefix as networkPrefix,
          a.network_suffix as networkSuffix,
           a.last_modify_time as lastModifyTime,
+          a.vlan,
             a.description from cmdb_resource_network a ,
                 cmdb_resource_network_address b
         where b.ip_prefix_id=a.network_id
-        and b.ip_subffix>0
+        and b.ip_subffix > 0
         <if test="networkPrefix != null">
             and a.network_prefix=#{networkPrefix}
         </if>
         group by a.network_prefix,b.status
 
-        </select>
+    </select>
 
 
 
@@ -51,7 +52,8 @@
         last_modify_user as lastModifyUser,
         create_time as createTime,
         network_suffix as networkSuffix,
-        description as description
+        description as description,
+        vlan
         from cmdb_resource_network
         WHERE
         network_id=#{networkId}
@@ -66,7 +68,8 @@
             last_modify_user,
             create_time,
             network_suffix,
-            description
+            description,
+            vlan
         ) 
         values(        
             #{networkId},
@@ -76,7 +79,8 @@
             #{lastModifyUser},
             #{createTime},
             #{networkSuffix},
-            #{description}
+            #{description},
+            #{vlan}
         )
     </insert>
 
@@ -88,6 +92,7 @@
             create_time=#{createTime},
              last_modify_time=#{lastModifyTime},
             network_suffix=#{networkSuffix},
+            vlan=#{vlan},
             description=#{description}
          where  network_id=#{networkId}
     </update>

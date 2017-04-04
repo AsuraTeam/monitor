@@ -1256,5 +1256,9 @@ CREATE TABLE `monitor_images_merger` (
   PRIMARY KEY (`image_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8
 
+/**
+* 2017-04-04 
+*/
+alter table cmdb_resource_network add vlan varchar(10) comment "网络所在vlan";
 
 select "\n\n\n        友情提示:     \n\n请将你的数据库配置成utf8\n请修改mysql的配置文件永久生效\n数据库授权不要写成127.0.0.1的\n请对server的IP地址授权\n\n\n" as "";

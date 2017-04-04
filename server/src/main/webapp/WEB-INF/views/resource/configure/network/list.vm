@@ -49,6 +49,7 @@
                         <thead>
                         <tr nowrap="nowrap" role="rows">
                             <th>网络前缀</th>
+                            <th>所属VLAN</th>
                             <th>ip使用状态(百分比)</th>
                             <th>已用数量</th>
                             <th>可用数量</th>
@@ -82,14 +83,14 @@
     }
     function deleteConfig(id){
 
-        url = "/resource/configure/"+site+"/delete";
+        url = "/resource/configure/"+site+"/deleteSave";
         parent.layer.confirm("点击同意后,将删除数据", {
             btn: ['同意','不同意'], //按钮
             shade: false//不显示遮罩
         }, function(){
             result = post({id:id}, url);
             parent.layer.msg(JSON.stringify(result),  {icon:1})
-            location.reload();
+            $('#listTable').dataTable().fnReloadAjax();
         }, function(){
             parent.layer.msg("取消操作",  {icon:2})
         });
@@ -150,6 +151,7 @@
 
             "columns": [ // 数据映射
                 {"data": "networkPrefix"},
+                {"data": "vlan"},
                 {"data": "used","mRender":function (data,type,full) {
                     css = " progress-bar"
                     data = parseInt(data)
@@ -158,7 +160,6 @@
                     if(percent>80){
                         css = "progress-bar-danger"
                     }
-
                     html = '<div class="progress progress-small" title="使用'+percent+'%" style="width:100%;margin:0px;height:18px;">'+
                             '<div style="height: 18px;width: '+percent+'%;" class="'+css+' ">' +
                             '<font color="#FFFFFF">'+percent+'</font>' +

@@ -26,6 +26,7 @@
         <if test="pagesUrl != null">
            and pages_url = #{pagesUrl}
         </if>
+        ORDER by last_modify_time desc
      </select>
 
     <select id="findAllModelName" resultType="com.asura.authority.entity.AuthorityPagesEntity">

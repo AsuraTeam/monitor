@@ -14,6 +14,7 @@ import com.asura.monitor.graph.entity.PushEntity;
 import com.asura.resource.entity.CmdbResourceCabinetEntity;
 import com.asura.resource.entity.CmdbResourceEntnameEntity;
 import com.asura.resource.entity.CmdbResourceGroupsEntity;
+import com.asura.resource.entity.CmdbResourceNetworkEntity;
 import com.asura.resource.entity.CmdbResourceOsTypeEntity;
 import com.asura.resource.entity.CmdbResourceServerEntity;
 import com.asura.resource.entity.CmdbResourceServerTypeEntity;
@@ -23,6 +24,7 @@ import com.asura.resource.entity.report.ServerReportEntity;
 import com.asura.resource.service.CmdbResourceCabinetService;
 import com.asura.resource.service.CmdbResourceEntnameService;
 import com.asura.resource.service.CmdbResourceGroupsService;
+import com.asura.resource.service.CmdbResourceNetworkService;
 import com.asura.resource.service.CmdbResourceOsTypeService;
 import com.asura.resource.service.CmdbResourceServerService;
 import com.asura.resource.service.CmdbResourceServerTypeService;
@@ -104,6 +106,8 @@ public class ServerController {
 
     private SearchMap searchMapNull = new SearchMap();
 
+    @Autowired
+    private CmdbResourceNetworkService networkService;
 
 
     @Autowired
@@ -142,7 +146,10 @@ public class ServerController {
         PagingResult<CmdbResourceServiceEntity> services = serviceService.findAll(searchMap, pageBounds);
         model.addAttribute("service", services.getRows());
 
-
+        // vlan
+        // 服务类型
+        PagingResult<CmdbResourceNetworkEntity> networkEntityPagingResult = networkService.findAll(searchMap, pageBounds, "selectByAll");
+        model.addAttribute("vlans", networkEntityPagingResult.getRows());
         return model;
     }
 

@@ -32,7 +32,15 @@ public class CmdbResourceNetworkEntity extends BaseEntity{
     private int free;
     private int used;
     private int status;
+    private String vlan;
 
+    public String getVlan() {
+        return vlan;
+    }
+
+    public void setVlan(String vlan) {
+        this.vlan = vlan;
+    }
 
     public int getStatus() {
         return status;

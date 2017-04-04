@@ -18,10 +18,8 @@
                 <form>
                     <div class="col-md-12">
                         <p>
-                        &nbsp;
                         <p>
                     </div>
-
                     <div class="col-md-12">
                         <div class="form-group">
                             <label class="col-sm-3 control-label">网段前缀:</label>
@@ -43,6 +41,19 @@
                         <p>
                     </div>
 
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">所属VLAN:</label>
+                            <div class="col-sm-9">
+                                <input type="text" name="vlan" class="form-control"
+                                       value="$!{configs.vlan}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <p>
+                        <p>
+                    </div>
                     <div class="col-md-12">
                         <div class="form-group">
                           <label class="col-sm-3 control-label">描述信息:</label>

@@ -22,7 +22,7 @@
                         </div>
                         <input type="hidden" id="${ipadd.replace(".", "_")}${name.replace('---','').replace(".","_").replace(" ","")}BorderWidth" value="32">
                         <div class="animated pulse" id="${ipadd.replace(".", "_")}${name.replace('---','').replace(".","_").replace(" ","")}"
-                             style="width: 100%;height: 240px;margin-bottom:5px;text-align:center;"><img width="20%" height="50%;" src="/static/images/loading.gif"></div>
+                             style="width: 100%;height: 340px;margin-bottom:5px;text-align:center;"><img width="20%" height="50%;" src="/static/images/loading.gif"></div>
                         <div style="margin-left:10px;margin-top:10px;display:none;" id="show_image_data_${ipadd.replace(".", "_")}${name.replace('---','').replace(".","_").replace(" ","")}">
                             <table class="table  table-bordered table-hover dataTables-example" style="font-size:4px;padding:2px;">
                                 <tr>
@@ -104,7 +104,7 @@ function syncExtremes(e) {
 
 
 function graphAll(ip, images_id) {
-    colors =  ['#EAB839', '#74F1F1', '#79EA59','#ff0066', '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee', '#2b908f', '#90ee7e'];
+    colors =  ['#fAB839', '#A5F78F', '#83CEDA','#ff0066', '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee', '#2b908f', '#90ee7e'];
     startT = $('#startSendTime').val()
     endT = $('#endSendTime').val()
     if (!startT) {
@@ -121,7 +121,7 @@ function graphAll(ip, images_id) {
     t = "&startT=" + startT + "&endT=" + endT;
     $('#'+images_id).highcharts({
         chart: {
-            type: "line",
+            type: "area",
             zoomType: 'x',
         },
         colors: colors,
@@ -155,11 +155,13 @@ function graphAll(ip, images_id) {
         },
 
         legend: {
-            enabled: get_legend_status(),
-            verticalAlign: 'top',
+            enabled: true,
+            //enabled: get_legend_status(),
+            verticalAlign: 'right',
             //floating: true,
             y: 1,
-            align: "left",
+            align: "right",
+            layout: 'vertical',
             borderWidth: 0
         },
 
@@ -186,10 +188,15 @@ function graphAll(ip, images_id) {
                             });
                         }
                     }
+
                 },
                 marker: {
-                    lineWidth: 1
+                    lineWidth: 0
                 }
+            },
+            series: {
+                lineWidth : 0.8,
+                fillOpacity: 0.15,
             }
         },
         exporting: {
@@ -245,4 +252,4 @@ function loadimg() {
 
 }
 loadimg()
-</script>
+</script>\
