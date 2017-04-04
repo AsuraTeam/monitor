@@ -115,6 +115,10 @@ function cluser_graph_all(ip, images_id, name_datas, title, resultType, imgType,
                 marker: {
                     lineWidth: 1
                 }
+            },
+            series: {
+                lineWidth : 0.8,
+                fillOpacity: 0.15,
             }
         },
         exporting: {
