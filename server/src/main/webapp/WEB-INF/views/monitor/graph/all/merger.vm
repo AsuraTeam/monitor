@@ -107,7 +107,7 @@ function get_datas(value){
 }
 function graphAll(data_type, colors) {
     if(!colors){
-        xtype = "line"
+        xtype = "area"
     }else{
         xtype = "area"
     }
@@ -269,6 +269,10 @@ function graphAll(data_type, colors) {
                 marker: {
                     lineWidth: 1
                 }
+            },
+            series: {
+                lineWidth : 0.8,
+                fillOpacity: 0.15,
             }
         },
         exporting: {
