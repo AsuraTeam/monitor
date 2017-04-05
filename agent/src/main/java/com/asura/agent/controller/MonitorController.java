@@ -92,7 +92,7 @@ import static com.asura.agent.util.RedisUtil.app;
 public class MonitorController {
 
     // 版本号
-    private final String VERSION = "1.0.0.8";
+    private final String VERSION = "1.0.0.9";
 
     private final Logger logger = LoggerFactory.getLogger(MonitorController.class);
 
@@ -1145,6 +1145,7 @@ public class MonitorController {
             MonitorMessagesEntity messagesEntity = getAgentMessages(host);
             messagesEntity.setSevertityId(2);
             messagesEntity.setAlarmCount(1);
+            messagesEntity.setIp(server);
             if (alarmNumber != null) {
                 if (Integer.valueOf(alarmNumber) >= 4) {
                     info(isDebug ? "agent check 报警超过4次" : null);
@@ -1240,6 +1241,7 @@ public class MonitorController {
                     MonitorMessagesEntity messagesEntity = getAgentMessages(host);
                     messagesEntity.setSevertityId(1);
                     messagesEntity.setAlarmCount(0);
+                    messagesEntity.setIp(server);
                     String key = MonitorCacheConfig.cacheAgentAlarmNumber + host;
                     String result = redisUtil.get(key);
                     if (result != null && result.length() > 0) {
