@@ -1260,5 +1260,10 @@ CREATE TABLE `monitor_images_merger` (
 * 2017-04-04 
 */
 alter table cmdb_resource_network add vlan varchar(10) comment "网络所在vlan";
+alter table cmdb_resource_network add netmask varchar(32) comment "子网掩码";
+alter table cmdb_resource_network add gateway varchar(32) comment "网关地址";   
+alter table cmdb_resource_network add nameserver varchar(100) comment "多个逗号分隔,最多3个";     
+alter table cmdb_resource_network add unique index idx_network_vlan(vlan);
+
 
 select "\n\n\n        友情提示:     \n\n请将你的数据库配置成utf8\n请修改mysql的配置文件永久生效\n数据库授权不要写成127.0.0.1的\n请对server的IP地址授权\n\n\n" as "";
