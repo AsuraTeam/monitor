@@ -73,7 +73,7 @@ public class CommandUtil {
         String result = "";
         String line = "";
         try {
-            info("run 获取到脚本 " + command);
+            MonitorUtil.info("run 获取到脚本 " + command);
             Process process = runtime.exec(command);
             InputStream is = process.getInputStream();
             InputStreamReader isr = new InputStreamReader(is);

@@ -2147,16 +2147,24 @@ public class MonitorController {
     HashSet getContact(MonitorContactsEntity contactsEntity, String type, HashSet contactSet) {
         switch (type) {
             case "mobile":
-                contactSet.add(contactsEntity.getMobile());
+                if(contactsEntity.getMobile() != null ) {
+                    contactSet.add(contactsEntity.getMobile());
+                }
                 break;
             case "email":
-                contactSet.add(contactsEntity.getMail());
+                if (contactsEntity.getMail() != null) {
+                    contactSet.add(contactsEntity.getMail());
+                }
                 break;
             case "weixin":
-                contactSet.add(contactsEntity.getMobile());
+                if (contactsEntity.getMobile() != null) {
+                    contactSet.add(contactsEntity.getMobile());
+                }
                 break;
             case "ding":
-                contactSet.add(contactsEntity.getNo());
+                if (contactsEntity.getNo() != null) {
+                    contactSet.add(contactsEntity.getNo());
+                }
                 break;
         }
         return contactSet;
@@ -2168,7 +2176,7 @@ public class MonitorController {
      * @return
      */
     String getContact(String groups, String type) {
-        if (groups.length() < 1) {
+        if (groups == null || groups.length() < 1) {
             return "";
         }
         String[] g = groups.split(",");
@@ -2198,7 +2206,9 @@ public class MonitorController {
             if (result != null && result.length() > 0) {
                 entity = gson.fromJson(result, MonitorContactsEntity.class);
             }
-            contactSet = getContact(entity, type, contactSet);
+            if (entity != null) {
+                contactSet = getContact(entity, type, contactSet);
+            }
         }
         String result = "";
         for (String c : contactSet) {
@@ -2219,7 +2229,7 @@ public class MonitorController {
      * @return
      */
     String getMessages(PushEntity pushEntity, MonitorMessagesEntity entity) {
-        String description = "";
+        String description = ".";
         // 给有配置的添加配置里的描述信息
         try {
             MonitorConfigureEntity configureEntity = CONFIGS.get(pushEntity.getConfigId());
@@ -2230,7 +2240,9 @@ public class MonitorController {
         String messages = entity.getMessages();
         messages = messages.replace("${message}", entity.getAlarmCount() - 1 + " " + pushEntity.getMessages());
         messages = messages.replace("${groups}", "");
-        messages = messages.replace("${command}", pushEntity.getCommand());
+        if (pushEntity.getCommand() != null) {
+            messages = messages.replace("${command}", pushEntity.getCommand());
+        }
         if (pushEntity.getIp() != null) {
             messages = messages.replace("${server}", pushEntity.getIp() + " " + description);
         } else {
