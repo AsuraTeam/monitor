@@ -92,7 +92,7 @@ import static com.asura.agent.util.RedisUtil.app;
 public class MonitorController {
 
     // 版本号
-    private final String VERSION = "1.0.0.7";
+    private final String VERSION = "1.0.0.8";
 
     private final Logger logger = LoggerFactory.getLogger(MonitorController.class);
 
@@ -1131,9 +1131,7 @@ public class MonitorController {
      * @param host
      */
     void sendAgentAlarm(String host) {
-        MonitorMessagesEntity messagesEntity = getAgentMessages(host);
-        messagesEntity.setSevertityId(2);
-        messagesEntity.setAlarmCount(1);
+
         String server = redisUtil.get(MonitorCacheConfig.cacheHostIdToIp + host);
 
         // 如果ping失败，属于严重，发送到所有联系方式到管理员组
@@ -1144,9 +1142,12 @@ public class MonitorController {
             String alarmTimeKey = MonitorCacheConfig.cacheAgentAlarmNumber + host + "_time";
             String alarmNumber = redisUtil.get(alarmKey);
             String alarmTimeData = redisUtil.get(alarmTimeKey);
-
+            MonitorMessagesEntity messagesEntity = getAgentMessages(host);
+            messagesEntity.setSevertityId(2);
+            messagesEntity.setAlarmCount(1);
             if (alarmNumber != null) {
                 if (Integer.valueOf(alarmNumber) >= 4) {
+                    info(isDebug ? "agent check 报警超过4次" : null);
                     return;
                 } else {
                     if (alarmTimeData != null && DateUtil.getCurrTime() - Integer.valueOf(alarmTimeData) > 600) {
@@ -1223,6 +1224,8 @@ public class MonitorController {
                 // 报警信息生成
                 logger.info("检查到agent失败了，开始检查ping");
                 sendAgentAlarm(host);
+                // 每次就检查一个报错
+                break;
             } else {
                 info(isDebug ? "set is ok " + host : null);
                 okMap.put(host, date);
