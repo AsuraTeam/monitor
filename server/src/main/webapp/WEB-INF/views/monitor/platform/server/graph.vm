@@ -209,10 +209,9 @@
             title: {
                 text: ''
             },
-   colors : ["#80CD98","#65C1FB","#BEA046","#1ab394","#02FF70","#787C80",
-   "#7FDCFE","#0074D9","#FF821B","#FEFBF8","#83144B","#FEF6FF","#FCFDFC","#FDEA74","#F9F7F9",
+            colors : ["#80CD98","#65C1FB","#BEA046","#1ab394","#02FF70","#787C80", "#7FDCFE","#0074D9","#FF821B","#FEFBF8","#83144B","#FEF6FF","#FCFDFC","#FDEA74","#F9F7F9",
     "#16FD7E", "#77D6CE", "#3493E1","#f8ac59","#1f90d8",
-    ],
+            ],
             xAxis: {
                 crosshair: true,
                 type: 'datetime',
@@ -240,7 +239,11 @@
                         enabled: false
                     },
                     pointInterval: 3600000, // one hour
-                }
+                },
+                series: {
+                    lineWidth : 0.8,
+                    fillOpacity: 0.15,
+                },
             },
             tooltip: {
                 formatter: function () {

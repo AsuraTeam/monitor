@@ -2,12 +2,16 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.asura.resource.dao.CmdbResourceNetworkDao">
     <select id="selectByAll" resultType="com.asura.resource.entity.CmdbResourceNetworkEntity">
-       select b.status,count(*) as cnt,
+       select b.status,
+        count(*) as cnt,
        a.network_id as networkId,
          a.network_prefix as networkPrefix,
          a.network_suffix as networkSuffix,
           a.last_modify_time as lastModifyTime,
           a.vlan,
+        a.netmask,
+        a.gateway,
+        a.nameserver,
             a.description from cmdb_resource_network a ,
                 cmdb_resource_network_address b
         where b.ip_prefix_id=a.network_id
@@ -19,16 +23,21 @@
 
     </select>
 
-
-
     <select id="selectNetwork" resultType="com.asura.resource.entity.CmdbResourceNetworkEntity">
          select
         network_id as networkId,
         network_prefix as networkPrefix,
         network_suffix as networkSuffix,
         last_modify_time as lastModifyTime,
+        netmask,
+        gateway,
+        nameserver,
+        vlan,
         description
-        from cmdb_resource_network
+        from cmdb_resource_network WHERE 1=1
+        <if test="vlan != null">
+            and vlan=#{vlan}
+        </if>
     </select>
 
     <select id="selectCountNetwork" resultType="com.asura.resource.entity.CmdbResourceNetworkEntity">
@@ -53,6 +62,9 @@
         create_time as createTime,
         network_suffix as networkSuffix,
         description as description,
+        netmask,
+        gateway,
+        nameserver,
         vlan
         from cmdb_resource_network
         WHERE
@@ -69,7 +81,10 @@
             create_time,
             network_suffix,
             description,
-            vlan
+            vlan,
+            netmask,
+            gateway,
+            nameserver
         ) 
         values(        
             #{networkId},
@@ -80,21 +95,28 @@
             #{createTime},
             #{networkSuffix},
             #{description},
-            #{vlan}
+            #{vlan},
+            #{netmask},
+            #{gateway},
+            #{nameserver}
         )
     </insert>
 
+    <!-- 更新 -->
     <update id="update" parameterType="com.asura.resource.entity.CmdbResourceNetworkEntity">
         update cmdb_resource_network set   
             network_prefix=#{networkPrefix},
             create_user=#{createUser},
             last_modify_user=#{lastModifyUser},
             create_time=#{createTime},
-             last_modify_time=#{lastModifyTime},
+            last_modify_time=#{lastModifyTime},
             network_suffix=#{networkSuffix},
             vlan=#{vlan},
-            description=#{description}
-         where  network_id=#{networkId}
+            description=#{description},
+            netmask = #{netmask},
+            gateway = #{gateway},
+            nameserver = #{nameserver}
+         where network_id=#{networkId}
     </update>
 
 </mapper>

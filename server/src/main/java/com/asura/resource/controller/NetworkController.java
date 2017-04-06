@@ -74,6 +74,13 @@ public class NetworkController {
         return "/resource/configure/network/list";
     }
 
+    /**
+     *
+     * @param length
+     * @param start
+     * @param sqlId
+     * @return
+     */
     public PagingResult<CmdbResourceNetworkEntity> getData(int length, int start, String sqlId) {
         PageBounds pageBounds = PageResponse.getPageBounds(length, start);
         SearchMap searchMap = new SearchMap();
@@ -118,25 +125,21 @@ public class NetworkController {
 
     /**
      * 列表数据
-     *
      * @return
      */
     @RequestMapping(value = "listData", produces = {"application/json;charset=UTF-8"})
     @ResponseBody
     public String listData(int draw, int start, int length) {
-        PagingResult<CmdbResourceNetworkEntity> result = getData(length * 2, start, "selectByAll");
-
-        PagingResult<CmdbResourceNetworkEntity> network1 = getData(10000, 1, "selectNetwork");
+        PagingResult<CmdbResourceNetworkEntity> result = getData(length * 2 , start * 2, "selectByAll");
+        PagingResult<CmdbResourceNetworkEntity> network1 = getData(length, start, "selectNetwork");
         //  先获取网段
         ArrayList<String> network = getNetwork();
-
 
         ArrayList<String> netTag = new ArrayList<>();
         ArrayList<CmdbResourceNetworkEntity> list = new ArrayList<>();
         for (String n : network) {
             CmdbResourceNetworkEntity entity = new CmdbResourceNetworkEntity();
             for (CmdbResourceNetworkEntity c : result.getRows()) {
-
                 if (c.getNetworkPrefix().equals(n)) {
                     if (entity.getUsed() == 0 && entity.getFree() == 0) {
                         entity.setNetworkId(c.getNetworkId());
@@ -147,12 +150,12 @@ public class NetworkController {
                         entity.setVlan(c.getVlan());
                     }
                     if (c.getStatus() == 1) {
-                        netTag.add(c.getNetworkPrefix());
                         entity.setUsed(c.getCnt());
+                        netTag.add(c.getNetworkPrefix());
                     }
                     if (c.getStatus() == 0) {
-                        netTag.add(c.getNetworkPrefix());
                         entity.setFree(c.getCnt());
+                        netTag.add(c.getNetworkPrefix());
                     }
                 }
             }
@@ -164,16 +167,18 @@ public class NetworkController {
         // 补充没有的数据
         for (CmdbResourceNetworkEntity c : network1.getRows()) {
             if (!netTag.contains(c.getNetworkPrefix())) {
+                c.setFree(0);
+                c.setUsed(0);
                 list.add(c);
             }
         }
 
         Map map = new HashMap();
         map.put("data", list);
-        map.put("recordsTotal", list.size());
-        map.put("recordsFiltered", list.size());
+        map.put("recordsTotal", network1.getTotal());
+        map.put("recordsFiltered", network1.getTotal());
         map.put("draw", draw);
-        return JsonEntityTransform.Object2Json(map);
+        return gson.toJson(map);
     }
 
     /**

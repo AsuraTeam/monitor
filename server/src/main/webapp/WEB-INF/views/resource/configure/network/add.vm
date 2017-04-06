@@ -5,9 +5,9 @@
      role="dialog" style="background-color: #FfFfFf; margin-top: 16px;"
      data-backdrop="false">
     <div class="modal-dialog"
-         style="margin-top: 0px; width: 40%; ">
+         style="margin-top: 0px; width: 50%; ">
         <div class="modal-content"
-             style="height: 320px; width: 100%; ">
+             style="height: 340px; width: 100%; ">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">
                     <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
@@ -22,9 +22,9 @@
                     </div>
                     <div class="col-md-12">
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">网段前缀:</label>
-                            <div class="col-sm-9">
-                                <input id="input1" onkeyup="checkValue($(this).val(),'input1')" type="number"  maxlength="1" size="3" name="networkPrefix" style="width: 23%;float: left;" class="form-control"
+                            <label class="col-sm-2 control-label">网段前缀:</label>
+                            <div class="col-sm-10">
+                                <input id="input1" onkeyup="checkValue($(this).val(),'input1')" type="number"  maxlength="1" size="3" name="networkPrefix" style="width: 25%;float: left;" class="form-control"
                                        value="${input1}"><span style="float: left;margin-top:10px;font-size:20px;">.</span>
                                 <input id="input2" onkeyup="checkValue($(this).val(),'input2')"  type="number" maxlength="3" size="3" name="networkPrefix" style="width: 23%;float: left;" class="form-control"
                                        value="$!{input2}"><span style="float: left;margin-top:10px;font-size:20px;">.</span>
@@ -40,33 +40,56 @@
                         <p>
                         <p>
                     </div>
-
-                    <div class="col-md-12">
+                    <div class="col-md-6">
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">所属VLAN:</label>
-                            <div class="col-sm-9">
+                            <label class="col-sm-4 control-label">子网掩码:&nbsp;</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="netmask"  value="$!{configs.netmask}" id="netmask" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">所属VLAN:</label>
+                            <div class="col-sm-8">
                                 <input type="text" name="vlan" class="form-control"
                                        value="$!{configs.vlan}">
                             </div>
                         </div>
                     </div>
+                    <div class="col-md-11">
+                        <p>
+                        <p>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">网关地址:&nbsp;</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="gateway"  value="$!{configs.gateway}" id="gateway" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">DNS服务器:</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="nameserver" value="$!{configs.nameserver}" id="nameserver" class="form-control">
+                            </div>
+                        </div>
+                    </div>
                     <div class="col-md-12">
                         <p>
                         <p>
                     </div>
                     <div class="col-md-12">
                         <div class="form-group">
-                          <label class="col-sm-3 control-label">描述信息:</label>
-                            <div class="col-sm-9">
+                            <label class="col-sm-2 control-label">描述信息:</label>
+                            <div class="col-sm-10">
                                 <input type="text" name="description" class="form-control"
                                        value="$!{configs.description}">
                             </div>
                         </div>
-                    </div>
-
-                    <div class="col-md-12">
-                        <p>
-                        <p>
                     </div>
                 </form>
                 <div class="col-md-12">
@@ -75,7 +98,7 @@
                 </div>
                 <div class="modal-footer" style="border:solid 1px #e0e0e0">
                 </div>
-                <button style="margin-left: 77%;margin-top: 15px;"
+                <button style="margin-left: 82%;margin-top: 15px;"
                         onclick="saveConfig($!{configs.networkId});" class="btn btn-primary btn-lg"
                         type="button">
                     <i class="fa fa-check"></i>&nbsp;提交
@@ -91,13 +114,15 @@
         }
 
         if(id=="input1"){
-              if(value==0){
-                  $('#'+id).val("");
-              }
+            if(value==0){
+                $('#'+id).val("");
+            }
         }
         if(parseInt(value)>254){
             $('#'+id).val("");
         }
     }
+
+
 </script>
 </body>

@@ -115,6 +115,11 @@
         $('#addressNetworkId').html(addressNetworkId+t);
         $('#show_ip_detail_html').html(html+"</br>&nbsp;</p>")
     }
+    function isIP2(ip)
+    {
+        var re =  /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/
+        return re.test(ip);
+    }
 
     function saveConfig(id){
         data = get_form_data();
@@ -129,12 +134,34 @@
             parent.layer.msg("地址段必须填写",  {icon:1});
         }
         data["networkPrefix"] = i1+"."+i2+"."+i3;
+        if (!isIP2(data["netmask"])){
+            parent.layer.msg("子网掩码必须填写",  {icon:2});
+            return
+        }
+        if (!isIP2(data["gateway"])){
+            parent.layer.msg("网关地址必须填写",  {icon:2});
+            return
+        }
+        if(data["nameserver"]){
+            nameserver = data["nameserver"].split(",")
+            for (i=0;i<nameserver.length;i++){
+                if (!isIP2(nameserver[i])){
+                    parent.layer.msg("DNS格式错误",  {icon:2});
+                    return
+                }
+            }
+        }else{
+            parent.layer.msg("DNS必须填写",  {icon:2});
+            return
+        }
+
         url = "/resource/configure/"+site+"/save";
         result = post(data, url);
         parent.layer.msg(JSON.stringify(result),  {icon:1});
         //$('#add_getui_config').modal('toggle');
         $('#listTable').dataTable().fnReloadAjax();
     }
+
     function loadData(){
         $("#listTable").dataTable({
             "filter": false,//去掉搜索框
@@ -175,7 +202,9 @@
                 }},
                 {"data": "description"},
                 {"data": "lastModifyTime","mRender":function (data) {
-                    return data?laydate.now(data, "YYYY-MM-DD hh:mm:ss"):"--";
+                    var date2 = new Date(data);
+                    var localeString = date2.toLocaleString();
+                    return localeString;
                 }},
                 {"sWidth": "150px", "data": "networkId", "mRender": function(data, type, full) {
                     return '<button type="button" onclick="updateConfig('+data+')" class="btn btn-sm btn-warning">编辑</button>&nbsp;'+

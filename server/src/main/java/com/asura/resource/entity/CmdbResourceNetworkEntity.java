@@ -18,7 +18,13 @@ import com.asura.framework.base.entity.BaseEntity;
  */
 public class CmdbResourceNetworkEntity extends BaseEntity{
 
-
+    private String netmask;
+    private String gateway;
+    private String nameserver;
+    private int free;
+    private int used;
+    private int status;
+    private String vlan;
     private int cnt;
 
     public int getCnt() {
@@ -29,10 +35,29 @@ public class CmdbResourceNetworkEntity extends BaseEntity{
         this.cnt = cnt;
     }
 
-    private int free;
-    private int used;
-    private int status;
-    private String vlan;
+    public String getNetmask() {
+        return netmask;
+    }
+
+    public void setNetmask(String netmask) {
+        this.netmask = netmask;
+    }
+
+    public String getGateway() {
+        return gateway;
+    }
+
+    public void setGateway(String gateway) {
+        this.gateway = gateway;
+    }
+
+    public String getNameserver() {
+        return nameserver;
+    }
+
+    public void setNameserver(String nameserver) {
+        this.nameserver = nameserver;
+    }
 
     public String getVlan() {
         return vlan;

@@ -4,11 +4,12 @@ import com.asura.framework.base.paging.SearchMap;
 import com.asura.framework.dao.mybatis.paginator.domain.PageBounds;
 import com.google.gson.Gson;
 import com.asura.common.response.PageResponse;
-import com.asura.util.DateUtil;
 import com.asura.resource.entity.CmdbResourceNetworkEntity;
 import com.asura.resource.entity.CmdbResourceServerEntity;
 import com.asura.resource.service.CmdbResourceNetworkService;
 import com.asura.resource.service.CmdbResourceServerService;
+import com.asura.util.CheckUtil;
+import com.asura.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -157,11 +158,11 @@ public class ResourceReportController {
     @ResponseBody
     public String entnameData(int draw,String groupsName){
         SearchMap searchMap = new SearchMap();
-        if(groupsName!=null&&groupsName.length()>1) {
+        if(CheckUtil.checkString(groupsName)) {
             searchMap.put("groupsName", groupsName);
         }
         List<CmdbResourceServerEntity> result = serverService.getDataList(searchMap,"reportEntName");
-        return getCountGroupMap(result,1);
+        return getCountGroupMap(result, 1);
     }
 
     /**
@@ -173,7 +174,7 @@ public class ResourceReportController {
     @ResponseBody
     public String reportServiceName(int draw, String groupsName){
         SearchMap searchMap = new SearchMap();
-        if(groupsName!=null&&groupsName.length()>1) {
+        if(CheckUtil.checkString(groupsName)) {
             searchMap.put("groupsName", groupsName);
         }
         List<CmdbResourceServerEntity> result = serverService.getDataList(searchMap,"reportServiceName");
@@ -188,7 +189,7 @@ public class ResourceReportController {
     @ResponseBody
     public String typeData(int draw, String groups){
         SearchMap map = new SearchMap();
-        if(groups!=null&&groups.length()>1) {
+        if(CheckUtil.checkString(groups)) {
             map.put("groupsName", groups);
         }
         List<CmdbResourceServerEntity> result = serverService.getDataList(map,"reportTypeName");
@@ -204,7 +205,6 @@ public class ResourceReportController {
 
         List<CmdbResourceServerEntity> result = serverService.getDataList(map,"reportMonth");
         ArrayList[] set = new ArrayList[12];
-        String[] tList;
         int count = 0;
         DateFormat dateFormat;
         dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -236,7 +236,6 @@ public class ResourceReportController {
                     temp.add(cnt);
                 }
             }
-            System.out.println(t[1]);
             hours = dateFormat.parse(t[1] + "-01 00:00:00").getTime();
             if(temp.size()<1){
                 temp.add(hours);
