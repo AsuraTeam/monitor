@@ -73,7 +73,7 @@
 </div>
 <div class="ibox-tools" style="width:130px;">
 
-    <a class="dropdown-toggle" data-toggle="dropdown" style="width:150px;">
+    <a class="dropdown-toggle"  onclick="loadpage('','','',2)"  data-toggle="dropdown" style="width:150px;">
         <i class="fa fa-remove">显示空机柜</i>
     </a>
 </div>

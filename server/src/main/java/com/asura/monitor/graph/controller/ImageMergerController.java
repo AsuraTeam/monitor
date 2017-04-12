@@ -7,8 +7,8 @@ import com.google.gson.Gson;
 import com.asura.common.controller.IndexController;
 import com.asura.common.response.PageResponse;
 import com.asura.common.response.ResponseVo;
-import com.asura.monitor.graph.entity.MonitorImagesMergerEntity;
-import com.asura.monitor.graph.service.MonitorImagesMergerService;
+import com.asura.monitor.graph.entity.MonitorGraphMergerEntity;
+import com.asura.monitor.graph.service.MonitorGraphMergerService;
 import com.asura.util.CheckUtil;
 import com.asura.util.DateUtil;
 import com.asura.util.PermissionsCheck;
@@ -39,7 +39,7 @@ import javax.servlet.http.HttpServletRequest;
 public class ImageMergerController {
 
     @Autowired
-    private MonitorImagesMergerService mergerService;
+    private MonitorGraphMergerService mergerService;
     @Autowired
     private IndexController indexController;
     @Autowired
@@ -55,6 +55,15 @@ public class ImageMergerController {
      }
 
     /**
+     * 图像页面
+     * @return
+     */
+    @RequestMapping("graph")
+    public String graph(){
+        return "/monitor/graph/merger/graph";
+    }
+
+    /**
      *
      * @param id
      * @param model
@@ -63,7 +72,7 @@ public class ImageMergerController {
     @RequestMapping("add")
     public String groupsAdd(int id, Model model){
         if(id>0){
-            MonitorImagesMergerEntity result = mergerService.findById(id, MonitorImagesMergerEntity.class);
+            MonitorGraphMergerEntity result = mergerService.findById(id, MonitorGraphMergerEntity.class);
             model.addAttribute("configs", result);
         }
         return "/monitor/graph/merger/add";
@@ -82,7 +91,7 @@ public class ImageMergerController {
         if (CheckUtil.checkString(search)){
             searchMap.put("key", search);
         }
-        PagingResult<MonitorImagesMergerEntity> result = mergerService.findAll(searchMap, pageBounds, "selectByAll");
+        PagingResult<MonitorGraphMergerEntity> result = mergerService.findAll(searchMap, pageBounds, "selectByAll");
         return PageResponse.getMap(result, draw);
     }
 
@@ -95,7 +104,7 @@ public class ImageMergerController {
     @RequestMapping("deleteSave")
     @ResponseBody
     public ResponseVo deleteConfigure(int id, HttpServletRequest request){
-        MonitorImagesMergerEntity entity = mergerService.findById(id, MonitorImagesMergerEntity.class);
+        MonitorGraphMergerEntity entity = mergerService.findById(id, MonitorGraphMergerEntity.class);
             indexController.logSave(request, "删除图像合并数据" + new Gson().toJson(entity));
             return ResponseVo.responseOk(null);
     }
@@ -108,12 +117,12 @@ public class ImageMergerController {
      */
     @RequestMapping("save")
     @ResponseBody
-    public ResponseVo save(MonitorImagesMergerEntity entity, HttpServletRequest request) {
+    public ResponseVo save(MonitorGraphMergerEntity entity, HttpServletRequest request) {
         Gson gson = new Gson();
         String user = permissionsCheck.getLoginUser(request.getSession());
         entity.setLastModifyUser(user);
         entity.setLastModifyTime(DateUtil.getTimeStamp()+"");
-        if (entity.getImageId() != null) {
+        if (entity.getGraphId() != null) {
             mergerService.update(entity);
         } else {
             mergerService.save(entity);

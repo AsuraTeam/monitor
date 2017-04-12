@@ -363,6 +363,7 @@ public class SaveController {
         } else {
             int id = getMaxItemId();
             entity.setItemId(id);
+            entity.setIsValid(1);
             itemService.save(entity);
         }
         indexController.logSave(request, "添加监控项目" + GSON.toJson(entity));

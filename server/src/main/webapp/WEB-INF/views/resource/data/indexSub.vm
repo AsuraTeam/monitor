@@ -1,9 +1,8 @@
-
-    #foreach($cscope in $scope)
+#foreach($cscope in $scope)
      <div style="width: 1000%;overflow: auto;">
         <div class="col-sm-3" style="margin-left:-5px;mamargin-top:3PX;width: 600%;">
                 <div class="ibox-title">
-                    <h5>酒仙桥 $!{cscope}</h5>
+                    <h5>$floor.get($cscope) $!{cscope}</h5>
                 </div>
         </div>
 
@@ -11,8 +10,8 @@
         <div class="col-sm-3" style="margin-left: -5px; margin-top: 10px;width: 400px;">
                 <div class="ibox">
                     <div class="ibox-title">
-                        <span class="label label-primary pull-right">2016-07</span>
-                        <h5>酒仙桥 $!{cname}</h5>
+                        <span class="label label-primary pull-right"></span>
+                        <h5>$floor.get($cscope) $!{cname}</h5>
                     </div>
                     <div class="ibox-content">
                         <table class="table table-bordered">

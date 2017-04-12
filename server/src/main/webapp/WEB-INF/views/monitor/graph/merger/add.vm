@@ -1,267 +1,339 @@
+<style>
+    .add-border {
+        z-index:99999;position:fixed;margin-top: -10px;margin-left: 25px;background-color:#ffffff;padding-left:10px;padding-right:10px;
+        font-size:16px;
+    }
+    .label-border {
+        border: 1px solid #d0d0d0;margin-left: 0px;margin-right: 130px;margin-top: 15px;
+    }
+    .top-10 {
+        margin:5px;
+    }
+    .top-20 {
+        margin:10px;
+    }
+</style>
 <div class="modal fade" id="show_image_id" tabindex="-1"
      role="dialog" style="background-color: #FfFfFf; margin-top: 16px;"
      data-backdrop="false">
     <div class="modal-dialog"
-         style="margin-top: 0px; width: 750px;">
+         style="margin-top: 0px; width: 820px;">
         <div class="modal-content1"
-             style=" width: 100%;border:1px solid #f0f0f0;">
+             style="width: 100%;border:1px solid #d0d0d0;">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">
                     <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
                 </button>
-                <h4 class="modal-title">&nbsp;&nbsp;图像组合配置</h4>
+                <h4 class="modal-title">&nbsp;&nbsp;图像组合配置 <code>(每次添加为一个页面中的一个图像)</code></h4>
             </div>
             <div class="animated fadeInRight">
                 <form>
-                    <div class="col-md-12">
-                        <p>&nbsp;
-                        </p>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">图像名称:</label>
-                            <div class="col-sm-8">
-                                <input type="text" name="imageName" class="form-control"
-                                       value="$!{configs.imageName}">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">图像类型:</label>
-                            <div class="col-sm-8">
-                                <select name="imageTp" class="form-control">
-                                    <option value="">--请选择--</option>
-                                    <option value="line">line</option>
-                                    <option value="area">area</option>
-                                    <option value="bar">bar</option>
-                                    <option value="pie">pie</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <p></p>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">图像高度(%):</label>
-                            <div class="col-sm-8">
-                                <input type="number" name="imagesHeight" class="form-control"
-                                       value="$!{configs.imagesHeight}">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">图像宽度(%):</label>
-                            <div class="col-sm-8">
-                                <input type="number" name="imagesWidth" class="form-control"
-                                       value="$!{configs.imagesWidth}">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <p></p>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">图像主标题:</label>
-                            <div class="col-sm-8">
-                                <input type="text" name="title" class="form-control"
-                                       value="$!{configs.title}">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">图像子标题:</label>
-                            <div class="col-sm-8">
-                                <input type="text" name="imagesSubTitle" class="form-control"
-                                       value="$!{configs.imagesSubTitle}">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <p></p>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">图像位置左:</label>
-                            <div class="col-sm-8">
-                                <input type="number" name="imageLeft" class="form-control"
-                                       value="$!{configs.imageLeft}">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">图像位置上:</label>
-                            <div class="col-sm-8">
-                                <input type="number" name="imageTop" class="form-control"
-                                       value="$!{configs.imageTop}">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <p></p>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">线条颜色:</label>
-                            <div class="col-sm-8">
-                                <input type="text" name="imageColor" class="form-control"
-                                       value="$!{configs.imageColor}">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">线条粗细:</label>
-                            <div class="col-sm-8">
-                                <input type="number" name="imageLineSize" class="form-control"
-                                       value="$!{configs.imageLineSize}">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <p></p>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">显示网格:</label>
-                            <div class="col-sm-8">
-                                <div class="checkbox checkbox-warning checkbox-inline">
-                                    <input type="checkbox" name="isGrid" id="id_grid"
-                                           onchange="change(this)" #if( $configs.isWeixin == "1" )
-                                           checked   #end
-                                           value="#if($configs.isGrid)$!{configs.isGrid}#else 1 #end">
-                                    <label for="is_grid"></label>
+                    <div class="col-md-12 label-border">
+                        <span class="add-border">图像全局配置</span>
+                        <div class="col-md-12 top-20"></div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">集合名称:</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="page" class="form-control" >
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">网格粗细:</label>
-                            <div class="col-sm-8">
-                                <input type="number" name="imageGridSize" class="form-control"
-                                       value="$!{configs.imageGridSize}">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <p></p>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">显示图例:</label>
-                            <div class="col-sm-8">
-                                <div class="checkbox checkbox-warning checkbox-inline">
-                                    <input type="checkbox" name="isLegend" id="inlineCheckbox4"
-                                           onchange="change(this)" #if( $configs.isWeixin == "1" )
-                                           checked   #end
-                                           value="#if($configs.isLegend)$!{configs.isLegend}#else 1 #end">
-                                    <label for="inlineCheckbox4"></label>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">插入到图像:</label>
+                                <div class="col-sm-8">
+                                    <select name="toImages" class="form-control">
+                                    </select>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">图例位置:</label>
-                            <div class="col-sm-8">
-                                <select name="imageLegendLocation" class="form-control">
-                                    <option value="">--请选择--</option>
-                                    <option value="sum">上</option>
-                                    <option value="avg">下</option>
-                                    <option value="avg">右上</option>
-                                    <option value="avg">右侧</option>
-                                </select>
+                        <div class="col-md-12 top-10"></div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">图像类型:</label>
+                                <div class="col-sm-8">
+                                    <select name="imageTp" class="form-control">
+                                        <option value="">--请选择--</option>
+                                        <option value="line">line</option>
+                                        <option value="area">area</option>
+                                        <option value="bar">bar</option>
+                                        <option value="pie">pie</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-12">
-                        <p></p>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">数据源:</label>
-                            <div class="col-sm-8">
-                                <input type="text" name="imageDataSource" class="form-control"
-                                       value="$!{configs.imageDataSource}">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">显示图例:</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox checkbox-warning checkbox-inline">
+                                        <input type="checkbox" name="lengendShow" id="lengendShow"
+                                               onchange="legend_change()" #if( $configs.lengendShow == "1" )
+                                               checked   #end
+                                               value="#if($configs.lengendShow)$!{configs.lengendShow}#end">
+                                        <label for="lengendShow"></label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">数据类型:</label>
-                            <div class="col-sm-8">
-                                <select name="imageDataTp" class="form-control">
-                                    <option value="">--请选择--</option>
-                                    <option value="sum">求和</option>
-                                    <option value="avg">平均</option>
-                                </select>
+                        <div class="col-md-6" style="display:none;" id="show_legend_id">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">图例位置:</label>
+                                <div class="col-sm-8">
+                                    <select name="legendAlign" id="legend_align" class="form-control">
+                                        <option value="">--请选择--</option>
+                                        <option value="top">上</option>
+                                        <option value="bottom">下</option>
+                                        <option value="right">右上</option>
+                                        <option value="avg">右侧</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
+                        <div class="col-md-12 top-10"></div>
                     </div>
-                    <div class="col-md-12">
-                        <p></p>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">插入到图像:</label>
-                            <div class="col-sm-8">
-                                <select name="toImage" class="form-control">
-                                    <option value="">--请选择--</option>
-                                    <option value="line"></option>
-                                    <option value="area"></option>
-                                    <option value="bar"></option>
-                                    <option value="pie"></option>
-                                </select>
+                    <div class="col-md-12 label-border">
+                        <span class="add-border">图像大小参数</span>
+                        <div class="col-md-12 top-20"></div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-6 control-label">图像高度(px,%):</label>
+                                <div class="col-sm-6">
+                                    <input type="text" name="height" class="form-control"
+                                           value="#if($!{configs.height})$!{configs.height}#else 250px#end">
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">背景色:</label>
-                            <div class="col-sm-8">
-                                <select name="imageBackgroundColor" class="form-control">
-                                    <option value="">--请选择--</option>
-                                    <option value="sum">求和</option>
-                                    <option value="avg">平均</option>
-                                </select>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-6 control-label">图像宽度(1-12):</label>
+                                <div class="col-sm-6">
+                                    <input type="number" name="width" class="form-control" id="width"
+                                           value="#if($!{configs.width})$!{configs.width}#end">
+                                </div>
                             </div>
                         </div>
+                        <div class="col-md-12 top-10"></div>
                     </div>
-                    <div class="col-md-12">
-                        <p></p>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">描述信息:</label>
-                            <div class="col-sm-8">
-                                <input type="text" name="description" class="form-control"
-                                       value="$!{configs.description}">
+                    <div class="col-md-12 label-border">
+                        <span class="add-border">图像标题配置</span>
+                        <div class="col-md-12 top-20"></div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">标题:</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="title" class="form-control"
+                                           value="$!{configs.title}">
+                                </div>
                             </div>
                         </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">图像子标题:</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="subTitle" class="form-control"
+                                           value="$!{configs.subTitle}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 top-10"></div>
+                        <div class="col-md-6" title="标签添加IP地址">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">IP标题:</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox checkbox-warning checkbox-inline">
+                                        <input type="checkbox" name="ipTitle" id="ipTitle"
+                                               onchange="change(this)" #if( $configs.ipTitle == "1" )
+                                               checked   #end
+                                               value="#if($configs.lengendShow)$!{configs.ipTitle}#else 1#end">
+                                        <label for="ipTitle"></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 top-10"></div>
+                    </div>
+                    <div class="col-md-12 label-border">
+                        <span class="add-border">数据源配置</span>
+                        <div class="col-md-12 top-20"></div>
+                        <div class="col-md-6">
+                            <div class="form-group" title="格式为:组.指标名称cpu.system.cpu.iowait">
+                                <label class="col-sm-4 control-label">数据源名称:</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="names" class="form-control" placeholder="cpu.system.cpu.iowait"
+                                           value="$!{configs.names}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">显示标识:</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox checkbox-warning checkbox-inline">
+                                        <input type="checkbox" name="seriesMarker" id="seriesMarker"
+                                               onchange="change(this)" #if( $configs.seriesMarker== "1" )
+                                               checked   #end
+                                               value="#if($configs.lengendShow)$!{configs.seriesMarker}#else 1#end">
+                                        <label for="seriesMarker"></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 top-10"></div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">线条颜色:</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="imageColor" class="form-control"
+                                           value="$!{configs.imageColor}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">线条粗细:</label>
+                                <div class="col-sm-8">
+                                    <input type="number" name="lineSize" placeholder="默认为1.5" class="form-control"
+                                           value="$!{configs.lineSize}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 top-10"></div>
+                        <div class="col-md-12 top-10"></div>
+                    </div>
+                    <div class="col-md-12 label-border">
+                        <span class="add-border">数据源公共配置</span>
+                        <div class="col-md-12 top-20"></div>
+                        <div class="col-md-12 top-10"></div>
+                        <div class="col-md-6" title="数据显示单位">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">数据单位:</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="units" placeholder="比如(个,MB,GB,%)" class="form-control"
+                                           value="$!{configs.units}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">数据类型:</label>
+                                <div class="col-sm-8">
+                                    <select name="imageDataTp" class="form-control">
+                                        <option value="">--请选择--</option>
+                                        <option value="sum">求和</option>
+                                        <option value="avg">平均</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 top-10"></div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">数据计算:</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="calc" placeholder="对原始数据计算(/1024/1024)" class="form-control"
+                                           value="$!{configs.calc}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">刷新间隔:</label>
+                                <div class="col-sm-8">
+                                    <input type="number" name="refreshInterval" placeholder="数据刷新间隔" class="form-control"
+                                           value="$!{configs.refreshInterval}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 top-10"></div>
+                        <div class="col-md-6" title="获取最近多少时间的数据">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">最近时间(毫秒):</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="lastTime" placeholder="最近时间的数据,不写为当天" class="form-control"
+                                           value="$!{configs.lastTime}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6" title="为图像添加报警基线">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">报警基线:</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="alarmBase" placeholder="默认为空,图像单独一条线"  class="form-control"
+                                           value="$!{configs.alarmBase}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 top-10"></div>
+                    </div>
+                    <div class="col-md-12 label-border">
+                        <span class="add-border">其他配置</span>
+                        <div class="col-md-12 top-20"></div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">描述信息:</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="description" class="form-control"
+                                           value="$!{configs.description}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 top-10"></div>
                     </div>
                 </form>
             </div>
-            <button style="margin-left: 84%;margin-top: 15px;margin-bottom: 10px;"
-                    onclick="saveConfig($!{configs.imageId});" class="btn btn-primary btn-lg"
-                    type="button">
-                <i class="fa fa-check"></i>&nbsp;保存
-            </button>
+            <div class="col-md-12"><p></p></div>
+            <div class="col-md-12"
+                 style="border: 1px solid #d0d0d0;margin-left: 0px;margin-right: 130px;margin-top: 1px;">
+                <span style="position:fixed;margin-top: 0px;margin-left: 25px;"></span>
+                <button style="margin-left: 70%;margin-top: 15px;margin-bottom: 10px;float:left;"
+                        onclick="saveConfig($!{configs.imageId});" class="btn btn-warning btn-lg"
+                        type="button">
+                    <i class="fa fa-line-chart"></i>&nbsp;预览
+                </button>
+                <button style="margin-left: 84%;margin-top: -56px;margin-bottom: 10px;float:left;"
+                        onclick="saveConfig($!{configs.imageId});" class="btn btn-primary btn-lg"
+                        type="button">
+                    <i class="fa fa-check"></i>&nbsp;保存
+                </button>
+                <div class="col-md-12"><p></p></div>
+            </div>
+            <div class="col-md-12"><p></p></div>
         </div>
     </div>
-</div>
-</div>
 </div>
 <script>
     function load_image_page(){
         $("#show_image_id").modal("toggle")
     }
     load_image_page()
+        #if(!${configs.graphId})
+        $("#width").val(6)
+        #end
+
+    // 图例显示
+    function legend_change(){
+        value = $("#lengendShow").val()
+        if(!value){
+            $("#lengendShow").val(1)
+            $("#lengendShow").prop("checked",true)
+            $("#show_legend_id").show()
+        }else{
+            $("#lengendShow").val("")
+        }
+        value = $("#lengendShow").val()
+        if(value == "1"){
+            $("#show_legend_id").show()
+
+        }else{
+            $("#show_legend_id").hide()
+        }
+    }
+
+    // 创建数据源
+    function create_data_source() {
+
+
+    }
 </script>

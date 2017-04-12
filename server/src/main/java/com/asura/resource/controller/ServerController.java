@@ -14,7 +14,6 @@ import com.asura.monitor.graph.entity.PushEntity;
 import com.asura.resource.entity.CmdbResourceCabinetEntity;
 import com.asura.resource.entity.CmdbResourceEntnameEntity;
 import com.asura.resource.entity.CmdbResourceGroupsEntity;
-import com.asura.resource.entity.CmdbResourceNetworkEntity;
 import com.asura.resource.entity.CmdbResourceOsTypeEntity;
 import com.asura.resource.entity.CmdbResourceServerEntity;
 import com.asura.resource.entity.CmdbResourceServerTypeEntity;
@@ -146,10 +145,6 @@ public class ServerController {
         PagingResult<CmdbResourceServiceEntity> services = serviceService.findAll(searchMap, pageBounds);
         model.addAttribute("service", services.getRows());
 
-        // vlan
-        // 服务类型
-        PagingResult<CmdbResourceNetworkEntity> networkEntityPagingResult = networkService.findAll(searchMap, pageBounds, "selectByAll");
-        model.addAttribute("vlans", networkEntityPagingResult.getRows());
         return model;
     }
 

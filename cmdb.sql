@@ -313,6 +313,7 @@ CREATE TABLE `cmdb_resource_network` (
   `create_time` bigint(20) DEFAULT NULL,
   `network_suffix` int(11) DEFAULT NULL COMMENT '后缀',
   `description` varchar(100) DEFAULT NULL COMMENT '描述信息',
+  `vlan` varchar(10) comment "网络所在vlan",
   PRIMARY KEY (`network_id`),
   UNIQUE KEY `idx_network_prefix` (`network_prefix`)
 ) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8;
@@ -1190,7 +1191,7 @@ CREATE TABLE `monitor_images_collection` (
 /**
 ** 增加
 **/
-alter table monitor_index_from_scripts modify index_name varchar(500) ;
+alter table monitor_index_from_scripts modify index_name varchar(200) ;
 
 create table monitor_cluster_configure 
 (cluster_id int primary key auto_increment ,
@@ -1226,36 +1227,6 @@ CREATE TABLE `monitor_top` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
-
-/**
-* 图像合并功能20170401
-**/
-CREATE TABLE `monitor_images_merger` (
-  `image_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `image_tp` varchar(20) DEFAULT NULL COMMENT '图像类型',
-  `image_left` int(11) DEFAULT NULL COMMENT '图像左面位置',
-  `image_top` int(11) DEFAULT NULL COMMENT '图像上面位置',
-  `image_to` varchar(10) DEFAULT NULL COMMENT '所属图像',
-  `is_grid` varchar(2) DEFAULT NULL COMMENT '是否显示网格',
-  `image_grid_size` varchar(10) DEFAULT NULL COMMENT '网格粗细',
-  `is_legend` varchar(2) DEFAULT NULL COMMENT '是否显示图例',
-  `image_legend_location` varchar(10) DEFAULT NULL COMMENT '图例位置',
-  `image_data_source` text COMMENT '数据源',
-  `image_data_tp` varchar(10) DEFAULT NULL COMMENT '数据类型',
-  `image_background_colr` varchar(10) DEFAULT NULL COMMENT '背景颜色',
-  `image_color` varchar(10) DEFAULT NULL COMMENT '图像颜色',
-  `image_name` varchar(200) DEFAULT NULL COMMENT '图像名称',
-  `image_line_size` varchar(2) DEFAULT NULL COMMENT '线条粗细',
-  `last_modify_time` varchar(32) DEFAULT NULL COMMENT '最近修改时间',
-  `last_modify_user` varchar(100) DEFAULT NULL COMMENT '最近修改用户',
-  `description` varchar(100) DEFAULT NULL COMMENT '描述信息',
-  `tilte` varchar(100) DEFAULT NULL COMMENT '图像title',
-  `images_width` varchar(10) DEFAULT NULL COMMENT '图像宽度',
-  `images_height` varchar(10) DEFAULT NULL COMMENT '图像高度',
-  `images_data_interval` varchar(10) DEFAULT NULL COMMENT '图像数据时长',
-  PRIMARY KEY (`image_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8
-
 /**
 * 2017-04-04 
 */
@@ -1265,5 +1236,31 @@ alter table cmdb_resource_network add gateway varchar(32) comment "网关地址"
 alter table cmdb_resource_network add nameserver varchar(100) comment "多个逗号分隔,最多3个";     
 alter table cmdb_resource_network add unique index idx_network_vlan(vlan);
 
+CREATE TABLE `monitor_graph_merger` (
+  `graph_id` int(11) NOT NULL AUTO_INCREMENT,
+  `groups` varchar(100) DEFAULT NULL COMMENT '图片组',
+  `names` text COMMENT '数据指标',
+  `ip` text COMMENT 'ip地址',
+  `title` varchar(200) DEFAULT NULL COMMENT '图像标题',
+  `shared` varchar(5) DEFAULT NULL COMMENT '是否共享鼠标移动线',
+  `lengend_show` varchar(10) DEFAULT NULL COMMENT '是否显示图例',
+  `units` varchar(10) DEFAULT NULL COMMENT '单位',
+  `alarm_base` varchar(20) DEFAULT NULL COMMENT '图像监控基础线',
+  `series_marker` varchar(5) DEFAULT NULL COMMENT '线条是否有标记点',
+  `width` varchar(2) DEFAULT NULL COMMENT '图像宽度',
+  `height` varchar(4) DEFAULT NULL COMMENT '图像高度',
+  `colors` varchar(1000) DEFAULT NULL COMMENT '图像颜色',
+  `refresh_interval` varchar(2) DEFAULT NULL COMMENT '刷新间隔',
+  `last_time` varchar(16) DEFAULT NULL COMMENT '最近时间毫秒',
+  `calc` varchar(100) DEFAULT NULL COMMENT '对数据进行处理公式, 20/20/20',
+  `ip_title` varchar(2) DEFAULT NULL COMMENT '是否在title显示IP地址',
+  `legend_align` varchar(10) DEFAULT NULL COMMENT '图例对齐方式',
+  `legend_layout` varchar(10) DEFAULT NULL COMMENT '图例布局,vertical|',
+  `last_modify_time` varchar(32) DEFAULT '2017-01:01 00:00:00',
+  `last_modify_user` varchar(32) DEFAULT NULL COMMENT '最近修改用户',
+  `description` varchar(62) DEFAULT NULL COMMENT '描述信息',
+  PRIMARY KEY (`graph_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 
 
 select "\n\n\n        友情提示:     \n\n请将你的数据库配置成utf8\n请修改mysql的配置文件永久生效\n数据库授权不要写成127.0.0.1的\n请对server的IP地址授权\n\n\n" as "";
+

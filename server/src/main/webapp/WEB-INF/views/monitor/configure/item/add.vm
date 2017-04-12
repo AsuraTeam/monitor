@@ -158,7 +158,7 @@
                 <br>
                 <div class="col-md-12" style="margin-top: 15px;">
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-6" title="默认监控是所有机器都跑的,如果不能在所有机器跑不要勾选">
                     <div class="form-group">
                         <label class="col-sm-4 control-label">是否默认监控:</label>
                         <div class="col-sm-4">
