@@ -26,6 +26,8 @@ import java.util.List;
 @Service("com.asura.monitor.graph.service.CmdbGraphQuartzService")
 public class CmdbGraphQuartzService extends BaseService<CmdbGraphQuartzEntity,CmdbGraphQuartzDao>{
 
+
+
     @Resource(name="com.asura.monitor.graph.dao.CmdbGraphQuartzDao")
     private CmdbGraphQuartzDao dao = new CmdbGraphQuartzDao();
 

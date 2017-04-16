@@ -147,12 +147,12 @@ public class FileWriter {
                 .append(separator)
                 .append(ip)
                 .append(separator)
-                .append( dateUtil.getDate("yyyy"))
-                .append(separator)
-                .append(dateUtil.getDate("MM"))
-                .append(separator)
-                .append(dateUtil.getDate("dd") )
-                .append(separator)
+//                .append( dateUtil.getDate("yyyy"))
+//                .append(separator)
+//                .append(dateUtil.getDate("MM"))
+//                .append(separator)
+//                .append(dateUtil.getDate("dd") )
+//                .append(separator)
                 .append(name);
 
         return file.toString();
@@ -174,12 +174,12 @@ public class FileWriter {
         }
 
         String content = DateUtil.dateToStamp(entity.getTime()) + " ";
-        if(entity.getMessages()!=null) {
+        if(entity.getMessages() != null) {
             content += "[" + entity.getMessages().replaceAll("(\r\n|\r|\n|\n\r)", "") + "]";
         }
         content = content.replaceAll("(\\r\\n|\\r|\\n|\\n\\r)", "");
         content = content.replaceAll("(\r\n|\r|\n|\n\r)", "");
-        writeFile(file, content, true);
+        writeFile(file, content, false);
     }
 
     /**

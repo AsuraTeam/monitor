@@ -1238,29 +1238,26 @@ alter table cmdb_resource_network add unique index idx_network_vlan(vlan);
 
 CREATE TABLE `monitor_graph_merger` (
   `graph_id` int(11) NOT NULL AUTO_INCREMENT,
-  `groups` varchar(100) DEFAULT NULL COMMENT '图片组',
-  `names` text COMMENT '数据指标',
-  `ip` text COMMENT 'ip地址',
-  `title` varchar(200) DEFAULT NULL COMMENT '图像标题',
-  `shared` varchar(5) DEFAULT NULL COMMENT '是否共享鼠标移动线',
-  `lengend_show` varchar(10) DEFAULT NULL COMMENT '是否显示图例',
-  `units` varchar(10) DEFAULT NULL COMMENT '单位',
-  `alarm_base` varchar(20) DEFAULT NULL COMMENT '图像监控基础线',
-  `series_marker` varchar(5) DEFAULT NULL COMMENT '线条是否有标记点',
-  `width` varchar(2) DEFAULT NULL COMMENT '图像宽度',
-  `height` varchar(4) DEFAULT NULL COMMENT '图像高度',
-  `colors` varchar(1000) DEFAULT NULL COMMENT '图像颜色',
-  `refresh_interval` varchar(2) DEFAULT NULL COMMENT '刷新间隔',
-  `last_time` varchar(16) DEFAULT NULL COMMENT '最近时间毫秒',
-  `calc` varchar(100) DEFAULT NULL COMMENT '对数据进行处理公式, 20/20/20',
-  `ip_title` varchar(2) DEFAULT NULL COMMENT '是否在title显示IP地址',
-  `legend_align` varchar(10) DEFAULT NULL COMMENT '图例对齐方式',
-  `legend_layout` varchar(10) DEFAULT NULL COMMENT '图例布局,vertical|',
   `last_modify_time` varchar(32) DEFAULT '2017-01:01 00:00:00',
   `last_modify_user` varchar(32) DEFAULT NULL COMMENT '最近修改用户',
   `description` varchar(62) DEFAULT NULL COMMENT '描述信息',
-  PRIMARY KEY (`graph_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 
+  `no` int(11) DEFAULT NULL COMMENT '',
+  `to_images` int(11) DEFAULT NULL COMMENT '',
+  `page` varchar(50) DEFAULT NULL COMMENT '图像名称',
+  `images_gson` text,
+  PRIMARY KEY (`graph_id`),
+  UNIQUE KEY `idx_merger_page` (`page`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+
+ CREATE TABLE `monitor_graph_template` (
+  `template_id` int(11) NOT NULL AUTO_INCREMENT,
+  `graph_ids` text COMMENT '图像ID',
+  `last_modify_time` varchar(32) DEFAULT '2017-01:01 00:00:00',
+  `description` varchar(62) DEFAULT NULL COMMENT '描述信息',
+  `last_modify_user` varchar(32) DEFAULT NULL COMMENT '最近修改用户',
+  PRIMARY KEY (`template_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8
+
 
 select "\n\n\n        友情提示:     \n\n请将你的数据库配置成utf8\n请修改mysql的配置文件永久生效\n数据库授权不要写成127.0.0.1的\n请对server的IP地址授权\n\n\n" as "";
 

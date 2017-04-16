@@ -4,111 +4,70 @@
      <sql id="baseSql">
         select 
             graph_id as graphId,
-            groups as groups,
-            names as names,
-            ip as ip,
-            title as title,
-            shared as shared,
-            lengend_show as lengendShow,
-            units as units,
-            alarm_base as alarmBase,
-            series_marker as seriesMarker,
-            width as width,
-            height as height,
-            colors as colors,
-            refresh_interval as refreshInterval,
-            last_time as lastTime,
-            calc as calc,
-            ip_title as ipTitle,
-            legend_align as legendAlign,
-            legend_layout as legendLayout,
             last_modify_time as lastModifyTime,
             last_modify_user as lastModifyUser,
-            description as description
+            description as description,
+            no as no,
+            to_images as toImages,
+            page as page,
+            images_gson as imagesGson
          from monitor_graph_merger 
      </sql>
+
+    <select id="selectImages" resultType="com.asura.monitor.graph.entity.MonitorGraphMergerEntity">
+         select
+            graph_id as graphId,
+            page as page
+          from monitor_graph_merger where 1=1
+        <if test="groupsId != null">
+            <foreach collection="groupsId" item="item" separator="," open="(" close=")"  index="index">
+                #{item}
+            </foreach>
+        </if>
+
+    </select>
+
     <select id="selectByAll" resultType="com.asura.monitor.graph.entity.MonitorGraphMergerEntity">
          <include refid="baseSql" />
      </select>
-      <select id="findById" resultType="com.asura.monitor.graph.entity.MonitorGraphMergerEntity">
+
+    <select id="findById" resultType="com.asura.monitor.graph.entity.MonitorGraphMergerEntity">
                    <include refid="baseSql" />
             where graph_id=#{graphId}       </select>
 
     <insert id="save" parameterType="com.asura.monitor.graph.entity.MonitorGraphMergerEntity">
         insert into monitor_graph_merger(
             graph_id,
-            groups,
-            names,
-            ip,
-            title,
-            shared,
-            lengend_show,
-            units,
-            alarm_base,
-            series_marker,
-            width,
-            height,
-            colors,
-            refresh_interval,
-            last_time,
-            calc,
-            ip_title,
-            legend_align,
-            legend_layout,
             last_modify_time,
             last_modify_user,
-            description
+            description,
+            no,
+            to_images,
+            page,
+            images_gson
         ) 
         values(        
             #{graphId},
-            #{groups},
-            #{names},
-            #{ip},
-            #{title},
-            #{shared},
-            #{lengendShow},
-            #{units},
-            #{alarmBase},
-            #{seriesMarker},
-            #{width},
-            #{height},
-            #{colors},
-            #{refreshInterval},
-            #{lastTime},
-            #{calc},
-            #{ipTitle},
-            #{legendAlign},
-            #{legendLayout},
             #{lastModifyTime},
             #{lastModifyUser},
-            #{description}
+            #{description},
+            #{no},
+            #{toImages},
+            #{page},
+            #{imagesGson}
         )
     </insert>
 
     <update id="update" parameterType="com.asura.monitor.graph.entity.MonitorGraphMergerEntity">
         update monitor_graph_merger set   
             graph_id=#{graphId},
-            groups=#{groups},
-            names=#{names},
-            ip=#{ip},
-            title=#{title},
-            shared=#{shared},
-            lengend_show=#{lengendShow},
-            units=#{units},
-            alarm_base=#{alarmBase},
-            series_marker=#{seriesMarker},
-            width=#{width},
-            height=#{height},
-            colors=#{colors},
-            refresh_interval=#{refreshInterval},
-            last_time=#{lastTime},
-            calc=#{calc},
-            ip_title=#{ipTitle},
-            legend_align=#{legendAlign},
-            legend_layout=#{legendLayout},
             last_modify_time=#{lastModifyTime},
             last_modify_user=#{lastModifyUser},
-            description=#{description}
+            description=#{description},
+            no=#{no},
+            to_images=#{toImages},
+            page=#{page},
+            images_gson=#{imagesGson}
          where graph_id=#{graphId}
     </update>
 

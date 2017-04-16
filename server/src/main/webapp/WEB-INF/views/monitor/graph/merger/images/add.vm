@@ -1,0 +1,571 @@
+<style>
+    .add-border {
+        z-index:99999;position:fixed;margin-top: -10px;margin-left: 25px;background-color:#ffffff;padding-left:10px;padding-right:10px;
+        font-size:16px;
+    }
+    .label-border {
+        border: 1px solid #d0d0d0;margin-left: 0px;margin-right: 130px;margin-top: 15px;
+    }
+    .top-10 {
+        margin:5px;
+    }
+    .top-20 {
+        margin:10px;
+    }
+</style>
+<textarea id="data_source_add_html" style="display:none;">
+     <div class="col-md-12 top-20"></div>
+     <div class="col-md-6">
+         <div class="form-group" title="格式为:组.指标名称cpu.system.cpu.iowait">
+             <label class="col-sm-4 control-label">数据源名称:</label>
+             <div class="col-sm-8">
+                 <input type="text" id="names_#id" name="names_#id" class="form-control" placeholder="cpu.system.cpu.iowait"
+                        value="$!{configs.names}">
+             </div>
+         </div>
+     </div>
+     <div class="col-md-6">
+         <div class="form-group">
+             <label class="col-sm-4 control-label">显示标识:</label>
+             <div class="col-sm-8">
+                 <div class="checkbox checkbox-warning checkbox-inline">
+                     <input type="checkbox" name="seriesMarker_#id" id="seriesMarker_#id"  onchange="change(this)"  value="">
+                     <label for="seriesMarker"></label>
+                 </div>
+             </div>
+         </div>
+     </div>
+     <div class="col-md-12 top-10"></div>
+     <div class="col-md-6">
+         <div class="form-group">
+             <label class="col-sm-4 control-label">线条颜色:</label>
+             <div class="col-sm-8">
+                 <input type="text" name="imageColor_#id" id="imageColor_#id"
+                        onchange="change_color($(this).val(), #id)" class="form-control" value="#color" style="width:50%;float:left;" >
+                 <span class="form-control" id="image_line_color_#id" style="background-color:#color;width:50%;float:left;">&nbsp;&nbsp;</span>
+             </div>
+         </div>
+     </div>
+     <div class="col-md-6">
+         <div class="form-group">
+             <label class="col-sm-4 control-label">线条粗细:</label>
+             <div class="col-sm-4">
+                 <input type="number" name="lineSize_#id" id="lineSize_#id" value="" placeholder="默认为1.5" class="form-control" >
+             </div>
+             <div class="col-sm-4">
+                        <button style="margin-left: -25px;margin-bottom: 10px;float:left;"
+                                onclick="delete_data_source(#id);" class="btn btn-danger btn-sm"
+                                type="button">
+                            <i class="fa fa-close"></i>&nbsp;&nbsp;&nbsp;&nbsp;删除
+                        </button>
+             </div>
+         </div>
+     </div>
+</textarea>
+<div class="modal fade" id="show_image_id" tabindex="-1"
+     role="dialog" style="background-color: #FfFfFf; margin-top: 16px;"
+     data-backdrop="false">
+    <div class="modal-dialog"
+         style="margin-top: 0px; width: 820px;">
+        <div class="modal-content1"
+             style="width: 100%;border:1px solid #d0d0d0;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title">&nbsp;&nbsp;图像组合配置 <code>(每次添加为一个页面中的一个图像)</code></h4>
+            </div>
+            <div class="animated fadeInRight">
+                <form>
+                    <div class="col-md-12 label-border">
+                        <span class="add-border">图像全局配置</span>
+                        <div class="col-md-12 top-20"></div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">集合名称:</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="page" class="form-control"  value="$!{imagesGson.get("page")}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 top-10"></div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">图像类型:</label>
+                                <div class="col-sm-8">
+                                    <select name="imageTp" class="form-control">
+                                        <option value="$!{imagesGson.get("imageIp")}"> $!{imagesGson.get("imageIp")}</option>
+                                        <option value="area">area</option>
+                                        <option value="line">line</option>
+                                        <option value="bar">bar</option>
+                                        <option value="pie">pie</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 top-10"></div>
+                    </div>
+                    <div class="col-md-12 label-border">
+                        <span class="add-border">图例配置</span>
+                        <div class="col-md-12 top-20"></div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">显示图例:</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox checkbox-warning checkbox-inline">
+                                        <input type="checkbox" name="lengendShow" id="lengendShow"
+                                               onchange="show_change('lengendShow', 'show_legend_id')"
+                                               value="#if($!{imagesGson.get("lengendShow")})$!{imagesGson.get("lengendShow")}#end">
+                                        <label for="lengendShow"></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6" style="#if(!$!{imagesGson.get("legendAlign")})display:none;#end" id="show_legend_id">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">图例位置:</label>
+                                <div class="col-sm-8">
+                                    <select name="legendAlign" id="legend_align" class="form-control">
+                                        <option value="$!{imagesGson.get("legendAlign")}"> $!{imagesGson.get("legendAlign")}</option>
+                                        <option value="top">上</option>
+                                        <option value="bottom">下</option>
+                                        <option value="right">右上</option>
+                                        <option value="avg">右侧</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 top-10"></div>
+                    </div>
+                    <div class="col-md-12 label-border">
+                        <span class="add-border">鼠标滑过显示</span>
+                        <div class="col-md-12 top-20"></div>
+                        <div class="col-md-6" title="鼠标移动到图像后,是否显示多个图例数据">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">提示共享:</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox checkbox-warning checkbox-inline">
+                                        <input type="checkbox" name="tooltipShared" id="tooltipShared"
+                                               onchange="change(this)"
+                                               value="#if($!{imagesGson.get("tooltipShared")})$!{imagesGson.get("tooltipShared")}#end">
+                                        <label for="tooltipShared"></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6" title="当鼠标移到线条时,线条变粗">
+                            <div class="form-group">
+                                <label class="col-sm-6 control-label">鼠标移过粗细(1-12):</label>
+                                <div class="col-sm-6">
+                                    <input type="number" name="lineStatesHoverLineWidth" class="form-control" id="lineStatesHoverLineWidth" max="12" min="1"
+                                           value="$!{imagesGson.get("lineStatesHoverLineWidth")}"">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 top-10"></div>
+                    </div>
+                    <div class="col-md-12 label-border">
+                        <span class="add-border">图像大小参数</span>
+                        <div class="col-md-12 top-20"></div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-6 control-label">图像高度(px,%):</label>
+                                <div class="col-sm-6">
+                                    <input type="text" name="height" class="form-control"
+                                           value="$!{imagesGson.get("height")}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-6 control-label">图像宽度(1-12):</label>
+                                <div class="col-sm-6">
+                                    <input type="number" name="width" class="form-control" id="width" max="12" min="2"
+                                           value="$!{imagesGson.get("width")}"">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 top-10"></div>
+                    </div>
+                    <div class="col-md-12 label-border">
+                        <span class="add-border">图像标题配置</span>
+                        <div class="col-md-12 top-20"></div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">标题:</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="title" class="form-control"
+                                           value="$!{imagesGson.get("title")}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">图像子标题:</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="subTitle" class="form-control"
+                                           value="$!{imagesGson.get("subTitle")}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 top-10"></div>
+                        <div class="col-md-6" title="标签添加IP地址">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">IP标题:</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox checkbox-warning checkbox-inline">
+                                        <input type="checkbox" name="ipTitle" id="ipTitle"
+                                               onchange="change(this)" #if( $!{imagesGson.get("ipTitle")} == "1" )
+                                               checked   #end
+                                               value="$!{imagesGson.get("ipTitle")}">
+                                        <label for="ipTitle"></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 top-10"></div>
+                    </div>
+                    <div class="col-md-12 label-border">
+                        <span class="add-border">数据源配置 最多10条</span>
+                        <div id="data_source_configure_id"></div>
+                        <button style="margin-left: 81%;margin-bottom: 10px;float:left;"
+                                onclick="create_data_source();" class="btn btn-primary btn-sm"
+                                type="button">
+                            <i class="fa fa-upload"></i><span style="margin-left:15px;">添加</span>
+                        </button>
+                    </div>
+                    <div class="col-md-12 label-border">
+                        <span class="add-border">数据源公共配置</span>
+                        <div class="col-md-12 top-20"></div>
+                        <div class="col-md-12 top-10"></div>
+                        <div class="col-md-6" title="数据显示单位">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">数据单位:</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="units" placeholder="比如(个,MB,GB,%)" class="form-control"
+                                           value="$!{imagesGson.get("units")}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">数据类型:</label>
+                                <div class="col-sm-8">
+                                    <select name="imageDataTp" class="form-control">
+                                        <option  value="$!{imagesGson.get("imageDataTp")}"> $!{imagesGson.get("imageDataTp")}</option>
+                                        <option value="sum">求和</option>
+                                        <option value="avg">平均</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 top-10"></div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">数据计算:</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="calc" placeholder="对原始数据计算(/1024/1024)" class="form-control"
+                                           value="$!{imagesGson.get("calc")}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">刷新间隔(毫秒):</label>
+                                <div class="col-sm-8">
+                                    <input type="number" name="refreshInterval" id="refreshInterval" placeholder="数据刷新间隔" class="form-control"
+                                           value="$!{imagesGson.get("refreshInterval")}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 top-10"></div>
+                        <div class="col-md-6" title="获取最近多少时间的数据">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">最近时间(毫秒):</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="lastTime" id="lastTime" placeholder="最近时间的数据,不写为当天" class="form-control"
+                                           value="$!{imagesGson.get("lastTime")}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 top-10"></div>
+                    </div>
+                    <div class="col-md-12 label-border">
+                        <span class="add-border">报警基线配置</span>
+                        <div class="col-md-12 top-20"></div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">显示基线:</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox checkbox-warning checkbox-inline">
+                                        <input type="checkbox" name="baselineShow" id="baselineShow"
+                                               onchange="show_change('baselineShow', 'alarm_base_html_id')"  #if( $!{imagesGson.get("baselineShow")} == "1" )
+                                               checked   #end
+                                               value="$!{imagesGson.get("baselineShow")}">
+                                        <label for="baselineShow"></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="alarm_base_html_id" style="display:none;">
+                            <div class="col-md-6" title="为图像添加报警基线">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">报警基线上限:</label>
+                                    <div class="col-sm-8">
+                                        <input type="number" name="alarmBase" placeholder="默认为空,图像单独一条线"  class="form-control"
+                                               value="$!{imagesGson.get("alarmBase")}">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12 top-10"></div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">线条颜色:</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" name="alarmBaseColor" onchange="change_color($(this).val(), 'base_line')" class="form-control" value="red" style="width:50%;float:left;"
+                                               value="$!{imagesGson.get("alarmBaseColor")}">
+                                        <span class="form-control" id="image_line_color_base_line" style="background-color:red;width:50%;float:left;">&nbsp;&nbsp;</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">线条粗细:</label>
+                                    <div class="col-sm-8">
+                                        <input type="number" name="baseLineSize" value="1.5" placeholder="默认为1.5" class="form-control"
+                                               value="$!{imagesGson.get("baseLineSize")}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 top-10"></div>
+                    </div>
+                    <div class="col-md-12 label-border">
+                        <span class="add-border">其他配置</span>
+                        <div class="col-md-12 top-20"></div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">描述信息:</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="description" class="form-control"
+                                           value="$!{imagesGson.get("description")}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 top-10"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-12"><p></p></div>
+            <div class="col-md-12"
+                 style="border: 1px solid #d0d0d0;margin-left: 0px;margin-right: 130px;margin-top: 1px;">
+                <span style="position:fixed;margin-top: 0px;margin-left: 25px;"></span>
+                <button style="margin-left: 70%;margin-top: 15px;margin-bottom: 10px;float:left;"
+                        onclick="saveConfig($!{configs.imageId});" class="btn btn-warning btn-lg"
+                        type="button">
+                    <i class="fa fa-line-chart"></i>&nbsp;预览
+                </button>
+                <button style="margin-left: 84%;margin-top: -56px;margin-bottom: 10px;float:left;"
+                        onclick="saveConfig($!{configs.graphId});" class="btn btn-primary btn-lg"
+                        type="button">
+                    <i class="fa fa-check"></i>&nbsp;保存
+                </button>
+                <div class="col-md-12"><p></p></div>
+            </div>
+            <div class="col-md-12"><p></p></div>
+        </div>
+    </div>
+</div>
+<script>
+    function load_image_page(){
+        $("#show_image_id").modal("toggle")
+    }
+    load_image_page()
+    function change(obj) {
+        if($(obj).val()){
+            $(obj).val("")
+            $(obj).prop("checked", false)
+        }else{
+            $(obj).val("1")
+            $(obj).prop("checked",true)
+        }
+    }
+    #if(!${configs.graphId})
+          $("#width").val(6)
+          $("#lineStatesHoverLineWidth").val(1.6)
+          $("#refreshInterval").val(30000)
+          $("#lastTime").val(1000 * 60 * 60 * 4)
+    #end
+
+    // 图例显示
+    function show_change(id, html_id){
+        value = $("#"+id).val()
+        if(!value){
+            $("#"+id).val(1)
+            $("#"+id).prop("checked",true)
+            $("#"+html_id).show()
+        }else{
+            $("#"+id).val("")
+        }
+        value = $("#"+id).val()
+        if(value == "1"){
+            $("#"+html_id).show()
+
+        }else{
+            $("#"+html_id).hide()
+        }
+    }
+
+    function replace(html, id){
+        colors = ['','#fAB839', '#A5F78F', '#E26742', '#83CEDA','#ff0066', '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee', '#2b908f', '#90ee7e']
+        html = html.replace(/数据源名称/, "数据源名称 "+id)
+        html = html.replace(/#color/g, colors[id])
+        html = html.replace(/#id/g, id)
+        html = html.replace(/names_id/, "names_"+id)
+        html = html.replace(/imageColor_id/, "imageColor"+id)
+        html = html.replace(/seriesMarker_id/, "seriesMarker_"+id)
+        htmls = "<div id='data_source_add_html_"+id+"'>" + html + "</div>"
+        return htmls
+    }
+
+    function change_color(value, id){
+        $("#image_line_color_"+id).css("background-color", value)
+    }
+
+    // 创建数据源
+    function create_data_source(){
+        new_html = $("#data_source_add_html").val()
+        for(i=1; i < 11; i++){
+            if($("#data_source_add_html_"+i).html()){
+                continue
+            }else{
+                htmls = replace(new_html, i)
+                $("#data_source_configure_id").append(htmls)
+                break;
+            }
+        }
+    }
+
+    #if(${configs.graphId})
+        if("$!{imagesGson.get("lengendShow")}" == "1"){
+            $("#lengendShow").prop("checked", true);
+        }
+        if("$!{imagesGson.get("tooltipShared")}" == "1") {
+           $("#tooltipShared").prop("checked", true);
+        }
+        i = 1
+        new_html = $("#data_source_add_html").val()
+            #foreach($name in $names)
+            htmls = replace(new_html, i)
+            v = "$name"
+            if(v){
+                $("#data_source_configure_id").append(htmls)
+                $("#names_"+i).val("$name")
+                i+= 1;
+            }
+            #end
+            i = 1;
+            #foreach($color in $colors)
+               $("#imageColor_"+i).val("$color")
+                $("#image_line_color_"+i).css("background-color", "$color");
+                i+=1;
+            #end
+            i = 1;
+            #foreach($size in $sizes)
+                   $("#lineSize_"+i).val(parseFloat("$size"))
+                   i += 1;
+            #end
+            i = 1;
+            #foreach($marker in $seriesMarkers)
+                if("$marker"){
+                    $("#seriesMarker_"+i).prop("checked", true);
+                    $("#seriesMarker_"+i).val("$marker")
+                }else{
+                    $("#seriesMarker_"+i).prop("checked", false)
+                    $("#seriesMarker_"+i).val("")
+                }
+                i += 1
+            #end
+     #end
+
+    function delete_data_source(id){
+        $("#data_source_add_html_"+id).remove();
+
+    }
+
+    is_conf = $("#data_source_configure_id").html()
+    if(!is_conf){
+        create_data_source()
+    }
+
+    function saveConfig(graphId){
+        data = get_form_data();
+        if(!graphId){
+            graphId = 0
+        }
+
+        if(!data["height"]){
+            data["height"] = "250px;"
+        }
+
+        if(!data["width"]){
+            data["width"] = "6"
+        }
+
+        name = ""
+        color = ""
+        size = ""
+        seriesMarker = ""
+        for(id=1; id<11; id++){
+            n = $("#names_"+id).val()
+            if(n){
+                name += n +","
+                color += $("#imageColor_"+id).val() +","
+                size += $("#lineSize_"+id).val() + ","
+                seriesMarker += $("#seriesMarker_"+id).val() +","
+                delete data["names_"+id]
+                delete data["lineSize_"+id]
+                delete data["imageColor_"+id]
+                delete data["seriesMarker_"+id]
+            }
+        }
+
+        data["name"] = name
+        data["color"] = color
+        data["size"] = size
+        data["seriesMarker"] = seriesMarker
+
+        if(!data["imageDataTp"]){ }
+
+        if(!data["imageTp"]){
+            data["imageTp"] = "line"
+        }
+
+
+        if(!data["lengendShow"] || data["lengendShow"] != "1"){
+            data["legendAlign"] = ""
+        }
+
+        if(!data["baselineShow"] || data["baselineShow"] != "1"){
+            data["alarmBase"] = ""
+            data["baseLineSize"] = ""
+            data["alarmBaseColor"] = ""
+        }
+
+        if(!data["page"]){ }
+        if(!data["toImages"]){ }
+
+
+        if(!data["description"]){
+            parent.layer.msg("描述信息必须填写",  {icon:2})
+            return
+        }
+        url = "/monitor/"+site+"/save";
+        post_data = JSON.stringify(data)
+        result = post({data:post_data, graphId: graphId}, url);
+        parent.layer.msg(JSON.stringify(result),  {icon:1});
+        $('#listTable').dataTable().fnReloadAjax();
+    }
+
+
+</script>

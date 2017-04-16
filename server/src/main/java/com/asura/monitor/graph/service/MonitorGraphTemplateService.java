@@ -1,7 +1,7 @@
 package com.asura.monitor.graph.service;
 import com.asura.common.service.BaseService;
-import com.asura.monitor.graph.entity.MonitorGraphMergerEntity;
-import com.asura.monitor.graph.dao.MonitorGraphMergerDao;
+import com.asura.monitor.graph.entity.MonitorGraphTemplateEntity;
+import com.asura.monitor.graph.dao.MonitorGraphTemplateDao;
 import org.springframework.stereotype.Service;
 import com.asura.framework.base.paging.PagingResult;
 import com.asura.framework.base.paging.SearchMap;
@@ -22,20 +22,20 @@ import javax.annotation.Resource;
  *
  * @author zhaozq14
  * @version 1.0
- * @date 2017-04-15 18:54:18
+ * @date 2017-04-16 13:52:16
  * @since 1.0
  */
-@Service("com.asura.monitor.graph.service.MonitorGraphMergerService")
-public class MonitorGraphMergerService extends BaseService<MonitorGraphMergerEntity,MonitorGraphMergerDao>{
+@Service("com.asura.monitor.graph.service.MonitorGraphTemplateService")
+public class MonitorGraphTemplateService extends BaseService<MonitorGraphTemplateEntity,MonitorGraphTemplateDao>{
 
-    @Resource(name="com.asura.monitor.graph.dao.MonitorGraphMergerDao")
-    private MonitorGraphMergerDao dao;
+    @Resource(name="com.asura.monitor.graph.dao.MonitorGraphTemplateDao")
+    private MonitorGraphTemplateDao dao;
     /**
      * @param searchMap
      * @param pageBounds
      * @return
      */
-    public PagingResult<MonitorGraphMergerEntity> findAll(SearchMap searchMap, PageBounds pageBounds, String sqlId) {
+    public PagingResult<MonitorGraphTemplateEntity> findAll(SearchMap searchMap, PageBounds pageBounds, String sqlId) {
         return dao.findAll(searchMap, pageBounds, sqlId);
     }
 }

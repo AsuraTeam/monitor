@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.monitor.graph.dao.CmdbGraphQuartzDao">
+    <select id="selectByAll" resultType="com.asura.monitor.graph.entity.CmdbGraphQuartzEntity">
+        select 
+            name as name,
+            ip_address as ipAddress,
+            create_time as createTime
+         from cmdb_graph_quartz
+        <where>
+            <if test="name !=null">
+               name=#{name}
+            </if>
+        </where>
+
+        </select>
+    
+
+
+    <insert id="save" parameterType="com.asura.monitor.graph.entity.CmdbGraphQuartzEntity">
+        insert into cmdb_graph_quartz(
+            name,
+            ip_address,
+            create_time
+        ) 
+        values(        
+            #{name},
+            #{ipAddress},
+            #{createTime}
+        )
+    </insert>
+
+    <delete id="delete" parameterType="com.asura.monitor.graph.entity.CmdbGraphQuartzEntity">
+        delete from  cmdb_graph_quartz
+         where name=#{name}
+    </delete>
+
+</mapper>
+

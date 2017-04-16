@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.monitor.graph.dao.MonitorGraphTemplateDao">
+     <sql id="baseSql">
+        select 
+            template_id as templateId,
+            graph_ids as graphIds,
+            last_modify_time as lastModifyTime,
+            description as description,
+            last_modify_user as lastModifyUser,
+            page as page
+         from monitor_graph_template 
+     </sql>
+    <select id="selectByAll" resultType="com.asura.monitor.graph.entity.MonitorGraphTemplateEntity">
+         <include refid="baseSql" />
+     </select>
+      <select id="findById" resultType="com.asura.monitor.graph.entity.MonitorGraphTemplateEntity">
+                   <include refid="baseSql" />
+            where template_id=#{templateId}       </select>
+
+    <insert id="save" parameterType="com.asura.monitor.graph.entity.MonitorGraphTemplateEntity">
+        insert into monitor_graph_template(
+            template_id,
+            graph_ids,
+            last_modify_time,
+            description,
+            last_modify_user,
+            page
+        ) 
+        values(        
+            #{templateId},
+            #{graphIds},
+            #{lastModifyTime},
+            #{description},
+            #{lastModifyUser},
+            #{page}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.monitor.graph.entity.MonitorGraphTemplateEntity">
+        update monitor_graph_template set   
+            template_id=#{templateId},
+            graph_ids=#{graphIds},
+            last_modify_time=#{lastModifyTime},
+            description=#{description},
+            last_modify_user=#{lastModifyUser},
+            page=#{page}
+         where template_id=#{templateId}
+    </update>
+
+    <delete id="delete" parameterType="com.asura.monitor.graph.entity.MonitorGraphTemplateEntity">
+        delete from monitor_graph_template where template_id=#{templateId}
+    </delete>
+
+</mapper>
+
