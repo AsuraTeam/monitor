@@ -45,7 +45,7 @@ public class GetDataThread extends Thread{
      */
     public  ArrayList exec() {
         try {
-            String result = CommandUtil.runScript(script, 10);
+            String result = CommandUtil.runScript(script, 10, null);
             // 判断是数组还是单个对象
             if (result.startsWith("[")) {
                 Type type = new TypeToken<ArrayList<PushEntity>>() {

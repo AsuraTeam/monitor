@@ -16,6 +16,7 @@ import com.asura.agent.entity.MonitorTemplateEntity;
 import com.asura.agent.entity.PushEntity;
 import com.asura.agent.monitor.AgentMonitor;
 import com.asura.agent.monitor.AgentSystemInfo;
+import com.asura.agent.thread.RunScriptThread;
 import com.asura.agent.util.Base64Util;
 import com.asura.agent.util.CommandUtil;
 import com.asura.agent.util.DateUtil;
@@ -26,6 +27,7 @@ import com.asura.agent.util.MonitorUtil;
 import com.asura.agent.util.RedisUtil;
 import com.asura.agent.util.SocketSendUtil;
 import com.asura.agent.util.network.Ping;
+import org.apache.ibatis.executor.ExecutorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -36,14 +38,9 @@ import org.springframework.web.bind.annotation.RestController;
 import redis.clients.jedis.Jedis;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Random;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedTransferQueue;
 
 import static com.asura.agent.conf.MonitorCacheConfig.cacheContactGroupKey;
@@ -86,15 +83,17 @@ import static com.asura.agent.util.RedisUtil.app;
  *          20170215 修改监控配置丢失报错
  *          20170218 添加对执行脚本时间的限制，防止卡死程序耗尽资源
  *          20170223 添加agent检查ping时添加hostname功能
+ *          20170426 agent数据上报错误修改
+ *          20170426 agent监控多线程支持
  */
 @RestController
 @EnableAutoConfiguration
 public class MonitorController {
 
     // 版本号
-    private final String VERSION = "1.0.0.9";
+    private final String VERSION = "1.0.0.10";
 
-    private final Logger logger = LoggerFactory.getLogger(MonitorController.class);
+    private static final Logger logger = LoggerFactory.getLogger(MonitorController.class);
 
     private static RedisUtil redisUtil;
     private static Gson gson;
@@ -196,6 +195,9 @@ public class MonitorController {
     // 存放是否打开Debug
     private static boolean isDebug = false;
 
+    private static   ExecutorService executor ;
+    private static int threadPoolNumber ;
+
 
     /**
      * 初始化系统变量
@@ -260,7 +262,7 @@ public class MonitorController {
     /**
      * @param messages
      */
-    void info(String messages) {
+    static void info(String messages) {
         if (messages != null) {
             logger.info(messages);
         }
@@ -283,7 +285,7 @@ public class MonitorController {
      *
      * @return
      */
-    String getHostId(String ip) {
+    static String getHostId(String ip) {
         ip = ip.replace(",", "");
         ip = ip.replace("'", "");
         ip = ip.replace("\"", "");
@@ -435,7 +437,7 @@ public class MonitorController {
      *
      * @return
      */
-    String getServerId(PushEntity pushEntity) {
+    static String getServerId(PushEntity pushEntity) {
         if (pushEntity.getIp() == null) {
             return getHosts();
         }
@@ -578,12 +580,12 @@ public class MonitorController {
      * 检查是否有脚本要执行
      * 每5秒检查一次
      */
-    @Scheduled(cron = "0/5 * * * * ?")
+    @Scheduled(cron = "0/1 * * * * ?")
     void checkExecScript() throws Exception {
+        info(isDebug ? "cron 启动任务计划 " + DateUtil.getCurrTime(): null);
         if (!IS_MONITOR) {
             return;
         }
-        Random random = new Random();
 
         // 检查是否初始化过
         if (INIT_TIME == 0) {
@@ -593,14 +595,7 @@ public class MonitorController {
             initMonitor();
         }
         // 防止重复执行
-        int sleep = random.nextInt(10) * 300;
-        Thread.sleep(sleep);
-        if (MONITOR_LOCK.containsKey("locked") && DateUtil.getCurrTime() - MONITOR_LOCK.get("locked") < 20) {
-            info(isDebug ? "MONITOR IS LOCK .... " : null);
-            return;
-        } else {
-            MONITOR_LOCK.remove("locked");
-        }
+
 
         // 如果没有开启监控，则不执行任何东西
         if (!IS_MONITOR) {
@@ -614,22 +609,31 @@ public class MonitorController {
             initMonitor();
             return;
         }
-        MONITOR_LOCK.put("locked", DateUtil.getCurrTime());
-        ArrayList<PushEntity> success = new ArrayList<>();
-        ArrayList<PushEntity> faild = new ArrayList<>();
-        info(isDebug ? "SCRIPT_TIME " + gson.toJson(SCRIPT_TIME) : null);
-        for (String time : SCRIPT_TIME) {
-            info(isDebug ? "String time " + time : null);
-            runScript(time, success, faild);
+        RunScriptThread runScriptThread = new RunScriptThread(isDebug, SCRIPT_TIME);
+        if (executor == null){
+            threadPoolNumber = 50;
+            executor = Executors.newFixedThreadPool(threadPoolNumber);
         }
-        if (faild.size() > 0) {
-            logger.info("获取到失败状态".concat(gson.toJson(faild)).concat(faildApiUrl) );
-            pushMonitor(faild, faildApiUrl, false);
+        try {
+            executor.execute(runScriptThread);
+        }catch (Exception e){
+            logger.info("线程池失败扩大线程池");
+            executor = Executors.newFixedThreadPool(threadPoolNumber * 2);
         }
-        if (success.size() > 0) {
-            pushMonitor(success, successApiUrl, true);
-        }
-        MONITOR_LOCK.remove("locked");
+//        ArrayList<PushEntity> success = new ArrayList<>();
+//        ArrayList<PushEntity> faild = new ArrayList<>();
+//        info(isDebug ? "SCRIPT_TIME " + gson.toJson(SCRIPT_TIME) : null);
+//        for (String time : SCRIPT_TIME) {
+//            info(isDebug ? "String time " + time : null);
+//            runScript(time, success, faild);
+//        }
+//        if (faild.size() > 0) {
+//            logger.info("获取到失败状态".concat(gson.toJson(faild)).concat(faildApiUrl) );
+//            pushMonitor(faild, faildApiUrl, false);
+//        }
+//        if (success.size() > 0) {
+//            pushMonitor(success, successApiUrl, true);
+//        }
     }
 
     /**
@@ -637,7 +641,7 @@ public class MonitorController {
      *
      * @param id
      */
-    void removeMap(String id) {
+   static void removeMap(String id) {
         Iterator<String> iterator = ALARM_MAP.keySet().iterator();
         while (iterator.hasNext()) {
             String key = iterator.next();
@@ -913,7 +917,6 @@ public class MonitorController {
         if (entity != null) {
             int scriptId = Integer.valueOf(entity.getScriptId());
             int status = Integer.valueOf(entity.getStatus());
-
             info(isDebug ? "开始设置队列啦 " + entity.getConfigId() + "_" + scriptId + " " + status : null);
             pushMessages(scriptId, status, entity);
         }
@@ -1189,7 +1192,12 @@ public class MonitorController {
         String host;
         int count = 0;
         info(isDebug ? "hostList: " + gson.toJson(hostList) : null);
+        boolean skip = false;
         for (String date : getHostStatus(hostList, false)) {
+            if (skip){
+                info(isDebug ? "跳出agent检查 "  : null);
+                continue;
+            }
             host = hostList.get(count);
             count += 1;
             info(isDebug ? host + " " + date : null);
@@ -1226,7 +1234,8 @@ public class MonitorController {
                 logger.info("检查到agent失败了，开始检查ping");
                 sendAgentAlarm(host);
                 // 每次就检查一个报错
-                break;
+                skip = true;
+                continue;
             } else {
                 info(isDebug ? "set is ok " + host : null);
                 okMap.put(host, date);
@@ -1794,7 +1803,7 @@ public class MonitorController {
      *
      * @return
      */
-    String getHosts() {
+    static String getHosts() {
         if (HOST_IDS != null) {
             return HOST_IDS;
         }
@@ -1806,7 +1815,7 @@ public class MonitorController {
      * @param id
      * @return
      */
-    Integer getTimeout(String id){
+    static Integer getTimeout(String id){
         info(isDebug ? "开始获取到超时时间; 脚本id "  + id : null);
         MonitorScriptsEntity entity = SCRIPT_CONFIGS.get(id);
         if (entity != null && entity.getTimeOut() != null && entity.getTimeOut().length() > 0 ){
@@ -1827,6 +1836,7 @@ public class MonitorController {
         return 8;
     }
 
+
     /**
      * 运行时间
      *
@@ -1834,7 +1844,7 @@ public class MonitorController {
      * @param success
      * @param faild
      */
-    void runScript(String time, ArrayList<PushEntity> success, ArrayList<PushEntity> faild) {
+    public static void runScript(String time, ArrayList<PushEntity> success, ArrayList<PushEntity> faild) {
         String command;
         List<PushEntity> entitys;
         HashSet<String> scriptTime;
@@ -1843,6 +1853,8 @@ public class MonitorController {
 
         info(isDebug ? "runScript " + time + " " + gson.toJson(SCRIPT_TIME_MAP) : null);
         scriptTime = SCRIPT_TIME_MAP.get(time);
+        String lockKey ;
+        Long checkInterval ;
         for (String id : scriptTime) {
             String[] ids = id.split("_");
             String s = ids[1];
@@ -1854,14 +1866,30 @@ public class MonitorController {
             }
             long nowTime = DateUtil.getCurrTime();
 
+            checkInterval = Long.valueOf(SCRIPT_CHECK_INTERVAL.get(id));
+            lockKey = "locked".concat(id);
             info(isDebug ? "获取配置文件信息" + ids[0] : null);
+            if ((nowTime - lastTime) >= checkInterval - 1 ) {
+                if (MONITOR_LOCK.containsKey(lockKey) ) {
+                    info(isDebug ? "MONITOR IS LOCK ....  ".concat(id) +" " + MONITOR_LOCK.get(lockKey): null);
+                    continue;
+                }else{
+                    info(isDebug ? time.concat(" 添加锁 .... ".concat(id)): null);
+                    MONITOR_LOCK.put(lockKey, nowTime);
+                }
 
-            if ((nowTime - lastTime) >= Integer.valueOf(SCRIPT_CHECK_INTERVAL.get(id))) {
+                if(MONITOR_LOCK.containsKey(lockKey) && (nowTime - MONITOR_LOCK.get(lockKey)) >= (checkInterval * 2)) {
+                    info(isDebug ? time.concat(" 锁时间超过删除锁 .... ".concat(id)): null);
+                    MONITOR_LOCK.remove(lockKey);
+                }
+
                 info(isDebug ? "SCRIPT_RUNTIME put " + id : null);
                 SCRIPT_RUNTIME.put(id, DateUtil.getCurrTime());
                 command = tempDir + s + SCRIPT_ARGV.get(id);
                 info(isDebug ? "start exec script " + command : null);
                 entitys = run(command, getTimeout(s));
+                info(isDebug ? time.concat(" 脚本完成删除锁 .... ".concat(id)): null);
+                MONITOR_LOCK.remove(lockKey);
                 if (entitys == null) {
                     logger.info("执行脚本失败" + command);
                     continue;
@@ -1914,12 +1942,10 @@ public class MonitorController {
                                             if (monitorItemEntity.getIsRecover() == 1) {
                                                 queue.add(entity);
                                                 info(isDebug ? "添加恢复报警到队列啦...1" : null);
-
                                             }
                                         } else {
                                             queue.add(entity);
                                             info(isDebug ? "添加恢复报警到队列啦...2" : null);
-
                                         }
                                     } else {
                                         logger.info("恢复时间太短,跳出恢复报警...");
@@ -1955,7 +1981,7 @@ public class MonitorController {
      * @param type
      * @param ids
      */
-    void setAlarmMap(String type, String ids) {
+    static void setAlarmMap(String type, String ids) {
         String id = ids + "_" + type;
         int old = 0;
         if (ALARM_MAP.containsKey(id)) {
@@ -1980,7 +2006,7 @@ public class MonitorController {
     /**
      * @return
      */
-    int getAlarmCount(String id) {
+    static int getAlarmCount(String id) {
         if (ALARM_COUNT.get(id) == null) {
             ALARM_COUNT.put(id, 0);
         }
@@ -1994,7 +2020,7 @@ public class MonitorController {
      *
      * @return
      */
-    boolean getAlarmStatus(String id) {
+    static boolean getAlarmStatus(String id) {
         if (getAlarmCount(id) > 1) {
             return true;
         }
@@ -2005,7 +2031,7 @@ public class MonitorController {
      * @param url
      * @param data
      */
-    void pushData(String url, String data) {
+   static void pushData(String url, String data) {
         info(HttpSendUtil.sendPost(url,"lentity=" + Base64Util.encode(data)));
     }
 
@@ -2014,7 +2040,7 @@ public class MonitorController {
      *
      * @param entity
      */
-    void pushMonitor(ArrayList<PushEntity> entity, String url, boolean status) {
+    public static void pushMonitor(ArrayList<PushEntity> entity, String url, boolean status) {
         ArrayList ok = new ArrayList();
         ArrayList faild = new ArrayList();
         ArrayList unknown = new ArrayList();
@@ -2386,9 +2412,9 @@ public class MonitorController {
      *
      * @return
      */
-    String runScript(String command, int timeOut) {
+    static String runScript(String command, int timeOut) {
         info(isDebug ? "执行脚本超时时间为 " + timeOut : null);
-        return CommandUtil.runScript(command, timeOut);
+        return CommandUtil.runScript(command, timeOut, executor);
     }
 
     /**
@@ -2398,8 +2424,8 @@ public class MonitorController {
      *
      * @return
      */
-    List<PushEntity> run(String command, int timeOut) {
-        String result = "";
+    static List<PushEntity> run(String command, int timeOut) {
+        String result;
         try {
             result = runScript(command, timeOut);
             Type type = new TypeToken<ArrayList<PushEntity>>() {
@@ -2421,7 +2447,7 @@ public class MonitorController {
      *
      * @return
      */
-    Map<String, String> clearExpiredMap(Map<String, String> dataMap) {
+    static Map<String, String> clearExpiredMap(Map<String, String> dataMap) {
         if (dataMap == null) {
             return new HashMap<>();
         }
@@ -2444,7 +2470,7 @@ public class MonitorController {
      * @param type
      * @param ids
      */
-    void setGroupsData(String type, ArrayList<String> ids) {
+    static void setGroupsData(String type, ArrayList<String> ids) {
         String result = redisUtil.get(MonitorCacheConfig.cacheHostStatusMap.concat(HOST_IDS));
         Map<String, String> redisData = new HashMap<>();
         Map<String, String> okData = new HashMap<>();

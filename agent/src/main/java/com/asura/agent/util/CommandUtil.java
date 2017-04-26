@@ -12,6 +12,8 @@ import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 
 import static org.aspectj.bridge.MessageUtil.info;
 
@@ -96,10 +98,14 @@ public class CommandUtil {
      *
      * @return
      */
-    public static String runScript(String command, int timeOut) {
+    public static String runScript(String command, int timeOut, ExecutorService executor) {
         List<String> list = new ArrayList();
         RunCmdThread thread = new RunCmdThread(command, list);
-        thread.start();
+        if (executor != null) {
+            executor.execute(thread);
+        }else{
+            thread.start();
+        }
         long start = System.currentTimeMillis() / 1000;
         while (1 == 1) {
             if (list.size() > 0) {

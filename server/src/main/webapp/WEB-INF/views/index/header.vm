@@ -93,6 +93,17 @@
                         </li>
                         <li><a href="/monitor/cluster/list">集群监控配置</a>
                         </li>
+                        <li class="dir"><a href="">监控展示</a>
+                            <ul>
+                                <li><a href="/monitor/graph/merger/images/list">监控图像配置</a>
+                                </li>
+                                <li><a href="/monitor/graph/merger/template/list">图像模板配置</a>
+                                </li>
+                                <li><a href="/monitor/graph/auto/play/list">自动播放配置</a>
+                                </li>
+                            </ul>
+                        </li>
+
                     </ul>
                 </li>
                 <li class="dropdown-toggle">
