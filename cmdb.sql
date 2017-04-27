@@ -1259,7 +1259,7 @@ DROP TABLE IF EXISTS `monitor_graph_template`;
   `last_modify_user` varchar(32) DEFAULT NULL COMMENT '最近修改用户',
   `gson_data` text DEFAULT NULL COMMENT '模板数据',
   PRIMARY KEY (`template_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 
 DROP TABLE IF EXISTS `monitor_graph_auto_play`;
@@ -1271,13 +1271,13 @@ DROP TABLE IF EXISTS `monitor_graph_auto_play`;
   `description` varchar(62) DEFAULT NULL COMMENT '描述信息',
   `intervals` int(11) DEFAULT NULL COMMENT '刷新间隔',
   PRIMARY KEY (`play_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
 
 
 CREATE TABLE `cmdb_graph_quartz` (
   `name` varchar(200) DEFAULT NULL COMMENT '只要名字在，就不执行，等于一个锁',
   `ip_address` varchar(32) DEFAULT NULL COMMENT '哪个ip地址添加的',
   `create_time` bigint(20) DEFAULT NULL COMMENT '添加时间'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 select "\n\n\n        友情提示:     \n\n请将你的数据库配置成utf8\n请修改mysql的配置文件永久生效\n数据库授权不要写成127.0.0.1的\n请对server的IP地址授权\n\n\n" as "";
 
