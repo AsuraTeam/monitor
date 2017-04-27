@@ -46,6 +46,9 @@ public class MonitorUtil {
      * @param messages
      */
     public static void info(String messages) {
+        if (null == messages){
+            return;
+        }
         if (Configure.get("DEBUG").equals("true")) {
             logger.info(messages);
         }

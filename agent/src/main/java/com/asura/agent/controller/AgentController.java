@@ -53,16 +53,17 @@ public class AgentController {
 
     private static Runtime runtime = Runtime.getRuntime();
 
-    private boolean isR ;
+    private boolean isR;
 
 
     /**
      * 列出已有的脚本名称
+     *
      * @return
      */
-    @RequestMapping(value="/api/list")
+    @RequestMapping(value = "/api/list")
     @ResponseBody
-    public String getList(){
+    public String getList() {
         return gson.toJson(scripts);
     }
 
@@ -70,20 +71,20 @@ public class AgentController {
     /**
      * @return
      */
-    @RequestMapping(value="/api/data",produces = {"application/json;charset=utf-8"})
+    @RequestMapping(value = "/api/data", produces = {"application/json;charset=utf-8"})
     @ResponseBody
-    public String getData(String name)throws Exception {
+    public String getData(String name) throws Exception {
         ArrayList<PushEntity> pushEntities = new ArrayList<>();
         if (scripts != null) {
             for (String s : scripts) {
-                if(name!=null){
+                if (name != null) {
                     File f = new File(s);
                     String sname = f.getName();
-                    if(name.equals(sname)) {
+                    if (name.equals(sname)) {
                         GetDataThread thread = new GetDataThread(pushEntities, s);
                         thread.exec();
                     }
-                }else {
+                } else {
                     GetDataThread thread = new GetDataThread(pushEntities, s);
                     thread.exec();
                 }
@@ -101,7 +102,7 @@ public class AgentController {
     public void crontab() {
         logger.info("启动监控上报任务计划");
         String result = execCommand();
-        logger.info("完成监控上报任务计划完成"+result);
+        logger.info("完成监控上报任务计划完成" + result);
     }
 
 
@@ -109,8 +110,8 @@ public class AgentController {
      * 每1分钟执行一次
      * 修改脚本更新
      */
-    @Scheduled(cron="0 */5 * * * ?")
-    public void crontabSetScripts(){
+    @Scheduled(cron = "0 */5 * * * ?")
+    public void crontabSetScripts() {
         logger.info("设置脚本信息");
         scripts = null;
     }
@@ -118,12 +119,13 @@ public class AgentController {
 
     /**
      * 执行脚本，任务计划调用
+     *
      * @return
      */
     public String execCommand() {
 
         String url = "/monitor/graph/all/push";
-        if(url==null||url.length()<3){
+        if (url == null || url.length() < 3) {
             logger.error("url参数没有配置");
             return "";
         }
@@ -138,10 +140,10 @@ public class AgentController {
 
             }
         }
-        for(GetDataThread t:threadList){
+        for (GetDataThread t : threadList) {
             t.start();
         }
-        while (1==1) {
+        while (1 == 1) {
             boolean isStop = false;
             for (GetDataThread t : threadList) {
 
@@ -154,19 +156,19 @@ public class AgentController {
                 }
             }
             try {
-                Thread.sleep(15000);
-            }catch (Exception e){
+                Thread.sleep(1500);
+            } catch (Exception e) {
 
             }
-            if(!isStop) {
+            if (!isStop) {
                 break;
             }
         }
-        if (pushEntities.size()<1){
+        if (pushEntities.size() < 1) {
             return "";
         }
-        logger.info("lentity="+gson.toJson(pushEntities));
-        String reuslt = HttpSendUtil.sendPost(url,"lentity="+gson.toJson(pushEntities));
+        logger.info("lentity=" + gson.toJson(pushEntities));
+        String reuslt = HttpSendUtil.sendPost(url, "lentity=" + gson.toJson(pushEntities));
         return reuslt;
     }
 
@@ -191,26 +193,26 @@ public class AgentController {
      */
     @RequestMapping("update")
     @ResponseBody
-    public String update(String username,String password) throws  Exception{
+    public String update(String username, String password) throws Exception {
 
         // 获取用户名,密码
         String configUser = Configure.get("username");
         String configPassword = configure.get("password");
 
         String noUserMsg = "用户名或密码错误,更新程序退出";
-        if(configPassword.length()>1 && configUser.length()>1){
-            if(username==null||password==null){
+        if (configPassword.length() > 1 && configUser.length() > 1) {
+            if (username == null || password == null) {
                 logger.info(noUserMsg);
                 return noUserMsg;
             }
-            if(!username.equals(configUser)&&password.equals(configPassword)){
+            if (!username.equals(configUser) && password.equals(configPassword)) {
                 logger.info(noUserMsg);
                 return noUserMsg;
             }
         }
 
         String url = Configure.get("updateUrl");
-        if(url.length()<3){
+        if (url.length() < 3) {
             logger.error("下载配置没有,updateUrl=http://xx.xx/file/");
             return "";
         }
@@ -220,56 +222,56 @@ public class AgentController {
         // 临时文件定义
         String tempPath = System.getProperty("java.io.tmpdir") + System.getProperty("file.separator");
         String tempFile = tempPath + "agent.jar";
-        String tempMd5 = tempFile +  "agent.md5";
+        String tempMd5 = tempFile + "agent.md5";
 
-        logger.info("下载更新包开始...."+url);
-        HttpUtil.downloadNet(url,tempFile);
+        logger.info("下载更新包开始...." + url);
+        HttpUtil.downloadNet(url, tempFile);
         logger.info("下载更新包接收....");
         File f = new File(tempFile);
 
 
-        if(f.exists()){
+        if (f.exists()) {
 
             // 获取文件的md5
             String md5 = Md5Util.getMd5ByFile(f).trim();
             logger.info("更新包MD5长度:" + md5.length());
-            logger.info("更新包的文件md5值为: "+md5);
+            logger.info("更新包的文件md5值为: " + md5);
 
             // 获取提供更新包下载的MD5
-            HttpUtil.downloadNet(url+".md5",tempMd5);
+            HttpUtil.downloadNet(url + ".md5", tempMd5);
             ArrayList<String> fmd5 = FileIoUtil.readTxtFile(tempMd5);
             String rmd5 = "";
 
             String md5Msg = "没有获取到更新包的MD5值,更新程序结束";
-            if(fmd5.size()>0){
+            if (fmd5.size() > 0) {
                 String[] rmd5List = fmd5.get(0).split(" ");
                 rmd5 = rmd5List[0].trim();
-                logger.info("提供的更新包md5值为:"+rmd5);
-            }else {
+                logger.info("提供的更新包md5值为:" + rmd5);
+            } else {
                 logger.info(md5Msg);
                 return md5Msg;
             }
 
             // 对比已经下载的更新包的MD5值和远程文件提供的md5
             String exitMsg = "更新包提供的MD5和实际下载的MD5值不一致,更新退出";
-            if(rmd5.equals(md5)){
+            if (rmd5.equals(md5)) {
                 logger.info("更新包的md5和提供的md5一致");
-            }else{
+            } else {
                 logger.info(exitMsg);
                 return exitMsg;
             }
 
-            FileIoUtil.copyFile(tempFile,path);
+            FileIoUtil.copyFile(tempFile, path);
             logger.info("更新文件完成");
             // 删除文件
             f.delete();
-        }else{
+        } else {
             logger.error("下载文件失败");
         }
 
         String pid = System.getProperty("PID");
-        logger.info("执行杀死进程"+pid);
-        runtime.exec("kill -9 "+ pid);
+        logger.info("执行杀死进程" + pid);
+        runtime.exec("kill -9 " + pid);
         logger.info("执行杀死进程完成");
         return "ok";
 

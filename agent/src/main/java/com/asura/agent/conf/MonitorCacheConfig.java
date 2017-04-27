@@ -18,12 +18,6 @@ public class MonitorCacheConfig {
     // 存放每个主机对应的在cmdb的id
     public static String hostsIdKey = "cache_hosts_id_" ;
 
-    // 存放有配置的主机的配置信息
-    public static String  cacheConfigureHostsListKey = "cache_configure_hosts_list";
-
-    // 存放有配置的组的信息组 cache_configure_groups_list_groupsId
-    public static String  cacheConfigureGroupsListKey = "cache_configure_groups_list";
-
     // 存放主机的配置文件， 里面放的配置 cache_host_configure_hostId
     public static String cacheHostCnfigureKey =   "cache_host_configure_";
 
@@ -33,8 +27,6 @@ public class MonitorCacheConfig {
     // 项目缓存 cache_item_itemId CACHE_ITEM_KEY
     public static String cacheItemKey = "cache_item_";
 
-    // 存放脚本的信息的key cache_script_scriptId
-    public static String cacheScriptKey = "cache_script_";
 
     // 联系组的缓存key，存放报警联系组的 cache_contact_group_groupId
     public static String cacheContactGroupKey = "cache_contact_group_";
@@ -70,23 +62,8 @@ public class MonitorCacheConfig {
     // 存放每个主机的业务线 cache_get_cache_host_groups_ip地址
     public static String getCacheHostGroupsKey = "cache_get_cache_host_groups_";
 
-    // 存放每个业务线的可用的数据 cache_groups_is_success_groupsId
-    public static String cacheGroupsIsSuccessKey = "cache_groups_is_success_";
-
-    // 存放每个业务线的不可用数据 cache_groups_is_faild_groupsId
-    public static String cacheGroupsIsFaildKey = "cache_groups_is_faild_";
-
-    // 存放每个业务线的警告数据 cache_groups_is_warning_groupsId
-    public static String cacheGroupsIsWarningKey = "cache_groups_is_warning_";
-
-    // 存放每个业务线的未知数据 cache_groups_is_unknown_groupsId
-    public static String cacheGroupsIsUnknownKey = "cache_groups_is_unknown_";
-
     // 报警队列设置, 使用redis队列, 不保证数据
     public static String cacheAlarmQueueKey = "cache_alarm_queue";
-
-    // 存放每个脚本上次的报警记录 cache_alarm_last_key_ipAdd_scriptId, 放时间戳
-    public static String cacheAlarmLastKey = "cache_alarm_last_key_";
 
     // 每个host存放一个总的update类型，每次有更新时里面记录更新的类型, 然后agent去获取相对应的数据
     // 队列类型, 每台主机一个key 主机ID

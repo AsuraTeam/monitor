@@ -29,22 +29,14 @@ public class RunScriptThread extends Thread {
         this.SCRIPT_TIME = SCRIPT_TIME;
     }
 
-    /**
-     * 打印日志
-     *
-     * @param messages
-     */
-    void info(String messages) {
-        logger.info(messages);
-    }
 
     public void run() {
         Gson gson = new Gson();
         ArrayList<PushEntity> success = new ArrayList<>();
         ArrayList<PushEntity> faild = new ArrayList<>();
-        info(isDebug ? "SCRIPT_TIME " + gson.toJson(SCRIPT_TIME) : null);
+        MonitorUtil.info(isDebug ? "SCRIPT_TIME " + gson.toJson(SCRIPT_TIME) : null);
         for (String time : SCRIPT_TIME) {
-            info(isDebug ? "String time " + time : null);
+            MonitorUtil.info(isDebug ? "String time " + time : null);
             MonitorController.runScript(time, success, faild);
         }
         if (faild.size() > 0) {
@@ -54,5 +46,11 @@ public class RunScriptThread extends Thread {
         if (success.size() > 0) {
             MonitorController.pushMonitor(success, successApiUrl, true);
         }
+        try {
+            this.interrupt();
+        }catch (Exception e){
+
+        }
+
     }
 }
