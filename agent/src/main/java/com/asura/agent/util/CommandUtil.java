@@ -101,11 +101,7 @@ public class CommandUtil {
     public static String runScript(String command, int timeOut, ExecutorService executor) {
         List<String> list = new ArrayList();
         RunCmdThread thread = new RunCmdThread(command, list);
-        if (executor != null) {
-            executor.execute(thread);
-        }else{
-            thread.start();
-        }
+        thread.start();
         long start = System.currentTimeMillis() / 1000;
         while (1 == 1) {
             if (list.size() > 0) {

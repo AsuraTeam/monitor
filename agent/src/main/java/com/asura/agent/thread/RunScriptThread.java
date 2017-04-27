@@ -46,11 +46,5 @@ public class RunScriptThread extends Thread {
         if (success.size() > 0) {
             MonitorController.pushMonitor(success, successApiUrl, true);
         }
-        try {
-            this.interrupt();
-        }catch (Exception e){
-
-        }
-
     }
 }

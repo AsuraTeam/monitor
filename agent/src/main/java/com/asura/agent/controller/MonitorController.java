@@ -1868,7 +1868,7 @@ public class MonitorController {
             lockKey = "locked".concat(id);
             if ((nowTime - lastTime) >= checkInterval - 1 ) {
                 info(isDebug ? "获取配置文件信息" + ids[0] : null);
-                
+
                 if (MONITOR_LOCK.containsKey(lockKey) ) {
                     info(isDebug ? "MONITOR IS LOCK ....  ".concat(id) +" " + MONITOR_LOCK.get(lockKey): null);
                     continue;
