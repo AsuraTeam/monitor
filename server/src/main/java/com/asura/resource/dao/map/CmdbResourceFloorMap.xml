@@ -13,7 +13,8 @@
     <select id="selectByAll" resultType="com.asura.resource.entity.CmdbResourceFloorEntity">
         select 
          <include refid="sqlId"/>
-         from cmdb_resource_floor 
+         from cmdb_resource_floor
+        order by  last_modify_time desc
         </select>
 
     <select id="findById" resultType="com.asura.resource.entity.CmdbResourceFloorEntity">

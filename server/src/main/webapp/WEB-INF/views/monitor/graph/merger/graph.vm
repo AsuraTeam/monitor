@@ -1,0 +1,632 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<http://play.grafana.org/dashboard/db/graph-styles>
+#include("/index/include.vm")
+<style>
+    .small-font{
+        　　　  font-size:12px;
+        -webkit-transform-origin-x: 0;
+        -webkit-transform: scale(0.85);
+        font-weight:100;
+    }
+    .small-td-font {
+        font-size:12px;
+        --webkit-transform-origin-x:0;
+        --webkit-transform: scale(0.5);
+    }
+
+    .graph {
+        padding:4px;
+        border-bottom:1px solid #404040;
+        border-right:1px solid #404040;
+    }
+
+    .image-div{
+        margin-top: 20px;
+        background-color:#141414;
+        height:auto;
+        margin-top:0px;
+    }
+
+    ::-webkit-scrollbar {
+        width: 0.01em;
+    }
+
+    ::-webkit-scrollbar:horizontal
+    {
+        height: 0.01em;
+    }
+
+    body {
+        background-color:#000000;
+    }
+</style>
+<script src="/static/js/plugins/echarts.js"></script>
+<script>
+(function(d){"object"===typeof module&&module.exports?module.exports=d:d(Echarts)})(function(d){(function(c){function d(){return!!this.points.length}function g(){this.hasData()?this.hideNoData():this.showNoData()}var h=c.seriesTypes,e=c.Chart.prototype,f=c.getOptions(),k=c.extend,l=c.each;k(f.lang,{noData:"No data to display"});f.noData={position:{x:0,y:0,align:"center",verticalAlign:"middle"}};f.noData.style={fontWeight:"bold",fontSize:"12px",color:"#666666"};l(["pie","gauge","waterfall","bubble",
+"treemap"],function(a){h[a]&&(h[a].prototype.hasData=d)});c.Series.prototype.hasData=function(){return this.visible&&void 0!==this.dataMax&&void 0!==this.dataMin};e.showNoData=function(a){var b=this.options;a=a||b.lang.noData;b=b.noData;this.noDataLabel||(this.noDataLabel=this.renderer.label(a,0,0,null,null,null,b.useHTML,null,"no-data"),this.noDataLabel.attr(b.attr).css(b.style),this.noDataLabel.add(),this.noDataLabel.align(k(this.noDataLabel.getBBox(),b.position),!1,"plotBox"))};e.hideNoData=function(){this.noDataLabel&&
+(this.noDataLabel=this.noDataLabel.destroy())};e.hasData=function(){for(var a=this.series,b=a.length;b--;)if(a[b].hasData()&&!a[b].options.isInternal)return!0;return!1};e.callbacks.push(function(a){c.addEvent(a,"load",g);c.addEvent(a,"redraw",g)})})(d)});
+</script>
+<div id="page_title" class="add-border" style="margin-top: 20px;background-color:#141414;height:auto;font-size:30px;margin-top:0px;color:#FFFFFF;text-align:center;border:1px solid #404040;margin:1px;">
+</div>
+<div style="padding:1px;border-left:1px solid #404040;z-index:999999;position:relative;margin-left:1px;height:9999px">
+    <div id="image_all_id" class="image-div">
+    </div>
+    <div>
+
+        <script>
+
+            function get_name_group(name){
+                data = new Array();
+                names_ = name.split(".")
+                groups = names_[0]
+                data.push(groups)
+                name_tmp = ""
+                for (i=1; i< names_.length; i++){
+                    if(i<names_.length-1){
+                        name_tmp += names_[i] + "."
+                    }else{
+                        name_tmp += names_[i]
+                    }
+                }
+                data.push(name_tmp)
+                return  data;
+
+
+            }
+
+            function toDecimal(x) {
+                var f = parseFloat(x);
+                if (isNaN(f)) {
+                    return 0.00;
+                }
+                f = Math.round(x*100)/100;
+                return f;
+            }
+
+            function make_image_id(opts){
+                _width = (opts["width"]) ? opts["width"] : 12
+                _height = (opts["height"]) ? opts["height"] : "260px"
+                id = opts["name"].replace(/,/g,"_").replace(/\./g, "")
+                write_html = '<div class="col-sm-'+_width+' graph"  id="image_'+opts["id"]+'" style="height:'+_height+'"></div>'
+                old_html = $("#image_all_id").html()
+                if (old_html.indexOf('id="'+id+'"') == -1 ){
+                    $("#image_all_id").append(write_html)
+                }
+            }
+
+            function getDatas(opts) {
+                datas = new Array();
+
+                names = opts["name"].split(",")
+                currnet_time = new Date().getTime()
+                last_time = parseInt(opts["lastTime"])
+                for(var j = 0; j <names.length ; j ++){
+                    name = names[j]
+                    sizes = opt["size"].split(",")
+                    seriesMarkers = opt["seriesMarker"].split(",")
+                    if (!name) {continue}
+                    names_groups_data = get_name_group(name)
+                    name = names_groups_data[1]
+                    type = names_groups_data[0]
+                    d = {}
+                    d["lineWidth"] =  sizes[j] ? sizes[j] : 1
+                    if(seriesMarkers[j]){
+                        d["marker"] = {}
+                        d["marker"]["enabled"] = (seriesMarkers[j] == "1") ? true: false
+                    }
+                    d["name"] = name.replace(/SLASH/g,"/");
+                    d["data"] = eval(post({}, "/monitor/graph/historyData?ip="+opts["ip"]+"&name="+name+"&type="+type));
+                    if(opts["calc"] || last_time){
+                        new_data = new Array()
+                        for (i =0 ;i < d["data"].length; i++){
+                            temp_data = new Array();
+                            is_last_time = true
+                            if(last_time && (currnet_time - d["data"][i][0])  > last_time){
+                                is_last_time = false
+
+                            }
+                            // 判断是否是最近指定时间的数据
+                            if(is_last_time){
+                                temp_data.push(d["data"][i][0])
+                                if(opts["calc"]){
+                                    temp_data.push(toDecimal(eval(d["data"][i][1] + opts["calc"])))
+                                }else{
+                                    temp_data.push(d["data"][i][1])
+                                }
+                                new_data.push(temp_data)
+                            }
+                        }
+                        d["data"] = new_data
+                        datas.push(d)
+                    }else{
+                        datas.push(d)
+                    }
+                }
+                if(opts["baselineShow"] == "1"){
+                    dd = new Array();
+                    d = {}
+                    d["lineWidth"] = opts["baseLineSize"]
+                    d["name"] = "危险线"
+                    for(i =0 ;i < datas[0]["data"].length ; i++) {
+                        ddd = new Array()
+                        ddd.push(datas[0]["data"][i][0])
+                        ddd.push(parseFloat(opts["alarmBase"]))
+                        dd.push(ddd)
+                    }
+                    d["data"] = dd
+                    d["color"] = opts["alarmBaseColor"]
+                    d["fillOpacity"] = 0
+                    datas.push(d)
+                }
+                return datas;
+            }
+
+            /**
+             * Synchronize zooming through the setExtremes event handler.
+             */
+            function syncExtremes(e) {
+                var thisChart = this.chart;
+
+                if (e.trigger !== 'syncExtremes') { // Prevent feedback loop
+                    Echarts.each(Echarts.charts, function (chart) {
+                        if (chart !== thisChart) {
+                            if (chart.xAxis[0].setExtremes) { // It is null while updating
+                                chart.xAxis[0].setExtremes(e.min, e.max, undefined, false, {trigger: 'syncExtremes'});
+                            }
+                        }
+                    });
+                }
+            }
+
+
+function get_max_min_avg_last_value(data, id ){
+    value = 0
+    new_data = new Array();
+    for(i=0;i<data.length;i++){
+        new_data.push(data[i][1]);
+        value += data[i][1]
+    }
+    last = new_data[new_data.length-1];
+    new_data.sort(function (a,b) {
+        return a - b;
+    })
+    min = new_data[0]
+    avg = value / new_data.length
+    max = new_data[new_data.length-1]
+    $("#"+id+"last").html(last)
+    $("#"+id+"max").html(max)
+    $("#"+id+"min").html(min)
+    $("#"+id+"avg").html(avg.toFixed(2))
+}
+
+     function get_str(len){
+        s = ""
+        for(i=1;i<len;i++){
+               s +="."
+        }
+        return s;
+
+     }
+            function graphAll(opt) {
+                opt["color"] =  opt["color"]
+                make_image_id(opt);
+                if(opt["color"]) {
+                    colors = opt["color"].split(",")
+                }else{
+                    colors =  ['#fAB839','#E26742', '#A5F78F', '#83CEDA','#ff0066', '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee', '#2b908f', '#90ee7e'];
+                }
+                startT = $('#startSendTime').val()
+                endT = $('#endSendTime').val()
+                if (!startT) {
+                    startT = ""
+                }
+                if (!endT) {
+                    endT = ""
+                }
+                Echarts.setOptions({
+                    global: {
+                        useUTC: false
+                    }
+                });
+                t = "&startT=" + startT + "&endT=" + endT;
+                $("#image_"+opt["id"]).echarts({
+                    chart: {
+                        type: opt["imageTp"],
+                        zoomType: 'x',
+                        backgroundColor: '#1F1D1D',
+                    },
+                    subtitle: {
+                        text: opt["subTile"],
+                    },
+                    colors: colors,
+                    title: {
+                        text: (opt["ipTitle"] ? opt["ip"] + " " : " " ) + opt["title"],
+                        style:{
+                            color: '#ffffff',
+                            fontSize: "14px",
+                        },
+                    },
+                    xAxis: {
+                        crosshair: true,
+                        type: 'datetime',
+                        tickPixelInterval: 75,
+                        gridLineWidth: 0.4,
+                        gridLineColor: '#e0e0e0',
+                        dashstyle : 'Solid',
+                        events: {
+                            setExtremes: syncExtremes
+                        },
+                        valueSuffix: opt["units"],
+                        labels: {
+                            style: {
+                                color: '#ffffff'
+                            }
+                        },
+                        lineColor: '#101010',
+                        lineWidth: 1,
+                        crosshair: {
+                            width: 0.9,
+                            color: 'red'
+                        }
+                    },
+                    yAxis: {
+                        title: {
+                            text: ""
+                        },
+                        labels: {
+                            style: {
+                                color: '#ffffff'
+                            },
+                            format: "{value} " + opt["units"],
+                        },
+                        gridLineWidth: 0.4,
+                        tickPixelInterval: 28,
+                        gridLineColor: '#e0e0e0',
+                    },
+
+                    legend: {
+                        enabled: opt["lengendShow"] ?  true : false,
+                         verticalAlign: 'top',
+                        //floating: true,
+                         //y: 2,
+                        align: "right",
+                        layout: 'vertical',
+                        //borderWidth: 0,
+                        itemStyle: {
+                            color: '#e0e0e0',
+                            fontWeight: '340'
+                        },
+                        itemHoverStyle :{
+                            color: '#ffffff',
+                        },
+                        symbolHeight: 8,
+                        symbolWidth: 22,
+                        symbolRadius: 0,
+                    },
+
+                    tooltip: {
+                        backgroundColor: '#1F1D1D',
+                        // 大开提示同时显示所有
+                        shared: (opt["tooltipShared"] == "1" ) ? true: false,
+                        crosshairs: true,
+                        borderWdith:0,
+                        borderColor:"#1f1d1d",
+                        style: {
+                            color: '#ffffff',
+                            fontWeight: 'bold'
+                        },
+                        valueSuffix: opt["units"],
+                        useHTML: true,
+                        xDateFormat: '%Y-%m-%d %H:%M%S',
+                        headerFormat: '<div class="small-font"><small><b>{point.key}</b></small><table>',
+                        pointFormat: '<tr style="height:8px;overflow:hidden" nowrap><td style="height:5px;"><nobr><hr style="background-color: {series.color};margin:0px;width:14px;height:2px;" size="1"/></nobr></td><td>'+
+                        '&nbsp;{series.name}: </td>' +
+                        '<td style="text-align: right"><span style="margin-left:20px;"><b>{point.y}</b></span></td></tr>',
+                        footerFormat: '</table></div>',
+                    },
+
+                    plotOptions: {
+                        area: {
+                            states: {
+                                hover: {
+                                    lineWidth: opt["lineStatesHoverLineWidth"] ? opt["lineStatesHoverLineWidth"]  : 2,
+                                }
+                            },
+                        },
+                        line: {
+                            states: {
+                                hover: {
+                                    lineWidth: opt["lineStatesHoverLineWidth"] ? opt["lineStatesHoverLineWidth"]  : 2,
+                                }
+                            },
+                        },
+                        series: {
+                            cursor: 'pointer',
+                            point: {
+                                events: {
+                                    click: function (e) {
+                                        hs.htmlExpand(null, {
+                                            pageOrigin: {
+                                                x: e.pageX || e.clientX,
+                                                y: e.pageY || e.clientY
+                                            },
+                                            headingText: this.series.name,
+                                            maincontentText: Echarts.dateFormat('%A, %b %e, %Y', this.x) + ':<br/> ' +
+                                            this.y + ' visits',
+                                            width: 200
+                                        });
+                                    }
+                                }
+
+                            },
+                            marker: {
+                                lineWidth: 0
+                            }
+                        },
+                        series: {
+                            lineWidth : 1.2,
+                            fillOpacity: 0.15,
+                            pointInterval: 10,
+                            // 去掉小圆点
+                            //marker: {
+                            //  enabled: opt["seriesMarker"] ?  true: false,
+                            // }
+                        }
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    series: getDatas(opt)
+                });
+
+            }
+
+            function graphPie(opt){
+                if(opt["color"]) {
+                    colors = opt["color"].split(",")
+                    colors =  ['#fAB839','#E26742', '#A5F78F', '#83CEDA','#ff0066', '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee', '#2b908f', '#90ee7e'];
+                }else{
+                    colors =  ['#fAB839','#E26742', '#A5F78F', '#83CEDA','#ff0066', '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee', '#2b908f', '#90ee7e'];
+                }
+
+                Echarts.getOptions().plotOptions.pie.colors = colors;
+
+                if(opt["color"]) {
+                    colors = opt["color"].split(",")
+                }else{
+                    colors =  ['#fAB839','#E26742', '#A5F78F', '#83CEDA','#ff0066', '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee', '#2b908f', '#90ee7e'];
+                }
+
+                // Build the chart
+                $("#image_"+opt["id"]).echarts({
+                    chart: {
+                        backgroundColor: '#1F1D1D',
+                        type: 'pie'
+                    },
+                    title: {
+                        text: (opt["ipTitle"] ? opt["ip"] : " " +" " ) + opt["title"],
+                        style:{
+                            color: '#ffffff',
+                            fontSize: "14px",
+                        },
+                    },
+                    tooltip: {
+                        backgroundColor: '#1F1D1D',
+                        style: {
+                            color: '#ffffff',
+                            fontWeight: 'bold'
+                        },
+                        pointFormat: '<tr style="height:8px;overflow:hidden" nowrap><td style="height:5px;"><nobr><hr style="background-color: #141414;margin:0px;width:14px;height:2px;" size="1"/></nobr></td><td>'+
+                        '{series.name}: </td>' +
+                        '<td style="text-align: right"><span style="margin-left:20px;"><b>{point.percentage:.1f}%</b></span></td></tr>',
+                        footerFormat: '</table></div>',
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: true,
+                                color: '#FFFFFF',
+                                format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                                style: {
+                                    color: (Echarts.theme && Echarts.theme.contrastTextColor) || 'black'
+                                }
+                            }
+                        }
+                    },
+                    legend: {
+                        enabled: opt["lengendShow"] ?  true : false,
+                        // verticalAlign: 'bottom',
+                        //floating: true,
+                        // y: 22,
+                        align: "left",
+                        //layout: 'vertical',
+                        //borderWidth: 0,
+                        itemStyle: {
+                            color: '#e0e0e0',
+                            fontWeight: '100'
+                        },
+                        itemHoverStyle :{
+                            color: '#ffffff',
+                        },
+                        symbolHeight: 8,
+                        symbolWidth: 22,
+                        symbolRadius: 0,
+                    },
+                    series: [{
+                        name: 'Brands',
+                        data: [
+                            { name: 'Microsoft Internet Explorer', y: 56.33 },
+                            { name: 'Chrome', y: 24.03 },
+                            { name: 'Firefox', y: 10.38 },
+                            { name: 'Safari', y: 4.77 },
+                            { name: 'Opera', y: 0.91 },
+                            { name: 'Proprietary or Undetectable', y: 0.2 }
+                        ]
+                    }]
+                });
+            }
+
+
+            #if(!$graphTemplateMap)
+
+                #foreach($ip in $ips)
+                    #foreach($id in $graphIds)
+                    opt = '${graphMap.get($id)}'
+                    opt = JSON.parse(opt)
+                    opt["ip"] ="${ip}"
+                    opt["id"] = "${id}" + (Math.random()+"").replace(/\./g, "_")
+                    if(opt["imageTp"] == "line" || opt["imageTp"] == "area"){
+                    //    graphAll(opt)
+                    }
+                    if(opt["imageTp"] == "pie" ){
+                      //  graphPie(opt)
+                    }
+                    if(opt["imageTp"] == "text" ){
+                          noDataGraph(opt)
+                    }
+                    #end
+                #end
+            #else
+            ids = JSON.parse('${graphIds}');
+            ips = JSON.parse('${graphIpMap}');
+            width = JSON.parse('${graphWidthMap}');
+            height = JSON.parse('${graphHeightMap}');
+            templateMap = JSON.parse('${graphTemplateMap}');
+            for (ii=0;ii<ids.length;ii++){
+                graphId = ids[ii]
+                opt = templateMap["graphId"+graphId]
+                opt = JSON.parse(opt)
+                opt["ipTitle"] = "1"
+                opt["width"] = width[graphId+(ii+"")];
+                opt["height"] = height[graphId+(ii+"")];
+                ipdata = ips[graphId+(ii+"")].split(",")
+                for (jj = 0 ;jj < ipdata.length; jj++){
+                    opt["ip"] = ipdata[jj]
+                    opt["id"] = graphId + (Math.random()+"").replace(/\./g, "_")
+                    if(opt["imageTp"] == "line" || opt["imageTp"] == "area"){
+                        graphAll(opt)
+                    }
+                    if(opt["imageTp"] == "pie" ){
+                        graphPie(opt)
+                    }
+                    if(opt["imageTp"] == "text" ){
+                          noDataGraph(opt)
+                    }
+                }
+            }
+            #end
+
+            $("#page_title").html("${title}")
+
+   //       setTimeout(function(){
+   //                   location.reload()}
+   //               , 1000 * 60 * 2)
+
+            window.onload = function() {
+                document.body.style.backgroundColor="#141414";
+            }
+
+
+function noDataGraph(opt){
+    if(opt["color"]) {
+        colors = opt["color"].split(",")
+    }else{
+        colors =  ['#fAB839','#E26742', '#A5F78F', '#83CEDA','#ff0066', '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee', '#2b908f', '#90ee7e'];
+    }
+    series =  getDatas(opt) 
+    make_image_id(opt);
+    Echarts.chart("image_" + opt["id"], {
+        chart: {
+           zoomType: 'x',
+           marginBottom: 0,
+           marginTop: parseInt(opt["height"].replace(/px;/,""))/8,
+           type: "area",
+           backgroundColor: '#1F1D1D',
+        },
+        title: {
+            text: (opt["ipTitle"] ? opt["ip"] + " " : " " ) + opt["title"],
+            style:{
+                color: '#ffffff',
+                fontSize: "14px",
+            },
+        },
+        subtitle: {
+              text: series[0]["data"][(series[0]["data"].length - 1)][1] + opt["units"],
+    	      style: {
+    	        fontWeight: 'bold',
+    	        fontSize: opt["textGraphShow"] ? parseInt(opt["height"].replace(/px;/,""))/ 5 +"px" : parseInt(opt["height"].replace(/px;/,""))/ 3+"px",
+    	        color: colors[0]
+    	      }
+        },
+        xAxis: {
+           crosshair: true,
+           type: 'datetime',
+           tickPixelInterval: 75,
+           gridLineWidth: 0.0,
+           gridLineColor: '#e0e0e0',
+           labels: {
+            enabled: false
+           },
+           lineColor: '#101010',
+           lineWidth: 1,
+           crosshair: {
+               width: 0.9,
+               color: 'red'
+           }
+        },
+        lang: {
+    	    noData: ""
+        },
+       plotOptions: {
+           area: {
+               states: {
+                   hover: {
+                       lineWidth: opt["lineStatesHoverLineWidth"] ? opt["lineStatesHoverLineWidth"]  : 1.1,
+                   }
+               },
+           },
+           series: {
+               lineWidth : 0.2,
+               fillOpacity: 0.15,
+               pointInterval: 10,
+           }
+       },
+       tooltip: {
+           backgroundColor: '#1F1D1D',
+           // 大开提示同时显示所有
+           shared: (opt["tooltipShared"] == "1" ) ? true: false,
+           crosshairs: true,
+           borderWdith:0,
+           borderColor:"#1f1d1d",
+           style: {
+               color: '#ffffff',
+               fontWeight: 'bold'
+           },
+           valueSuffix: opt["units"],
+           useHTML: true,
+           xDateFormat: '%Y-%m-%d %H:%M%S',
+           headerFormat: '<div class="small-font"><small><b>{point.key}</b></small><table>',
+           pointFormat: '<tr style="height:8px;overflow:hidden" nowrap><td style="height:5px;"><nobr><hr style="background-color: {series.color};margin:0px;width:14px;height:2px;" size="1"/></nobr></td><td>'+
+           '&nbsp;{series.name}: </td>' +
+           '<td style="text-align: right"><span style="margin-left:20px;"><b>{point.y}</b></span></td></tr>',
+           footerFormat: '</table></div>',
+       },
+        yAxis: {
+           title: {
+                text: ""
+           },
+           labels: {
+            enabled: false
+           },
+           gridLineWidth: 0.0,
+        },
+        legend: {
+              enabled: false, 
+        },
+        series: opt["textGraphShow"] == "1"  ? series: [] 
+    });
+
+}
+</script>

@@ -13,22 +13,27 @@
             images_gson as imagesGson
          from monitor_graph_merger 
      </sql>
+    <sql id="graphId">
+        <if test="graphId != null">
+            and graph_id in
+            <foreach collection="graphId" item="item" separator="," open="(" close=")"  index="index">
+                #{item}
+            </foreach>
+        </if>
+    </sql>
 
     <select id="selectImages" resultType="com.asura.monitor.graph.entity.MonitorGraphMergerEntity">
          select
             graph_id as graphId,
             page as page
           from monitor_graph_merger where 1=1
-        <if test="groupsId != null">
-            <foreach collection="groupsId" item="item" separator="," open="(" close=")"  index="index">
-                #{item}
-            </foreach>
-        </if>
-
+        <include refid="graphId" />
     </select>
 
     <select id="selectByAll" resultType="com.asura.monitor.graph.entity.MonitorGraphMergerEntity">
          <include refid="baseSql" />
+        where 1=1
+        <include refid="graphId" />
      </select>
 
     <select id="findById" resultType="com.asura.monitor.graph.entity.MonitorGraphMergerEntity">

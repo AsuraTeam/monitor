@@ -13,7 +13,7 @@ import com.asura.framework.base.entity.BaseEntity;
  *
  * @author zhaozq14
  * @version 1.0
- * @date 2017-04-16 13:52:16
+ * @date 2017-04-21 10:55:00
  * @since 1.0
  */
 public class MonitorGraphTemplateEntity extends BaseEntity{
@@ -72,6 +72,15 @@ public class MonitorGraphTemplateEntity extends BaseEntity{
 
 
     /**
+     * This field corresponds to the database column monitor_graph_template.gson_data
+     * Comment: 
+     * @param gsonData the value for monitor_graph_template.gson_data
+     */
+
+    private java.lang.String gsonData;
+
+
+    /**
      * This field corresponds to the database column monitor_graph_template.template_id
      * Comment: 
      * @param templateId the value for monitor_graph_template.template_id
@@ -126,6 +135,15 @@ public class MonitorGraphTemplateEntity extends BaseEntity{
     }
 
     /**
+     * This field corresponds to the database column monitor_graph_template.gson_data
+     * Comment: 
+     * @param gsonData the value for monitor_graph_template.gson_data
+     */
+    public void setGsonData(java.lang.String gsonData){
+       this.gsonData = gsonData;
+    }
+
+    /**
      * This field corresponds to the database column monitor_graph_template.template_id
      * Comment: 
      * @return the value of monitor_graph_template.template_id
@@ -177,5 +195,14 @@ public class MonitorGraphTemplateEntity extends BaseEntity{
      */
      public java.lang.String getPage() {
         return page;
+    }
+
+    /**
+     * This field corresponds to the database column monitor_graph_template.gson_data
+     * Comment: 
+     * @return the value of monitor_graph_template.gson_data
+     */
+     public java.lang.String getGsonData() {
+        return gsonData;
     }
 }

@@ -4,6 +4,7 @@ import com.asura.framework.base.paging.PagingResult;
 import com.asura.framework.base.paging.SearchMap;
 import com.asura.framework.dao.mybatis.paginator.domain.PageBounds;
 import com.google.gson.Gson;
+import com.sun.tools.javac.comp.Check;
 import com.asura.common.controller.IndexController;
 import com.asura.common.response.PageResponse;
 import com.asura.common.response.ResponseVo;
@@ -29,11 +30,7 @@ import com.asura.resource.service.CmdbResourceServerService;
 import com.asura.resource.service.CmdbResourceServerTypeService;
 import com.asura.resource.service.CmdbResourceServiceService;
 import com.asura.resource.service.CmdbResourceUserService;
-import com.asura.util.DateUtil;
-import com.asura.util.HttpClientIpAddress;
-import com.asura.util.LdapAuthenticate;
-import com.asura.util.PermissionsCheck;
-import com.asura.util.RedisUtil;
+import com.asura.util.*;
 import com.asura.util.network.ThreadPing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -104,10 +101,6 @@ public class ServerController {
     private Gson gson = new Gson();
 
     private SearchMap searchMapNull = new SearchMap();
-
-    @Autowired
-    private CmdbResourceNetworkService networkService;
-
 
     @Autowired
     IndexController indexController;
@@ -222,24 +215,24 @@ public class ServerController {
             searchMap.put("hostIp", hostIp);
 
         }
-        if(typeName!=null&&typeName.length()>1){
+        if(CheckUtil.checkString(typeName)){
             searchMap.put("typeName",typeName);
         }
 
-        if(groupsName!=null&&groupsName.length()>1){
+        if(CheckUtil.checkString(groupsName)){
               searchMap.put("groupsName",groupsName);
         }
 
-        if(userName!=null&&userName.length()>1){
+        if(CheckUtil.checkString(userName)){
             searchMap.put("userName",userName);
         }
-        if(time!=null&&time.length()>1){
+        if(CheckUtil.checkString(time)){
             searchMap.put("time",time);
         }
-        if(entname!=null&&entname.length()>1){
+        if(CheckUtil.checkString(entname)){
             searchMap.put("entName",entname);
         }
-        if(hosts!=null&&hosts.length()>1){
+        if(CheckUtil.checkString(hosts)){
             String[] host = hosts.split(",");
             searchMap.put("hosts",host);
         }
@@ -374,9 +367,8 @@ public class ServerController {
     @RequestMapping(value = "getGroupsUsedNumber", produces = {"application/json;charset=UTF-8"})
     @ResponseBody
     public String getGroupsUsedNumber(int draw, int start, int length, String groupsIds) {
-        PageBounds pageBounds = PageResponse.getPageBounds(length, start);
         SearchMap searchMap = new SearchMap();
-        if (groupsIds!=null&&groupsIds.length()>0){
+        if (CheckUtil.checkString(groupsIds)){
             String[] groups = groupsIds.split(",");
             searchMap.put("groups", groups);
         }
@@ -468,7 +460,7 @@ public class ServerController {
     @ResponseBody
     public String countDataReport(String type, String entName){
         SearchMap searchMap = new SearchMap();
-        if(entName!=null&&entName.length()>1) {
+        if(CheckUtil.checkString(entName)) {
             searchMap.put("entName", entName);
         }
         List<CmdbResourceServerEntity> result = service.getDataList(searchMap,type);

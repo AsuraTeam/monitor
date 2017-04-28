@@ -241,7 +241,7 @@
                             <div class="col-sm-9">
                                 <select class="form-control" name="cabinetId" onchange="getLevel($(this).val())">
                                     <option value="#if ($configs.cabinetId)$configs.cabinetId#else 1 #end">#if ($configs.cabinetName) ${configs.cabinetName}  #end</option>
-                                    <option>--</option>
+                                    <option value="1">--</option>
                                     #foreach( $conf in $cabinet )
                                         <option
                                                 value='$!{conf.cabinetId}'>

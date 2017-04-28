@@ -131,17 +131,7 @@ public class MonitorGlobaltController {
         return "/monitor/global/autoload";
     }
 
-    /**
-     * @param model
-     *
-     * @return
-     */
-    @RequestMapping("index")
-    public String content(Model model) {
-//        SearchMap searchMap = new SearchMap();
-//        model.addAttribute("check",getIndexData(searchMap));
-        return "/monitor/global/index";
-    }
+
 
     /**
      * 监控系统数据默认入口

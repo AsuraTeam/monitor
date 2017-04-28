@@ -18,7 +18,11 @@
                         <div class="ibox-title">
                             <button class="btn btn-success " type="button"
                                     onclick="addConfig();">
-                                <i class="fa fa-upload"></i>&nbsp;&nbsp;<span class="bold">图像配置</span>
+                                <i class="fa fa-upload"></i>&nbsp;&nbsp;<span class="bold">添加</span>
+                            </button>
+                            <button class="btn btn-outline btn-primary " type="button"
+                                    onclick="window.location='/monitor/graph/merger/images/list'">
+                                <i class="fa fa-linux"></i>&nbsp;&nbsp;<span class="bold">图像配置</span>
                             </button>
                         </div>
                         <div class="ibox-content" style="overflow:scroll;">
@@ -28,6 +32,7 @@
                                 <tr nowrap="nowrap" role="rows">
                                     <th>图集名称</th>
                                     <th>图像数量</th>
+                                    <th>IP数量</th>
                                     <th>描述信息</th>
                                     <th>最近修改人</th>
                                     <th>最近修改时间</th>
@@ -54,6 +59,43 @@
                 $('#addConfig').html(html);
                 $('#add_getui_config').modal('toggle');
             }
+
+            /**
+             * 获取多选的值
+             */
+            function getMutilSelect(id,t) {
+                to = $('#'+id).html()
+                if(to){
+                   to = to.replace(/,/,"")
+                   to = to.replace(/#image_to/,"")
+                }
+                if(!to){return}
+                to = to.replace(/<option value="/g,"");
+                to = to.replace(/<\/option>/g," ");
+                to = to.replace(/"/g,"")
+                to = to.replace(/>/g," ")
+                to = to.replace(/,/g,"")
+                to_hosts = to.split(" ")
+                hosts_ip = ""
+                hosts = ""
+                for(i=0;i<to_hosts.length;i++){
+                    if(t) {
+                        if (to_hosts[i].indexOf(".") != -1) {
+                            hosts_ip += to_hosts[i] + ",";
+                        } else {
+                            hosts += to_hosts[i] + ",";
+                        }
+                    }else{
+                        if(!isNaN(to_hosts[i])) {
+                            hosts += to_hosts[i] + ",";
+                        }
+                    }
+                }
+                hosts_ip = hosts_ip.substring(0,hosts_ip.length-1)
+                hosts = hosts.substring(0,hosts.length-2)
+                return [hosts.replace(/[\r\n]/g,"").trim().replace(/[ ]/g,"").replace(/\ +/), hosts_ip]
+            }
+
             function deleteConfig(id){
                 url = "/monitor/"+site+"/deleteSave";
                 parent.layer.confirm("点击同意后,将删除数据", {
@@ -76,7 +118,48 @@
                 }else{
                     data["templateId"] = 0
                 }
-                url = "/monitor/configure/"+site+"/save";
+
+                ips = new Array()
+                ip = new Array()
+                width_list= new Array()
+                height_list= new Array()
+                select_data = new Array()
+                for(j=1; j<30; j++){
+                    ipadds = $("#ip"+j).val()
+                    if(ipadds){
+                        ip.push(ipadds)
+                    }
+
+                    widths = $("#width"+j).val()
+                    if(widths){
+                        width_list.push(widths)
+                    }
+
+
+                    height= $("#height"+j).val()
+                    if(height){
+                        height_list.push(height)
+                    }
+                    r = $("#undo_redo"+j+"to").val()
+                    selectdata = getMutilSelect("undo_redo"+j+"_to")
+                    if(selectdata){
+                        select_data.push(selectdata[0])
+                    }
+                }
+
+                map = {}
+                map["ip"] = ip
+                map["height"] = height_list
+                map["width"] = width_list
+                map["selectData"] = select_data
+                data["gsonData"] = JSON.stringify(map)
+
+                ids = getMutilSelect("undo_redo_to")
+                if(ids){
+                    data["graphIds"] = ids[0]
+                }
+                console.log(data)
+                url = "/monitor/"+site+"/save";
                 result = post(data, url);
                 parent.layer.msg(JSON.stringify(result),  {icon:1});
                 $('#listTable').dataTable().fnReloadAjax();
@@ -98,10 +181,17 @@
                     },
                     "columns": [ // 数据映射
                         {"data": "page"},
-                        {"data": "imagesGson", "mRender":function (data) {
+                        {"data": "gsonData", "mRender":function (data) {
                             if (data){
                                 data = JSON.parse(data)
-                                return data["name"].split(",").length - 1;
+                                return data["selectData"].length ;
+                            }
+                            return ""
+                        }},
+                        {"data": "gsonData", "mRender":function (data) {
+                            if (data){
+                                data = JSON.parse(data)
+                                return data["ip"].length ;
                             }
                             return ""
                         }},
@@ -110,7 +200,7 @@
                         {"data": "lastModifyTime","mRender":function (data) {
                             return data?laydate.now(data, "YYYY-MM-DD hh:mm:ss"):"--";
                         }},
-                        {"sWidth": "150px", "data": "graphId", "mRender": function(data, type, full) {
+                        {"sWidth": "150px", "data": "templateId", "mRender": function(data, type, full) {
                             return '<button type="button" onclick="addConfig('+data+')" class="btn btn-sm btn-warning">编辑</button>&nbsp;'+
                                     '<button type="button" onClick="deleteConfig('+data+')" class="btn btn-sm btn-danger">删除</button>';
                         }

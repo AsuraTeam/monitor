@@ -213,7 +213,7 @@ public class ResourceIndexController {
             for (int i = length; i > 0; i--) {
                 boolean is = false;
                 for (CmdbResourceServerEntity c : rdata) {
-                    if (c.getCabinetLevel() == i) {
+                    if (c.getCabinetId() != null && c.getCabinetLevel() != null && c.getCabinetLevel() == i) {
                         if (!tempList.contains(c)) {
                             tempList.add(c);
                             is = true;

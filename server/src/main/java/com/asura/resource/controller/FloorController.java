@@ -3,8 +3,12 @@ package com.asura.resource.controller;
 import com.asura.framework.base.paging.PagingResult;
 import com.asura.framework.base.paging.SearchMap;
 import com.asura.framework.dao.mybatis.paginator.domain.PageBounds;
+import com.google.gson.Gson;
+import com.asura.common.controller.IndexController;
 import com.asura.common.response.PageResponse;
 import com.asura.common.response.ResponseVo;
+import com.asura.resource.entity.CmdbResourceCabinetEntity;
+import com.asura.resource.service.CmdbResourceCabinetService;
 import com.asura.util.DateUtil;
 import com.asura.util.PermissionsCheck;
 import com.asura.resource.entity.CmdbResourceFloorEntity;
@@ -15,6 +19,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 /**
@@ -38,10 +43,14 @@ public class FloorController {
 
     @Autowired
     private CmdbResourceFloorService service ;
-
-
+    @Autowired
+    private CmdbResourceCabinetService cabinetService ;
     @Autowired
     private PermissionsCheck permissionsCheck;
+    @Autowired
+    private IndexController logSave;
+    @Autowired
+    private CabinetController cabinetController;
 
     /**
      * 列表
@@ -102,19 +111,25 @@ public class FloorController {
      */
     @RequestMapping("detail")
     public String detail(int id, Model model){
-        CmdbResourceFloorEntity result = service.findById(id,CmdbResourceFloorEntity.class);
-        model.addAttribute("configs",result);
+        CmdbResourceFloorEntity result = service.findById(id, CmdbResourceFloorEntity.class);
+        model.addAttribute("configs", result);
         return "/resource/configure/floor/add";
     }
 
     /**
-     * 删除信息
+     * 删除机房信息
      * @return
      */
-    @RequestMapping("delete")
-    public ResponseVo delete(int id, Model model){
-    	CmdbResourceFloorEntity result = service.findById(id,CmdbResourceFloorEntity.class);
-    	service.delete(result);
+    @RequestMapping("deleteSave")
+    @ResponseBody
+    public ResponseVo delete(int id, HttpServletRequest request){
+        PagingResult<CmdbResourceCabinetEntity> cabinetEntityPagingResult = cabinetController.getCabinetData(id,10, 1);
+        if (cabinetEntityPagingResult != null && cabinetEntityPagingResult.getTotal() > 0 ){
+            return ResponseVo.responseError("请删除依赖的机柜后删除机房" + cabinetEntityPagingResult.getRows().get(0).getCabinetName());
+        }
+        CmdbResourceFloorEntity result = service.findById(id, CmdbResourceFloorEntity.class);
+        service.delete(result);
+        logSave.logSave(request, "删除机房"+ new Gson().toJson(result));
         return ResponseVo.responseOk(null);
     }
 }

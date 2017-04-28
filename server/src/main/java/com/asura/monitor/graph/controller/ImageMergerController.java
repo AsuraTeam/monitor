@@ -4,6 +4,7 @@ import com.asura.framework.base.paging.PagingResult;
 import com.asura.framework.base.paging.SearchMap;
 import com.asura.framework.dao.mybatis.paginator.domain.PageBounds;
 import com.google.gson.Gson;
+import com.sun.tools.javac.comp.Check;
 import com.asura.common.controller.IndexController;
 import com.asura.common.response.PageResponse;
 import com.asura.common.response.ResponseVo;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -71,11 +73,88 @@ public class ImageMergerController {
     }
 
     /**
-     * 图像页面
+     * 获取图像数据
+     * @param searchMap
+     * @param pageBounds
+     */
+    public Map getGraphMap(SearchMap searchMap, PageBounds pageBounds){
+        Map map = new HashMap();
+        PagingResult<MonitorGraphMergerEntity> result = mergerService.findAll(searchMap, pageBounds, "selectByAll");
+        for (MonitorGraphMergerEntity entity: result.getRows()){
+            map.put("graphId"+entity.getGraphId(), entity.getImagesGson().replace("\"", "\\\""));
+        }
+        return map;
+    }
+
+    /**
+     * 图像生成吐口页面
      * @return
      */
     @RequestMapping("graph")
-    public String graph(){
+    public String graph(int templateId, Model model, String ip, HttpServletRequest request){
+        Gson gson = new Gson();
+        SearchMap searchMap = new SearchMap();
+        PageBounds pageBounds = PageResponse.getPageBounds(1000000, 1);
+        MonitorGraphTemplateEntity templateEntity = templateService.findById(templateId, MonitorGraphTemplateEntity.class);
+
+        String gsonData = templateEntity.getGsonData();
+        if (CheckUtil.checkString(gsonData)) {
+            Map<String, String> graphIpMap = new HashMap<>();
+            Map<String, String> graphWidthMap = new HashMap<>();
+            Map<String, String> graphHeightMap = new HashMap<>();
+            Map<String, List<String>> map = gson.fromJson(gsonData, Map.class);
+            List<String> graphLists = map.get("selectData");
+            List<String> ipLists = map.get("ip");
+            List<String> widths = map.get("width");
+            List<String> heights = map.get("height");
+            String[] ids;
+            int ipCounter = 0;
+            String key;
+            int counter = 0;
+            ArrayList templateGraphIds = new ArrayList();
+            for (String graphId: graphLists){
+                ids = graphId.split(",");
+                for (String sgraphId : ids){
+                    key = sgraphId + counter;
+                    graphIpMap.put(key, ipLists.get(ipCounter));
+                    graphHeightMap.put(key, heights.get(ipCounter));
+                    graphWidthMap.put(key, widths.get(ipCounter));
+                    templateGraphIds.add(sgraphId);
+                    counter += 1;
+                }
+                ipCounter += 1;
+            }
+            searchMap.put("graphId", templateGraphIds);
+            Map templateMap =  getGraphMap(searchMap, pageBounds);
+            // 存放每个图像单独对应的IP地址
+            model.addAttribute("graphIpMap",  gson.toJson(graphIpMap));
+            model.addAttribute("graphHeightMap",  gson.toJson(graphHeightMap));
+            model.addAttribute("graphWidthMap",  gson.toJson(graphWidthMap));
+            model.addAttribute("graphTemplateMap", gson.toJson(templateMap));
+            model.addAttribute("graphIds", templateGraphIds);
+            model.addAttribute("title", templateEntity.getPage());
+            return "/monitor/graph/merger/graph";
+        }
+
+        String graphId = templateEntity.getGraphIds();
+        ArrayList graphIds = new ArrayList();
+        searchMap.put("graphId", graphId.split(","));
+        for (String id: graphId.split(",")){
+            graphIds.add("graphId" + id);
+        }
+        Map map =  getGraphMap(searchMap, pageBounds);
+        String[] ips = ip.split(",");
+        ArrayList ipList = new ArrayList();
+        for (String ipadd: ips){
+            if(!ipList.contains(ipadd)) {
+                ipList.add(ipadd);
+            }
+        }
+
+        model.addAttribute("graphMap", map);
+        model.addAttribute("ips", ipList);
+        model.addAttribute("graphIds", graphIds);
+        model.addAttribute("title", templateEntity.getPage());
         return "/monitor/graph/merger/graph";
     }
 
@@ -101,7 +180,7 @@ public class ImageMergerController {
      * @return
      */
     @RequestMapping("images/add")
-    public String imagesAdd(int id, Model model){
+    public String imagesAdd(int id, Model model, String clone){
         if(id > 0){
             Gson gson = new Gson();
             MonitorGraphMergerEntity result = mergerService.findById(id, MonitorGraphMergerEntity.class);
@@ -121,6 +200,9 @@ public class ImageMergerController {
             model.addAttribute("configs", result);
             model.addAttribute("imagesGson", map);
         }
+        if(CheckUtil.checkString(clone)) {
+            model.addAttribute("clone", clone);
+        }
         return "/monitor/graph/merger/images/add";
     }
 
@@ -131,13 +213,26 @@ public class ImageMergerController {
      * @return
      */
     @RequestMapping("template/add")
-    public String templateAdd(int id, Model model){
+    public String templateAdd(int id, Model model, HttpServletRequest request){
         if(id > 0) {
             Gson gson = new Gson();
             MonitorGraphTemplateEntity result = templateService.findById(id, MonitorGraphTemplateEntity.class);
-            Map<String, String> map = gson.fromJson(result.getGraphIds(), HashMap.class);
             model.addAttribute("configs", result);
-            model.addAttribute("graphMap", map);
+            String gsonData  = result.getGsonData();
+            Map<String, List<String>> map = gson.fromJson(gsonData, Map.class);
+            List<String> graphList = map.get("selectData");
+            PagingResult<MonitorGraphMergerEntity> graphData;
+            ArrayList returnImagesData = new ArrayList();
+            for (String graphId: graphList){
+                ArrayList graphDatas = new ArrayList();
+                graphData = getImagesData(1, 1000, request, graphId);
+                for (MonitorGraphMergerEntity entity: graphData.getRows()) {
+                    graphDatas.add("<option value=\'" + entity.getGraphId() + "\'>" + entity.getPage() + "</option>");
+                }
+                returnImagesData.add(graphDatas);
+            }
+            System.out.println(gson.toJson(returnImagesData));
+            model.addAttribute("graphs", gson.toJson(returnImagesData));
         }
         return "/monitor/graph/merger/template/add";
     }
@@ -162,9 +257,12 @@ public class ImageMergerController {
      */
     @RequestMapping(value = "images/listData", produces = {"application/json;charset=UTF-8"})
     @ResponseBody
-    public String imagesList(int draw, int start, int length, HttpServletRequest request) {
+    public String imagesList(int draw, int start, int length, HttpServletRequest request, String graphId) {
         PageBounds pageBounds = PageResponse.getPageBounds(length, start);
         SearchMap searchMap = getSearchMap(request);
+        if (CheckUtil.checkString(graphId)){
+            searchMap.put("graphId", graphId.split(","));
+        }
         PagingResult<MonitorGraphMergerEntity> result = mergerService.findAll(searchMap, pageBounds, "selectByAll");
         return PageResponse.getMap(result, draw);
     }
@@ -179,12 +277,29 @@ public class ImageMergerController {
      */
     @RequestMapping(value = "images/getImages", produces = {"application/json;charset=UTF-8"})
     @ResponseBody
-    public String getImages(int draw, int start, int length, HttpServletRequest request) {
-        PageBounds pageBounds = PageResponse.getPageBounds(length, start);
-        SearchMap searchMap = getSearchMap(request);
-        PagingResult<MonitorGraphMergerEntity> result = mergerService.findAll(searchMap, pageBounds, "selectImages");
+    public String getImages(int draw, int start, int length, HttpServletRequest request, String graphId) {
+        PagingResult<MonitorGraphMergerEntity> result = getImagesData(start, length, request, graphId);
         return PageResponse.getMap(result, draw);
     }
+
+    /**
+     *
+     * @param start
+     * @param length
+     * @param request
+     * @param graphId
+     * @return
+     */
+    PagingResult<MonitorGraphMergerEntity> getImagesData(int start, int length, HttpServletRequest request, String graphId){
+        PageBounds pageBounds = PageResponse.getPageBounds(length, start);
+        SearchMap searchMap = getSearchMap(request);
+        if (CheckUtil.checkString(graphId)){
+            searchMap.put("graphId", graphId.split(","));
+        }
+        PagingResult<MonitorGraphMergerEntity> result = mergerService.findAll(searchMap, pageBounds, "selectImages");
+        return result;
+    }
+
 
     /**
      * 获取合并图像数据
@@ -195,6 +310,7 @@ public class ImageMergerController {
     public String templateList(int draw, int start, int length, HttpServletRequest request) {
         PageBounds pageBounds = PageResponse.getPageBounds(length, start);
         SearchMap searchMap = getSearchMap(request);
+
         PagingResult<MonitorGraphTemplateEntity> result = templateService.findAll(searchMap, pageBounds, "selectByAll");
         return PageResponse.getMap(result, draw);
     }
@@ -242,7 +358,7 @@ public class ImageMergerController {
         Map<String, String> map = gson.fromJson(data, HashMap.class);
         String user = permissionsCheck.getLoginUser(request.getSession());
         entity.setLastModifyUser(user);
-        entity.setPage(map.get("page"));
+        entity.setPage(map.get("title"));
         entity.setDescription(map.get("description"));
         entity.setLastModifyTime(DateUtil.getTimeStamp()+"");
         entity.setImagesGson(data);
@@ -268,9 +384,7 @@ public class ImageMergerController {
         Map<String, String> map = gson.fromJson(data, HashMap.class);
         String user = permissionsCheck.getLoginUser(request.getSession());
         entity.setLastModifyUser(user);
-        entity.setDescription(map.get("description"));
         entity.setLastModifyTime(DateUtil.getTimeStamp()+"");
-        entity.setGraphIds(data);
         if (entity.getTemplateId() > 0) {
             templateService.update(entity);
         } else {

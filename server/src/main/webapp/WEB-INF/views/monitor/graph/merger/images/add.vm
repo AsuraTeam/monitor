@@ -52,7 +52,7 @@
              <div class="col-sm-4">
                  <input type="number" name="lineSize_#id" id="lineSize_#id" value="" placeholder="默认为1.5" class="form-control" >
              </div>
-             <div class="col-sm-4">
+             <div class="col-sm-4 delete-css-hide" style="#if($!{imagesGson.get("textGraphShow")}) display:none;#end">
                         <button style="margin-left: -25px;margin-bottom: 10px;float:left;"
                                 onclick="delete_data_source(#id);" class="btn btn-danger btn-sm"
                                 type="button">
@@ -82,30 +82,35 @@
                         <div class="col-md-12 top-20"></div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="col-sm-4 control-label">集合名称:</label>
-                                <div class="col-sm-8">
-                                    <input type="text" name="page" class="form-control"  value="$!{imagesGson.get("page")}">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-12 top-10"></div>
-                        <div class="col-md-6">
-                            <div class="form-group">
                                 <label class="col-sm-4 control-label">图像类型:</label>
                                 <div class="col-sm-8">
-                                    <select name="imageTp" class="form-control">
-                                        <option value="$!{imagesGson.get("imageIp")}"> $!{imagesGson.get("imageIp")}</option>
+                                    <select name="imageTp" class="form-control" onchange="changeImageTp($(this).val())">
+                                        <option value="$!{imagesGson.get("imageTp")}"> $!{imagesGson.get("imageTp")}</option>
                                         <option value="area">area</option>
                                         <option value="line">line</option>
                                         <option value="bar">bar</option>
                                         <option value="pie">pie</option>
+                                        <option value="text">text</option>
                                     </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6" title="选择后,在文字下面会有图像" style="display:none" id="show_text_graph">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">显示图像:</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox checkbox-warning checkbox-inline">
+                                        <input type="checkbox" name="textGraphShow" id="textGraphShow" #if($!{imagesGson.get("textGraphShow")}) checked #end
+                                               onchange="change(this)"
+                                               value="#if($!{imagesGson.get("textGraphShow")})$!{imagesGson.get("textGraphShow")}#end">
+                                        <label for="lengendShow"></label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-12 top-10"></div>
                     </div>
-                    <div class="col-md-12 label-border">
+                    <div class="col-md-12 label-border" id="display_legend_id" style="#if($imagesGson.get("imageTp").equals("text"))display:none;#end">
                         <span class="add-border">图例配置</span>
                         <div class="col-md-12 top-20"></div>
                         <div class="col-md-6">
@@ -129,15 +134,15 @@
                                         <option value="$!{imagesGson.get("legendAlign")}"> $!{imagesGson.get("legendAlign")}</option>
                                         <option value="top">上</option>
                                         <option value="bottom">下</option>
-                                        <option value="right">右上</option>
-                                        <option value="avg">右侧</option>
+                                        <option value="left">右上</option>
+                                        <option value="right">右侧</option>
                                     </select>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-12 top-10"></div>
                     </div>
-                    <div class="col-md-12 label-border">
+                    <div class="col-md-12 label-border" id="display_mouse_over_id" style="#if($imagesGson.get("imageTp").equals("text"))display:none;#end">
                         <span class="add-border">鼠标滑过显示</span>
                         <div class="col-md-12 top-20"></div>
                         <div class="col-md-6" title="鼠标移动到图像后,是否显示多个图例数据">
@@ -228,11 +233,14 @@
                     <div class="col-md-12 label-border">
                         <span class="add-border">数据源配置 最多10条</span>
                         <div id="data_source_configure_id"></div>
-                        <button style="margin-left: 81%;margin-bottom: 10px;float:left;"
+                        <span class="delete-css-hide"  style="#if($!{imagesGson.get("textGraphShow")})display:none;#end">
+                             <button style="margin-left: 81%;margin-bottom: 10px;float:left;"
                                 onclick="create_data_source();" class="btn btn-primary btn-sm"
                                 type="button">
-                            <i class="fa fa-upload"></i><span style="margin-left:15px;">添加</span>
-                        </button>
+                                <i class="fa fa-upload"></i><span style="margin-left:15px;">添加</span>
+                             </button>
+                        </span>
+                       <div class="col-md-12 top-10"></div>
                     </div>
                     <div class="col-md-12 label-border">
                         <span class="add-border">数据源公共配置</span>
@@ -290,7 +298,7 @@
                         </div>
                         <div class="col-md-12 top-10"></div>
                     </div>
-                    <div class="col-md-12 label-border">
+                    <div class="col-md-12 label-border" id="display_alarm_base_id" style="#if($imagesGson.get("imageTp").equals("text"))display:none;#end">
                         <span class="add-border">报警基线配置</span>
                         <div class="col-md-12 top-20"></div>
                         <div class="col-md-6">
@@ -307,7 +315,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div id="alarm_base_html_id" style="display:none;">
+                        <div id="alarm_base_html_id" style="#if(!$!{imagesGson.get("baselineShow")})display:none;#end ">
                             <div class="col-md-6" title="为图像添加报警基线">
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">报警基线上限:</label>
@@ -318,11 +326,11 @@
                                 </div>
                             </div>
                             <div class="col-md-12 top-10"></div>
-                            <div class="col-md-6">
+                            <div class="col-md-6" title="只支持16进制">
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">线条颜色:</label>
                                     <div class="col-sm-8">
-                                        <input type="text" name="alarmBaseColor" onchange="change_color($(this).val(), 'base_line')" class="form-control" value="red" style="width:50%;float:left;"
+                                        <input type="text" name="alarmBaseColor" onchange="change_color($(this).val(), 'base_line', 7)" class="form-control" value="red" style="width:50%;float:left;"
                                                value="$!{imagesGson.get("alarmBaseColor")}">
                                         <span class="form-control" id="image_line_color_base_line" style="background-color:red;width:50%;float:left;">&nbsp;&nbsp;</span>
                                     </div>
@@ -356,6 +364,7 @@
                     </div>
                 </form>
             </div>
+            <input type="hidden" value="" name="clone" >
             <div class="col-md-12"><p></p></div>
             <div class="col-md-12"
                  style="border: 1px solid #d0d0d0;margin-left: 0px;margin-right: 130px;margin-top: 1px;">
@@ -428,7 +437,15 @@
         return htmls
     }
 
-    function change_color(value, id){
+    function change_color(value, id, length){
+        if(length){
+           if(length == value.length){
+              $("#image_line_color_"+id).css("background-color", value)
+           }else{
+               parent.layer.msg("颜色格式错误",  {icon:1});
+               return;
+           }
+        }
         $("#image_line_color_"+id).css("background-color", value)
     }
 
@@ -452,6 +469,11 @@
         }
         if("$!{imagesGson.get("tooltipShared")}" == "1") {
            $("#tooltipShared").prop("checked", true);
+        }
+        if("$!{imagesGson.get("textGraphShow")}" == "1") {
+           $("#textGraphShow").prop("checked", true);
+           $("#textGraphShow").val(1);
+           $("#show_text_graph").show();
         }
         i = 1
         new_html = $("#data_source_add_html").val()
@@ -504,6 +526,10 @@
             graphId = 0
         }
 
+        // 如果是克隆的就不做更新操作
+        if (data["clone"] == "1"){
+            graphId = 0
+        }
         if(!data["height"]){
             data["height"] = "250px;"
         }
@@ -567,5 +593,18 @@
         $('#listTable').dataTable().fnReloadAjax();
     }
 
+    function changeImageTp(value){
+         if(value=="text"){
+             $(".delete-css-hide").hide()
+             $("#display_legend_id").hide()
+             $("#display_alarm_base_id").hide()
+             $("#display_mouse_over_id").hide()
+         }else{
+             $(".delete-css-hide").show()
+             $("#display_legend_id").show()
+             $("#display_alarm_base_id").show()
+             $("#display_mouse_over_id").show()
+         } 
+   }
 
 </script>

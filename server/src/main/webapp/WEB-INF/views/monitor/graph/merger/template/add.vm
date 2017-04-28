@@ -1,6 +1,73 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-
 <body>
+<textarea id="make_html_id" style="display:none">
+   <div id="delete_html_id#id">
+     <div class="col-md-12" style="margin-top: 20px;"></div>
+     <div class="col-md-12">
+         <label class="col-sm-3 control-label">可选择图像#id</label>
+         <label class="col-sm-3"><input placeholder="搜索图像#id" onkeyup="search($(this).val())" class="fa-border form-control" style="margin-top:-5px;margin-left:-60%;"></label>
+         <label class="col-sm-3 control-label">已选择图像#id</label>
+     </div>
+     <div class="col-md-12" style="margin-top: 10px;"></div>
+     <div class="col-md-12">
+         <div class="col-xs-5">
+             <select name="from" id="undo_redo#id" class="form-control" size="7" multiple="multiple">
+                  #image_data
+             </select>
+         </div>
+
+         <div class="col-xs-2">
+             <button type="button" id="undo_redo#id_undo" class="btn btn-primary btn-block">undo</button>
+             <button type="button" id="undo_redo#id_rightSelected" class="btn btn-default btn-block"><i class="glyphicon glyphicon-chevron-right"></i></button>
+             <button type="button" id="undo_redo#id_leftSelected" class="btn btn-default btn-block"><i class="glyphicon glyphicon-chevron-left"></i></button>
+             <button type="button" id="undo_redo#id_redo" class="btn btn-warning btn-block">redo</button>
+         </div>
+
+         <div class="col-xs-5">
+             <select name="to" id="undo_redo#id_to" class="form-control" size="7" multiple="multiple">#image_to</select>
+         </div>
+     </div>
+     <div class="col-md-12" style="margin-top:10px;"></div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-6 control-label">图像高度(px,%):</label>
+                    <div class="col-sm-6">
+                        <input type="text" id="height#id" class="form-control"
+                               value="250px;">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-6 control-label">图像宽度(1-12):</label>
+                    <div class="col-sm-6">
+                        <input type="number" class="form-control" id="width#id" max="12" min="2"
+                               value="4">
+                    </div>
+                </div>
+           </div>
+     <div class="col-md-12" style="margin-top:10px;"></div>
+     <div class="col-md-9" style="float:left;">
+         <div class="form-group">
+             <label class="col-sm-3 control-label">数据源(#id)IP地址:</label>
+             <div class="col-sm-9">
+                 <input  class="form-control" id="ip#id" title="如果使用IP地址就填写，不写的话就是用穿参方式" value=#ip>
+              <div>
+         <div>
+     <div>
+     <div class="col-md-2" style="float:left;margin-top:-35px;margin-left:450px;">
+         <div class="form-group">
+             <div class="col-sm-3">
+                 <button style=""  onclick="delete_data_source(#id);" class="btn btn-danger btn-sm"   type="button">
+                     <i class="fa fa-close"></i>&nbsp;&nbsp;&nbsp;&nbsp;删除
+                 </button>
+             </div>
+             <br>
+             <br>
+         </div>
+     </div>
+ </div>
+</textarea>
 <div class="modal fade" id="add_getui_config" tabindex="-1"
      role="dialog" style="background-color: #FfFfFf; margin-top: 16px;"
      data-backdrop="false">
@@ -24,50 +91,42 @@
                             <label class="col-sm-3 control-label">页面名称:</label>
                             <div class="col-sm-9">
                                 <input type="text" name="page" class="form-control"
-                                       value="$!{graphMap.get("page")}">
+                                       value="$!{configs.page}">
                             </div>
                         </div>
                     </div>
                     <div class="col-md-12">
                         <p>&nbsp;
                     </div>
-                    <div class="col-md-12">
-                        <label class="col-sm-3 control-label">可选择图像</label>
-                        <label class="col-sm-3"><input placeholder="搜索图像" onkeyup="search($(this).val())" class="fa-border form-control" style="margin-top:-5px;margin-left:-60%;"></label>
-                        <label class="col-sm-3 control-label">已选择图像</label>
+                    <div class="col-md-12 label-border">
+                        <span class="add-border">图像数据配置</span>
+                        <div id="add_data_html_id" style="overflow-y:scroll;height:333px;border:1px solid #e0e0e0;margin-top:10px;"></div>
+                        <div class="col-md-12"><br>
+                        </div>
+                        <button style="margin-left: 81%;margin-bottom: 10px;float:left;"
+                                onclick="make_html();" class="btn btn-primary btn-sm"
+                                type="button">
+                            <i class="fa fa-upload"></i><span style="margin-left:15px;">添加</span>
+                        </button>
                     </div>
-                    <div class="col-md-12" style="margin-top: 5px;"></div>
-                    <div class="col-md-12" style="margin-top: 5px;">
-                        <div class="col-xs-5">
-                            <select name="from" id="undo_redo" class="form-control" size="10" multiple="multiple">
-                            </select>
+                    <div class="col-md-12">
+                        <p>&nbsp;
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">描述信息:</label>
+                            <div class="col-sm-9">
+                                <input type="text" name="description" class="form-control"
+                                       value="$!{configs.description}">
+                            </div>
                         </div>
-
-                        <div class="col-xs-2">
-                            <button type="button" id="undo_redo_undo" class="btn btn-primary btn-block">undo</button>
-                            <!--button type="button" id="undo_redo_rightAll" class="btn btn-default btn-block"><i class="glyphicon glyphicon-forward"></i></button-->
-                            <button type="button" id="undo_redo_rightSelected" class="btn btn-default btn-block"><i class="glyphicon glyphicon-chevron-right"></i></button>
-                            <button type="button" id="undo_redo_leftSelected" class="btn btn-default btn-block"><i class="glyphicon glyphicon-chevron-left"></i></button>
-                            <!--button type="button" id="undo_redo_leftAll" class="btn btn-default btn-block"><i class="glyphicon glyphicon-backward"></i></button-->
-                            <button type="button" id="undo_redo_redo" class="btn btn-warning btn-block">redo</button>
-                        </div>
-
-                        <div class="col-xs-5">
-                            <select name="to" id="undo_redo_to" class="form-control" size="10" multiple="multiple"></select>
-                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <p>&nbsp;
                     </div>
             </div>
             <div class="col-md-12">
                 <p>&nbsp;
-            </div>
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">描述信息:</label>
-                    <div class="col-sm-9">
-                        <input type="text" name="description" class="form-control"
-                               value="$!{configs.description}">
-                    </div>
-                </div>
             </div>
         </div>
         <div class="modal-footer" style="border:solid 1px #e0e0e0"></div>
@@ -83,8 +142,48 @@
 </div>
 </div>
 <input id="groups_hidden" style="display: none">
+<input id="add_id" style="display: none" value="1">
 <textarea style="display: none" id="images_html_id"></textarea>
 <script>
+
+
+    function make_html(id, ip, select_data, iwidth, iheight){
+        if(!id){
+            id = $("#add_id").val()
+            $("#add_id").val(parseInt(id)+1)
+        }
+        value = $("#make_html_id").val()
+        value = value.replace(/#id/g, id);
+        value = value.replace(/#image_data/, $("#images_html_id").val());
+
+        if(ip){
+            value = value.replace(/value=#ip/, "value="+ip);
+        }else{
+            value = value.replace(/value=#ip/, "value=.");
+        }
+        if(select_data){
+            value = value.replace(/#image_to/, select_data);
+        }
+  
+        if(iwidth){
+            value = value.replace(/value="4"/, "value='"+iwidth+"'");
+        }
+        if(iheight){
+            value = value.replace(/value="250px;"/, "value='"+iheight+"'");
+        }
+
+        $("#add_data_html_id").append(value)
+        $('#undo_redo'+id).multiselect({
+            sort:false,
+        });
+        $('#undo_redo_to'+id).multiselect({
+            sort:false,
+        });
+        var div = document.getElementById("add_data_html_id");
+        div.scrollTop = div.scrollHeight;
+    }
+
+
     function change(obj) {
         value = $(obj).val();
         if (value == 0) {
@@ -94,40 +193,68 @@
         }
     }
 
-    function getImages(ids){
+        #if(!${configs.templateId})
+        getImages("")
+        make_html()
+        #end
+
+    function getImages(html_id, ids){
         url = "/monitor/graph/merger/images/getImages?length=100000&start=1&draw=1";
-        result = post({ids:ids},url);
+        result = post({graphId:ids},url);
         data = result["data"];
 
         html = ""
-        for(i=0;i<data.length;i++){
-            html += "<option value="+data[i]["graphId"]+">"+data[i]["page"]+"</option>\n"
+        sort_data ={}
+        if(ids){
+            for(i=0;i<data.length;i++){
+                sort_data["a"+data[i]["graphId"]] = "<option value="+data[i]["graphId"]+">"+data[i]["page"]+"</option>\n"
+            }
+            ids = ids.split(",")
+            for(i=0;i<ids.length;i++){
+                html += sort_data["a"+ ids[i]]
+            }
+
+        }else{
+            for(i=0;i<data.length;i++){
+                html += "<option value="+data[i]["graphId"]+">"+data[i]["page"]+"</option>\n"
+            }
         }
-        $('#undo_redo_to').html(html)
-        $("#images_html_id").html(html)
+        $('#'+html_id).html(html)
+        $("#images_html_id").val(html)
     }
 
-    getImages()
-
+    getImages("undo_redo")
         #if($configs.graphIds)
-          getImages("$!{configs.graphids}")
+        getImages("undo_redo_to", "$!{configs.graphIds}")
         #end
 
-    function search(ip) {
+    function search(images) {
         temp = ""
         data =  $('#images_html_id').val().split("\n")
         for(i=0;i<data.length;i++){
-            if(data[i].indexOf(ip) != -1){
+            if(data[i].indexOf(images) != -1){
                 temp += data[i]
             }
         }
         $('#undo_redo').html(temp)
     }
 
-    jQuery(document).ready(function($) {
-        $('#undo_redo').multiselect({
-            keepRenderingSort: true
-        });
-    });
+    function delete_data_source(id){
+        $("#delete_html_id"+id).remove()
+    }
+
+        #if($configs.templateId)
+        getImages("")
+        gson_data =  JSON.parse('${configs.gsonData}')
+        graphDatas = JSON.parse('${graphs}');
+        ip = gson_data["ip"]
+        width = gson_data["width"]
+        height = gson_data["height"]
+        select_data = gson_data["selectData"]
+        for(i=0;i<ip.length;i++) {
+            make_html(i+1, ip[i], graphDatas[i], width[i], height[i])
+            $("#add_id").val(i+2)
+        }
+        #end
 </script>
 </body>

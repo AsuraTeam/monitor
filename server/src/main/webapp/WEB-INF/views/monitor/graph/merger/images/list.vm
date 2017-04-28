@@ -31,9 +31,11 @@
                                    class="table  table-bordered table-hover dataTables-example">
                                 <thead>
                                 <tr nowrap="nowrap" role="rows">
-                                    <th>图集名称</th>
+                                    <th>图像类型</th>
                                     <th>图像标题</th>
                                     <th>数据源数量</th>
+                                    <th>图像宽度</th>
+                                    <th>图像高度</th>
                                     <th>数据源颜色</th>
                                     <th>描述信息</th>
                                     <th>最近修改人</th>
@@ -52,12 +54,16 @@
 
         <script>
             var site = "graph/merger/images"
-            function addConfig(id){
+            function addConfig(id, clone){
                 if(!id){
                     id=0;
                 }
+                if(!clone)
+                {
+                    clone = ""
+                }
                 url = "/monitor/"+site+"/add";
-                html = post({id:id}, url);
+                html = post({id:id, clone:clone}, url);
                 $('#addConfig').html(html);
                 $('#add_getui_config').modal('toggle');
             }
@@ -76,6 +82,23 @@
 
             }
 
+            /**
+             *
+             * @param data
+             * @param key
+             * @returns {*}
+             */
+            function getGsonData(data, key, default_value) {
+                if (data){
+                    data = JSON.parse(data)
+                    return data[key]
+                }
+                if(default_value){
+                 return default_value;
+                }
+                return ""
+            }
+
             function loadData(){
                 $("#listTable").dataTable({
                     "filter": false,//去掉搜索框
@@ -91,13 +114,11 @@
                         "type": 'post'
                     },
                     "columns": [ // 数据映射
-                        {"data": "page"},
                         {"data": "imagesGson", "mRender":function (data) {
-                            if (data){
-                                data = JSON.parse(data)
-                                return data["title"]
-                            }
-                            return ""
+                            return getGsonData(data, "imageTp")
+                        }},
+                        {"data": "imagesGson", "mRender":function (data) {
+                            return getGsonData(data, "title")
                         }},
                         {"data": "imagesGson", "mRender":function (data) {
                             if (data){
@@ -105,6 +126,12 @@
                                 return data["name"].split(",").length - 1;
                             }
                             return ""
+                        }},
+                        {"data": "imagesGson", "mRender":function (data) {
+                            return getGsonData(data, "width",6)
+                        }},
+                        {"data": "imagesGson", "mRender":function (data) {
+                            return getGsonData(data, "width", "250px")
                         }},
                         {"data": "imagesGson", "mRender":function (data) {
                             if (data){
@@ -125,11 +152,12 @@
                         {"data": "description"},
                         {"data": "lastModifyUser"},
                         {"data": "lastModifyTime","mRender":function (data) {
-                            return data?laydate.now(data, "YYYY-MM-DD hh:mm:ss"):"--";
+                            return data;
                         }},
                         {"sWidth": "150px", "data": "graphId", "mRender": function(data, type, full) {
                             return '<button type="button" onclick="addConfig('+data+')" class="btn btn-sm btn-warning">编辑</button>&nbsp;'+
-                                    '<button type="button" onClick="deleteConfig('+data+')" class="btn btn-sm btn-danger">删除</button>';
+                                    '<button type="button" onClick="deleteConfig('+data+')" class="btn btn-sm btn-danger">删除</button>&nbsp;' +
+                                    '<button type="button" onClick="addConfig('+data+',1)" class="btn btn-sm btn-primary">克隆</button>';
                         }
                         },
                     ],

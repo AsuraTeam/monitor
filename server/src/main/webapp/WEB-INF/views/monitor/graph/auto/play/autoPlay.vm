@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<script src="/static/js/jquery.min.js?v=2.1.4"></script>
+<script src="/static/js/public.js"></script>
+<script>
+    var getActed = false;
+</script>
+<style>
+    .title{
+        z-index:111111;width: 100%;margin-top:0px;
+    }
+    .title1{
+        z-index:111111;width: 100%;margin-top:0px;
+    }
+
+    body{
+        background-color: #000000;
+    }
+
+
+
+    ::-webkit-scrollbar {
+        width: 0.2em;
+    }
+
+    ::-webkit-scrollbar:horizontal
+    {
+        height: 0.2em;
+    }
+
+</style>
+<body class="top-navigation"  sroll="no">
+<input  id="loadid" type="hidden">
+<input  id="init" type="hidden">
+<input value="0" id="loadidtime" type="hidden">
+<div id="auto_load_html_id" style="height:auto;" >
+</div>
+</body>
+</div>
+</div>
+</div>
+
+<script type="text/javascript" language="javascript">
+
+    function make_html(id, url) {
+        html = '<iframe  src="'+url+'"   name="imgiframe" id="iframepage" height="8000px;" frameborder="0" width="100%" scrolling="no" marginheight="0" marginwidth="0" ></iframe>'
+        $("#auto_load_html_id").append(html)
+    }
+
+    data_url = "/monitor/graph/auto/play/getUrl"
+    src_url = new Array();
+    src_time = new Array();
+        #foreach($id in $ids)
+        url_data = post({id:parseInt($id)}, data_url)
+        if(!$("#init").val()){
+            make_html("$id", url_data["url"]);
+            $("#init").val(1)
+        }
+        src_url.push(url_data["url"])
+        src_time.push(url_data["time"])
+        #end
+
+
+    function sleep(n) {
+        var start = new Date().getTime();
+        while(true)  if(new Date().getTime()-start > n) break;
+    }
+
+    list = new Array();
+        #foreach($id in $ids)
+        list.push("autoloaddiv$id")
+        #end
+
+
+    setInterval(function() {
+        for(i=0; i < src_url.length; i++){
+            if(!$("#loadid").val()){
+                $("#iframepage").prop("src", src_url[i]);
+                $("#loadid").val(i);
+                $("#loadidtime").val(new Date().getTime());
+            }else{
+                t = $("#loadid").val()
+                if( new Date().getTime() - parseInt($("#loadidtime").val()) >= parseInt(src_time[i]) * 1000 * 60 ) {
+                    if(parseInt(t) < src_url.length-1 ){
+                        $("#loadid").val(i+1);
+                        $("#iframepage").prop("src", src_url[i+1]);
+                        $("#loadidtime").val(new Date().getTime());
+                    }else{
+                        $("#loadid").val(0);
+                        $("#iframepage").prop("src", src_url[0]);
+                        $("#loadidtime").val(new Date().getTime());
+                    }
+                }
+            }
+        }
+    }, list.length * 6000);
+
+    setTimeout(function(){
+                location.reload()}
+            , 1000 * 60 * 10)
+
+</script>
+</body>

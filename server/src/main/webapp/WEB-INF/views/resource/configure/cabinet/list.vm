@@ -61,8 +61,7 @@
                 $('#add_getui_config').modal('toggle');
             }
             function deleteConfig(id){
-
-                url = "/resource/configure/"+site+"/delete";
+                url = "/resource/configure/"+site+"/deleteSave";
                 parent.layer.confirm("点击同意后,将删除数据", {
                     btn: ['同意','不同意'], //按钮
                     shade: false//不显示遮罩

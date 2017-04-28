@@ -531,7 +531,11 @@
         })
 
         cookieName = "selectImages"
-        $.cookie(cookieName, chk_value, {path:"/"});
+        if (chk_value.length > 0 ){
+            $.cookie(cookieName, chk_value, {path:"/"});
+        }else{
+            chk_value = $.cookie(cookieName);
+        }
 
         type = $('#img_type').val()
         ips =  get_all_ip()
@@ -591,13 +595,6 @@
         getCheckValue("","", value)
     }
 
-//    setTimeout(function () {
-//        realtime = $.cookie("is_realtime");
-//        if(realtime=="1"){
-//            return;
-//        }
-//        window.location.reload();
-//    },180000)
 
     function reinitIframe(){
         var iframe = document.getElementById("iframepage");

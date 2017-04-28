@@ -8,7 +8,8 @@
             last_modify_time as lastModifyTime,
             description as description,
             last_modify_user as lastModifyUser,
-            page as page
+            page as page,
+            gson_data as gsonData
          from monitor_graph_template 
      </sql>
     <select id="selectByAll" resultType="com.asura.monitor.graph.entity.MonitorGraphTemplateEntity">
@@ -25,7 +26,8 @@
             last_modify_time,
             description,
             last_modify_user,
-            page
+            page,
+            gson_data
         ) 
         values(        
             #{templateId},
@@ -33,7 +35,8 @@
             #{lastModifyTime},
             #{description},
             #{lastModifyUser},
-            #{page}
+            #{page},
+            #{gsonData}
         )
     </insert>
 
@@ -44,7 +47,8 @@
             last_modify_time=#{lastModifyTime},
             description=#{description},
             last_modify_user=#{lastModifyUser},
-            page=#{page}
+            page=#{page},
+            gson_data=#{gsonData}
          where template_id=#{templateId}
     </update>
 

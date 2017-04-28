@@ -3,8 +3,13 @@ package com.asura.resource.controller;
 import com.asura.framework.base.paging.PagingResult;
 import com.asura.framework.base.paging.SearchMap;
 import com.asura.framework.dao.mybatis.paginator.domain.PageBounds;
+import com.google.gson.Gson;
+import com.asura.common.controller.IndexController;
 import com.asura.common.response.PageResponse;
 import com.asura.common.response.ResponseVo;
+import com.asura.resource.entity.CmdbResourceServerEntity;
+import com.asura.resource.service.CmdbResourceServerService;
+import com.asura.util.CheckUtil;
 import com.asura.util.DateUtil;
 import com.asura.util.PermissionsCheck;
 import com.asura.resource.entity.CmdbResourceCabinetEntity;
@@ -17,7 +22,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.List;
 
 /**
  * <p></p>
@@ -46,6 +53,10 @@ public class CabinetController {
 
     @Autowired
     private PermissionsCheck permissionsCheck;
+    @Autowired
+    private IndexController logSave;
+    @Autowired
+    private CmdbResourceServerService serverService;
 
 
 
@@ -58,6 +69,23 @@ public class CabinetController {
         return "/resource/configure/cabinet/list";
     }
 
+
+    /**
+     * 获取机柜数据
+     * @param foolderId
+     * @param length
+     * @param start
+     */
+    PagingResult<CmdbResourceCabinetEntity> getCabinetData(int foolderId, int length, int start){
+        PageBounds pageBounds = PageResponse.getPageBounds(length, start);
+        SearchMap searchMap = new SearchMap();
+        if (foolderId > 0 ){
+            searchMap.put("floorId", foolderId);
+        }
+        PagingResult<CmdbResourceCabinetEntity> result = service.findAll(searchMap,pageBounds);
+        return result;
+    }
+
     /**
      * 列表数据
      * @return
@@ -65,9 +93,7 @@ public class CabinetController {
     @RequestMapping(value = "listData", produces = {"application/json;charset=UTF-8"})
     @ResponseBody
     public String listData(int draw, int start, int length) {
-        PageBounds pageBounds = PageResponse.getPageBounds(length, start);
-        SearchMap searchMap = new SearchMap();
-        PagingResult<CmdbResourceCabinetEntity> result = service.findAll(searchMap,pageBounds);
+        PagingResult<CmdbResourceCabinetEntity> result = getCabinetData(0, length, start);
         return PageResponse.getMap(result, draw);
     }
 
@@ -95,7 +121,6 @@ public class CabinetController {
     public ResponseVo save(CmdbResourceCabinetEntity entity, HttpSession session){
         String user = permissionsCheck.getLoginUser(session);
         entity.setLastModifyUser(user);
-
         entity.setCreateUser(user);
         if(entity.getCabinetId()!=null){
             service.update(entity);
@@ -119,11 +144,21 @@ public class CabinetController {
     }
 
     /**
-     * 删除信息
+     * 删除机柜信息
      * @return
      */
-    @RequestMapping("delete")
-    public ResponseVo delete(){
+    @RequestMapping("deleteSave")
+    @ResponseBody
+    public ResponseVo delete(int id, HttpServletRequest request){
+        SearchMap searchMap = new SearchMap();
+        searchMap.put("cabinetId", id);
+        List<CmdbResourceServerEntity> re = serverService.getDataList(searchMap,"selectByAll");
+        if (re.size() > 0){
+            return ResponseVo.responseError("请删除依赖的设备后删除机柜"+ re.get(0).getIpAddress());
+        }
+        CmdbResourceCabinetEntity result = service.findById(id, CmdbResourceCabinetEntity.class);
+        service.delete(result);
+        logSave.logSave(request, "删除机柜"+ new Gson().toJson(result));
         return ResponseVo.responseOk(null);
     }
 }

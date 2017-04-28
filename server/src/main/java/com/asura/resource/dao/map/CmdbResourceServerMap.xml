@@ -87,6 +87,11 @@
             and a.server_id=#{hostId}
         </if>
 
+        <if test="cabinetId != null">
+            and a.cabinet_id=#{cabinetId}
+        </if>
+
+
         <!-- 获取时间 -->
         <if test="time !=null">
             and substr(from_unixtime(a.create_time,"%Y-%m-%d %H:%i:%S"), 1,7) = #{time}

@@ -20,6 +20,9 @@
         <include refid="sqlId"/>
         from cmdb_resource_cabinet a, cmdb_resource_floor b
         where a.floor_id = b.floor_id
+        <if test="floorId != null">
+            and b.floor_id =#{floorId}
+        </if>
         <if test="cabinetScope != null">
             and a.cabinet_scope = #{cabinetScope}
         </if>
@@ -45,6 +48,7 @@
         <if test="isOff != null" >
             and  cabinet_id  in (select distinct cabinet_id from cmdb_resource_server where cabinet_id>1 and status=0 )
         </if>
+        order by cabinet_id desc
     </select>
 
     <select id="selectCabinetName" resultType="com.asura.resource.entity.CmdbResourceCabinetEntity">

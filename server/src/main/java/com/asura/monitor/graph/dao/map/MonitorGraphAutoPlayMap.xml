@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.monitor.graph.dao.MonitorGraphAutoPlayDao">
+     <sql id="baseSql">
+        select 
+            play_id as playId,
+            last_modify_time as lastModifyTime,
+            last_modify_user as lastModifyUser,
+            url as url,
+            description as description,
+            intervals as intervals
+         from monitor_graph_auto_play 
+     </sql>
+    <select id="selectByAll" resultType="com.asura.monitor.graph.entity.MonitorGraphAutoPlayEntity">
+         <include refid="baseSql" />
+     </select>
+      <select id="findById" resultType="com.asura.monitor.graph.entity.MonitorGraphAutoPlayEntity">
+                   <include refid="baseSql" />
+            where play_id=#{playId}       </select>
+
+    <insert id="save" parameterType="com.asura.monitor.graph.entity.MonitorGraphAutoPlayEntity">
+        insert into monitor_graph_auto_play(
+            play_id,
+            last_modify_time,
+            last_modify_user,
+            url,
+            description,
+            intervals
+        ) 
+        values(        
+            #{playId},
+            #{lastModifyTime},
+            #{lastModifyUser},
+            #{url},
+            #{description},
+            #{intervals}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.monitor.graph.entity.MonitorGraphAutoPlayEntity">
+        update monitor_graph_auto_play set   
+            play_id=#{playId},
+            last_modify_time=#{lastModifyTime},
+            last_modify_user=#{lastModifyUser},
+            url=#{url},
+            description=#{description},
+            intervals=#{intervals}
+         where play_id=#{playId}
+    </update>
+
+    <delete id="delete" parameterType="com.asura.monitor.graph.entity.MonitorGraphAutoPlayEntity">
+        delete from monitor_graph_auto_play where play_id=#{playId}
+    </delete>
+
+</mapper>
+
