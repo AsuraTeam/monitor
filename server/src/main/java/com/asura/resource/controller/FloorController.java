@@ -112,7 +112,9 @@ public class FloorController {
      * @return
      */
     @RequestMapping("delete")
-    public ResponseVo delete(){
+    public ResponseVo delete(int id, Model model){
+    	CmdbResourceFloorEntity result = service.findById(id,CmdbResourceFloorEntity.class);
+    	service.delete(result);
         return ResponseVo.responseOk(null);
     }
 }
