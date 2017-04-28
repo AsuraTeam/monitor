@@ -4,7 +4,6 @@ import com.asura.framework.base.paging.PagingResult;
 import com.asura.framework.base.paging.SearchMap;
 import com.asura.framework.dao.mybatis.paginator.domain.PageBounds;
 import com.google.gson.Gson;
-import com.sun.tools.javac.comp.Check;
 import com.asura.common.controller.IndexController;
 import com.asura.common.response.PageResponse;
 import com.asura.common.response.ResponseVo;
