@@ -56,11 +56,11 @@
 <br>
 <b>grafana风格大屏展示</b></br>
 <br>
-![image](https://raw.githubusercontent.com/AsuraTeam/monitor/master/images/img20.png)
+![image](https://raw.githubusercontent.com/AsuraTeam/monitor/master/images/20.png)
 <br>
-![image](https://raw.githubusercontent.com/AsuraTeam/monitor/master/images/img21.png)
+![image](https://raw.githubusercontent.com/AsuraTeam/monitor/master/images/21.png)
 <br>
-![image](https://raw.githubusercontent.com/AsuraTeam/monitor/master/images/img22.png)
+![image](https://raw.githubusercontent.com/AsuraTeam/monitor/master/images/22.png)
 <br>
 <b>多维数据显示(任何机器任何数据组合对比)</b></br>
 <br>
