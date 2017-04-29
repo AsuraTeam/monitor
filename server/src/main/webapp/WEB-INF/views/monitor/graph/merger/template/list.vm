@@ -60,6 +60,12 @@
                 $('#add_getui_config').modal('toggle');
             }
 
+
+            function toGraph(id) {
+              url = "/monitor/graph/merger/graph?templateId="+id
+              window.open(url)
+            }
+
             /**
              * 获取多选的值
              */
@@ -200,9 +206,10 @@
                         {"data": "lastModifyTime","mRender":function (data) {
                             return data?laydate.now(data, "YYYY-MM-DD hh:mm:ss"):"--";
                         }},
-                        {"sWidth": "150px", "data": "templateId", "mRender": function(data, type, full) {
+                        { "data": "templateId", "mRender": function(data, type, full) {
                             return '<button type="button" onclick="addConfig('+data+')" class="btn btn-sm btn-warning">编辑</button>&nbsp;'+
-                                    '<button type="button" onClick="deleteConfig('+data+')" class="btn btn-sm btn-danger">删除</button>';
+                                    '<button type="button" onClick="deleteConfig('+data+')" class="btn btn-sm btn-danger">删除</button>&nbsp;' +
+                                    '<button type="button" onClick="toGraph('+data+')" class="btn btn-sm btn-success">看图去</button>';
                         }
                         },
                     ],

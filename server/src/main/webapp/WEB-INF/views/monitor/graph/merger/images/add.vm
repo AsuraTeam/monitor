@@ -1,3 +1,4 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <style>
     .add-border {
         z-index:99999;position:fixed;margin-top: -10px;margin-left: 25px;background-color:#ffffff;padding-left:10px;padding-right:10px;
@@ -125,23 +126,60 @@
                                     </div>
                                 </div>
                             </div>
+                           <div class="col-md-12 top-10"></div>
                         </div>
-                        <div class="col-md-6" style="#if(!$!{imagesGson.get("legendAlign")})display:none;#end" id="show_legend_id">
+                     <div id="show_legend_id" style="#if(!$!{imagesGson.get("legendAlign").equals("1")})display:none;#end">
+                           <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">数值图例:</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox checkbox-primary checkbox-inline">
+                                        <input type="checkbox" id="valueLegend" name="valueLegend"
+                                               onchange="show_change('valueLegend', 'show_legend_width_height')"
+                                               value="#if($!{imagesGson.get("valueLegend")})$!{imagesGson.get("valueLegend")}#end">
+                                        <label for="valueLegend"></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 top-10"></div>
+                       <div id="show_legend_width_height" style="#if(!$!{imagesGson.get("valueLegend").equals("1")})display:none;#end">
+                          <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-6 control-label">图例高度(px):</label>
+                                <div class="col-sm-6">
+                                    <input type="text" id="legendHeight" class="form-control" name="legendHeight"
+                                           value="$!{imagesGson.get("legendHeight")}">
+                                </div>
+                            </div>
+                          </div>
+                          <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-6 control-label">图例宽度(1,12):</label>
+                                <div class="col-sm-6">
+                                    <input type="number" class="form-control" id="legendWidth" name="legendWidth" max="12" min="1"
+                                           value="$!{imagesGson.get("legendWidth")}">
+                                </div>
+                            </div>
+                           </div>
+                        <div class="col-md-12 top-10"></div>
+                        </div>
+                          <div class="col-md-6" >
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">图例位置:</label>
                                 <div class="col-sm-8">
                                     <select name="legendAlign" id="legend_align" class="form-control">
                                         <option value="$!{imagesGson.get("legendAlign")}"> $!{imagesGson.get("legendAlign")}</option>
-                                        <option value="top">上</option>
-                                        <option value="bottom">下</option>
-                                        <option value="left">右上</option>
-                                        <option value="right">右侧</option>
+                                        <option value="bottom">bottom</option>
+                                        <option value="right">right</option>
                                     </select>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-12 top-10"></div>
-                    </div>
+                           <div class="col-md-12 top-10"></div>
+                          </div>
+                       </div>
+                     </div>
+                    <div>
                     <div class="col-md-12 label-border" id="display_mouse_over_id" style="#if($imagesGson.get("imageTp").equals("text"))display:none;#end">
                         <span class="add-border">鼠标滑过显示</span>
                         <div class="col-md-12 top-20"></div>
@@ -163,7 +201,7 @@
                                 <label class="col-sm-6 control-label">鼠标移过粗细(1-12):</label>
                                 <div class="col-sm-6">
                                     <input type="number" name="lineStatesHoverLineWidth" class="form-control" id="lineStatesHoverLineWidth" max="12" min="1"
-                                           value="$!{imagesGson.get("lineStatesHoverLineWidth")}"">
+                                           value="$!{imagesGson.get("lineStatesHoverLineWidth")}">
                                 </div>
                             </div>
                         </div>
@@ -176,7 +214,7 @@
                             <div class="form-group">
                                 <label class="col-sm-6 control-label">图像高度(px,%):</label>
                                 <div class="col-sm-6">
-                                    <input type="text" name="height" class="form-control"
+                                    <input type="text" id="height" class="form-control"
                                            value="$!{imagesGson.get("height")}">
                                 </div>
                             </div>
@@ -233,7 +271,7 @@
                     <div class="col-md-12 label-border">
                         <span class="add-border">数据源配置 最多10条</span>
                         <div id="data_source_configure_id"></div>
-                        <span class="delete-css-hide"  style="#if($!{imagesGson.get("textGraphShow")})display:none;#end">
+                        <span class="delete-css-hide"  style="#if($!{imagesGson.get("textGraphShow").equals("1")})display:none;#end">
                              <button style="margin-left: 81%;margin-bottom: 10px;float:left;"
                                 onclick="create_data_source();" class="btn btn-primary btn-sm"
                                 type="button">
@@ -401,6 +439,9 @@
     }
     #if(!${configs.graphId})
           $("#width").val(6)
+          $("#legendHeight").val("250px")
+          $("#height").val("250px")
+          $("#legendWidth").val("20")
           $("#lineStatesHoverLineWidth").val(1.6)
           $("#refreshInterval").val(30000)
           $("#lastTime").val(1000 * 60 * 60 * 4)
@@ -466,6 +507,14 @@
     #if(${configs.graphId})
         if("$!{imagesGson.get("lengendShow")}" == "1"){
             $("#lengendShow").prop("checked", true);
+            $("#show_legend_id").show()
+        }
+console.log("$!{imagesGson.get("valueLegend")}")
+        if("$!{imagesGson.get("valueLegend")}" == "1") {
+           $("#valueLegend").prop("checked", true);
+           $("#valueLegend").val(1);
+           $("#show_legend_id").show()
+           $("#show_legend_width_height").show();
         }
         if("$!{imagesGson.get("tooltipShared")}" == "1") {
            $("#tooltipShared").prop("checked", true);

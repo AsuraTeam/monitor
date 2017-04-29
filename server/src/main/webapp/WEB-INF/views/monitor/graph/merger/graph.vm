@@ -1,21 +1,31 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <http://play.grafana.org/dashboard/db/graph-styles>
-#include("/index/include.vm")
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="/static/js/plugins/echarts.js"></script>
+<script src="/static/js/public.js"></script>
+<link href="/static/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+
 <style>
     .small-font{
-        　　　  font-size:12px;
+        font-size:12px;
+        -webkit-transform-origin-x: 0;
+        -webkit-transform: scale(0.85);
+        font-weight:100;
+    }
+    .small-image-font{
+        font-size:15px;
         -webkit-transform-origin-x: 0;
         -webkit-transform: scale(0.85);
         font-weight:100;
     }
     .small-td-font {
-        font-size:12px;
+        font-size:5px;
         --webkit-transform-origin-x:0;
         --webkit-transform: scale(0.5);
     }
 
     .graph {
-        padding:4px;
+        padding: 6px;
         border-bottom:1px solid #404040;
         border-right:1px solid #404040;
     }
@@ -24,7 +34,7 @@
         margin-top: 20px;
         background-color:#141414;
         height:auto;
-        margin-top:0px;
+        margin-top: 0px;
     }
 
     ::-webkit-scrollbar {
@@ -38,9 +48,21 @@
 
     body {
         background-color:#000000;
+        color:#ffffff;
     }
+   th {
+       border:none;
+   }
+   td {
+       padding: 2px;
+   }
+   .class1{
+       width: 20px;
+       height: 5px;
+       float: left;
+       margin-top: 7px;
+   }
 </style>
-<script src="/static/js/plugins/echarts.js"></script>
 <script>
 (function(d){"object"===typeof module&&module.exports?module.exports=d:d(Echarts)})(function(d){(function(c){function d(){return!!this.points.length}function g(){this.hasData()?this.hideNoData():this.showNoData()}var h=c.seriesTypes,e=c.Chart.prototype,f=c.getOptions(),k=c.extend,l=c.each;k(f.lang,{noData:"No data to display"});f.noData={position:{x:0,y:0,align:"center",verticalAlign:"middle"}};f.noData.style={fontWeight:"bold",fontSize:"12px",color:"#666666"};l(["pie","gauge","waterfall","bubble",
 "treemap"],function(a){h[a]&&(h[a].prototype.hasData=d)});c.Series.prototype.hasData=function(){return this.visible&&void 0!==this.dataMax&&void 0!==this.dataMin};e.showNoData=function(a){var b=this.options;a=a||b.lang.noData;b=b.noData;this.noDataLabel||(this.noDataLabel=this.renderer.label(a,0,0,null,null,null,b.useHTML,null,"no-data"),this.noDataLabel.attr(b.attr).css(b.style),this.noDataLabel.add(),this.noDataLabel.align(k(this.noDataLabel.getBBox(),b.position),!1,"plotBox"))};e.hideNoData=function(){this.noDataLabel&&
@@ -48,12 +70,60 @@
 </script>
 <div id="page_title" class="add-border" style="margin-top: 20px;background-color:#141414;height:auto;font-size:30px;margin-top:0px;color:#FFFFFF;text-align:center;border:1px solid #404040;margin:1px;">
 </div>
+<textarea id="legend_data_html_template" style="display:none;">
+<tr>
+   <td class="small-td-font" id="#idname">
+        <div class="class1"id="#idnamecolor"  style="background-color:#color"></div>
+        &nbsp;&nbsp;#name
+   </td>
+   <td id="_#idlast" valign="left">#last</td>
+   <td id="_#idmin" valign="left">#min</td>
+   <td id="_#idmax" valign="left">#max</td>
+   <td id="_#idavg" valign="left">#avg</td>
+</tr>
+</textarea>
+<textarea id="legend_html_template" style="display:none;">
+    <div class="#legendHtmlWidth small-image-font" style="background-color:#1F1D1D;height:#height;width:#width;overflow:scroll;::--webkit-scrollbar{width:1em;};" id="show_image_data_#id" >
+      <table style="width:100%;">
+            <tr style="color:#0080ff;font-size:12px;">
+                <td>&nbsp;</td>
+                <td>last</td>
+                <td>min</td>
+                <td>max</td>
+                <td>avg</td>
+            </tr>
+            #data
+        </table>
+       </div>
+</textarea>
 <div style="padding:1px;border-left:1px solid #404040;z-index:999999;position:relative;margin-left:1px;height:9999px">
     <div id="image_all_id" class="image-div">
     </div>
     <div>
+<script>
 
-        <script>
+
+function get_max_min_avg_last_value(data,opts, name){
+    id = "_"+opts["id"]+name.replace(/\./g,"") 
+    value = 0
+    new_data = new Array();
+    for(i=0;i<data.length;i++){
+        new_data.push(data[i][1]);
+        value += data[i][1]
+    }
+    last = new_data[new_data.length-1];
+    new_data.sort(function (a,b) {
+        return a - b;
+    })
+    min = new_data[0]
+    avg = value / new_data.length
+    max = new_data[new_data.length-1]
+    units = opts["units"]
+    $("#"+id+"last").html(last+units)
+    $("#"+id+"max").html(max+units)
+    $("#"+id+"min").html(min + units)
+    $("#"+id+"avg").html(avg.toFixed(2)+units)
+}
 
             function get_name_group(name){
                 data = new Array();
@@ -83,18 +153,68 @@
                 return f;
             }
 
+
             function make_image_id(opts){
                 _width = (opts["width"]) ? opts["width"] : 12
                 _height = (opts["height"]) ? opts["height"] : "260px"
+                _margin_border = _height
+                _margin_image_border = (parseInt(_height.replace(/px;/, "")) - 5) + "px"
                 id = opts["name"].replace(/,/g,"_").replace(/\./g, "")
-                write_html = '<div class="col-sm-'+_width+' graph"  id="image_'+opts["id"]+'" style="height:'+_height+'"></div>'
                 old_html = $("#image_all_id").html()
-                if (old_html.indexOf('id="'+id+'"') == -1 ){
-                    $("#image_all_id").append(write_html)
+
+                if(opts["valueLegend"] == "1"){
+                    legendHeight = opts["legendHeight"].replace(/px;/,"")
+                    _height_value = _height.replace(/px/, "")
+                    _height =  parseInt(_height_value) - parseInt(legendHeight) 
+                    _height = _height - 5 + "px"
+                
+                    if(opts["legendAlign"] == "bottom"){
+                        write_html = '<div class="col-sm-'+_width+' graph" style="height:'+_margin_border+';padding:4px;background-color:#1F1D1D" >'+
+                    	     '      <div class="" id="image_'+opts["id"]+'" style="height:'+_height+';width:100%;padding:4px;"></div>'+
+                    	     ' #legend_data</div>'
+                    }else{
+                        write_html = '<div class="col-sm-'+_width+' graph" style="height:'+_margin_border+';padding:2px;background-color:#1F1D1D" >'+
+                    	     '      <div class="col-sm-8" id="image_'+opts["id"]+'" style="height:'+_margin_image_border+';padding:4px;"></div>'+
+                    	     ' #legend_data</div>'
+                    }
+                    if (old_html.indexOf('id="image_'+id+'"') == -1 ){
+                        colors = opts["color"].split(",")
+                        legend_html = $("#legend_html_template").val() 
+                        data_html= $("#legend_data_html_template").val()
+                        if(opts["legendAlign"] == "bottom"){
+                           data_html = data_html.replace(/#legendHtmlWidth/, "col-sms-12")
+                        }else{
+                           data_html = data_html.replace(/#legendHtmlWidth/, "col-sms-"+opts["legendWidth"])
+                           write_html = write_html.replace(/#height/, "100%;")
+                        }
+                        names = opts["name"].split(",")
+                        temp_html = ""
+                        for(li =0 ; li < names.length; li ++){
+                    	if(!names[li]){continue}
+                    	   temp_html += data_html.replace(/#name/g, names[li])
+                    	   temp_html = temp_html.replace(/#idname/g, opts["id"]+(names[li].replace(/\./g,"")))
+                    	   temp_html = temp_html.replace(/#color/, colors[li])
+                           temp_html = temp_html.replace(/#id/g, opts["id"]+(names[li].replace(/\./g,"")))
+                           temp_html = temp_html.replace(/#imageId/g, opts["id"])
+                        }
+                        if(parseInt(legendHeight) < 60){
+                          opts["legendHeight"] = "40px;"
+                        }
+                        legend_html = legend_html.replace(/#data/g, temp_html)
+                        write_html = write_html.replace(/#legend_data/, legend_html)
+                        write_html = write_html.replace(/#width/, opts["legendWidth"])
+                        $("#image_all_id").append(write_html)
+                    }
+                }else{
+                    write_html = '<div class="col-sm-'+_width+' graph"  id="image_'+opts["id"]+'" style="height:'+_height+'"></div>'
+                    old_html = $("#image_all_id").html()
+                    if (old_html.indexOf('id="image_'+id+'"') == -1 ){
+                        $("#image_all_id").append(write_html)
+                    }
                 }
             }
 
-            function getDatas(opts) {
+            function getDatas(opts, chart) {
                 datas = new Array();
 
                 names = opts["name"].split(",")
@@ -141,6 +261,7 @@
                     }else{
                         datas.push(d)
                     }
+                    get_max_min_avg_last_value(d["data"],opts, type+name)
                 }
                 if(opts["baselineShow"] == "1"){
                     dd = new Array();
@@ -179,35 +300,38 @@
             }
 
 
-function get_max_min_avg_last_value(data, id ){
-    value = 0
-    new_data = new Array();
-    for(i=0;i<data.length;i++){
-        new_data.push(data[i][1]);
-        value += data[i][1]
-    }
-    last = new_data[new_data.length-1];
-    new_data.sort(function (a,b) {
-        return a - b;
-    })
-    min = new_data[0]
-    avg = value / new_data.length
-    max = new_data[new_data.length-1]
-    $("#"+id+"last").html(last)
-    $("#"+id+"max").html(max)
-    $("#"+id+"min").html(min)
-    $("#"+id+"avg").html(avg.toFixed(2))
-}
 
-     function get_str(len){
+  function get_str(len){
         s = ""
         for(i=1;i<len;i++){
                s +="."
         }
         return s;
 
-     }
-            function graphAll(opt) {
+  }
+
+  function get_show_legend(opts){
+       if(opts["valueLegend"] == "1") return false
+       if(opts["lengendShow"] == "1") return true
+       return false
+  }
+
+  function change_series(namei, opt, charts, names){
+        var colors = opt["color"].split(",")
+        var id = opt["id"] + names[namei].replace(/\./g,"")
+        $("#"+id).click(function () {
+             var series = charts.series[namei];
+             if (series.visible) {
+                 $("#"+id+"color").css("background-color","#404040");
+         	 series.hide();
+             } else {
+                 $("#"+id+"color").css("background-color", colors[namei]);
+         	 series.show();
+             }
+        })
+  }
+
+  function graphAll(opt) {
                 opt["color"] =  opt["color"]
                 make_image_id(opt);
                 if(opt["color"]) {
@@ -228,8 +352,9 @@ function get_max_min_avg_last_value(data, id ){
                         useUTC: false
                     }
                 });
+
                 t = "&startT=" + startT + "&endT=" + endT;
-                $("#image_"+opt["id"]).echarts({
+                var charts = Echarts.chart("image_"+opt["id"],{
                     chart: {
                         type: opt["imageTp"],
                         zoomType: 'x',
@@ -285,7 +410,7 @@ function get_max_min_avg_last_value(data, id ){
                     },
 
                     legend: {
-                        enabled: opt["lengendShow"] ?  true : false,
+                        enabled: get_show_legend(opt), 
                          verticalAlign: 'top',
                         //floating: true,
                          //y: 2,
@@ -376,9 +501,12 @@ function get_max_min_avg_last_value(data, id ){
                     exporting: {
                         enabled: false
                     },
-                    series: getDatas(opt)
+                    series: getDatas(opt, this)
                 });
-
+		var names = opt["name"].split(",")
+                for(namei= 0 ; namei< names.length; namei ++){
+                   change_series(namei, opt, charts, names)
+                }
             }
 
             function graphPie(opt){
@@ -398,7 +526,7 @@ function get_max_min_avg_last_value(data, id ){
                 }
 
                 // Build the chart
-                $("#image_"+opt["id"]).echarts({
+                $("#image_"+opt["id"]).chart({
                     chart: {
                         backgroundColor: '#1F1D1D',
                         type: 'pie'
