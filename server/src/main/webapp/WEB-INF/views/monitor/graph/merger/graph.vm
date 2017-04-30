@@ -214,9 +214,10 @@ function get_max_min_avg_last_value(data,opts, name){
                 }
             }
 
-            function getDatas(opts, chart) {
-                datas = new Array();
+            function getDatas(opts) {
 
+
+                datas = new Array();
                 names = opts["name"].split(",")
                 currnet_time = new Date().getTime()
                 last_time = parseInt(opts["lastTime"])
@@ -263,8 +264,8 @@ function get_max_min_avg_last_value(data,opts, name){
                     }
                     get_max_min_avg_last_value(d["data"],opts, type+name)
                 }
+
                 if(opts["baselineShow"] == "1"){
-                    dd = new Array();
                     d = {}
                     d["lineWidth"] = opts["baseLineSize"]
                     d["name"] = "危险线"
@@ -278,6 +279,21 @@ function get_max_min_avg_last_value(data,opts, name){
                     d["color"] = opts["alarmBaseColor"]
                     d["fillOpacity"] = 0
                     datas.push(d)
+                }
+                if(opts["imageTp"] == "pie" ) {
+                    data = new Array();
+                    d = {}
+                    d["name"] = opts["title"] 
+                    //d["showInLegend"]= true
+                    d["data"] = new Array(); 
+                    for(piei = 0 ; piei < datas.length; piei ++ ){
+                        ddd = {}
+                        ddd["y"] = datas[piei]["data"][datas.length-1][1]
+                        ddd["name"] = datas[piei]["name"]
+                        d["data"].push(ddd)
+                     }
+                   data.push(d) 
+                   return data;
                 }
                 return datas;
             }
@@ -501,7 +517,7 @@ function get_max_min_avg_last_value(data,opts, name){
                     exporting: {
                         enabled: false
                     },
-                    series: getDatas(opt, this)
+                    series: getDatas(opt)
                 });
 		var names = opt["name"].split(",")
                 for(namei= 0 ; namei< names.length; namei ++){
@@ -509,7 +525,9 @@ function get_max_min_avg_last_value(data,opts, name){
                 }
             }
 
+
             function graphPie(opt){
+                make_image_id(opt);
                 if(opt["color"]) {
                     colors = opt["color"].split(",")
                     colors =  ['#fAB839','#E26742', '#A5F78F', '#83CEDA','#ff0066', '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee', '#2b908f', '#90ee7e'];
@@ -526,7 +544,7 @@ function get_max_min_avg_last_value(data,opts, name){
                 }
 
                 // Build the chart
-                $("#image_"+opt["id"]).chart({
+                var charts = Echarts.chart("image_"+opt["id"],{
                     chart: {
                         backgroundColor: '#1F1D1D',
                         type: 'pie'
@@ -546,7 +564,7 @@ function get_max_min_avg_last_value(data,opts, name){
                         },
                         pointFormat: '<tr style="height:8px;overflow:hidden" nowrap><td style="height:5px;"><nobr><hr style="background-color: #141414;margin:0px;width:14px;height:2px;" size="1"/></nobr></td><td>'+
                         '{series.name}: </td>' +
-                        '<td style="text-align: right"><span style="margin-left:20px;"><b>{point.percentage:.1f}%</b></span></td></tr>',
+                        '<td style="text-align: right"><span style="margin-left:20px;">{point.percentage:.1f}% data: {point.y}'+opt["units"]+'</span></td></tr>',
                         footerFormat: '</table></div>',
                     },
                     plotOptions: {
@@ -556,43 +574,11 @@ function get_max_min_avg_last_value(data,opts, name){
                             dataLabels: {
                                 enabled: true,
                                 color: '#FFFFFF',
-                                format: '<b>{point.name}</b>: {point.percentage:.1f} %',
-                                style: {
-                                    color: (Echarts.theme && Echarts.theme.contrastTextColor) || 'black'
-                                }
+                                format: '<span style="color:{point.color}">{point.name}</span>: {point.percentage:.2f}%  {point.y}'+opt["units"],
                             }
                         }
                     },
-                    legend: {
-                        enabled: opt["lengendShow"] ?  true : false,
-                        // verticalAlign: 'bottom',
-                        //floating: true,
-                        // y: 22,
-                        align: "left",
-                        //layout: 'vertical',
-                        //borderWidth: 0,
-                        itemStyle: {
-                            color: '#e0e0e0',
-                            fontWeight: '100'
-                        },
-                        itemHoverStyle :{
-                            color: '#ffffff',
-                        },
-                        symbolHeight: 8,
-                        symbolWidth: 22,
-                        symbolRadius: 0,
-                    },
-                    series: [{
-                        name: 'Brands',
-                        data: [
-                            { name: 'Microsoft Internet Explorer', y: 56.33 },
-                            { name: 'Chrome', y: 24.03 },
-                            { name: 'Firefox', y: 10.38 },
-                            { name: 'Safari', y: 4.77 },
-                            { name: 'Opera', y: 0.91 },
-                            { name: 'Proprietary or Undetectable', y: 0.2 }
-                        ]
-                    }]
+                    series: getDatas(opt)
                 });
             }
 
@@ -606,13 +592,13 @@ function get_max_min_avg_last_value(data,opts, name){
                     opt["ip"] ="${ip}"
                     opt["id"] = "${id}" + (Math.random()+"").replace(/\./g, "_")
                     if(opt["imageTp"] == "line" || opt["imageTp"] == "area"){
-                    //    graphAll(opt)
+                        graphAll(opt)
                     }
                     if(opt["imageTp"] == "pie" ){
-                      //  graphPie(opt)
+                        //graphPie(opt)
                     }
                     if(opt["imageTp"] == "text" ){
-                          noDataGraph(opt)
+                          //noDataGraph(opt)
                     }
                     #end
                 #end
