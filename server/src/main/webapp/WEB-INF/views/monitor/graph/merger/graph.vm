@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <http://play.grafana.org/dashboard/db/graph-styles>
-<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="/static/js/jquery-3.1.1.min.js"></script>
 <script src="/static/js/plugins/echarts.js"></script>
 <script src="/static/js/public.js"></script>
 <link href="/static/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
@@ -530,7 +530,6 @@ function get_max_min_avg_last_value(data,opts, name){
                 make_image_id(opt);
                 if(opt["color"]) {
                     colors = opt["color"].split(",")
-                    colors =  ['#fAB839','#E26742', '#A5F78F', '#83CEDA','#ff0066', '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee', '#2b908f', '#90ee7e'];
                 }else{
                     colors =  ['#fAB839','#E26742', '#A5F78F', '#83CEDA','#ff0066', '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee', '#2b908f', '#90ee7e'];
                 }
@@ -571,6 +570,7 @@ function get_max_min_avg_last_value(data,opts, name){
                         pie: {
                             allowPointSelect: true,
                             cursor: 'pointer',
+                            //size: 180,
                             dataLabels: {
                                 enabled: true,
                                 color: '#FFFFFF',
@@ -580,6 +580,10 @@ function get_max_min_avg_last_value(data,opts, name){
                     },
                     series: getDatas(opt)
                 });
+		var names = opt["name"].split(",")
+                for(namei= 0 ; namei< names.length; namei ++){
+                   change_series(namei, opt, charts, names)
+                }
             }
 
 

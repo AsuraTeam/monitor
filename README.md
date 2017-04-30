@@ -64,6 +64,8 @@
 <br>
 ![image](https://raw.githubusercontent.com/AsuraTeam/monitor/master/images/23.png)
 <br>
+![image](https://raw.githubusercontent.com/AsuraTeam/monitor/master/images/24.png)
+<br>
 <b>多维数据显示(任何机器任何数据组合对比)</b></br>
 <br>
 ![image](https://raw.githubusercontent.com/AsuraTeam/monitor/master/images/img11.png)

@@ -41,9 +41,22 @@
          <div class="form-group">
              <label class="col-sm-4 control-label">线条颜色:</label>
              <div class="col-sm-8">
-                 <input type="text" name="imageColor_#id" id="imageColor_#id"
-                        onchange="change_color($(this).val(), #id)" class="form-control" value="#color" style="width:50%;float:left;" >
-                 <span class="form-control" id="image_line_color_#id" style="background-color:#color;width:50%;float:left;">&nbsp;&nbsp;</span>
+                 <input type="text" class="color form-control" id="imageColor_#id" name="imageColor_#id" value="#color" style="width:50%;float:left;background-color:#color"/>
+                 <div id="picker#id" class="pickerhide" style="float:left;"></div>
+                 <script>
+                   $("#imageColor_#id").click(function(){
+                      $(".pickerhide").hide(); 
+                      $("#picker#id").show(); 
+                      $('#picker#id').farbtastic('#imageColor_#id');
+                      setTimeout(function(){
+                         $("#picker#id").hide(); 
+                      }, 8000)
+                   })
+                  setTimeout(function(){
+                      $('#picker#id').farbtastic('#imageColor_#id');
+                      $(".pickerhide").hide(); 
+                  }, 100)
+                 </script>
              </div>
          </div>
      </div>
@@ -224,7 +237,7 @@
                                 <label class="col-sm-6 control-label">图像宽度(1-12):</label>
                                 <div class="col-sm-6">
                                     <input type="number" name="width" class="form-control" id="width" max="12" min="2"
-                                           value="$!{imagesGson.get("width")}"">
+                                           value="$!{imagesGson.get("width")}">
                                 </div>
                             </div>
                         </div>
@@ -353,7 +366,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div id="alarm_base_html_id" style="#if(!$!{imagesGson.get("baselineShow")})display:none;#end ">
+                        <div id="alarm_base_html_id" style="#if(!$!{imagesGson.get("baselineShow").equals("1")})display:none;#end ">
                             <div class="col-md-6" title="为图像添加报警基线">
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">报警基线上限:</label>
@@ -368,9 +381,22 @@
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">线条颜色:</label>
                                     <div class="col-sm-8">
-                                        <input type="text" name="alarmBaseColor" onchange="change_color($(this).val(), 'base_line', 7)" class="form-control" value="red" style="width:50%;float:left;"
-                                               value="$!{imagesGson.get("alarmBaseColor")}">
-                                        <span class="form-control" id="image_line_color_base_line" style="background-color:red;width:50%;float:left;">&nbsp;&nbsp;</span>
+
+                                    <input type="text" id="alarmBaseColor" name="alarmBaseColor" onchange="change_color($(this).val(), 'base_line', 7)" class="form-control"  style="width:50%;float:left;background-color:$!{imagesGson.get("alarmBaseColor")}" value="$!{imagesGson.get("alarmBaseColor")}">
+                 <div id="pickerbasecolor" style="float:left;"></div>
+                 <script>
+                   $("#alarmBaseColor").click(function(){
+                      v= $("#alarmBaseColor").val()
+                      if(!v){
+                          $("#alarmBaseColor").val("#ff4776")
+                      }
+                      $('#pickerbasecolor').farbtastic('#alarmBaseColor');
+                      $("#pickerbasecolor").show(); 
+                      setTimeout(function(){
+                         $("#pickerbasecolor").hide(); 
+                      }, 8000)
+                   })
+                 </script>
                                     </div>
                                 </div>
                             </div>
@@ -407,13 +433,8 @@
             <div class="col-md-12"
                  style="border: 1px solid #d0d0d0;margin-left: 0px;margin-right: 130px;margin-top: 1px;">
                 <span style="position:fixed;margin-top: 0px;margin-left: 25px;"></span>
-                <button style="margin-left: 70%;margin-top: 15px;margin-bottom: 10px;float:left;"
-                        onclick="saveConfig($!{configs.imageId});" class="btn btn-warning btn-lg"
-                        type="button">
-                    <i class="fa fa-line-chart"></i>&nbsp;预览
-                </button>
-                <button style="margin-left: 84%;margin-top: -56px;margin-bottom: 10px;float:left;"
-                        onclick="saveConfig($!{configs.graphId});" class="btn btn-primary btn-lg"
+                <button style="margin-left: 84%;margin-top: 9px;margin-bottom: 8px;float:left;"
+                        onclick="saveConfig(#if(!$!{clone})$!{configs.graphId}#end);" class="btn btn-primary btn-lg"
                         type="button">
                     <i class="fa fa-check"></i>&nbsp;保存
                 </button>

@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>监控图像自定义配置</title><body class="gray-bg top-navigation">
     #include("/index/include.vm")
+<link rel="stylesheet" href="/static/css/farbtastic.css" type="text/css" />
 <script type="application/javascript" src="/static/js/monitor.js"></script>
+<script type="text/javascript" src="/static/js/farbtastic.js"></script>
 <div id="">
     <div id="page-wrapper" class="gray-bg">
         #include("/index/header.vm")
