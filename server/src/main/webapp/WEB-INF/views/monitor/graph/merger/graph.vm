@@ -609,6 +609,11 @@ function get_max_min_avg_last_value(data,opts, name){
             #else
             ids = JSON.parse('${graphIds}');
             ips = JSON.parse('${graphIpMap}');
+            // 参数传递IP
+            parameter_ip = ""
+            if("$!{ips}"){
+              parameter_ip = "$!{ips}".split(",")
+            }
             width = JSON.parse('${graphWidthMap}');
             height = JSON.parse('${graphHeightMap}');
             templateMap = JSON.parse('${graphTemplateMap}');
@@ -620,6 +625,9 @@ function get_max_min_avg_last_value(data,opts, name){
                 opt["width"] = width[graphId+(ii+"")];
                 opt["height"] = height[graphId+(ii+"")];
                 ipdata = ips[graphId+(ii+"")].split(",")
+                if(parameter_ip){
+                  ipdata = parameter_ip
+                }
                 for (jj = 0 ;jj < ipdata.length; jj++){
                     opt["ip"] = ipdata[jj]
                     opt["id"] = graphId + (Math.random()+"").replace(/\./g, "_")

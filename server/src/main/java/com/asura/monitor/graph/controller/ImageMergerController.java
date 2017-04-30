@@ -90,7 +90,7 @@ public class ImageMergerController {
      * @return
      */
     @RequestMapping("graph")
-    public String graph(int templateId, Model model, String ip, HttpServletRequest request){
+    public String graph(int templateId, Model model, String ip){
         Gson gson = new Gson();
         SearchMap searchMap = new SearchMap();
         PageBounds pageBounds = PageResponse.getPageBounds(1000000, 1);
@@ -131,6 +131,7 @@ public class ImageMergerController {
             model.addAttribute("graphWidthMap",  gson.toJson(graphWidthMap));
             model.addAttribute("graphTemplateMap", gson.toJson(templateMap));
             model.addAttribute("graphIds", templateGraphIds);
+            model.addAttribute("ips", ip);
             model.addAttribute("title", templateEntity.getPage());
             return "/monitor/graph/merger/graph";
         }

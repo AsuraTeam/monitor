@@ -74,7 +74,7 @@ public class InventoryController {
     @RequestMapping(value = "listData", produces = {"application/json;charset=UTF-8"})
     @ResponseBody
     public String listData(int draw, int start, int length) {
-        PageBounds pageBounds = PageResponse.getPageBounds(length, start);
+        PageBounds pageBounds = PageResponse.getPageBounds(10000, start);
         SearchMap searchMap = new SearchMap();
         int counts = 0;
         int used = 0;
