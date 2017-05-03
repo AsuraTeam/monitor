@@ -197,6 +197,7 @@ public class MonitorController {
 
     private static   ExecutorService executor ;
     private static int threadPoolNumber ;
+    private Random random;
 
 
     /**
@@ -807,13 +808,12 @@ public class MonitorController {
 
                 // 判断报警间隔
                 long currTime = DateUtil.getCurrTime();
-                long lastSendTime;
+
                 if (!ALARM_INTERVAL.containsKey(alarmId)) {
                     logger.info("初始化 ALARM_INTERVAL ... ");
                     ALARM_INTERVAL.put(alarmId, currTime);
                 }
 
-                lastSendTime = ALARM_INTERVAL.get(alarmId);
                 int alarmInterval;
                 if (entity.getMonitorConfigureTp().equals("item")) {
                     alarmInterval = entity.getAlarmInterval() * 60;
@@ -831,8 +831,10 @@ public class MonitorController {
                     info(isDebug ? "ALARM_COUNT is null ... " + alarmId : null);
                     continue;
                 }
-
+                long lastSendTime;
+                lastSendTime = ALARM_INTERVAL.get(alarmId);
                 info(isDebug ? "获取到ALARM_COUNT 是" + ALARM_COUNT.get(alarmId) + "" : null);
+                currTime = DateUtil.getCurrTime();
                 if (currTime - lastSendTime < alarmInterval && currTime > lastSendTime) {
                     // 第一次不记数，直接发送
                     if (alarmInterval > 0 && retry > 0) {
@@ -840,6 +842,8 @@ public class MonitorController {
                         continue;
                     }
                 }
+                currTime = DateUtil.getCurrTime();
+                lastSendTime = ALARM_INTERVAL.get(alarmId);
                 if (currTime - lastSendTime > alarmInterval) {
                     info(isDebug ? "初始化时间报警记数器:" + alarmId : null);
                     ALARM_INTERVAL.put(alarmId, currTime);
@@ -1988,14 +1992,19 @@ public class MonitorController {
         }
         old += 1;
         ALARM_MAP.put(id, old);
+        info(isDebug ? "setAlarmMap: " + ids +"  type:"+ type: null);
         if (!type.equals("ok")) {
             removeMap(ids.concat("_ok"));
         }
         if (!type.equals("faild")) {
-            removeMap(ids.concat("_faild"));
+            if (!type.equals("warning")) {
+                removeMap(ids.concat("_faild"));
+            }
         }
         if (!type.equals("warning")) {
-            removeMap(ids.concat("_warning"));
+            if (!type.equals("faild")) {
+                removeMap(ids.concat("_warning"));
+            }
         }
         if (!type.equals("unknown")) {
             removeMap(ids.concat("_unknown"));
@@ -2149,6 +2158,7 @@ public class MonitorController {
      * @param id
      */
     void setStatus(PushEntity pushEntity, String id) {
+        info(isDebug ? "setStatus pushEntity " + gson.toJson(pushEntity) : null);
         switch (pushEntity.getStatus()) {
             case "1":
                 setAlarmMap("ok", id);

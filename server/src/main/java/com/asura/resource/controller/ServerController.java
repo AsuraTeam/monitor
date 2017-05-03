@@ -267,6 +267,16 @@ public class ServerController {
         return "/resource/configure/server/add";
     }
 
+    /**
+     * 保存
+     *
+     * @return
+     */
+    @RequestMapping("saveServer")
+    @ResponseBody
+    public ResponseVo saveServer(CmdbResourceServerEntity entity, HttpServletRequest request) {
+        return  save(entity, request);
+    }
 
     /**
      * 保存
@@ -329,7 +339,7 @@ public class ServerController {
         // 获取每个id对应的ip地址
         jedis.set(app+"_"+MonitorCacheConfig.cacheHostIdToIp+ c.getServerId(), c.getIpAddress());
         jedis.close();
-        indexController.logSave(request,"保存资产数据 " + entity.getIpAddress());
+        indexController.logSave(request,"保存资产数据 " + entity.getIpAddress() + gson.toJson(entity));
         return ResponseVo.responseOk(null);
     }
 

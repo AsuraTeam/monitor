@@ -25,6 +25,8 @@
 <script src="/static/js/plugins/dataTables/fnReloadAjax.js"></script>
 <script src="/static/js/plugins/flot/jquery.flot.js"></script>
 
+<script src="/static/js/echarts/echarts.js"></script>
+<script src="/static/js/echarts/chart/line.js"></script>
 
 <script src="/static/js/multiselect.min.js"></script>
 

@@ -42,8 +42,8 @@
                 setWidth('${name}${n.replace('---','').replace(".","_").replace(" ","")}',1)
             }
 
-            stock_chart("1ab394", '${name}${n.replace(
-                '---','').replace(" ","").replace(".","_")}', "${name} ${n.replace("SLASH","/").replace('---',' ')}", "${name} ${n.replace("SLASH","/").replace('---',' ')}", "/monitor/graph/historyData?ip=${ip}&name=${n}&type=$name","","$!{startT}","$!{endT}")
+            graph_min("1ab394", '${name}${n.replace(
+                '---','').replace(" ","").replace(".","_")}', "${name} ${n.replace("SLASH","/").replace('---',' ')}", "${name} ${n.replace("SLASH","/").replace('---',' ')}", "/monitor/graph/historyData?ip=${ip}&name=${n}&type=$name","","$!{startT}","$!{endT}", "select")
 
         }
 ##            setTimeout(function () {
@@ -68,69 +68,4 @@ function loadimg() {
 
 loadimg();
 
-function stock_chart(color, id, title, ytitle, url, chartype,lstartT,lendT) {
-
-    Highcharts.setOptions({
-        global: {
-            useUTC: false
-        }
-    });
-
-    startT= $('#startSendTime').val()
-    endT = $('#endSendTime').val()
-
-    if(!startT){
-        startT = ""
-    }
-    if(!endT){
-        endT = ""
-    }
-
-    if(lstartT){
-        startT=lstartT;
-        endT = lendT;
-    }
-    lineWidth = 3
-    lineWidthO = 5
-    if(startT){
-        lineWidth = 1
-        lineWidthO= 1
-    }
-
-
-    // Create the chart
-    $('#' + id).highcharts('StockChart', {
-
-        rangeSelector: {
-            selected: 1,
-            height: 1,
-            buttons:[],
-        },
-
-        title: {
-            text: ""
-        },
-        legend: {
-            enabled: false
-        },
-        exporting: {
-            enabled: false
-        },
-        navigator : {
-            height: 10,
-        },
-        colors: ["#" + color],
-        scrollbar: {
-            height: 1
-        },
-        series: [{
-            name: ytitle,
-            data: eval(post({}, url+"&startT="+startT+"&endT="+endT)),
-            type: 'spline',
-            tooltip: {
-                valueDecimals: 2
-            }
-        }]
-    });
-}
 </script>
