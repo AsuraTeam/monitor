@@ -24,11 +24,9 @@
 <script src="/static/js/plugins/dataTables/dataTables.bootstrap.js"></script>
 <script src="/static/js/plugins/dataTables/fnReloadAjax.js"></script>
 <script src="/static/js/plugins/flot/jquery.flot.js"></script>
-
+<script src="/static/js/multiselect.min.js"></script>
 <script src="/static/js/echarts/echarts.js"></script>
 <script src="/static/js/echarts/chart/line.js"></script>
-
-<script src="/static/js/multiselect.min.js"></script>
 
 <script>
     var isChrome = navigator.userAgent.toLowerCase().match(/chrome/) != null;//判断是否是谷歌浏览器
