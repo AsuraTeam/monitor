@@ -81,7 +81,7 @@
             </div>
 
                     #foreach($ip in $addList)
-                        <div id="count${ip.replace(".","")}" style="float: left;width: 48%;border:solid 1px #f3f3f3;margin:10px;">加载中...</div>
+                        <div id="count${ip.replace(".","")}" style="float: left;width: 48%;border:solid 1px #f3f3f3;margin:10px;height:300px;">加载中...</div>
                     #end
 
         </div>
@@ -96,8 +96,10 @@ var  colors = ["#1ab394",
     "#1f90d8","#FFB94F","#1cc09f","#3c763d","#99389f","#017ebc"];
 
 
-
-    function getPie(title,name,type,pieId) {
+    /**
+    *已无效
+    */
+    function getPie_20170303_delete(title,name,type,pieId) {
 
             // Radialize the colors
             Highcharts.getOptions().colors = Highcharts.map(Highcharts.getOptions().colors, function (color) {
@@ -153,7 +155,10 @@ var  colors = ["#1ab394",
 
     }
 #foreach($ip in $addList)
-getPie("网段${ip}","${ip}段","${ip}","count${ip.replace(".","")}")
+  setTimeout(function(){
+    data = post({prefix:"${ip}"},'/resource/configure/network/countDataReport')
+    getPie("网段${ip}","${ip}段","${ip}","count${ip.replace(".","")}","", data, 104, "show")
+  }, Math.random()*1000)
 #end
 </script>
 </body>

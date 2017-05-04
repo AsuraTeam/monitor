@@ -67,14 +67,14 @@
         </div>
 
         <div class="col-md-12" style="width: 100%;float:left;margin-top:10px;">
-            <div id="countTypeName" style="float: left;width: 49%;border:solid 1px #f0f0f0;"></div>
-            <div id="countServiceName" style="float: left;width: 49%;margin-left: 20px;border:solid 1px #f0f0f0;"></div>
-            <div id="countDiskSize" style="float: left;width: 49%;margin-top: 15px;border:solid 1px #f0f0f0;"></div>
+            <div id="countTypeName" style="float: left;width: 49%;height:500px;border:solid 1px #f0f0f0;"></div>
+            <div id="countServiceName" style="float: left;width: 49%;height:500px;margin-left: 20px;border:solid 1px #f0f0f0;"></div>
+            <div id="countDiskSize" style="float: left;width: 49%;height:500px;margin-top: 15px;border:solid 1px #f0f0f0;"></div>
             <div id="countMemory"
-                 style="float: left;width: 48%;margin-left: 20px;margin-top: 15px;border:solid 1px #f0f0f0;"></div>
-            <div id="countGroupsName" style="float: left;width: 49%;margin-top: 15px;border:solid 1px #f0f0f0; "></div>
+                 style="float: left;width: 48%;height:500px;margin-left: 20px;margin-top: 15px;border:solid 1px #f0f0f0;"></div>
+            <div id="countGroupsName" style="float: left;width: 49%;height:500px;margin-top: 15px;border:solid 1px #f0f0f0; "></div>
             <div id="countEntName"
-                 style="float: left;width: 49%;margin-left: 20px;margin-top: 15px;border:solid 1px #f0f0f0;"></div>
+                 style="float: left;width: 49%;height:500px;margin-left: 20px;margin-top: 15px;border:solid 1px #f0f0f0;"></div>
         </div>
         <div class="col-md-4"
              style="width: 31%;margin-left:20px;padding: 5px;margin-top: 20px;border:solid 1px #f0f0f0;">
@@ -203,68 +203,14 @@
 
 <script src="/static/js/plugins/peity/jquery.peity.min.js"></script>
 <script src="/static/js/plugins/flot/jquery.flot.js"></script>
-<script src="/static/js/highcharts.js"></script>
-<script src="/static/js/highstock.js"></script>
 <script>//Flot Multiple Axes Line Chart
 
 var colors = ["#1ab394",
     "#f8ac59", "#CC66CC",
     "#1f90d8", "#FFB94F", "#1cc09f", "#3c763d", "#99389f", "#017ebc"];
 
+graph_min("1ab394", "container", "添加数量", "数量", "/resource/report/createData","area","","","","notime")
 
-$(function () {
-    $(document).ready(function () {
-        Highcharts.setOptions({
-            global: {
-                useUTC: false
-            }
-        });
-
-        $('#container').highcharts({
-            chart: {
-                type: 'spline',
-                animation: Highcharts.svg, // don't animate in old IE
-                marginRight: 10,
-
-            },
-            colors: ["#1ab394"],
-            title: {
-                text: ''
-            },
-            xAxis: {
-                type: 'datetime',
-                tickPixelInterval: 110
-            },
-            yAxis: {
-                title: {
-                    text: '添加数量'
-                },
-                plotLines: [{
-                    value: 0,
-                    width: 1,
-                    color: '#1ab394'
-                }]
-            },
-            tooltip: {
-                formatter: function () {
-                    return '<b>' + this.series.name + '</b><br/>' +
-                            Highcharts.dateFormat('%Y-%m', this.x) + '月<br/>' +
-                            Highcharts.numberFormat(this.y, 2);
-                }
-            },
-            legend: {
-                enabled: false
-            },
-            exporting: {
-                enabled: false
-            },
-            series: [{
-                name: '数量',
-                data: eval(post({}, "/resource/report/createData")),
-            }]
-        });
-    });
-});
 //获取当前时间，格式YYYY-MM-DD
 function getNowFormatDate() {
     var date = new Date();
@@ -564,70 +510,82 @@ function changeGroups(key) {
 }
 
 
-function getPie(title, name, type, pieId, entName) {
-    if (!entName) {
-        entName = ""
-    }
-
-    // Radialize the colors
-    Highcharts.getOptions().colors = Highcharts.map(Highcharts.getOptions().colors, function (color) {
-        return {
-            radialGradient: {
-                cx: 0.5,
-                cy: 0.3,
-                r: 0.7
-            },
-            stops: [
-                [0, color],
-                [1, Highcharts.Color(color).brighten(-0.3).get('rgb')] // darken
-            ]
-        };
-    });
-
-    // Build the chart
-    $('#' + pieId).highcharts({
-        chart: {
-            plotBackgroundColor: null,
-            plotBorderWidth: null,
-            plotShadow: false,
-            type: 'pie'
-        },
-        colors: colors,
-        title: {
-            text: title + " " + entName,
-        },
-        tooltip: {
-            pointFormat: '{series.name}: <b>{point.y} {point.percentage:.1f}%</b> ' + entName
-        },
-        plotOptions: {
-            pie: {
-                showInLegend: true,
-                allowPointSelect: true,
-                cursor: 'pointer',
-                dataLabels: {
-                    enabled: true,
-                    format: '<b>{point.name}</b>: {point.percentage:.1f} % ',
-                    style: {
-                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
-                    },
-                    connectorColor: 'silver'
-                }
+        function getPie_20170503_delete(title, name, type, pieId, entName) {
+            if (!entName) {
+        	entName = ""
             }
-        },
-        series: [{
-            name: name,
-            data: post({type: type}, '/resource/configure/server/countDataReport?entName=' + entName)
 
-        }]
-    });
+            // Radialize the colors
+            Highcharts.getOptions().colors = Highcharts.map(Highcharts.getOptions().colors, function (color) {
+        	return {
+        	    radialGradient: {
+        		cx: 0.5,
+        		cy: 0.3,
+        		r: 0.7
+        	    },
+        	    stops: [
+        		[0, color],
+        		[1, Highcharts.Color(color).brighten(-0.3).get('rgb')] // darken
+        	    ]
+        	};
+            });
 
-}
-getPie("服务类型汇总", "服务类型汇总", "countServiceName", "countServiceName")
-getPie("业务线汇总", "业务线汇总", "countGroupsName", "countGroupsName")
-getPie("环境汇总", "环境汇总", "countEntName", "countEntName")
-getPie("磁盘大小(GB)", "磁盘大小", "countDiskSize", "countDiskSize")
-getPie("设备类型汇总", "设备类型汇总", "countTypeName", "countTypeName")
-getPie("内存大小(GB)", "内存大小", "countMemory", "countMemory")
+            // Build the chart
+            $('#' + pieId).highcharts({
+        	chart: {
+        	    plotBackgroundColor: null,
+        	    plotBorderWidth: null,
+        	    plotShadow: false,
+        	    type: 'pie'
+        	},
+        	colors: colors,
+        	title: {
+        	    text: title + " " + entName,
+        	},
+        	tooltip: {
+        	    pointFormat: '{series.name}: <b>{point.y} {point.percentage:.1f}%</b> ' + entName
+        	},
+        	plotOptions: {
+        	    pie: {
+        		showInLegend: true,
+        		allowPointSelect: true,
+        		cursor: 'pointer',
+        		dataLabels: {
+        		    enabled: true,
+        		    format: '<b>{point.name}</b>: {point.percentage:.1f} % ',
+        		    style: {
+        			color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+        		    },
+        		    connectorColor: 'silver'
+        		}
+        	    }
+        	},
+        	series: [{
+        	    name: name,
+        	    data: post({type: type}, '/resource/configure/server/countDataReport?entName=' + entName)
+
+        	}]
+            });
+
+        }
+setTimeout(function(){
+  getPie("服务类型汇总", "服务类型汇总", "countServiceName", "countServiceName")
+},100)
+setTimeout(function(){
+  getPie("业务线汇总", "业务线汇总", "countGroupsName", "countGroupsName")
+},200)
+      setTimeout(function(){
+        getPie("环境汇总", "环境汇总", "countEntName", "countEntName")
+      },300)
+      setTimeout(function(){
+      getPie("磁盘大小(GB)", "磁盘大小", "countDiskSize", "countDiskSize")
+      },400)
+      setTimeout(function(){
+      getPie("设备类型汇总", "设备类型汇总", "countTypeName", "countTypeName")
+      },500)
+      setTimeout(function(){
+      getPie("内存大小(GB)", "内存大小", "countMemory", "countMemory")
+      },600)
 </script>
 </body>
 

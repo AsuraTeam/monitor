@@ -464,7 +464,7 @@ function get_date(data){
   return result 
 }
 
-function graph_min(color, id, title, ytitle, url, chartype,lstartT,lendT, select){
+function graph_min(color, id, title, ytitle, url, chartype,lstartT,lendT, select, notime){
     $('#show_image_data_'+id).show()
     startT= $('#startSendTime').val()
     endT = $('#endSendTime').val()
@@ -484,8 +484,13 @@ function graph_min(color, id, title, ytitle, url, chartype,lstartT,lendT, select
          timeformar = 1
     }
 
-    data= eval(post({}, url+"&startT="+startT+"&endT="+endT))
-    max =  get_max_min_avg_last_value(data, id );
+    if(!notime){
+       data= eval(post({}, url+"&startT="+startT+"&endT="+endT))
+       max =  get_max_min_avg_last_value(data, id );
+    }else{
+      data= eval(post({}, url))
+      max =  0; 
+    }
    
     data_dates = get_date(data)
     dates = data_dates[0]
@@ -1077,3 +1082,144 @@ console.log("new_data1")
            })
 }
 
+
+
+function getPie(title, name, type, id, entName, data,size, legend) {
+ function get_name(data){
+   names = new Array()
+   for(i=0;i<data.length;i++){
+        name = data[i]["name"]
+        if(!name){
+           name = "空" 
+        }
+        if(name && name==""){
+           name = "未知" 
+        }
+        names.push(name)
+   }
+   return names
+ }
+
+ function get_data(data){
+     temp = new Array()
+     for(i=0;i<data.length;i++){
+        td ={}
+        name = data[i]["name"]
+        if(!name){
+           name = "空" 
+        }
+        if(name && name==""){
+           name = "未知" 
+        }
+        td["name"] = name
+        td["value"] = data[i]["y"]
+        temp.push(td)
+     }
+     return temp;
+ }
+ if(!entName){
+      entName = ""
+ }
+
+var  colors = ["#1ab394", "#f8ac59","#CC66CC","#1f90d8","#FFB94F","#1cc09f","#3c763d","#99389f","#017ebc","#ACD6FF", "#CAFFFF", "#ADFEDC", "#28FF28", "#FFD306", "#CCFF80", "#FeFFAA", "#FFE4CA", "#81C0C0", "#82D900", "#D2E9FF", "#FF5151", "#921AFF", "#28FF28", "#FFDC35", "#DEFFAC", "#FF5809", "#4A4AFF"];
+
+if(!data){
+   data= post({type: type}, '/resource/configure/server/countDataReport?entName=' + entName)
+}
+if(!size){
+  size = 100
+}
+if(!legend){
+ legend = true
+}else{
+ legend = false
+}
+option = {
+    tooltip : {
+        trigger: 'item',
+        formatter: "{b} : {c} ({d}%)"
+    },
+    legend: {
+        show: true,
+        orient : 'vertical',
+        x : 'bottom',
+        data:get_name(data)
+    },
+    title:{
+        x: "center",
+        textAlign:'left',
+        y:10,
+        text: title,
+    },
+    color: colors,
+    calculable : false,
+    series : [
+        {
+            name: name,
+            type:'pie',
+            selectedMode: 'single',
+            radius : [0, size],
+            
+            // for funnel
+            y: '140%',
+            width: '90%',
+            funnelAlign: 'right',
+            //max: 1548,
+            
+            itemStyle : {
+                normal : {
+                    label : {
+                        position : 'outer',
+                        formatter: "{b} : {c} ({d}%)",
+                    },
+                    labelLine : {
+                        show : true 
+                    },
+                },
+                color:"#000000",
+            },
+            data:get_data(data),
+        },
+    ]
+};
+                    
+
+    // 路径配置
+    require.config({
+            paths: {
+                echarts: '/static/js/echarts/'
+            }
+    });
+        
+    // 使用
+    require(
+            [
+                'echarts',
+                'echarts/chart/pie' // 使用柱状图就加载bar模块，按需加载
+            ],
+            function (ec) {
+                var ecConfig = require('echarts/config');
+                // 基于准备好的dom，初始化echarts图表
+                var myChart = ec.init(document.getElementById(id)); 
+                // 为echarts对象加载数据 
+                myChart.setOption(option); 
+                myChart.on(ecConfig.EVENT.PIE_SELECTED, function (param){
+                      var selected = param.selected;
+                      var serie;
+                      var str = '当前选择： ';
+                      for (var idx in selected) {
+                          serie = option.series[idx];
+                          for (var i = 0, l = serie.data.length; i < l; i++) {
+                              if (selected[idx][i]) {
+                          	str += '【系列' + idx + '】' + serie.name + ' : ' + 
+                          	       '【数据' + i + '】' + serie.data[i].name + ' ';
+                              }
+                          }
+                      }
+                      //console.log(str)
+                  //    document.getElementById('wrong-message').innerHTML = str;
+                })
+            }
+     )
+
+}
