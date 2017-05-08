@@ -1258,6 +1258,7 @@ DROP TABLE IF EXISTS `monitor_graph_template`;
   `description` varchar(62) DEFAULT NULL COMMENT '描述信息',
   `last_modify_user` varchar(32) DEFAULT NULL COMMENT '最近修改用户',
   `gson_data` text DEFAULT NULL COMMENT '模板数据',
+   `page` varchar(50),
   PRIMARY KEY (`template_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
