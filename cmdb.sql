@@ -1280,5 +1280,56 @@ CREATE TABLE `cmdb_graph_quartz` (
   `ip_address` varchar(32) DEFAULT NULL COMMENT '哪个ip地址添加的',
   `create_time` bigint(20) DEFAULT NULL COMMENT '添加时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+/**
+* 2017-05-08
+*/
+alter table cmdb_resource_server add buy_user varchar(32) comment "购买人";
+alter table cmdb_resource_server add buy_time varchar(32) comment "购买时间";  
+alter table cmdb_resource_server add use_user varchar(32) comment "使用人";     
+alter table cmdb_resource_server add use_time varchar(32) comment "开始使用时间";    
+alter table cmdb_resource_server add resource_code varchar(64) comment "资产编码";   
+alter table cmdb_resource_server add resource_price varchar(64) comment "资产价格";
+
+CREATE TABLE `cmdb_graph_quartz` (
+  `name` varchar(200) DEFAULT NULL COMMENT '只要名字在，就不执行，等于一个锁',
+  `ip_address` varchar(32) DEFAULT NULL COMMENT '哪个ip地址添加的',
+  `create_time` bigint(20) DEFAULT NULL COMMENT '添加时间'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `cmdb_resource_server_history` (
+  `server_id` int(11) NOT NULL DEFAULT '0' COMMENT '服务器ID',
+  `groups_id` int(11) DEFAULT NULL COMMENT '业务线组',
+  `type_id` int(11) DEFAULT NULL COMMENT '服务器类型',
+  `os_id` int(11) DEFAULT NULL COMMENT '参考操作 系统类型',
+  `cabinet_id` int(11) DEFAULT NULL COMMENT '机柜ID',
+  `user_id` varchar(100) DEFAULT NULL COMMENT '参考用户id,管理员',
+  `service_id` varchar(100) DEFAULT NULL COMMENT '参考服务类型ID,逗号分隔',
+  `memory` varchar(32) DEFAULT NULL COMMENT '内存大小',
+  `cpu` varchar(32) DEFAULT NULL COMMENT 'cpu个数',
+  `host_id` int(11) DEFAULT NULL COMMENT '参考宿主机ID,自己的表,类型为宿主机的',
+  `manager_ip` varchar(32) DEFAULT NULL COMMENT '远程管理卡IP',
+  `domain_name` varchar(300) DEFAULT NULL COMMENT '域名',
+  `ent_id` int(11) DEFAULT NULL COMMENT '参考环境管理,所属环境',
+  `disk_size` varchar(100) DEFAULT NULL COMMENT '硬盘大小',
+  `ip_address` varchar(250) DEFAULT NULL,
+  `open_port` varchar(200) DEFAULT NULL COMMENT '开放端口',
+  `last_modify_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `create_user` varchar(32) DEFAULT NULL COMMENT '创建人',
+  `last_modify_user` varchar(32) DEFAULT NULL COMMENT '最近修改 用户',
+  `cabinet_level` int(11) DEFAULT NULL COMMENT '所在机柜的位置',
+  `create_time` bigint(20) DEFAULT NULL,
+  `description` varchar(300) DEFAULT NULL COMMENT '设备描述信息',
+  `expire` varchar(32) DEFAULT NULL COMMENT '过期时间',
+  `asset_coding` varchar(132) DEFAULT NULL COMMENT '资产编码',
+  `status` int(11) DEFAULT NULL COMMENT '简单测试连通性,ping，检查是否活着',
+  `buy_user` varchar(32) DEFAULT NULL COMMENT '购买人',
+  `buy_time` varchar(32) DEFAULT NULL COMMENT '购买时间',
+  `use_user` varchar(32) DEFAULT NULL COMMENT '使用人',
+  `use_time` varchar(32) DEFAULT NULL COMMENT '开始使用时间',
+  `resource_code` varchar(64) DEFAULT NULL COMMENT '资产编码',
+  `resource_price` varchar(64) DEFAULT NULL COMMENT '资产价格'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ;
 select "\n\n\n        友情提示:     \n\n请将你的数据库配置成utf8\n请修改mysql的配置文件永久生效\n数据库授权不要写成127.0.0.1的\n请对server的IP地址授权\n\n\n" as "";
 

@@ -33,7 +33,12 @@
         g.service_name as serviceName,
         i.ent_name as entName,
         h.ip_address as hostIpAddress,
-
+        a.buy_user as buyUser,
+        a.buy_time as buyTime,
+        a.use_user as useUser,
+        a.use_time as useTime,
+        a.resource_code as resourceCode,
+        a.resource_price as resourcePrice,
         a.memory as memory,
         a.cpu as cpu,
         a.host_id as hostId,
@@ -320,7 +325,13 @@
             cabinet_level,
             description,
             expire,
-            asset_coding
+            asset_coding,
+            buy_user,
+            buy_time,
+            use_user,
+            use_time,
+            resource_code,
+            resource_price
         ) 
         values(        
             #{serverId},
@@ -345,7 +356,13 @@
             #{cabinetLevel},
             #{description},
             #{expire},
-            #{assetCoding}
+            #{assetCoding},
+            #{buyUser},
+            #{buyTime},
+            #{useUser},
+            #{useTime},
+            #{resourceCode},
+            #{resourcePrice}
         )
     </insert>
 
@@ -381,6 +398,12 @@
         open_port=#{openPort},
         asset_coding=#{assetCoding},
         expire=#{expire},
+            buy_user=#{buyUser},
+            buy_time=#{buyTime},
+            use_user=#{useUser},
+            use_time=#{useTime},
+            resource_code=#{resourceCode},
+            resource_price=#{resourcePrice},
         </if>
         <if test="createTime != null ">
             create_time=#{createTime},

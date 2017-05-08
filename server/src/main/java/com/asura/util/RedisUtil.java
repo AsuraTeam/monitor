@@ -73,10 +73,11 @@ public class RedisUtil  {
         Jedis jedis = getJedis();
         String r = "";
         try {
-            LOGGER.info("set "+app + "_" + key, value);
+            LOGGER.info("set "+app + "_" + key + " "+ value);
             r = jedis.set(app + "_" + key, value);
             jedis.close();
         } catch (Exception e) {
+            LOGGER.error("Redis SET 错误", e);
             r = "";
         }
         return r;

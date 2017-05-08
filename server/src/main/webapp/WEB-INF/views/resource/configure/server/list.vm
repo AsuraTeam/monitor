@@ -225,7 +225,7 @@
                 if (id) {
                     data["serverId"] = id;
                 }
-                url = "/resource/configure/" + site + "/save";
+                url = "/resource/configure/" + site + "/saveServer";
                 result = post(data, url);
                 parent.layer.msg(JSON.stringify(result), {icon: 1});
                 setTimeout(function () {

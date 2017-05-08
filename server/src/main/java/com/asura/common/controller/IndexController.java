@@ -5,6 +5,7 @@ import com.asura.framework.base.paging.PagingResult;
 import com.asura.framework.base.paging.SearchMap;
 import com.asura.framework.dao.mybatis.paginator.domain.PageBounds;
 import com.google.gson.Gson;
+import com.novell.ldap.LDAPConnection;
 import com.novell.ldap.LDAPException;
 import com.asura.common.entity.AuthorityLogEntity;
 import com.asura.common.entity.AuthorityUserEntity;

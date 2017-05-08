@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.resource.configure.server.dao.CmdbResourceServerHistoryDao">
+     <sql id="baseSql">
+        select 
+            server_id as serverId,
+            groups_id as groupsId,
+            type_id as typeId,
+            os_id as osId,
+            cabinet_id as cabinetId,
+            user_id as userId,
+            service_id as serviceId,
+            memory as memory,
+            cpu as cpu,
+            host_id as hostId,
+            manager_ip as managerIp,
+            domain_name as domainName,
+            ent_id as entId,
+            disk_size as diskSize,
+            ip_address as ipAddress,
+            open_port as openPort,
+            last_modify_time as lastModifyTime,
+            create_user as createUser,
+            last_modify_user as lastModifyUser,
+            cabinet_level as cabinetLevel,
+            create_time as createTime,
+            description as description,
+            expire as expire,
+            asset_coding as assetCoding,
+            status as status,
+            buy_user as buyUser,
+            buy_time as buyTime,
+            use_user as useUser,
+            use_time as useTime,
+            resource_code as resourceCode,
+            resource_price as resourcePrice
+         from cmdb_resource_server_history 
+     </sql>
+    <select id="selectByAll" resultType="com.asura.resource.configure.server.entity.CmdbResourceServerHistoryEntity">
+         <include refid="baseSql" />
+     </select>
+      <select id="findById" resultType="com.asura.resource.configure.server.entity.CmdbResourceServerHistoryEntity">
+                   <include refid="baseSql" />
+            where server_id=#{serverId}       </select>
+
+    <insert id="save" parameterType="com.asura.resource.configure.server.entity.CmdbResourceServerHistoryEntity">
+        insert into cmdb_resource_server_history(
+            server_id,
+            groups_id,
+            type_id,
+            os_id,
+            cabinet_id,
+            user_id,
+            service_id,
+            memory,
+            cpu,
+            host_id,
+            manager_ip,
+            domain_name,
+            ent_id,
+            disk_size,
+            ip_address,
+            open_port,
+            last_modify_time,
+            create_user,
+            last_modify_user,
+            cabinet_level,
+            create_time,
+            description,
+            expire,
+            asset_coding,
+            status,
+            buy_user,
+            buy_time,
+            use_user,
+            use_time,
+            resource_code,
+            resource_price
+        ) 
+        values(        
+            #{serverId},
+            #{groupsId},
+            #{typeId},
+            #{osId},
+            #{cabinetId},
+            #{userId},
+            #{serviceId},
+            #{memory},
+            #{cpu},
+            #{hostId},
+            #{managerIp},
+            #{domainName},
+            #{entId},
+            #{diskSize},
+            #{ipAddress},
+            #{openPort},
+            #{lastModifyTime},
+            #{createUser},
+            #{lastModifyUser},
+            #{cabinetLevel},
+            #{createTime},
+            #{description},
+            #{expire},
+            #{assetCoding},
+            #{status},
+            #{buyUser},
+            #{buyTime},
+            #{useUser},
+            #{useTime},
+            #{resourceCode},
+            #{resourcePrice}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.resource.configure.server.entity.CmdbResourceServerHistoryEntity">
+        update cmdb_resource_server_history set   
+            server_id=#{serverId},
+            groups_id=#{groupsId},
+            type_id=#{typeId},
+            os_id=#{osId},
+            cabinet_id=#{cabinetId},
+            user_id=#{userId},
+            service_id=#{serviceId},
+            memory=#{memory},
+            cpu=#{cpu},
+            host_id=#{hostId},
+            manager_ip=#{managerIp},
+            domain_name=#{domainName},
+            ent_id=#{entId},
+            disk_size=#{diskSize},
+            ip_address=#{ipAddress},
+            open_port=#{openPort},
+            last_modify_time=#{lastModifyTime},
+            create_user=#{createUser},
+            last_modify_user=#{lastModifyUser},
+            cabinet_level=#{cabinetLevel},
+            create_time=#{createTime},
+            description=#{description},
+            expire=#{expire},
+            asset_coding=#{assetCoding},
+            status=#{status},
+            buy_user=#{buyUser},
+            buy_time=#{buyTime},
+            use_user=#{useUser},
+            use_time=#{useTime},
+            resource_code=#{resourceCode},
+            resource_price=#{resourcePrice}
+         where server_id=#{serverId}
+    </update>
+
+    <delete id="delete" parameterType="com.asura.resource.configure.server.entity.CmdbResourceServerHistoryEntity">
+        delete from cmdb_resource_server_history where server_id=#{serverId}
+    </delete>
+
+</mapper>
+

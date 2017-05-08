@@ -10,7 +10,10 @@ import com.asura.common.response.ResponseVo;
 import com.asura.monitor.configure.conf.MonitorCacheConfig;
 import com.asura.monitor.configure.controller.CacheController;
 import com.asura.monitor.graph.controller.CommentController;
+import com.asura.monitor.graph.entity.MonitorGraphMergerEntity;
 import com.asura.monitor.graph.entity.PushEntity;
+import com.asura.resource.configure.server.entity.CmdbResourceServerHistoryEntity;
+import com.asura.resource.configure.server.service.CmdbResourceServerHistoryService;
 import com.asura.resource.entity.CmdbResourceCabinetEntity;
 import com.asura.resource.entity.CmdbResourceEntnameEntity;
 import com.asura.resource.entity.CmdbResourceGroupsEntity;
@@ -23,7 +26,6 @@ import com.asura.resource.entity.report.ServerReportEntity;
 import com.asura.resource.service.CmdbResourceCabinetService;
 import com.asura.resource.service.CmdbResourceEntnameService;
 import com.asura.resource.service.CmdbResourceGroupsService;
-import com.asura.resource.service.CmdbResourceNetworkService;
 import com.asura.resource.service.CmdbResourceOsTypeService;
 import com.asura.resource.service.CmdbResourceServerService;
 import com.asura.resource.service.CmdbResourceServerTypeService;
@@ -68,9 +70,6 @@ public class ServerController {
     private CmdbResourceServerService service;
 
     @Autowired
-    private LdapAuthenticate ldapAuthenticate;
-
-    @Autowired
     private CmdbResourceCabinetService cabinetService;
 
     @Autowired
@@ -103,6 +102,9 @@ public class ServerController {
 
     @Autowired
     IndexController indexController;
+
+    @Autowired
+    private CmdbResourceServerHistoryService historyService;
 
     // 检查标记，如果为true，就不执行检查代码，避免重复执行
     private static boolean isCheck = false;
@@ -307,14 +309,16 @@ public class ServerController {
         }
 
         // 其他组织传的宿主机ip地址
-        if(entity.getHostIpAddress()!=null){
+        if(entity.getHostIpAddress() != null){
             SearchMap searchMap = new SearchMap();
             searchMap.put("ipAddress",entity.getHostIpAddress());
             List<CmdbResourceServerEntity> re = service.getDataList(searchMap,"selectByAll");
-            if(re!=null){
+            if(re != null){
                 entity.setHostId(re.get(0).getServerId());
             }
         }
+
+        entity.setIpAddress(entity.getIpAddress().trim());
 
         if (entity.getServerId() != null && serverId == 0) {
             if(entity.getHostId()==0){
@@ -324,21 +328,21 @@ public class ServerController {
         } else {
 
             entity.setCreateUser(user);
-            if(entity.getCreateUser()!=null){
+            if(entity.getCreateUser() != null){
                 entity.setCreateUser(entity.getCreateUser());
             }
             entity.setCreateTime(DateUtil.getDateStampInteter());
             service.save(entity);
         }
-        CmdbResourceServerEntity c = entity;
-        Jedis jedis = new RedisUtil().getJedis();
+
+        String data  = gson.toJson(entity);
+        CmdbResourceServerHistoryEntity historyEntity = gson.fromJson(data, CmdbResourceServerHistoryEntity.class);
+        historyService.save(historyEntity);
         // 主机的id
-        jedis.set(app + "_cache_hosts_id_"+c.getIpAddress() , c.getServerId()+"");
-        // 主机的业务线
-        jedis.set(app +"_" + MonitorCacheConfig.getCacheHostGroupsKey+c.getIpAddress() , c.getGroupsId()+"");
-        // 获取每个id对应的ip地址
-        jedis.set(app+"_"+MonitorCacheConfig.cacheHostIdToIp+ c.getServerId(), c.getIpAddress());
-        jedis.close();
+        RedisUtil redisUtil = new RedisUtil();
+        redisUtil.set(MonitorCacheConfig.getCacheHostGroupsKey+entity.getIpAddress() , entity.getGroupsId()+"");
+        redisUtil.set(MonitorCacheConfig.cacheHostIdToIp+ entity.getServerId(), entity.getIpAddress());
+        redisUtil.set(MonitorCacheConfig.hostsIdKey + entity.getIpAddress(), entity.getServerId()+"");
         indexController.logSave(request,"保存资产数据 " + entity.getIpAddress() + gson.toJson(entity));
         return ResponseVo.responseOk(null);
     }

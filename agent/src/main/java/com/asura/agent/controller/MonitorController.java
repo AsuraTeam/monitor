@@ -195,7 +195,7 @@ public class MonitorController {
     // 存放是否打开Debug
     private static boolean isDebug = false;
 
-    private static   ExecutorService executor ;
+    private static ExecutorService executor ;
     private static int threadPoolNumber ;
     private Random random;
 
@@ -584,9 +584,10 @@ public class MonitorController {
      * 检查是否有脚本要执行
      * 每5秒检查一次
      */
-    @Scheduled(cron = "0/1 * * * * ?")
+    @Scheduled(cron = "0/5 * * * * ?")
     void checkExecScript() throws Exception {
 
+        
         // 检查是否初始化过
         if (INIT_TIME == 0) {
             // 初始化监控
@@ -596,6 +597,7 @@ public class MonitorController {
         }
 
         if (!IS_MONITOR) {
+            initMonitor();
             logger.error("没有监控项目退出监控1");
             return;
         }

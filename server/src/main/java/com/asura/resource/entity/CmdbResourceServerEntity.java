@@ -19,7 +19,7 @@ import com.asura.framework.base.entity.BaseEntity;
 public class CmdbResourceServerEntity extends BaseEntity{
 
     private String hostname;
-    private java.lang.String lastModifyTime;
+    private String lastModifyTime;
     private String groupsName;
     private String entName;
     private String userName;
@@ -33,6 +33,60 @@ public class CmdbResourceServerEntity extends BaseEntity{
     private int number;
     private int status;
     private String email;
+    private String buyUser;
+    private String buyTime;
+    private String useUser;
+    private String useTime;
+    private String resourceCode;
+    private String resourcePrice;
+
+    public String getBuyUser() {
+        return buyUser;
+    }
+
+    public void setBuyUser(String buyUser) {
+        this.buyUser = buyUser;
+    }
+
+    public String getBuyTime() {
+        return buyTime;
+    }
+
+    public void setBuyTime(String buyTime) {
+        this.buyTime = buyTime;
+    }
+
+    public String getUseUser() {
+        return useUser;
+    }
+
+    public void setUseUser(String useUser) {
+        this.useUser = useUser;
+    }
+
+    public String getUseTime() {
+        return useTime;
+    }
+
+    public void setUseTime(String useTime) {
+        this.useTime = useTime;
+    }
+
+    public String getResourceCode() {
+        return resourceCode;
+    }
+
+    public void setResourceCode(String resourceCode) {
+        this.resourceCode = resourceCode;
+    }
+
+    public String getResourcePrice() {
+        return resourcePrice;
+    }
+
+    public void setResourcePrice(String resourcePrice) {
+        this.resourcePrice = resourcePrice;
+    }
 
     public String getHostname() {
         return hostname;

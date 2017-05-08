@@ -20,8 +20,10 @@
                         <p>
                         <p>
                     </div>
-
-
+       <div class="col-md-11"
+                         style="border: 1px solid #f0f0f0;margin-left: 50px;margin-right: 130px;margin-top: 10px;">
+                        <span style="position:fixed;margin-top: -10px;margin-left: 25px;">常规信息</span>
+                        <p>&nbsp;</p>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="col-sm-3 control-label">业务线选择:</label>
@@ -141,6 +143,16 @@
                         <p>
                         <p>
                     </div>
+             </div>
+                    <div class="col-md-12">
+                        <p>
+                        <p>
+                    </div>
+       <div class="col-md-11"
+                         style="border: 1px solid #f0f0f0;margin-left: 50px;margin-right: 130px;margin-top: 10px;">
+                        <span style="position:fixed;margin-top: -10px;margin-left: 25px;">硬件信息</span>
+                        <p>&nbsp;</p>
+
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="col-sm-3 control-label">内存(GB):</label>
@@ -174,6 +186,12 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-md-12"><p><p></div>
+             </div>
+       <div class="col-md-11"
+                         style="border: 1px solid #f0f0f0;margin-left: 50px;margin-right: 130px;margin-top: 10px;">
+                        <span style="position:fixed;margin-top: -10px;margin-left: 25px;">网络信息</span>
+                        <p>&nbsp;</p>
 
                     <div class="col-md-6">
                         <div class="form-group">
@@ -184,10 +202,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-12">
-                        <p>
-                        <p>
-                    </div>
+                    <div class="col-md-12"><p><p></div>
 
                     <div class="col-md-6">
                         <div class="form-group">
@@ -230,11 +245,19 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="col-md-12">
                         <p>
                         <p>
                     </div>
+             </div>
+                    <div class="col-md-12">
+                        <p>
+                        <p>
+                    </div>
+       <div class="col-md-11"
+                         style="border: 1px solid #f0f0f0;margin-left: 50px;margin-right: 130px;margin-top: 10px;">
+                        <span style="position:fixed;margin-top: -10px;margin-left: 25px;">机柜信息</span>
+                        <p>&nbsp;</p>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="col-sm-3 control-label">机柜选择:</label>
@@ -269,10 +292,29 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="col-md-12">
                         <p>
                     </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">描述信息:</label>
+                            <div class="col-sm-9">
+                                <textarea type="text" name="description" class="form-control"
+                                       >$!{configs.description}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <p>
+                    </div>
+       </div>
+                    <div class="col-md-12">
+                        <p>
+                    </div>
+       <div class="col-md-11"
+                         style="border: 1px solid #f0f0f0;margin-left: 50px;margin-right: 130px;margin-top: 10px;">
+                        <span style="position:fixed;margin-top: -10px;margin-left: 25px;">设备使用信息</span>
+                        <p>&nbsp;</p>
 
                     <div class="col-md-6">
                         <div class="form-group">
@@ -299,12 +341,74 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">描述信息:</label>
+                            <label class="col-sm-3 control-label">购买人:</label>
                             <div class="col-sm-9">
-                                <textarea type="text" name="description" class="form-control"
-                                       >$!{configs.description}</textarea>
+                                <input type="text" name="buyUser" class="form-control"
+                                       value="$!{configs.buyUser}">
                             </div>
                         </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">购买时间:</label>
+                            <div class="col-sm-9">
+                                <input type="date" name="buyTime" class="form-control"
+                                       value="$!{configs.buyTime}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <p>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">资产编码:</label>
+                            <div class="col-sm-9">
+                                <input type="text" name="resourceCode" class="form-control"
+                                       value="$!{configs.resourceCode}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">设备价格(元):</label>
+                            <div class="col-sm-9">
+                                <input type="number" name="resourcePrice" class="form-control"
+                                       value="$!{configs.resourcePrice}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <p>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">使用人:</label>
+                            <div class="col-sm-9">
+                                <input type="text" name="useUser" class="form-control"
+                                       value="$!{configs.useUser}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">使用时间:</label>
+                            <div class="col-sm-9">
+                                <input type="date" name="useTime" class="form-control"
+                                       value="$!{configs.useTime}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <p>
+                        </p>
+                    </div>
+               </div>
+                    <div class="col-md-12">
+                        <p>
                     </div>
                     <div class="col-md-12">
                         <p>&nbsp;
