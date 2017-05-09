@@ -295,7 +295,13 @@
                         {"data": "domainName"},
                         {"data": "userName"},
                         {"data": "typeName"},
-                        {"data": "description"},
+                        {"data": "description", "mRender": function (data, type, full) {
+                            if(data.length > 30){
+                                return "<span title='"+data+"'>" + data.substring(1, 30) +"</span>";
+                            }
+                            return data;
+                        }
+                        },
                         {
                             "data": "status", "mRender": function (data,type,full) {
                             if (data == 0) {

@@ -384,15 +384,23 @@
                         <p>
                         </p>
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">使用人:</label>
-                            <div class="col-sm-9">
-                                <input type="text" name="useUser" class="form-control"
-                                       value="$!{configs.useUser}">
-                            </div>
-                        </div>
-                    </div>
+           <div class="col-md-6">
+               <div class="form-group">
+                   <label class="col-sm-3 control-label">业务线选择:</label>
+                   <div class="col-sm-9">
+                       <select class="form-control" name="useUser">
+                           <option value="#if ($configs.useUser)$configs.useUser#else 0 #end">#if ($configs.groupsName) ${configs.groupsName}  #end</option>
+                           <option value="0">--</option>
+                           #foreach( $conf in $groups )
+                               <option
+                                       value='$!{conf.groupsName}'>
+                                   $!{conf.groupsName}
+                               </option>
+                           #end
+                       </select>
+                   </div>
+               </div>
+           </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="col-sm-3 control-label">使用时间:</label>
