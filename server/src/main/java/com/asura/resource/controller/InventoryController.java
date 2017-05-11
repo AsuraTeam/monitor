@@ -3,6 +3,7 @@ package com.asura.resource.controller;
 import com.asura.framework.base.paging.PagingResult;
 import com.asura.framework.base.paging.SearchMap;
 import com.asura.framework.dao.mybatis.paginator.domain.PageBounds;
+import com.google.gson.Gson;
 import com.asura.common.controller.IndexController;
 import com.asura.common.response.PageResponse;
 import com.asura.common.response.ResponseVo;
@@ -10,6 +11,7 @@ import com.asura.resource.entity.CmdbResourceInventoryEntity;
 import com.asura.resource.entity.CmdbResourceServerEntity;
 import com.asura.resource.service.CmdbResourceInventoryService;
 import com.asura.resource.service.CmdbResourceServerService;
+import com.asura.util.CheckUtil;
 import com.asura.util.LdapAuthenticate;
 import com.asura.util.PermissionsCheck;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,14 +87,50 @@ public class InventoryController {
         PagingResult<CmdbResourceInventoryEntity> result = service.findAll(searchMap, pageBounds, "selectByAll");
         for (CmdbResourceInventoryEntity entity : result.getRows()) {
             SearchMap searchMaps = new SearchMap();
+            String[] group = new String[2];
+            group[0] = "0";
+            searchMaps.put("groups", group);
             if (entity.getGroupsId() != null) {
                 searchMaps.put("groups", entity.getGroupsId().split(","));
-            } else {
-                String[] group = new String[2];
-                group[0] = "0";
-                searchMaps.put("groups", group);
             }
+
+            // 购买的物理机数量
+            List<CmdbResourceServerEntity> buyData = serverService.getDataList(searchMaps, "selectBuyGroups");
+            entity.setBuyNumber(buyData.get(0).getCnt());
+
+
+            // 虚拟化设备数量selectVmHostNumber
+            List<CmdbResourceServerEntity> selectVmHostNumber = serverService.getDataList(searchMaps, "selectVmHostNumber");
+            entity.setPhyVmNumber(selectVmHostNumber.get(0).getCnt());
+
+            // 获取借用的数量 selectPhyFromInventory
+            List<CmdbResourceServerEntity> selectPhyFromInventory = serverService.getDataList(searchMaps, "selectPhyFromInventory");
+            entity.setFromInventory(selectPhyFromInventory.get(0).getCnt());
+
+            List<CmdbResourceServerEntity> selectPhyInventoryUse = serverService.getDataList(searchMaps, "selectPhyInventoryUse");
+            // 物理机已使用数量
+            entity.setPhyUsed(selectPhyInventoryUse.get(0).getCnt());
+
+            // 获取未使用库存selectPhyUnusedInventory
+            List<CmdbResourceServerEntity> selectPhyUnusedInventory = serverService.getDataList(searchMaps, "selectPhyUnusedInventory");
+            entity.setUnused(selectPhyUnusedInventory.get(0).getCnt());
+
+            // 非虚拟化库存数量
+            entity.setPhyInventoryNumber(entity.getBuyNumber() - entity.getPhyUsed() - entity.getPhyVmNumber());
             groupsId += entity.getGroupsId() + ",";
+
+            // 按单元计算虚拟机数量
+            List<CmdbResourceServerEntity> selectVmUsedNumber = serverService.getDataList(searchMaps, "selectVmUsedNumber");
+            entity.setVmUnitsUsed(selectVmUsedNumber.get(0).getCnt());
+
+            // 按单元计算虚拟机数量
+            try {
+                List<CmdbResourceServerEntity> selectVmPrice = serverService.getDataList(searchMaps, "selectVmPrice");
+                entity.setVmPrice(selectVmPrice.get(0).getCnt());
+            }catch (Exception e){
+                entity.setVmPrice(1000);
+            }
+
             List<CmdbResourceServerEntity> serverData = serverService.getDataList(searchMaps, "countByGroups");
             if (serverData.size() > 0) {
                 count = serverData.get(0).getCnt();
@@ -120,9 +158,31 @@ public class InventoryController {
             list.add(entity);
         }
         groupsId = groupsId.replace(",,", ",");
+        SearchMap searchMap1 = new SearchMap();
+        searchMap1.put("groups", groupsId.split(","));
         CmdbResourceInventoryEntity entity = new CmdbResourceInventoryEntity();
-        entity.setInventoryNumber(counts - used);
-        entity.setInventoryTotle(counts);
+        // 购买的物理机数量
+        List<CmdbResourceServerEntity> buyData = serverService.getDataList(searchMap1, "selectBuyGroups");
+        entity.setBuyNumber(buyData.get(0).getCnt());
+
+        // 虚拟化设备数量selectVmHostNumber selectVmUsedNumber
+        List<CmdbResourceServerEntity> selectVmHostNumber = serverService.getDataList(searchMap1, "selectVmHostNumber");
+        entity.setPhyVmNumber(selectVmHostNumber.get(0).getCnt());
+
+        List<CmdbResourceServerEntity> selectVmUsedNumber = serverService.getDataList(searchMap1, "selectVmUsedNumber");
+        entity.setVmUnitsUsed(selectVmUsedNumber.get(0).getCnt());
+
+        // 按单元计算虚拟机数量
+        List<CmdbResourceServerEntity> selectVmPrice = serverService.getDataList(searchMap1, "selectVmPrice");
+        entity.setVmPrice(selectVmPrice.get(0).getCnt());
+        entity.setInventoryId(0);
+
+        // 获取未使用库存selectPhyUnusedInventory
+        List<CmdbResourceServerEntity> selectPhyUnusedInventory = serverService.getDataList(searchMap1, "selectPhyUnusedInventory");
+        entity.setUnused(selectPhyUnusedInventory.get(0).getCnt());
+
+        // 物理机已使用数量
+        entity.setPhyUsed(entity.getBuyNumber() - entity.getPhyVmNumber());
         entity.setInventoryUsed(used);
         entity.setTitle("库存总数");
         entity.setGroupsId(groupsId);
@@ -158,10 +218,6 @@ public class InventoryController {
     @ResponseBody
     public ResponseVo save(CmdbResourceInventoryEntity entity, HttpServletRequest request) {
         String user = permissionsCheck.getLoginUser(request.getSession());
-        String dept = ldapAuthenticate.getSignUserInfo("department",  "sAMAccountName=" + user);
-        if (!dept.contains("运维")) {
-            return ResponseVo.responseError("必须由运维修改");
-        }
         entity.setLastModifyUser(user);
         if (entity.getInventoryId() != null) {
             service.update(entity);

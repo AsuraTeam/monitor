@@ -91,7 +91,7 @@ import static com.asura.agent.util.RedisUtil.app;
 public class MonitorController {
 
     // 版本号
-    private final String VERSION = "1.0.0.11";
+    private final String VERSION = "1.0.0.12";
 
     private static final Logger logger = LoggerFactory.getLogger(MonitorController.class);
 
@@ -587,7 +587,7 @@ public class MonitorController {
     @Scheduled(cron = "0/5 * * * * ?")
     void checkExecScript() throws Exception {
 
-        
+
         // 检查是否初始化过
         if (INIT_TIME == 0) {
             // 初始化监控
@@ -782,9 +782,17 @@ public class MonitorController {
                 ALARM_MAP.remove(entits.getKey());
             }
 
+            String alarmIdTime = alarmId.concat(".time");
+
             // 如果retry为0则不执行重试
             if (value >= 1 && value <= retry + 1 && retry > 0) {
-
+                if (!ALARM_INTERVAL.containsKey(alarmIdTime)){
+                    ALARM_INTERVAL.put(alarmIdTime, DateUtil.getCurrTime());
+                }
+                if (DateUtil.getCurrTime() - ALARM_INTERVAL.get(alarmIdTime) < 10 ){
+                    info(isDebug ? "跳出重试,间隔太小了" + gson.toJson(entits) : null);
+                    continue;
+                }
                 info(isDebug ? "获取到重试数据" + gson.toJson(entits) : null);
                 StringBuilder command = new StringBuilder();
                 command.append(tempDir).append(scriptId).append(SCRIPT_ARGV.get(id));
@@ -803,6 +811,8 @@ public class MonitorController {
                             pushEntity.setServer(getServerId(pushEntity));
                         }
                         ALARM_MAP.put(alarmId, value + 1);
+                        ALARM_INTERVAL.put(alarmIdTime, DateUtil.getCurrTime());
+                        info(isDebug ? "ALARM_INTERVAL " + command.toString() + " " + alarmId + " retry put time -> " + DateUtil.getCurrTime() : null);
                         SCRIPT_STATUS.put(alarmId, pushEntity);
                     }
                 }

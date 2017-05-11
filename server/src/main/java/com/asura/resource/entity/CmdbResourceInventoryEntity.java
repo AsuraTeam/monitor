@@ -18,7 +18,88 @@ import com.asura.framework.base.entity.BaseEntity;
  */
 public class CmdbResourceInventoryEntity extends BaseEntity{
 
+    // 获取借用库存
+    private int fromInventory;
+
+    // 获取每个虚拟机平均价格
+    private int vmPrice;
+    // 按单元计算虚拟机实例
+    private int vmUnitsUsed;
+    // 购买数量
+    private int buyNumber;
     private int inventoryUsed;
+    // 物理机库存，除虚拟化设备外的
+    private int phyInventoryNumber;
+    // 虚拟化主机使用量
+    private int phyVmNumber;
+    // 物理机已使用
+    private int phyUsed;
+    // 获取未使用库存
+    private int unused;
+
+    public int getUnused() {
+        return unused;
+    }
+
+    public void setUnused(int unused) {
+        this.unused = unused;
+    }
+
+    public int getFromInventory() {
+        return fromInventory;
+    }
+
+    public void setFromInventory(int fromInventory) {
+        this.fromInventory = fromInventory;
+    }
+
+    public int getVmPrice() {
+        return vmPrice;
+    }
+
+    public void setVmPrice(int vmPrice) {
+        this.vmPrice = vmPrice;
+    }
+
+    public int getVmUnitsUsed() {
+        return vmUnitsUsed;
+    }
+
+    public void setVmUnitsUsed(int vmUnitsUsed) {
+        this.vmUnitsUsed = vmUnitsUsed;
+    }
+
+    public int getPhyVmNumber() {
+        return phyVmNumber;
+    }
+
+    public void setPhyVmNumber(int phyVmNumber) {
+        this.phyVmNumber = phyVmNumber;
+    }
+
+    public int getPhyUsed() {
+        return phyUsed;
+    }
+
+    public void setPhyUsed(int phyUsed) {
+        this.phyUsed = phyUsed;
+    }
+
+    public int getPhyInventoryNumber() {
+        return phyInventoryNumber;
+    }
+
+    public void setPhyInventoryNumber(int phyInventoryNumber) {
+        this.phyInventoryNumber = phyInventoryNumber;
+    }
+
+    public int getBuyNumber() {
+        return buyNumber;
+    }
+
+    public void setBuyNumber(int buyNumber) {
+        this.buyNumber = buyNumber;
+    }
 
     public int getInventoryUsed() {
         return inventoryUsed;

@@ -269,7 +269,7 @@
                     "scrollX": true, // 是否允许左右滑动
                     "displayLength": 10, // 默认长度
                     "ajax": { // 请求地址
-                        "url": "/resource/configure/" + site + "/listData?t=" + new Date().getTime() + "&groupsName=" + groupsName + "&typeName=$!{typeName}&time=$!{time}&isOff=$!{isOff}&entname=" + entName+"&userName="+userName,
+                        "url": "/resource/configure/" + site + "/listData?t1=" + new Date().getTime() + "&groupsName=" + groupsName + "&typeName=$!{typeName}&time=$!{time}&isOff=$!{isOff}&entname=" + entName+"&userName="+userName+"&t=$!{t}&inventoryId=$!{inventoryId}",
                         "type": 'post'
                     },
 

@@ -269,6 +269,7 @@ function get_max_min_avg_last_value(data,opts, name){
                 }
 
                 if(opts["baselineShow"] == "1"){
+                    dd = new Array();
                     d = {}
                     d["lineWidth"] = opts["baseLineSize"]
                     d["name"] = "危险线"

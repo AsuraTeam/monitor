@@ -328,7 +328,7 @@
 
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">设备编码:</label>
+                            <label class="col-sm-3 control-label">SN:</label>
                             <div class="col-sm-9">
                                 <input type="text" name="assetCoding" class="form-control"
                                        value="$!{configs.assetCoding}">
@@ -339,16 +339,22 @@
                         <p>
                         </p>
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">购买人:</label>
-                            <div class="col-sm-9">
-                                <input type="text" name="buyUser" class="form-control"
-                                       value="$!{configs.buyUser}">
-                            </div>
-                        </div>
-                    </div>
-
+           <div class="col-md-6">
+               <div class="form-group">
+                   <label class="col-sm-3 control-label">购买业务线:</label>
+                   <div class="col-sm-9">
+                       <select class="form-control" name="buyUser">
+                           <option value="#if ($buyUserId)${buyUserId}#else 0 #end">#if ($configs.buyUser) ${configs.buyUser}  #end</option>
+                           <option value="0">--</option>
+                           #foreach( $conf in $groups )
+                               <option value='$!{conf.groupsId}'>
+                                   $!{conf.groupsName}
+                               </option>
+                           #end
+                       </select>
+                   </div>
+               </div>
+           </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="col-sm-3 control-label">购买时间:</label>
@@ -380,20 +386,17 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-12">
-                        <p>
-                        </p>
-                    </div>
+          <div class="col-md-12"><p></p></div>
            <div class="col-md-6">
                <div class="form-group">
-                   <label class="col-sm-3 control-label">业务线选择:</label>
+                   <label class="col-sm-3 control-label">使用业务线:</label>
                    <div class="col-sm-9">
                        <select class="form-control" name="useUser">
-                           <option value="#if ($configs.useUser)$configs.useUser#else 0 #end">#if ($configs.groupsName) ${configs.groupsName}  #end</option>
+                           <option value="#if ($useUserId)${configs.useUserId}#else 0 #end">#if ($configs.useUser) ${configs.useUser}  #end</option>
                            <option value="0">--</option>
                            #foreach( $conf in $groups )
                                <option
-                                       value='$!{conf.groupsName}'>
+                                       value='$!{conf.groupsId}'>
                                    $!{conf.groupsName}
                                </option>
                            #end
@@ -422,7 +425,6 @@
                         <p>&nbsp;
                         </p>
                     </div>
-
                 </form>
                 <div class="modal-footer" style="border:solid 1px #e0e0e0">
                 </div>

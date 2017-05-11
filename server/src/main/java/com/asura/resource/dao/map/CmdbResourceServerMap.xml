@@ -173,6 +173,74 @@
         <if test="ipAddress != null">
             and a.ip_address=#{ipAddress}
         </if>
+
+        <!-- 多个组的数据 -->
+        <if test="groups != null">
+            <!-- 判断是否需要选择组数据 -->
+            <if test="noGroups == null">
+            and a.groups_id in
+            <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
+                      #{item}
+             </foreach>
+            </if>
+        </if>
+
+        <!-- 购买的物理机 -->
+        <if test="buyNumber != null" >
+            and a.buy_user in
+            <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
+                #{item}
+            </foreach>
+        </if>
+
+        <!-- 获取物理机库存 -->
+        <if test="phyInventoryNumber != null" >
+            and a.buy_user in
+            <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
+                #{item}
+            </foreach>
+            and (a.use_user is null or trim(a.use_user) = "0" or a.use_user="")
+        </if>
+
+        <!-- 非虚拟化物理机使用 -->
+        <if test="phyUsed != null" >
+            and a.use_user in
+            <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
+                #{item}
+            </foreach>
+            and a.type_id in (
+            select type_id from cmdb_resource_server_type where type_name in ("数据库物理机", "应用物理机", "物理机"))
+        </if>
+
+        <!-- 用于虚拟化的机器 -->
+        <if test="phyVmNumber != null" >
+            and a.use_user in
+            <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
+                #{item}
+            </foreach>
+           and a.type_id in (
+               select type_id from cmdb_resource_server_type where type_name in ("KVM宿主机", "VMware物理机", "docker服务器"))
+        </if>
+
+        <!-- 虚拟机使用 -->
+        <if test="vmNumber != null" >
+            and a.groups_id in
+            <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
+                #{item}
+            </foreach>
+            and a.type_id in (
+            select type_id from cmdb_resource_server_type where type_name in ("KVM虚拟机", "VMware虚拟机", "docker容器", "虚拟机"))
+        </if>
+        <!-- 借用其他人的库存 -->
+        <if test="fromInventory != null" >
+         and a.use_user in   <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
+                #{item}
+            </foreach>
+            and a.buy_user not in   <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
+            #{item}
+        </foreach>
+        </if>
+
         ORDER BY a.create_time DESC
 
     </select>
@@ -201,6 +269,8 @@
         <if test="start != null">
             and create_time >= #{start}
         </if>
+        and  type_id in         (select type_id from cmdb_resource_server_type where
+        type_name in ("KVM虚拟机", "VMware虚拟机", "docker容器", "虚拟机"))
     </select>
 
 
@@ -636,5 +706,95 @@
         and b.groups_id=c.groups_id  and a.ip=#{ip}
     </select>
 
+    <!-- 获取每个业务线物理机购买数量 -->
+    <select id="selectBuyGroups" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
+            select count(*) as cnt from cmdb_resource_server
+            where type_id in (
+            select type_id from cmdb_resource_server_type where
+            type_name in ("KVM宿主机", "数据库物理机", "应用物理机", "物理机", "VMware物理机", "docker服务器")
+            ) and buy_user in
+           <foreach collection="groups" item="item" separator="," open="(" close=")"  index="index">
+               #{item}
+           </foreach>
+    </select>
+
+    <select id="selectIntervalNumber" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
+        select (select count(*) as cnt from
+        cmdb_resource_server where type_id in
+        (select type_id from cmdb_resource_server_type where type_name in
+        ("KVM宿主机", "数据库物理机", "应用物理机", "物理机", "VMware物理机", "docker服务器"))
+        and buy_user in      <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
+        #{item}
+    </foreach>        ) -
+        (select count(*) as cnt from cmdb_resource_server where
+        type_id in         (select type_id from cmdb_resource_server_type where
+        type_name in ("KVM宿主机", "VMware物理机", "docker服务器")) and
+        use_user in    <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
+        #{item}
+    </foreach>  ) as cnt;
+    </select>
+
+    <!--获取虚拟化使用的机器数量-->
+    <select id="selectVmHostNumber" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
+    select count(*) as cnt from cmdb_resource_server where type_id in
+    (select type_id from cmdb_resource_server_type where type_name in ("KVM宿主机", "VMware物理机", "docker服务器"))
+       and use_user  in  <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
+           #{item}
+        </foreach>
+    </select>
+
+    <!--按单元计算虚拟机使用-->
+    <select id="selectVmUsedNumber" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
+    select sum(case round(((cpu/2) + (memory/8) + (disk_size/60)) /3 ) when
+       0 then 1 else round(((cpu/2) + (memory/8) + (disk_size/60)) /3 )  end ) as cnt
+       from cmdb_resource_server where
+        type_id in (select type_id from cmdb_resource_server_type where type_name in ("KVM虚拟机", "VMware虚拟机", "docker容器", "虚拟机"))
+        and groups_id in
+       <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
+           #{item}
+       </foreach>
+    </select>
+
+    <select id="selectVmPrice" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
+    select round((select sum(resource_price) as cnt
+     from cmdb_resource_server where type_id in (
+     select type_id from cmdb_resource_server_type where type_name in ("KVM宿主机", "VMware物理机", "docker服务器"))
+     and use_user in      <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
+        #{item}
+    </foreach> ) /  (select count(*) as vnumber  from cmdb_resource_server where type_id in (select type_id from
+    cmdb_resource_server_type where type_name in
+    ("KVM虚拟机", "VMware虚拟机", "docker容器", "虚拟机")) and groups_id in
+        <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
+        #{item}
+    </foreach> )) as cnt
+    </select>
+
+    <!-- 获取非虚拟化使用量 -->
+    <select id="selectPhyInventoryUse" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
+     select count(*) as cnt from cmdb_resource_server a where
+         a.type_id in (
+          select type_id from cmdb_resource_server_type where type_name in ("数据库物理机", "应用物理机", "物理机"))
+                and a.use_user in    <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
+        #{item}
+         </foreach>
+    </select>
+    <!-- 获取借用的库存 -->
+    <select id="selectPhyFromInventory" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
+        select count(*) as cnt from cmdb_resource_server a where    a.use_user in   <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
+        #{item}
+    </foreach>  and a.buy_user not in   <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
+        #{item}
+    </foreach>
+
+    </select>
+    <!-- 获取未使用的库存 -->
+    <select id="selectPhyUnusedInventory" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
+    select count(*) as cnt from cmdb_resource_server a where
+     a.buy_user in
+    <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
+        #{item}
+    </foreach>
+    and (a.use_user is null or trim(a.use_user) = "0" or a.use_user="")
+    </select>
 </mapper>
 

@@ -591,7 +591,7 @@ public class SaveController {
         String dept = ldapAuthenticate.getSignUserInfo("department", "sAMAccountName=" + user);
         MonitorConfigureEntity configureEntity = configureService.findById(id, MonitorConfigureEntity.class);
         String lastModifyUser = configureEntity.getLastModifyUser();
-        if (!user.equals(lastModifyUser) && !user.equals("admin") && !dept.contains("运维")) {
+        if (dept != null && !user.equals(lastModifyUser) && !user.equals("admin") && !dept.contains("运维")) {
             return "no permissions";
         }
         String hosts = configureEntity.getHosts();
