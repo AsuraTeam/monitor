@@ -22,7 +22,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p></p>
@@ -52,11 +54,27 @@ public class InventoryController {
     @Autowired
     IndexController indexController;
 
+
+
     @Autowired
     private PermissionsCheck permissionsCheck;
 
     @Autowired
     private CmdbResourceServerService serverService;
+
+    /**
+     * 库存报表
+     * @return
+     */
+    @RequestMapping("report")
+    public String report(String inventoryId, Model model) {
+        Gson gson = new Gson();
+        model.addAttribute("inventoryId", inventoryId);
+        String data = listData(1, 1,1000, inventoryId);
+        Map map = gson.fromJson(data, Map.class);
+        model.addAttribute("data", ((List)map.get("data")).get(0));
+        return "/resource/inventory/report";
+    }
 
     /**
      * 列表
@@ -69,21 +87,18 @@ public class InventoryController {
     }
 
     /**
-     * 列表数据
-     *
+     * 获取库存信息
+     * @param searchMap
+     * @param pageBounds
      * @return
      */
-    @RequestMapping(value = "listData", produces = {"application/json;charset=UTF-8"})
-    @ResponseBody
-    public String listData(int draw, int start, int length) {
-        PageBounds pageBounds = PageResponse.getPageBounds(10000, start);
-        SearchMap searchMap = new SearchMap();
+    Map getListData(SearchMap searchMap, PageBounds pageBounds){
+        Map map = new HashMap();
+        int count = 0;
         int counts = 0;
         int used = 0;
-        int count;
         String groupsId = "";
-        ArrayList sortList = new ArrayList();
-        ArrayList<CmdbResourceInventoryEntity> list = new ArrayList();
+        ArrayList<CmdbResourceInventoryEntity> list = new ArrayList<>();
         PagingResult<CmdbResourceInventoryEntity> result = service.findAll(searchMap, pageBounds, "selectByAll");
         for (CmdbResourceInventoryEntity entity : result.getRows()) {
             SearchMap searchMaps = new SearchMap();
@@ -97,7 +112,6 @@ public class InventoryController {
             // 购买的物理机数量
             List<CmdbResourceServerEntity> buyData = serverService.getDataList(searchMaps, "selectBuyGroups");
             entity.setBuyNumber(buyData.get(0).getCnt());
-
 
             // 虚拟化设备数量selectVmHostNumber
             List<CmdbResourceServerEntity> selectVmHostNumber = serverService.getDataList(searchMaps, "selectVmHostNumber");
@@ -157,7 +171,35 @@ public class InventoryController {
             }
             list.add(entity);
         }
+        map.put("list", list);
+        map.put("used", used);
+        map.put("counts", counts);
+        map.put("groupsId", groupsId);
+        return map;
+    }
+
+    /**
+     * 列表数据
+     *
+     * @return
+     */
+    @RequestMapping(value = "listData", produces = {"application/json;charset=UTF-8"})
+    @ResponseBody
+    public String listData(int draw, int start, int length, String inventoryId) {
+
+        PageBounds pageBounds = PageResponse.getPageBounds(10000, start);
+        SearchMap searchMap = new SearchMap();
+        if (CheckUtil.checkString(inventoryId)){
+            if (!inventoryId.equals("0")){
+                searchMap.put("inventoryId", Integer.valueOf(inventoryId));
+            }
+        }
+        ArrayList sortList = new ArrayList();
+        Map map = getListData(searchMap, pageBounds);
+        ArrayList<CmdbResourceInventoryEntity> list = (  ArrayList<CmdbResourceInventoryEntity>) map.get("list");
+        String groupsId = (String)map.get("groupsId");
         groupsId = groupsId.replace(",,", ",");
+        int used = (int)map.get("used");
         SearchMap searchMap1 = new SearchMap();
         searchMap1.put("groups", groupsId.split(","));
         CmdbResourceInventoryEntity entity = new CmdbResourceInventoryEntity();
@@ -174,8 +216,12 @@ public class InventoryController {
 
         // 按单元计算虚拟机数量
         List<CmdbResourceServerEntity> selectVmPrice = serverService.getDataList(searchMap1, "selectVmPrice");
-        entity.setVmPrice(selectVmPrice.get(0).getCnt());
         entity.setInventoryId(0);
+        try {
+            entity.setVmPrice(selectVmPrice.get(0).getCnt());
+        }catch (Exception e){
+            entity.setVmPrice(1000);
+        }
 
         // 获取未使用库存selectPhyUnusedInventory
         List<CmdbResourceServerEntity> selectPhyUnusedInventory = serverService.getDataList(searchMap1, "selectPhyUnusedInventory");
@@ -186,9 +232,15 @@ public class InventoryController {
         entity.setInventoryUsed(used);
         entity.setTitle("库存总数");
         entity.setGroupsId(groupsId);
-        sortList.add(entity);
-        for (CmdbResourceInventoryEntity entity1: list){
-            sortList.add(entity1);
+        if (CheckUtil.checkString(inventoryId) && inventoryId.equals("0")){
+            sortList.add(entity);
+        }else {
+            if (!CheckUtil.checkString(inventoryId)) {
+                sortList.add(entity);
+            }
+            for (CmdbResourceInventoryEntity entity1 : list) {
+                sortList.add(entity1);
+            }
         }
         return PageResponse.getList(sortList, draw);
     }

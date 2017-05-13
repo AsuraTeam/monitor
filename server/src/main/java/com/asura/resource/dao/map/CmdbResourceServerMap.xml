@@ -13,6 +13,12 @@
         cmdb_resource_entname i
     </sql>
 
+    <sql id="groups">
+        <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
+            #{item}
+        </foreach>
+    </sql>
+
     <sql id="sqlId">
         a.server_id as serverId,
         a.groups_id as groupsId,
@@ -179,35 +185,27 @@
             <!-- 判断是否需要选择组数据 -->
             <if test="noGroups == null">
             and a.groups_id in
-            <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
-                      #{item}
-             </foreach>
+                <include refid="groups"/>
             </if>
         </if>
 
         <!-- 购买的物理机 -->
         <if test="buyNumber != null" >
             and a.buy_user in
-            <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
-                #{item}
-            </foreach>
+            <include refid="groups"/>
         </if>
 
         <!-- 获取物理机库存 -->
         <if test="phyInventoryNumber != null" >
             and a.buy_user in
-            <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
-                #{item}
-            </foreach>
+            <include refid="groups"/>
             and (a.use_user is null or trim(a.use_user) = "0" or a.use_user="")
         </if>
 
         <!-- 非虚拟化物理机使用 -->
         <if test="phyUsed != null" >
             and a.use_user in
-            <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
-                #{item}
-            </foreach>
+            <include refid="groups"/>
             and a.type_id in (
             select type_id from cmdb_resource_server_type where type_name in ("数据库物理机", "应用物理机", "物理机"))
         </if>
@@ -215,9 +213,7 @@
         <!-- 用于虚拟化的机器 -->
         <if test="phyVmNumber != null" >
             and a.use_user in
-            <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
-                #{item}
-            </foreach>
+            <include refid="groups"/>
            and a.type_id in (
                select type_id from cmdb_resource_server_type where type_name in ("KVM宿主机", "VMware物理机", "docker服务器"))
         </if>
@@ -225,17 +221,13 @@
         <!-- 虚拟机使用 -->
         <if test="vmNumber != null" >
             and a.groups_id in
-            <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
-                #{item}
-            </foreach>
+            <include refid="groups"/>
             and a.type_id in (
             select type_id from cmdb_resource_server_type where type_name in ("KVM虚拟机", "VMware虚拟机", "docker容器", "虚拟机"))
         </if>
         <!-- 借用其他人的库存 -->
         <if test="fromInventory != null" >
-         and a.use_user in   <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
-                #{item}
-            </foreach>
+         and a.use_user in  <include refid="groups"/>
             and a.buy_user not in   <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
             #{item}
         </foreach>
@@ -263,9 +255,7 @@
     <!-- 库存统计功能 -->
     <select id="countByGroups" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
         select count(*) as cnt from cmdb_resource_server where groups_id in
-        <foreach collection="groups" item="item" separator="," open="(" close=")"  index="index">
-        #{item}
-       </foreach>
+        <include refid="groups"/>
         <if test="start != null">
             and create_time >= #{start}
         </if>
@@ -507,17 +497,21 @@
         <if test="format.equals('month')">
             substr(from_unixtime(create_time,"%Y-%m-%d %H:%i:%S"), 1,10) as dates
         </if>
-        from cmdb_resource_server
-        <where>
+        from cmdb_resource_server a WHERE 1=1
             <!--按当期年查询-->
             <if test="format.equals('year')">
-                from_unixtime(create_time,"%Y")=#{dates}
+               and from_unixtime(create_time,"%Y")=#{dates}
             </if>
             <!--按月查询-->
             <if test="format.equals('month')">
-                from_unixtime(create_time,"%Y-%m")=#{dates}
+                and from_unixtime(create_time,"%Y-%m")=#{dates}
             </if>
-        </where>
+            <if test="groups != null">
+                and groups_id in <include refid="groups"/>
+            </if>
+        <if test="groups != null">
+            <include refid="getUseData" />     a.user_id=a.user_id     )
+        </if>
         group by dates order by 2
     </select>
 
@@ -539,6 +533,14 @@
         <if test="entName !=null">
             and c.ent_name = #{entName}
         </if>
+        <if test="groups != null">
+            and a.groups_id in <include refid="groups"/>
+        </if>
+        <if test="groups != null">
+            <include refid="getUseData" />     a.user_id=b.user_id and
+            a.ent_id = c.ent_id and
+            a.groups_id=d.groups_id )
+        </if>
           group by b.user_name order by cnt desc
     </select>
     <!-- 按环境名称分布数据 -->
@@ -551,6 +553,12 @@
         where a.ent_id=b.ent_id  and a.groups_id = c.groups_id
         <if test="groupsName != null">
             and c.groups_name = #{groupsName}
+        </if>
+        <if test="groups != null">
+            and a.groups_id in <include refid="groups"/>
+        </if>
+        <if test="groups != null">
+            <include refid="getUseData" /> a.ent_id=b.ent_id  and a.groups_id = c.groups_id )
         </if>
         group by ent_name  order by cnt desc
     </select>
@@ -565,6 +573,12 @@
         where a.service_id=b.service_id  and a.groups_id = c.groups_id
         <if test="groupsName != null">
             and c.groups_name = #{groupsName}
+        </if>
+        <if test="groups != null">
+            and a.groups_id in <include refid="groups"/>
+        </if>
+        <if test="groups != null">
+            <include refid="getUseData" /> a.service_id=b.service_id  and a.groups_id = c.groups_id )
         </if>
         group by service_name
     </select>
@@ -581,6 +595,13 @@
     <if test="entName !=null">
         and c.ent_name = #{entName}
     </if>
+        <if test="groups != null">
+            and a.groups_id in <include refid="groups"/>
+        </if>
+        <if test="groups != null">
+            <include refid="getUseData" /> a.groups_id=b.groups_id
+            and a.ent_id=c.ent_id)
+        </if>
      group by groups_name  order by cnt desc
     </select>
 
@@ -596,6 +617,13 @@
     <if test="groupsName != null">
        and c.groups_name=#{groupsName}
     </if>
+        <if test="groups != null">
+            and a.groups_id in <include refid="groups"/>
+        </if>
+        <if test="groups != null">
+            <include refid="getUseData" />   a.type_id=b.type_id
+            and a.groups_id=c.groups_id )
+        </if>
     group by type_name  order by cnt desc
     </select>
 
@@ -630,6 +658,17 @@
         and a.cabinet_id > 1 order by a.cabinet_level desc
     </select>
 
+    <sql id="groupsGetData">
+        <if test="groups != null">
+            and a.groups_id in  <include refid="groups"/>
+
+        </if>
+    </sql>
+
+    <sql id="getUseData">
+
+            or  ( a.use_user in  <include refid="groups"/> and
+    </sql>
 
     <!--按不同类型计算百分比-->
     <select id="countTypeName" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
@@ -642,6 +681,10 @@
         and a.groups_id = c.groups_id
         <if test="groupsName != null">
             and c.groups_name=#{groupsName}
+        </if>
+        <include refid="groupsGetData" />
+        <if test="groups != null">
+        <include refid="getUseData" /> a.type_id=b.type_id )
         </if>
         group by b.type_name
     </select>
@@ -658,6 +701,11 @@
         <if test="groupsName != null">
             and c.groups_name=#{groupsName}
         </if>
+        <include refid="groupsGetData" />
+        <if test="groups != null">
+            <include refid="getUseData" />    a.service_id=b.service_id
+            and a.groups_id = c.groups_id )
+        </if>
         group by b.service_name
     </select>
 
@@ -672,26 +720,47 @@
     <if test="entName != null">
        and c.ent_name=#{entName}
     </if>
-    group by b.groups_name order by cnt desc
+        <include refid="groupsGetData" />
+        <if test="groups != null">
+            <include refid="getUseData" />  a.groups_id=b.groups_id
+            and a.ent_id = c.ent_id )
+        </if>
+        group by b.groups_name order by cnt desc
     </select>
 
     <select id="countEntName" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
     select b.ent_name as typeName, count(a.service_id)  as cnt  from cmdb_resource_server a,
     cmdb_resource_entname b
     where a.ent_id=b.ent_id
+        <include refid="groupsGetData" />
+        <if test="groups != null">
+            <include refid="getUseData" />  a.ent_id=b.ent_id
+            )
+        </if>
     group by b.ent_name order by cnt desc
     </select>
 
     <!--按硬盘大小统计-->
     <select id="countDiskSize" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
     select disk_size as typeName ,
-    count(*) as cnt from cmdb_resource_server group by disk_size
+    count(*) as cnt from cmdb_resource_server a WHERE 1=1
+        <include refid="groupsGetData" />
+        <if test="groups != null">
+            <include refid="getUseData" />  1=1)
+        </if>
+        group by disk_size
     </select>
 
     <!--按内存大小统计-->
     <select id="countMemory" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
         select memory as typeName ,
-        count(*) as cnt from cmdb_resource_server group by memory
+        count(*) as cnt from cmdb_resource_server a
+        where 1=1
+        <include refid="groupsGetData" />
+        <if test="groups != null">
+            <include refid="getUseData" />  1=1)
+        </if>
+        group by memory
     </select>
 
     <!--删除-->
@@ -713,9 +782,7 @@
             select type_id from cmdb_resource_server_type where
             type_name in ("KVM宿主机", "数据库物理机", "应用物理机", "物理机", "VMware物理机", "docker服务器")
             ) and buy_user in
-           <foreach collection="groups" item="item" separator="," open="(" close=")"  index="index">
-               #{item}
-           </foreach>
+        <include refid="groups"/>
     </select>
 
     <select id="selectIntervalNumber" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
@@ -723,36 +790,31 @@
         cmdb_resource_server where type_id in
         (select type_id from cmdb_resource_server_type where type_name in
         ("KVM宿主机", "数据库物理机", "应用物理机", "物理机", "VMware物理机", "docker服务器"))
-        and buy_user in      <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
-        #{item}
-    </foreach>        ) -
+        and buy_user in     <include refid="groups"/>      ) -
         (select count(*) as cnt from cmdb_resource_server where
         type_id in         (select type_id from cmdb_resource_server_type where
         type_name in ("KVM宿主机", "VMware物理机", "docker服务器")) and
-        use_user in    <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
-        #{item}
-    </foreach>  ) as cnt;
+        use_user in  <include refid="groups"/> ) as cnt;
     </select>
 
     <!--获取虚拟化使用的机器数量-->
     <select id="selectVmHostNumber" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
     select count(*) as cnt from cmdb_resource_server where type_id in
     (select type_id from cmdb_resource_server_type where type_name in ("KVM宿主机", "VMware物理机", "docker服务器"))
-       and use_user  in  <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
-           #{item}
-        </foreach>
+       and use_user  in <include refid="groups"/>
     </select>
+
+    <sql id="vmUseNumber">
+        sum(case round(((cpu/2) + (memory/8) + (disk_size/60)) /3 ) when
+        0 then 1 else round(((cpu/2) + (memory/8) + (disk_size/60)) /3 )  end ) as cnt
+        from cmdb_resource_server where
+        type_id in (select type_id from cmdb_resource_server_type where type_name in ("KVM虚拟机", "VMware虚拟机", "docker容器", "虚拟机"))
+        and groups_id in  <include refid="groups"/>
+    </sql>
 
     <!--按单元计算虚拟机使用-->
     <select id="selectVmUsedNumber" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
-    select sum(case round(((cpu/2) + (memory/8) + (disk_size/60)) /3 ) when
-       0 then 1 else round(((cpu/2) + (memory/8) + (disk_size/60)) /3 )  end ) as cnt
-       from cmdb_resource_server where
-        type_id in (select type_id from cmdb_resource_server_type where type_name in ("KVM虚拟机", "VMware虚拟机", "docker容器", "虚拟机"))
-        and groups_id in
-       <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
-           #{item}
-       </foreach>
+        select (case when (select <include refid="vmUseNumber"/> ) is null then 0 else (select <include refid="vmUseNumber"/> ) end) as cnt;
     </select>
 
     <select id="selectVmPrice" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
@@ -774,26 +836,17 @@
      select count(*) as cnt from cmdb_resource_server a where
          a.type_id in (
           select type_id from cmdb_resource_server_type where type_name in ("数据库物理机", "应用物理机", "物理机"))
-                and a.use_user in    <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
-        #{item}
-         </foreach>
+                and a.use_user in <include refid="groups"/>
     </select>
     <!-- 获取借用的库存 -->
     <select id="selectPhyFromInventory" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
-        select count(*) as cnt from cmdb_resource_server a where    a.use_user in   <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
-        #{item}
-    </foreach>  and a.buy_user not in   <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
-        #{item}
-    </foreach>
+        select count(*) as cnt from cmdb_resource_server a where a.use_user in  <include refid="groups"/> and a.buy_user not in   <include refid="groups"/>
 
     </select>
     <!-- 获取未使用的库存 -->
     <select id="selectPhyUnusedInventory" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
     select count(*) as cnt from cmdb_resource_server a where
-     a.buy_user in
-    <foreach collection="groups" item="item" separator="," open="(" close=")" index="index">
-        #{item}
-    </foreach>
+     a.buy_user in <include refid="groups"/>
     and (a.use_user is null or trim(a.use_user) = "0" or a.use_user="")
     </select>
 </mapper>

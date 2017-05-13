@@ -17,6 +17,9 @@
 
     <select id="selectByAll" resultType="com.asura.resource.entity.CmdbResourceInventoryEntity">
          <include refid="baseSql" />
+        <if test="inventoryId != null">
+            and inventory_id=#{inventoryId}
+        </if>
     </select>
 
     <select id="findById" resultType="com.asura.resource.entity.CmdbResourceInventoryEntity">

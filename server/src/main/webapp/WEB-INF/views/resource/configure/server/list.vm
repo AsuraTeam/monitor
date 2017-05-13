@@ -296,7 +296,7 @@
                         {"data": "userName"},
                         {"data": "typeName"},
                         {"data": "description", "mRender": function (data, type, full) {
-                            if(data.length > 30){
+                            if(data && data.length > 30){
                                 return "<span title='"+data+"'>" + data.substring(1, 30) +"</span>";
                             }
                             return data;

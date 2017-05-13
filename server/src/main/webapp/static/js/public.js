@@ -532,6 +532,11 @@ function graph_min(color, id, title, ytitle, url, chartype,lstartT,lendT, select
                 axisLabel :{  
                    interval:"auto",
                    formatter : function(v) {  
+                      if(notime == "month"){
+                        v1 = v.split(" ") 
+                        v3 = v1[0].split("-")
+                        return v3[1]
+                      }
                       if(timeformar == 1){
                         v1 = v.split(" ") 
                         v3 = v1[1].split(":")

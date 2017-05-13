@@ -173,6 +173,31 @@ public class ServerController {
         return PageResponse.getMap(result, draw);
     }
 
+    /**
+     *
+     * @param inventoryId
+     * @param searchMap
+     */
+    void  getGrsoupsId(String inventoryId, SearchMap searchMap){
+        String groupsId;
+        // 通过库存获取组信息
+        if (CheckUtil.checkString(inventoryId)) {
+            if (inventoryId == null || inventoryId.equals("0")){
+                groupsId = "";
+                SearchMap inventoryMap = new SearchMap();
+                PagingResult<CmdbResourceInventoryEntity> inventoryEntitys = inventoryService.findAll(inventoryMap, PageResponse.getPageBounds(10000,1), "selectByAll");
+                for (CmdbResourceInventoryEntity entity: inventoryEntitys.getRows()){
+                    groupsId += entity.getGroupsId()+",";
+                }
+                groupsId = groupsId.replace(",,",",");
+            }else {
+                CmdbResourceInventoryEntity inventoryEntity = inventoryService.findById(Integer.valueOf(inventoryId), CmdbResourceInventoryEntity.class);
+                groupsId = inventoryEntity.getGroupsId();
+            }
+            searchMap.put("groups", groupsId.split(","));
+        }
+    }
+
 
     /**
      * 列表数据
@@ -210,22 +235,7 @@ public class ServerController {
         SearchMap searchMap = new SearchMap();
 
         // 通过库存获取组信息
-        if (CheckUtil.checkString(inventoryId)) {
-            String groupsId ;
-            if (inventoryId == null || inventoryId.equals("0")){
-                groupsId = "";
-                SearchMap inventoryMap = new SearchMap();
-                PagingResult<CmdbResourceInventoryEntity> inventoryEntitys = inventoryService.findAll(inventoryMap, PageResponse.getPageBounds(10000,1), "selectByAll");
-                for (CmdbResourceInventoryEntity entity: inventoryEntitys.getRows()){
-                    groupsId += entity.getGroupsId()+",";
-                }
-                groupsId = groupsId.replace(",,",",");
-            }else {
-                CmdbResourceInventoryEntity inventoryEntity = inventoryService.findById(Integer.valueOf(inventoryId), CmdbResourceInventoryEntity.class);
-                groupsId = inventoryEntity.getGroupsId();
-            }
-            searchMap.put("groups", groupsId.split(","));
-        }
+        getGrsoupsId(inventoryId, searchMap);
         if (CheckUtil.checkString(t)){
             searchMap.put("noGroups","1");
             switch (t){
@@ -529,11 +539,12 @@ public class ServerController {
      */
     @RequestMapping(value = "countDataReport", produces = {"application/json;charset=utf-8"})
     @ResponseBody
-    public String countDataReport(String type, String entName) {
+    public String countDataReport(String type, String entName, String inventoryId) {
         SearchMap searchMap = new SearchMap();
         if (CheckUtil.checkString(entName)) {
             searchMap.put("entName", entName);
         }
+        getGrsoupsId(inventoryId, searchMap);
         List<CmdbResourceServerEntity> result = service.getDataList(searchMap, type);
         ArrayList list = setServerEntity(result);
         return gson.toJson(list);

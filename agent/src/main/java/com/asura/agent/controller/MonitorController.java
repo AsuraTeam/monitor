@@ -91,7 +91,7 @@ import static com.asura.agent.util.RedisUtil.app;
 public class MonitorController {
 
     // 版本号
-    private final String VERSION = "1.0.0.12";
+    private final String VERSION = "1.0.0.13";
 
     private static final Logger logger = LoggerFactory.getLogger(MonitorController.class);
 
@@ -854,12 +854,13 @@ public class MonitorController {
                         continue;
                     }
                 }
-                currTime = DateUtil.getCurrTime();
-                lastSendTime = ALARM_INTERVAL.get(alarmId);
-                if (currTime - lastSendTime > alarmInterval) {
-                    info(isDebug ? "初始化时间报警记数器:" + alarmId : null);
-                    ALARM_INTERVAL.put(alarmId, currTime);
-                }
+//                currTime = DateUtil.getCurrTime();
+//                lastSendTime = ALARM_INTERVAL.get(alarmId);
+//                if (currTime - lastSendTime > alarmInterval) {
+//                    info(isDebug ? "初始化时间报警记数器:" + alarmId : null);
+//                    ALARM_INTERVAL.put(alarmId, currTime);
+//                }
+//
                 // 报警次数记数, 每次加一
                 if (ALARM_COUNT.containsKey(alarmId) && ALARM_COUNT.get(alarmId) >= 1) {
                     info(isDebug ? "ALARM_COUNT add number " + ALARM_COUNT.get(alarmId) : null);
@@ -888,21 +889,26 @@ public class MonitorController {
                 }
 
                 if (retry == 0) {
-                    logger.info("获取到重试次数为0，删除ALARM_COUNT");
+                    logger.info("获取到重试次数为0，删除ALARM_COUNT,跳出检查");
                     ALARM_COUNT.remove(alarmId);
+                    continue;
                 }
 
-                //  发送报警信息
-                info(isDebug ? "添加报警到队列啦... " + alarmId : null);
-                info(isDebug ? "添加到报警队列script_status" + gson.toJson(SCRIPT_STATUS.get(alarmId)) : null);
+
                 if (SCRIPT_STATUS.containsKey(alarmId)) {
+                    //  发送报警信息
+                    info(isDebug ? "添加报警到队列啦... " + alarmId : null);
+                    info(isDebug ? "添加到报警队列script_status" + gson.toJson(SCRIPT_STATUS.get(alarmId)) : null);
+                    info(isDebug ? "初始化时间报警记数器:" + alarmId : null);
+                    ALARM_INTERVAL.put(alarmId, DateUtil.getCurrTime());
                     queue.add(SCRIPT_STATUS.get(alarmId));
                 }
+
                 if (retry == 0) {
                     logger.info("获取到重试次数为0，删除SCRIPT_STATUS");
                     SCRIPT_STATUS.remove(alarmId);
                 } else {
-                    ALARM_LAST_TIME.put(alarmId, currTime);
+                    ALARM_LAST_TIME.put(alarmId, DateUtil.getCurrTime());
                 }
             }
         }
