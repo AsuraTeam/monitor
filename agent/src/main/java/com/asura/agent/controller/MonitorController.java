@@ -85,13 +85,14 @@ import static com.asura.agent.util.RedisUtil.app;
  *          20170223 添加agent检查ping时添加hostname功能
  *          20170426 agent数据上报错误修改
  *          20170426 agent监控多线程支持
+ *          2017
  */
 @RestController
 @EnableAutoConfiguration
 public class MonitorController {
 
     // 版本号
-    private final String VERSION = "1.0.0.13";
+    private final String VERSION = "1.0.0.15";
 
     private static final Logger logger = LoggerFactory.getLogger(MonitorController.class);
 
@@ -168,6 +169,7 @@ public class MonitorController {
     // 存放脚本运行间隔
     private static Map<String, Long> MONITOR_LOCK;
     // 存放最近报警时间，判断是否为闪断, 如果恢复和报警时间太短，不再发送恢复消息
+    // 存储系统调用资源失败,比如Redis失败,连续10次失败后程序先停止执行,等一会后继续
     private static Map<String, Long> ALARM_LAST_TIME;
     // 存放参数中IP地址的
     private static Map<String, String> ARGV_HOST_MAP;
@@ -205,6 +207,7 @@ public class MonitorController {
      */
     void init() {
         logger.info("初始化系统变量.....");
+        checkAgentRedis();
         redisUtil = new RedisUtil();
         gson = new Gson();
         hostConfigs = new HashSet<>();
@@ -280,10 +283,59 @@ public class MonitorController {
     }
 
     /**
+     *
+     * @return
+     */
+   static boolean getErrorNumber(){
+       String key = "monitor_check_redis_active";
+       if (ALARM_LAST_TIME == null){
+           ALARM_LAST_TIME = new HashMap<>();
+       }
+       if (!ALARM_LAST_TIME.containsKey(key)){
+           info(isDebug ? "检查redis错误次数: " + ALARM_LAST_TIME.get(key) : null);
+           ALARM_LAST_TIME.put(key, 0L);
+       }
+       info(isDebug ? "检查redis错误次数: " + ALARM_LAST_TIME.get(key) : null);
+       checkAgentRedis();
+        if (ALARM_LAST_TIME.get(key) > 10){
+            logger.error("获取redis失败，程序终止执行");
+            return true;
+        }
+        return false;
+    }
+
+
+    /**
+     * 每8秒检查一次，连续10次失败，程序先停止
+     * 主要针对redis用域名连接域名失败的情况
+     */
+    public static void checkAgentRedis(){
+        String key = "monitor_check_redis_active";
+        initTimeMap(key);
+        info(isDebug ? "开始检查redis可用" : null);
+        if (checkTimeMap(key, 8)) {
+            String result = redisUtil.get(key);
+            if (result == null || result.equals("") || result.length() < 1 ) {
+                String set = redisUtil.set(key, DateUtil.getCurrTime() + "");
+                if (set.equals("err")) {
+                    if (ALARM_LAST_TIME.containsKey(key)) {
+                        logger.error( "redis  失败 " + ALARM_LAST_TIME.get(key));
+                        ALARM_LAST_TIME.put(key, ALARM_LAST_TIME.get(key) + 1);
+                    }else{
+                        ALARM_LAST_TIME.put(key, 1L);
+                    }
+                }
+                putTimeMap(key);
+                return;
+            }
+            putTimeMap(key);
+            ALARM_LAST_TIME.put(key, 0L);
+        }
+    }
+
+    /**
      * 获取IP地址的ID
-     *
      * @param ip
-     *
      * @return
      */
     static String getHostId(String ip) {
@@ -414,6 +466,7 @@ public class MonitorController {
      */
     @RequestMapping("/monitor/init")
     void initMonitor() {
+        checkAgentRedis();
         init();
         // 获取自己是否有监控项目
         // 去redis获取自己的host的ID
@@ -460,6 +513,10 @@ public class MonitorController {
      */
     void scheduledStart(){
         logger.info(isDebug ? "任务调度启动" : null);
+        checkAgentRedis();
+        if (getErrorNumber()){
+            return;
+        }
         // 设置主机正在运行状态  10秒一次
         setHostActive();
         // checkAlarmQueue 10秒钟一次
@@ -587,12 +644,18 @@ public class MonitorController {
     @Scheduled(cron = "0/5 * * * * ?")
     void checkExecScript() throws Exception {
 
+        checkAgentRedis();
+
+        if (getErrorNumber()){
+            return;
+        }
 
         // 检查是否初始化过
         if (INIT_TIME == 0) {
             // 初始化监控
             INIT_TIME = DateUtil.getCurrTime();
             info(isDebug ? "init monitor ...." : null);
+            checkAgentRedis();
             initMonitor();
         }
 
@@ -667,6 +730,9 @@ public class MonitorController {
      * 上传客户端的信息到服务端
      */
     void pushServerInfo() {
+        if (getErrorNumber()){
+            return;
+        }
         String pushUrl = "monitor/api/sysInfo";
         String os = System.getProperty("os.name");
         String scriptUrl = "monitor/scripts/api/scripts";
@@ -702,6 +768,7 @@ public class MonitorController {
      * 每10分钟获取一次push服务器信息
      */
     void setPushServer() {
+        checkAgentRedis();
         initTimeMap("setPushServer");
         if (!timeMap.containsKey("setPushServer")){
             putTimeMap("setPushServer");
@@ -725,6 +792,10 @@ public class MonitorController {
         }
 
         if (ALARM_MAP == null) {
+            return;
+        }
+
+        if (getErrorNumber()){
             return;
         }
 
@@ -866,6 +937,7 @@ public class MonitorController {
                     info(isDebug ? "ALARM_COUNT add number " + ALARM_COUNT.get(alarmId) : null);
                     ALARM_COUNT.put(alarmId, ALARM_COUNT.get(alarmId) + 1);
                 }
+
                 if (ALARM_COUNT.get(alarmId) == 0) {
                     info(isDebug ? "ALARM_COUNT id is continue " + ALARM_COUNT.get(alarmId) : null);
                     continue;
@@ -888,7 +960,7 @@ public class MonitorController {
                     }
                 }
 
-                if (retry == 0) {
+                if (retry == 0 && alarmCount > 0 ) {
                     logger.info("获取到重试次数为0，删除ALARM_COUNT,跳出检查");
                     ALARM_COUNT.remove(alarmId);
                     continue;
@@ -1209,10 +1281,6 @@ public class MonitorController {
         info(isDebug ? "hostList: " + gson.toJson(hostList) : null);
         boolean skip = false;
         for (String date : getHostStatus(hostList, false)) {
-            if (skip){
-                info(isDebug ? "跳出agent检查 "  : null);
-                continue;
-            }
             host = hostList.get(count);
             count += 1;
             info(isDebug ? host + " " + date : null);
@@ -1223,7 +1291,12 @@ public class MonitorController {
             Long lastDate = Long.valueOf(date);
             // 防止本机时间差距太大
             if (currDate - lastDate >= 240) {
-                // 重试3次，每隔5秒
+                if (skip){
+                    info(isDebug ? "跳出agent检查 "  : null);
+                    continue;
+                }
+
+                // 重试8次，每隔5秒
                 String key = RedisUtil.app + "_" + MonitorCacheConfig.cacheHostIsUpdate + host;
                 for (int retry = 0; retry < 8; retry++) {
                     String hostDate = jedis.get(key);
@@ -2058,6 +2131,9 @@ public class MonitorController {
      * @param data
      */
    static void pushData(String url, String data) {
+       if (getErrorNumber()){
+           return;
+       }
         info(HttpSendUtil.sendPost(url,"lentity=" + Base64Util.encode(data)));
     }
 
@@ -2067,6 +2143,11 @@ public class MonitorController {
      * @param entity
      */
     public static void pushMonitor(ArrayList<PushEntity> entity, String url, boolean status) {
+
+        if (getErrorNumber()){
+            return;
+        }
+
         ArrayList ok = new ArrayList();
         ArrayList faild = new ArrayList();
         ArrayList unknown = new ArrayList();

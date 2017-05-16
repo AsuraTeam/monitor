@@ -13,11 +13,10 @@ public class RedisUtil {
 
     private static  final Logger LOGGER = LoggerFactory.getLogger(RedisUtil.class);
 
-    private static String url = Configure.get("redis.server");
+    public static String url = Configure.get("redis.server");
     public static final String app = "monitor";
     private static int port;
     private static String redisPassword;
-
     private static boolean isConfig = false;
 
 
@@ -66,15 +65,16 @@ public class RedisUtil {
      */
     public String set(String key, String value) {
         Jedis jedis = getJedis();
-        String r = "";
+        String r ;
         try {
             LOGGER.info("set "+app + "_" + key, value);
-            r = jedis.set(app + "_" + key, value);
-            jedis.close();
+            jedis.set(app + "_" + key, value);
+            r = "ok";
         } catch (Exception e) {
             LOGGER.error("Redis set ERROR " + key ,e);
-            r = "";
+            r = "err";
         }
+        jedis.close();
         return r;
     }
 
@@ -88,12 +88,13 @@ public class RedisUtil {
         String r = "";
         try {
             LOGGER.info("setex "+app + "_" + key, value);
-            r = jedis.setex(app + "_" + key,timeOut, value);
-            jedis.close();
+            jedis.setex(app + "_" + key,timeOut, value);
+            r ="ok";
         } catch (Exception e) {
             LOGGER.error("Redis setex ERROR " + key ,e);
-            r = "";
+            r = "err";
         }
+        jedis.close();
         return r;
     }
 
@@ -107,12 +108,11 @@ public class RedisUtil {
         try {
             LOGGER.info("get "+ app + "_" + key);
             r = jedis.get(app + "_" + key);
-            jedis.close();
         } catch (Exception e) {
             LOGGER.error("Redis get ERROR " + key ,e);
             r = "";
-            jedis.close();
         }
+        jedis.close();
         return r;
     }
 
@@ -126,11 +126,10 @@ public class RedisUtil {
         try {
             LOGGER.info("del "+ app + "_" + key);
             r = jedis.del(app + "_" + key);
-            jedis.close();
         } catch (Exception e) {
             r = 0l;
-            jedis.close();
         }
+        jedis.close();
         return r;
     }
 
@@ -144,11 +143,10 @@ public class RedisUtil {
         try {
             LOGGER.info("lpush "+ app + "_" + key);
             r = jedis.lpush(app + "_" + key, value);
-            jedis.close();
         } catch (Exception e) {
             r = 0;
-            jedis.close();
         }
+        jedis.close();
         return r;
     }
 
@@ -163,11 +161,10 @@ public class RedisUtil {
         try {
             LOGGER.info("rpop "+ app + "_" + key);
             r = jedis.rpop(app + "_" + key);
-            jedis.close();
         } catch (Exception e) {
             r = "";
-            jedis.close();
         }
+        jedis.close();
         return r;
     }
 }

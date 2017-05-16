@@ -3,6 +3,7 @@ package com.asura.agent.util;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.asura.agent.conf.MonitorCacheConfig;
+import com.asura.agent.controller.MonitorController;
 import com.asura.agent.entity.PushServerEntity;
 import com.asura.agent.thread.SocketThread;
 import org.slf4j.Logger;
@@ -88,6 +89,7 @@ public class SocketSendUtil {
      * @return
      */
     public static InetAddress getServer(InetAddress address) {
+        MonitorController.checkAgentRedis();
         if (serverList != null && serverList.size() > 0) {
             if (address == null) {
                 random = new Random();
