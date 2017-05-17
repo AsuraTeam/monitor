@@ -85,14 +85,15 @@ import static com.asura.agent.util.RedisUtil.app;
  *          20170223 添加agent检查ping时添加hostname功能
  *          20170426 agent数据上报错误修改
  *          20170426 agent监控多线程支持
- *          2017
+ *          20170515 修改报警重复
+ *          20170517 报警不需要发送恢复修复
  */
 @RestController
 @EnableAutoConfiguration
 public class MonitorController {
 
     // 版本号
-    private final String VERSION = "1.0.0.15";
+    private final String VERSION = "1.0.0.18";
 
     private static final Logger logger = LoggerFactory.getLogger(MonitorController.class);
 
@@ -965,7 +966,6 @@ public class MonitorController {
                     ALARM_COUNT.remove(alarmId);
                     continue;
                 }
-
 
                 if (SCRIPT_STATUS.containsKey(alarmId)) {
                     //  发送报警信息
@@ -1915,7 +1915,7 @@ public class MonitorController {
             try {
                 info(isDebug ? "获取到超时时间" + entity.getTimeOut()  : null);
                 int timeOut =  Integer.valueOf(entity.getTimeOut());
-                if (timeOut==0){
+                if (timeOut == 0){
                     return 8;
                 }
                 return timeOut;
@@ -2430,12 +2430,20 @@ public class MonitorController {
         }
         MonitorItemEntity itemEntity = gson.fromJson(SCRIPT_ITEM.get(scriptId + ""), MonitorItemEntity.class);
 
+        try {
+            // 报警不恢复处理
+            if (itemEntity.getIsRecover() == 0 && status == 1 ) {
+                logger.info("获取到不需 要发送恢复的监控项目,退出报警恢复" + gson.toJson(pushEntity));
+                return;
+            }
+        }catch (Exception e){
+            logger.error("获取恢复值失败", e);
+        }
+
         String recover = "";
         String message = "";
         if (itemEntity != null) {
-
             info(isDebug ? "获取到script_item:" + gson.toJson(itemEntity) : null);
-
             recover = itemEntity.getRecoverMessages();
             message = itemEntity.getAlarmMessages();
         } else {

@@ -172,7 +172,7 @@ public class MonitorUtil {
     public static String getAdminGroup(MonitorItemEntity itemEntity) {
         // 在项目中配置发送给管理员的项目全部发报警给管理员
         String adminGroup;
-        if (itemEntity.getIsAdmin() != null && itemEntity.getIsAdmin().length() > 0) {
+        if (itemEntity.getIsAdmin() != null && itemEntity.getIsAdmin().length() > 0 && Integer.valueOf(itemEntity.getIsAdmin()) == 1 ) {
             adminGroup = getAdminGroup();
         } else {
             adminGroup = "";
