@@ -18,6 +18,33 @@ import com.asura.framework.base.entity.BaseEntity;
  */
 public class CmdbResourceInventoryEntity extends BaseEntity{
 
+    // 获取测试环境购买量
+    private String testBuyNumber;
+    // 获取测试环境借用量
+    private String testFromNumber;
+    // 获取测试环境物理库存量
+    private String testPhyInventoryNumber;
+    // 获取测试环境已使用
+    private String testVmUsedNumber;
+    // 获取测试环境未使用库存
+    private String testVmInventoryNumber;
+    // 测试环境未使用库存
+    private String testUnused;
+
+    // 获取测试环境购买量
+    private String onlineBuyNumber;
+    // 获取测试环境借用量
+    private String onlineFromNumber;
+    // 获取测试环境物理库存量
+    private String onlinePhyInventoryNumber;
+    // 获取测试环境未使用库存
+    private String onlineVmInventoryNumber;
+    // 生产环境未使用机器
+    private String onlineUnused;
+
+    // 获取生产环境已使用
+    private String onlineVmUsedNumber;
+
     // 获取借用库存
     private int fromInventory;
 
@@ -36,6 +63,104 @@ public class CmdbResourceInventoryEntity extends BaseEntity{
     private int phyUsed;
     // 获取未使用库存
     private int unused;
+
+
+
+    public String getTestVmUsedNumber() {
+        return testVmUsedNumber;
+    }
+
+    public String getTestUnused() {
+        return testUnused;
+    }
+
+    public void setTestUnused(String testUnused) {
+        this.testUnused = testUnused;
+    }
+
+    public String getOnlineUnused() {
+        return onlineUnused;
+    }
+
+    public void setOnlineUnused(String onlineUnused) {
+        this.onlineUnused = onlineUnused;
+    }
+
+    public void setTestVmUsedNumber(String testVmUsedNumber) {
+        this.testVmUsedNumber = testVmUsedNumber;
+    }
+
+    public String getOnlineVmUsedNumber() {
+        return onlineVmUsedNumber;
+    }
+
+    public void setOnlineVmUsedNumber(String onlineVmUsedNumber) {
+        this.onlineVmUsedNumber = onlineVmUsedNumber;
+    }
+
+    public String getTestBuyNumber() {
+        return testBuyNumber;
+    }
+
+    public void setTestBuyNumber(String testBuyNumber) {
+        this.testBuyNumber = testBuyNumber;
+    }
+
+    public String getTestFromNumber() {
+        return testFromNumber;
+    }
+
+    public void setTestFromNumber(String testFromNumber) {
+        this.testFromNumber = testFromNumber;
+    }
+
+    public String getTestPhyInventoryNumber() {
+        return testPhyInventoryNumber;
+    }
+
+    public void setTestPhyInventoryNumber(String testPhyInventoryNumber) {
+        this.testPhyInventoryNumber = testPhyInventoryNumber;
+    }
+
+    public String getTestVmInventoryNumber() {
+        return testVmInventoryNumber;
+    }
+
+    public void setTestVmInventoryNumber(String testVmInventoryNumber) {
+        this.testVmInventoryNumber = testVmInventoryNumber;
+    }
+
+    public String getOnlineBuyNumber() {
+        return onlineBuyNumber;
+    }
+
+    public void setOnlineBuyNumber(String olineBuyNumber) {
+        this.onlineBuyNumber = olineBuyNumber;
+    }
+
+    public String getOnlineFromNumber() {
+        return onlineFromNumber;
+    }
+
+    public void setOnlineFromNumber(String onlineFromNumber) {
+        this.onlineFromNumber = onlineFromNumber;
+    }
+
+    public String getOnlinePhyInventoryNumber() {
+        return onlinePhyInventoryNumber;
+    }
+
+    public void setOnlinePhyInventoryNumber(String onlinePhyInventoryNumber) {
+        this.onlinePhyInventoryNumber = onlinePhyInventoryNumber;
+    }
+
+    public String getOnlineVmInventoryNumber() {
+        return onlineVmInventoryNumber;
+    }
+
+    public void setOnlineVmInventoryNumber(String onlineVmInventoryNumber) {
+        this.onlineVmInventoryNumber = onlineVmInventoryNumber;
+    }
 
     public int getUnused() {
         return unused;

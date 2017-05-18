@@ -777,15 +777,16 @@
 
     <!-- 获取每个业务线物理机购买数量 -->
     <select id="selectBuyGroups" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
-            select count(*) as cnt from cmdb_resource_server
-            where type_id in (
+            select count(*) as cnt from cmdb_resource_server a, cmdb_resource_entname b
+            where a.ent_id = b.ent_id and  a.type_id in (
             select type_id from cmdb_resource_server_type where
             type_name in ("KVM宿主机", "数据库物理机", "应用物理机", "物理机", "VMware物理机", "docker服务器")
             ) and buy_user in
         <include refid="groups"/>
+        <include refid="ent"/>
     </select>
 
-    <select id="selectIntervalNumber" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
+    <!--select id="selectIntervalNumber" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
         select (select count(*) as cnt from
         cmdb_resource_server where type_id in
         (select type_id from cmdb_resource_server_type where type_name in
@@ -794,22 +795,33 @@
         (select count(*) as cnt from cmdb_resource_server where
         type_id in         (select type_id from cmdb_resource_server_type where
         type_name in ("KVM宿主机", "VMware物理机", "docker服务器")) and
-        use_user in  <include refid="groups"/> ) as cnt;
-    </select>
+        use_user in  <include refid="groups"/> ) as cnt
+    </select-->
+
+    <sql id="ent">
+        <if test="online != null ">
+            and b.ent_name="生产环境"
+        </if>
+        <if test="noOnline != null">
+            and b.ent_name in ("测试环境", "开发环境", "准生产环境")
+        </if>
+    </sql>
 
     <!--获取虚拟化使用的机器数量-->
     <select id="selectVmHostNumber" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
-    select count(*) as cnt from cmdb_resource_server where type_id in
+    select count(*) as cnt from cmdb_resource_server a, cmdb_resource_entname b  where a.ent_id= b.ent_id and  type_id in
     (select type_id from cmdb_resource_server_type where type_name in ("KVM宿主机", "VMware物理机", "docker服务器"))
        and use_user  in <include refid="groups"/>
+         <include refid="ent"/>
     </select>
 
     <sql id="vmUseNumber">
         sum(case round(((cpu/2) + (memory/8) + (disk_size/60)) /3 ) when
         0 then 1 else round(((cpu/2) + (memory/8) + (disk_size/60)) /3 )  end ) as cnt
-        from cmdb_resource_server where
+        from cmdb_resource_server  a, cmdb_resource_entname b where a.ent_id = b.ent_id and
         type_id in (select type_id from cmdb_resource_server_type where type_name in ("KVM虚拟机", "VMware虚拟机", "docker容器", "虚拟机"))
         and groups_id in  <include refid="groups"/>
+        <include refid="ent"/>
     </sql>
 
     <!--按单元计算虚拟机使用-->
@@ -833,21 +845,29 @@
 
     <!-- 获取非虚拟化使用量 -->
     <select id="selectPhyInventoryUse" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
-     select count(*) as cnt from cmdb_resource_server a where
+     select count(*) as cnt from cmdb_resource_server a, cmdb_resource_entname b where
+        a.ent_id = b.ent_id and
          a.type_id in (
           select type_id from cmdb_resource_server_type where type_name in ("数据库物理机", "应用物理机", "物理机"))
                 and a.use_user in <include refid="groups"/>
+        <include refid="ent"/>
     </select>
+
+
     <!-- 获取借用的库存 -->
     <select id="selectPhyFromInventory" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
-        select count(*) as cnt from cmdb_resource_server a where a.use_user in  <include refid="groups"/> and a.buy_user not in   <include refid="groups"/>
-
+        select count(*) as cnt
+        from cmdb_resource_server a ,  cmdb_resource_entname b  where a.ent_id = b.ent_id
+        and a.use_user in  <include refid="groups"/> and a.buy_user not in   <include refid="groups"/>
+        <include refid="ent"/>
     </select>
+
     <!-- 获取未使用的库存 -->
     <select id="selectPhyUnusedInventory" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
-    select count(*) as cnt from cmdb_resource_server a where
+    select count(*) as cnt from cmdb_resource_server a, cmdb_resource_entname b  where a.ent_id = b.ent_id and
      a.buy_user in <include refid="groups"/>
     and (a.use_user is null or trim(a.use_user) = "0" or a.use_user="")
+        <include refid="ent"/>
     </select>
 </mapper>
 

@@ -1,5 +1,5 @@
-#include("/index/include.vm")
-<script src="/static/js/highstock.js"></script>
+<!DOCTYPE html>
+#include("/index/dygraph.vm")
 
 #foreach($name in $names)
     #foreach($n in $types.get($name))

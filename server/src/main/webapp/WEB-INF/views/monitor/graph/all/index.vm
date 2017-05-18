@@ -434,6 +434,15 @@
         if(is_mline == "2"){
             url = url +"&mline=1"
         }
+        startT= $('#startSendTime').val()
+        endT = $('#endSendTime').val()
+        if(!startT){
+            startT = ""
+        }
+        if(!endT){
+            endT = ""
+        }
+        url += "&startT="+startT+"&endT="+endT
         $('#show_image_status_id').html($.cookie("s"))
         $('#iframepage').attr("src", url);
     }
@@ -562,7 +571,15 @@
         if(is_all_select == "2"){
             url = url + "&mline=1"
         }
-
+        startT= $('#startSendTime').val()
+        endT = $('#endSendTime').val()
+        if(!startT){
+            startT = ""
+        }
+        if(!endT){
+            endT = ""
+        }
+        url += "&startT="+startT+"&endT="+endT
         $('#iframepage').attr("src",url);
         if(img){
             $('#show_graph_imgages').modal("toggle")

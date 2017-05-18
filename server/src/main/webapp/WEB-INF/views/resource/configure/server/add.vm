@@ -392,7 +392,7 @@
                    <label class="col-sm-3 control-label">使用业务线:</label>
                    <div class="col-sm-9">
                        <select class="form-control" name="useUser">
-                           <option value="#if ($useUserId)${configs.useUserId}#else 0 #end">#if ($configs.useUser) ${configs.useUser}  #end</option>
+                           <option value="#if ($useUserId)${useUserId}#else 0 #end">#if ($configs.useUser) ${configs.useUser}  #end</option>
                            <option value="0">--</option>
                            #foreach( $conf in $groups )
                                <option

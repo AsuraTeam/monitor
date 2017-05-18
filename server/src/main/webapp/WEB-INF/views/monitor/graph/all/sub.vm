@@ -1,7 +1,9 @@
-#include("/index/include.vm")
+<!DOCTYPE html>
+#include("/index/dygraph.vm")
 <div id="image_all_id" style="  margin-top: 20px;">
-
 </div>
+<script>
+</script>
 <div id="image_all_id_realtime" style="margin-top: 20px;">
 </div>
 
@@ -24,7 +26,7 @@
                         </div>
                         <input type="hidden" id="${ipadd.replace(".", "_")}${name}${n.replace('---','').replace(".","_").replace(" ","")}BorderWidth" value="32">
                         <div class="animated pulse" id="${ipadd.replace(".", "_")}${name}${n.replace('---','').replace(".","_").replace(" ","")}"
-                             style="width: 100%;height: 240px;margin-bottom:5px;text-align:center;"><img width="20%" height="50%;" src="/static/images/loading.gif"></div>
+                             style="width: 100%;height: 270px;margin-bottom:5px;text-align:center;"><img width="20%" height="50%;" src="/static/images/loading.gif"></div>
                         <div style="margin-left:10px;margin-top:10px;display:none;" id="show_image_data_${ipadd.replace(".", "_")}${name}${n.replace('---','').replace(".","_").replace(" ","")}">
                             <table class="table  table-bordered table-hover dataTables-example" style="font-size:4px;padding:2px;">
                                 <tr>

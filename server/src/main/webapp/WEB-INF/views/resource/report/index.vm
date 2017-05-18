@@ -2,8 +2,9 @@
 <html xmlns="http://www.w3.org/1999/html">
 
 <head>
-
-    #include("/index/include.vm")
+#include("/index/dygraph.vm")
+<script src="/static/js/echarts/echarts.js"></script>
+<script src="/static/js/echarts/chart/line.js"></script>
     <script src="/static/js/highcharts.js"></script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

@@ -1,0 +1,24 @@
+<link href="/static/css/font-awesome.min.css?v=4.4.0"
+      rel="stylesheet">
+    <script src="/static/js/jquery.min.js"></script>
+
+    <link href="/static/css/style.css?v=4.1.0" rel="stylesheet">
+
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/public.js"></script>
+    <script type="text/javascript" src="/static/js/dygraph.min.js"></script>
+    <script src="/static/js/dygraph.min.js"></script>
+    <link rel="stylesheet" src="/static/css/dygraph.min.css" />
+
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/dygraph.min.css">
+
+<script src="/static/js/plugins/layer/laydate/laydate.js"></script>
+<script src="/static/js/plugins/dataTables/jquery.dataTables.js"></script>
+<script src="/static/js/plugins/dataTables/dataTables.bootstrap.js"></script>
+<script src="/static/js/plugins/dataTables/fnReloadAjax.js"></script>
+
+<link href="/static/css/animate.css" rel="stylesheet">
+<link href="/static/css/style.css?v=4.1.0" rel="stylesheet">
+<link href="/static/css/bootstrap-select.css" rel="stylesheet">
+<link href="/static/css/plugins/dataTables/dataTables.bootstrap.css" rel="stylesheet">

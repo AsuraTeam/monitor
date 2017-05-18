@@ -34,13 +34,22 @@
 <script>//Flot Multiple Axes Line Chart
 
 function getDatas() {
+    startT = "${startT}"
+    endT = "${endT}"
+    if(startT){
+        startT= startT.split(",")[0]
+    }
+    if(endT){
+        endT= endT.split(",")[0]
+    }
+
     datas = new Array();
     #foreach($ipadd in $ips)
         #foreach($name in $names)
             #foreach($n in $types.get($name))
                 d = {}
                 d["name"] = '${ipadd} ${n}';
-                d["data"] = eval(post({}, "/monitor/graph/historyData?ip=${ipadd}&name=${n}&type=${name}"));
+                d["data"] = eval(post({}, "/monitor/graph/historyData?ip=${ipadd}&name=${n}&type=${name}&startT="+startT+"&endT="+endT));
                 datas.push(d)
             #end
         #end

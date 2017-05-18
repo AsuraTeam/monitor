@@ -69,6 +69,14 @@ function get_legend_status() {
 }
 
 function getDatas(ip) {
+    startT = "${startT}"
+    endT = "${endT}"
+    if(startT){
+        startT= startT.split(",")[0]
+    }
+    if(endT){
+        endT= endT.split(",")[0]
+    }
     var name_datas = set_datas()
     datas = new Array();
     for(var i in name_datas){
@@ -77,11 +85,10 @@ function getDatas(ip) {
             name = names[j]
             d = {}
             d["name"] = name.replace(/SLASH/g,"/");
-            d["data"] = eval(post({}, "/monitor/graph/historyData?ip="+ip+"&name="+names[j]+"&type="+i));
+            d["data"] = eval(post({}, "/monitor/graph/historyData?ip="+ip+"&name="+names[j]+"&type="+i+"&startT="+startT+"&endT="+endT));
             datas.push(d)
         }
     }
-    console.log(datas)
     return datas;
 }
 

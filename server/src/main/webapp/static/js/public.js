@@ -332,12 +332,26 @@ function get_data(max, value){
    }
 }
 
-function get_max_min_avg_last_value(data, id ){
+/**
+ *
+ * 非实时使用
+ *
+ * */
+function get_max_min_avg_last_value(data, id , realtime){
     value = 0
     new_data = new Array();
     for(i=0;i<data.length;i++){
-        new_data.push(data[i][1]);
-        value += data[i][1]
+        if(realtime){
+          ddd = data[i].split(",")
+          if(ddd && ddd[0].length > 1){
+             ddd = ddd[1].split(";")
+             new_data.push(parseFloat(ddd[0]));
+             value += parseFloat(ddd[0])
+          }
+        }else{
+          new_data.push(data[i][1]);
+          value += data[i][1]
+        }
     }
     last = new_data[new_data.length-1];
     new_data.sort(function (a,b) {
@@ -352,6 +366,8 @@ function get_max_min_avg_last_value(data, id ){
     $("#"+id+"avg").html(get_data(max, avg.toFixed(2)))
     return max
 }
+
+
 
 function get_select(select){
    if(select){
@@ -464,7 +480,61 @@ function get_date(data){
   return result 
 }
 
+function get_dygraph_data(data, name){
+  d_data = "Date,"+name+"\n"
+  for(datai=0;datai<data.length; datai++){
+     ddd = data[datai][1]
+     d_data += formatDateTime(data[datai][0])+","+ddd+";"+ddd+";"+ddd+ "\n" 
+  }
+  return d_data
+}
+
 function graph_min(color, id, title, ytitle, url, chartype,lstartT,lendT, select, notime){
+    $('#show_image_data_'+id).show()
+    startT= $('#startSendTime').val()
+    endT = $('#endSendTime').val()
+    if(!startT){
+        startT = ""
+    }
+    if(!endT){
+        endT = ""
+    }
+
+    if(lstartT){
+        startT=lstartT;
+        endT = lendT;
+   }
+
+   if(url.indexOf("?") == -1){
+     data= eval(post({}, url+"?startT="+startT+"&endT="+endT))
+   }else{
+     data= eval(post({}, url+"&startT="+startT+"&endT="+endT))
+   }
+   max =  get_max_min_avg_last_value(data, id );
+   if(notime){
+        rollPeriod = 1
+   }else{
+        rollPeriod = 11
+   }
+   
+   g = new Dygraph(
+      document.getElementById(id),
+      get_dygraph_data(data,title),
+      {
+        showRoller:false, 
+        rollPeriod: rollPeriod,
+        
+        color: "#"+color,
+        customBars: true,
+        //title: 'NYC vs. SF',
+        //ylabel: 'Temperature (F)',
+        //legend: 'always'
+        legend:false,
+      }
+   );
+}
+
+function graph_min_baidu(color, id, title, ytitle, url, chartype,lstartT,lendT, select, notime){
     $('#show_image_data_'+id).show()
     startT= $('#startSendTime').val()
     endT = $('#endSendTime').val()
@@ -903,8 +973,112 @@ function realtime_graph_2017_05_03(id, server, groups, name) {
 
 }
 
-
 function realtime_graph(id, server, groups, name) {
+    $('#show_image_data_'+id).show()
+
+    var data_t = eval(post({}, "/monitor/graph/all/realtime?server="+server+"&groups="+groups+"&name="+name))
+
+    function get_realtime_data(){
+             datas = data_t
+             if (!datas){
+                 return;
+             }
+             value = ""
+             for (i=0;i<datas.length;i++){
+                 if(datas[i]["name"] == name && datas[i]["groups"] == groups ){
+             	value = datas[i]["value"]
+                 }
+             }
+             if(!value){
+                 return;
+             }
+             try{
+                 data_t = eval(post({}, "/monitor/graph/all/realtime?server="+server+"&groups="+groups+"&name="+name))
+             }catch(Exception){
+             }
+             return parseFloat(value)
+    }
+
+
+  function get_real_history_data(ip, name, type) {
+       url = "/monitor/graph/historyData?ip="+ip+"&name="+name+"&type="+type;
+       datas = eval(post({},url));
+       if(!datas){
+           return getRandomData(100);
+       }
+       if (datas.length > 100 ){
+           datas = datas.slice(datas.length-100, datas.length);
+       }else{
+           return getRandomData(100);
+       }
+       new_data = new Array()
+       for(i=0;i<100;i++){
+            dd = new Array()
+            dd.push(datas[i][0]) 
+            dd.push(datas[i][1]) 
+            new_data.push(dd)
+       }
+       return new_data;
+   }
+
+   data = get_dygraph_data(get_real_history_data(server, name , groups), name)
+   
+   g = new Dygraph(
+      document.getElementById(id),
+      data,
+      {
+        showRoller:false, 
+        rollPeriod: 1,
+        //drawPoints: true,
+        color: "#1ab394",
+        customBars: true,
+        //title: 'NYC vs. SF',
+        //ylabel: 'Temperature (F)',
+        //legend: 'always'
+        legend:false,
+      }
+   );
+   input_id = server.replace(/\./g,"")+name.replace(/\./g,"").replace(/-/g,"")
+   var timer = new Date().getTime()
+   $("#"+id).append("<input style='display:none;' value='"+timer+"' id='"+input_id+"'>")
+   header = "Date,"+name
+   start = 0
+   var timers ;
+   timers = setInterval(function() {
+      input_data = timer 
+      input_value = $("#"+input_id).val()
+      if(timer != input_value){
+        clearInterval(timers)
+        return
+      }
+      var new_data = data;
+      v = get_realtime_data() 
+      new_data += formatDateTime(new Date().getTime())+ ","+v+";"+v+";"+v+"\n"
+
+      file_data = header+"\n" 
+
+      var old_data = new_data.split("\n");
+      if(old_data.length>100){
+         datas = old_data.slice(old_data.length-100, old_data.length);
+      }else{
+        datas = old_data
+      }
+      for (oi=0;oi<datas.length; oi++){
+          if(datas[oi]!=header){
+            file_data +=  datas[oi] +"\n"
+          }
+      }
+      data = file_data
+      get_max_min_avg_last_value(datas, id, 1);
+      start += 1
+      if(start > 300){clearInterval(timers)}
+      g.updateOptions( { 'file': new_data});
+      }, 4000);
+
+}
+
+
+function realtime_graph_baidu(id, server, groups, name) {
 
 function get_real_history_data(ip, name, type) {
     url = "/monitor/graph/historyData?ip="+ip+"&name="+name+"&type="+type;

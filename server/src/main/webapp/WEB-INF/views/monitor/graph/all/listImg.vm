@@ -1,5 +1,4 @@
-#include("/index/include.vm")
-<script src="/static/js/plugins/highcharts.js"></script>
+#include("/index/dygraph.vm")
 <style>
     .col-center-block {
         float: none;

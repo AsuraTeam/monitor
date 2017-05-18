@@ -97,7 +97,7 @@ public class ServerTypeController {
      */
     @RequestMapping("add")
     public String add(Model model){
-        model = getData(model);
+        getData(model);
         return "/resource/configure/serverType/add";
     }
 
@@ -112,7 +112,10 @@ public class ServerTypeController {
         String user = permissionsCheck.getLoginUser(request.getSession());
         entity.setLastModifyUser(user);
         entity.setCreateUser(user);
-        if(entity.getTypeId()!=null){
+        if (entity.getDepend().equals(0)){
+            entity.setDepend(null);
+        }
+        if(entity.getTypeId() != null){
             service.update(entity);
         }else {
             entity.setCreateTime(DateUtil.getDateStampInteter());

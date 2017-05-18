@@ -54,8 +54,6 @@ public class InventoryController {
     @Autowired
     IndexController indexController;
 
-
-
     @Autowired
     private PermissionsCheck permissionsCheck;
 
@@ -64,15 +62,16 @@ public class InventoryController {
 
     /**
      * 库存报表
+     *
      * @return
      */
     @RequestMapping("report")
-    public String report(String inventoryId, Model model) {
+    public String report(String inventoryId, Model model, String test, String online) {
         Gson gson = new Gson();
         model.addAttribute("inventoryId", inventoryId);
-        String data = listData(1, 1,1000, inventoryId);
+        String data = listData(1, 1,inventoryId, test, online);
         Map map = gson.fromJson(data, Map.class);
-        model.addAttribute("data", ((List)map.get("data")).get(0));
+        model.addAttribute("data", ((List) map.get("data")).get(0));
         return "/resource/inventory/report";
     }
 
@@ -88,11 +87,12 @@ public class InventoryController {
 
     /**
      * 获取库存信息
+     *
      * @param searchMap
      * @param pageBounds
      * @return
      */
-    Map getListData(SearchMap searchMap, PageBounds pageBounds){
+    Map getListData(SearchMap searchMap, PageBounds pageBounds) {
         Map map = new HashMap();
         int count = 0;
         int counts = 0;
@@ -141,7 +141,7 @@ public class InventoryController {
             try {
                 List<CmdbResourceServerEntity> selectVmPrice = serverService.getDataList(searchMaps, "selectVmPrice");
                 entity.setVmPrice(selectVmPrice.get(0).getCnt());
-            }catch (Exception e){
+            } catch (Exception e) {
                 entity.setVmPrice(1000);
             }
 
@@ -179,29 +179,52 @@ public class InventoryController {
     }
 
     /**
-     * 列表数据
-     *
+     * 按不同环境计算数据
+     * @param entity
+     * @param testNumber
+     * @param onlineNumber
+     * @param searchMap1
+     * @param used
+     * @param groupsId
      * @return
      */
-    @RequestMapping(value = "listData", produces = {"application/json;charset=UTF-8"})
-    @ResponseBody
-    public String listData(int draw, int start, int length, String inventoryId) {
-
-        PageBounds pageBounds = PageResponse.getPageBounds(10000, start);
-        SearchMap searchMap = new SearchMap();
-        if (CheckUtil.checkString(inventoryId)){
-            if (!inventoryId.equals("0")){
-                searchMap.put("inventoryId", Integer.valueOf(inventoryId));
-            }
+    CmdbResourceInventoryEntity getInventoryDataEnv(CmdbResourceInventoryEntity entity, String testNumber, String onlineNumber, SearchMap searchMap1, int used, String  groupsId){
+        int test = 20;
+        int online = 13;
+        if (CheckUtil.checkString(testNumber)){
+            test = Integer.valueOf(testNumber);
         }
-        ArrayList sortList = new ArrayList();
-        Map map = getListData(searchMap, pageBounds);
-        ArrayList<CmdbResourceInventoryEntity> list = (  ArrayList<CmdbResourceInventoryEntity>) map.get("list");
-        String groupsId = (String)map.get("groupsId");
-        groupsId = groupsId.replace(",,", ",");
-        int used = (int)map.get("used");
-        SearchMap searchMap1 = new SearchMap();
-        searchMap1.put("groups", groupsId.split(","));
+        if (CheckUtil.checkString(onlineNumber)){
+            online = Integer.valueOf(onlineNumber);
+        }
+        searchMap1.put("online", "1");
+        CmdbResourceInventoryEntity inventoryDataOnline = getInventoryData(searchMap1, used, groupsId, testNumber, onlineNumber );
+        searchMap1.remove("online");
+        entity.setOnlineBuyNumber(inventoryDataOnline.getBuyNumber() + "");
+        entity.setOnlinePhyInventoryNumber(inventoryDataOnline.getPhyInventoryNumber()+"");
+        entity.setOnlineFromNumber(inventoryDataOnline.getFromInventory() + "");
+        entity.setOnlineVmInventoryNumber(((inventoryDataOnline.getPhyVmNumber() / online) - inventoryDataOnline.getVmUnitsUsed())+"");
+        entity.setOnlineVmUsedNumber(inventoryDataOnline.getVmUnitsUsed() + "");
+        entity.setOnlineUnused(inventoryDataOnline.getUnused()+"");
+
+        searchMap1.put("noOnline", "1");
+        CmdbResourceInventoryEntity inventoryDataNoOnline = getInventoryData(searchMap1, used, groupsId, testNumber, onlineNumber);
+        entity.setTestBuyNumber(inventoryDataNoOnline.getBuyNumber() + "");
+        entity.setTestFromNumber(inventoryDataNoOnline.getFromInventory() + "");
+        entity.setTestPhyInventoryNumber(inventoryDataNoOnline.getPhyInventoryNumber()+"");
+        entity.setTestVmUsedNumber(inventoryDataNoOnline.getInventoryNumber() + "");
+        entity.setTestVmInventoryNumber(((inventoryDataNoOnline.getPhyVmNumber() / test) - inventoryDataNoOnline.getVmUnitsUsed())+"");
+        entity.setTestVmUsedNumber(inventoryDataNoOnline.getVmUnitsUsed()+"");
+        entity.setTestUnused(inventoryDataNoOnline.getUnused()+"");
+        return entity;
+    }
+
+    /**
+     * @param searchMap1
+     * @param used
+     * @param groupsId
+     */
+    CmdbResourceInventoryEntity getInventoryData(SearchMap searchMap1, int used, String groupsId, String testNumber, String onlineNumber) {
         CmdbResourceInventoryEntity entity = new CmdbResourceInventoryEntity();
         // 购买的物理机数量
         List<CmdbResourceServerEntity> buyData = serverService.getDataList(searchMap1, "selectBuyGroups");
@@ -219,9 +242,12 @@ public class InventoryController {
         entity.setInventoryId(0);
         try {
             entity.setVmPrice(selectVmPrice.get(0).getCnt());
-        }catch (Exception e){
+        } catch (Exception e) {
             entity.setVmPrice(1000);
         }
+
+        // 总资产数量  购买数量 + 虚拟机使用数量
+        entity.setInventoryTotle(entity.getBuyNumber() + entity.getInventoryUsed());
 
         // 获取未使用库存selectPhyUnusedInventory
         List<CmdbResourceServerEntity> selectPhyUnusedInventory = serverService.getDataList(searchMap1, "selectPhyUnusedInventory");
@@ -232,13 +258,54 @@ public class InventoryController {
         entity.setInventoryUsed(used);
         entity.setTitle("库存总数");
         entity.setGroupsId(groupsId);
-        if (CheckUtil.checkString(inventoryId) && inventoryId.equals("0")){
+
+        return entity;
+    }
+
+    /***
+     *
+     * @param draw
+     * @param start
+     * @param inventoryId
+     * @param testNumber
+     * @param onlineNumber
+     * @return
+     */
+    @RequestMapping(value = "listData", produces = {"application/json;charset=UTF-8"})
+    @ResponseBody
+    public String listData(int draw, int start, String inventoryId, String testNumber, String onlineNumber) {
+
+        PageBounds pageBounds = PageResponse.getPageBounds(10000, start);
+        SearchMap searchMap = new SearchMap();
+        if (CheckUtil.checkString(inventoryId)) {
+            if (!inventoryId.equals("0")) {
+                searchMap.put("inventoryId", Integer.valueOf(inventoryId));
+            }
+        }
+        ArrayList sortList = new ArrayList();
+        Map map = getListData(searchMap, pageBounds);
+        ArrayList<CmdbResourceInventoryEntity> list = (ArrayList<CmdbResourceInventoryEntity>) map.get("list");
+        String groupsId = (String) map.get("groupsId");
+        groupsId = groupsId.replace(",,", ",");
+        int used = (int) map.get("used");
+        SearchMap searchMap1 = new SearchMap();
+        searchMap1.put("groups", groupsId.split(","));
+        CmdbResourceInventoryEntity entity = new CmdbResourceInventoryEntity();
+
+        if (!CheckUtil.checkString(inventoryId) || inventoryId.equals("0")) {
+            entity = getInventoryData(searchMap1, used, groupsId, testNumber, onlineNumber);
+            entity = getInventoryDataEnv(entity, testNumber , onlineNumber, searchMap1, used, groupsId);
+        }
+
+
+        if (CheckUtil.checkString(inventoryId) && inventoryId.equals("0")) {
             sortList.add(entity);
-        }else {
+        } else {
             if (!CheckUtil.checkString(inventoryId)) {
                 sortList.add(entity);
             }
             for (CmdbResourceInventoryEntity entity1 : list) {
+                entity1 = getInventoryDataEnv(entity1, testNumber , onlineNumber, searchMap1, used, groupsId);
                 sortList.add(entity1);
             }
         }
