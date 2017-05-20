@@ -71,7 +71,9 @@ is_range = $.cookie("is_range");
                     graph_min("1ab394", '${ipadd.replace(".", "_")}${name}${n.replace('---','').replace(" ","").replace(".","_")}', "${name} ${n.replace("SLASH","/").replace('---',' ')}", "${name} ${n.replace("SLASH","/").replace('---',' ')}", "/monitor/graph/historyData?ip=${ipadd}&name=${n}&dayNumber=$!{dayNumber}&type=$name","","$!{startT}","$!{endT}")
                 }
                 if(realtime=="1") {
-                    realtime_graph('${ipadd.replace(".", "_")}${name}${n.replace('---','').replace(" ","").replace(".","_")}', "$!{ip}", "$name", "$n")
+                  setTimeout(function () {
+                    realtime_graph('${ipadd.replace(".", "_")}${name}${n.replace('---','').replace(" ","").replace(".","_")}', "$!{ipadd}", "$name", "$n")
+                  },Math.round(Math.random()*10)*600)
                 }else if(is_range == "1"){
                     graph_min("1ab394", '${ipadd.replace(".", "_")}${name}${n.replace('---','').replace(" ","").replace(".","_")}', "${name} ${n.replace("SLASH","/").replace('---',' ')}", "${name} ${n.replace("SLASH","/").replace('---',' ')}", "/monitor/graph/historyData?ip=${ip}&name=${n}&dayNumber=$!{dayNumber}&type=$name","","$!{startT}","$!{endT}","select")
 

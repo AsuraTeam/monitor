@@ -54,26 +54,48 @@ public class StartUDPServerThread extends Thread {
     }
 
     /**
-     * 将服务处理时间上传到监控系统, 每1分钟上传一次
      *
+     * @param name
+     * @param value
+     */
+    void push(String name, String value){
+        List<PushEntity> list = new ArrayList<>();
+        PushEntity pushEntity = new PushEntity();
+        pushEntity.setIp(localIp);
+        pushEntity.setValue(value);
+        pushEntity.setGroups("monitor");
+        pushEntity.setStatus("1");
+        pushEntity.setScriptId("0");
+        pushEntity.setName(name);
+        list.add(pushEntity);
+        String data = gson.toJson(list);
+        MonitorUtil.writePush(data, "success", localIp, null);
+    }
+
+    /**
+     * 将服务处理时间上传到监控系统, 每1分钟上传一次
+     *monitor.push.time"
      * @param time
      */
-    public void serverMonitorPush(long time) {
-        if (System.currentTimeMillis() / 1000 - monitorMap.get("time") / 1000 >= 60) {
-            List<PushEntity> list = new ArrayList<>();
-            PushEntity pushEntity = new PushEntity();
-            pushEntity.setIp(localIp);
-            pushEntity.setValue(String.valueOf(time));
-            pushEntity.setGroups("monitor");
-            pushEntity.setStatus("1");
-            pushEntity.setScriptId("0");
-            pushEntity.setName("monitor.push.time");
-            list.add(pushEntity);
-            String data = gson.toJson(list);
-            MonitorUtil.writePush(data, "success", localIp);
+    public void serverMonitorPush(long time, long counter, long indexCounter) {
+        if (System.currentTimeMillis() / 1000 - monitorMap.get("time") / 1000 >= 30) {
+            push("monitor.push.time", String.valueOf(time));
+            if (monitorMap.containsKey("lastCounter")) {
+                long lastPushTime = monitorMap.get("lastPushTime");
+                long interval = System.currentTimeMillis() / 1000 - lastPushTime;
+                // 计算30秒每秒的平均接收处理时间
+                push("monitor.push.counter.per.s", String.valueOf((counter - monitorMap.get("lastCounter")) / interval));
+                if (monitorMap.containsKey("indexLastCounter") && monitorMap.containsKey("indexCounter")) {
+                    push("monitor.push.counter.index.s", String.valueOf((indexCounter - monitorMap.get("indexLastCounter")) / interval));
+                }
+            }
+            monitorMap.put("indexLastCounter", indexCounter);
+            monitorMap.put("lastCounter", counter);
+            monitorMap.put("lastPushTime", System.currentTimeMillis() / 1000);
             monitorMap.put("time", System.currentTimeMillis());
         }
     }
+
 
     void remove(){
         long remove = slowQueue.poll();
@@ -100,7 +122,7 @@ public class StartUDPServerThread extends Thread {
                 start = System.currentTimeMillis();
                 data = packet.getData();
                 ip = packet.getAddress().toString().replace("/", "").trim();
-                // 最近1000次请求都大于1000毫秒，那么久抛弃
+                // 最近1000次请求都大于1000毫秒，那么就抛弃
                 slowTime = slowMap.get("slow") / 1000;
                 if (slowQueue.size() == 1000) {
                     if (slowTime > 1000) {
@@ -109,7 +131,7 @@ public class StartUDPServerThread extends Thread {
                         continue;
                     }
                 }
-                MonitorUtil.writePush(new String(data, 0, packet.getLength()), "success", ip);
+                MonitorUtil.writePush(new String(data, 0, packet.getLength()), "success", ip, monitorMap);
                 data = null;
                 end = System.currentTimeMillis();
                 time = end - start;
@@ -126,7 +148,7 @@ public class StartUDPServerThread extends Thread {
                     sb = new StringBuffer();
                     sb.append("次数: ").append(counter).append(" 平均").append(slowTime).append("ms");
                     logger.info(sb.toString());
-                    serverMonitorPush(slowTime);
+                    serverMonitorPush(slowTime, counter, monitorMap.get("indexCounter"));
                 }
             }
         } catch (Exception e) {

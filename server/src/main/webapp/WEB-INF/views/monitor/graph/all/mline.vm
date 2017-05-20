@@ -1,5 +1,6 @@
-#include("/index/include.vm")
-<script src="/static/js/plugins/highcharts.js"></script>
+<!DOCTYPE html>
+#include("/index/dygraph.vm")
+<!--script src="/static/js/plugins/highcharts.js"></script-->
 <div id="image_all_id" style="  margin-top: 20px;">
 
 </div>
@@ -109,8 +110,55 @@ function syncExtremes(e) {
     }
 }
 
+function graphAll(ip, id){
 
-function graphAll(ip, images_id) {
+function get_dygraph_data(data){
+  d_data = "Date,"
+  // 获取名字
+  for(datai=0;datai<data.length; datai++){
+        d_data += data[datai]["name"] +","
+  }
+  d_data = d_data.substring(0, d_data.length -1 )
+  d_data = d_data+"\n"
+
+  //ddd+";"+ddd+";"+ddd+ "\n"
+  ddd = data[0]["data"]
+  for(datai=0;datai<ddd.length; datai++){
+    d_data += formatDateTime(ddd[datai][0])+","
+    for(data_l=0;data_l<data.length; data_l++){
+       if(data[data_l]["data"][datai]){
+        d = data[data_l]["data"][datai][1]
+        d_data += (0)+";"+d+";"+(d)+","
+       }else{
+        d_data += 0+";"+0+";"+0+","
+       }
+    }
+    d_data = d_data.substring(0, d_data.length -1 )+"\n"
+  }
+  return d_data
+}
+
+
+   data = getDatas(ip)
+   g = new Dygraph(
+      document.getElementById(id),
+      get_dygraph_data(data),
+      {
+        showRoller:false,
+        rollPeriod: 1,
+
+       colors :  ['#fAB839','#A5F78F','#99CC33','#009966','#FFCC33', '#A5F78F', '#83CEDA','#ff0066', '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee', '#2b908f', '#90ee7e'],
+        //color: "#"+color,
+        customBars: true,
+        //title: 'NYC vs. SF',
+        //ylabel: 'Temperature (F)',
+        legend: 'always'
+      }
+   );
+}
+
+
+function graphAll_2017_05_20_hi(ip, images_id) {
     colors =  ['#fAB839', '#A5F78F', '#83CEDA','#ff0066', '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee', '#2b908f', '#90ee7e'];
     startT = $('#startSendTime').val()
     endT = $('#endSendTime').val()

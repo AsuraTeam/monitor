@@ -12,6 +12,7 @@ import java.io.File;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static com.asura.monitor.graph.util.FileWriter.dataDir;
 
@@ -52,9 +53,16 @@ public class MonitorUtil {
     /**
      * @param lentity
      */
-    public static void writePush(String lentity,  String writeType, String ip){
+    public static void writePush(String lentity,  String writeType, String ip, Map<String, Long> map){
         try {
             List<PushEntity> list = getPushEntity(lentity);
+            if (map != null) {
+                if (!map.containsKey("indexCounter")) {
+                    map.put("indexCounter", Long.valueOf(list.size()));
+                }else{
+                    map.put("indexCounter", map.get("indexCounter")+ list.size());
+                }
+            }
             for (PushEntity entity1 : list) {
                 if (entity1 == null) {
                     continue;

@@ -345,8 +345,8 @@ function get_max_min_avg_last_value(data, id , realtime){
           ddd = data[i].split(",")
           if(ddd && ddd[0].length > 1){
              ddd = ddd[1].split(";")
-             new_data.push(parseFloat(ddd[0]));
-             value += parseFloat(ddd[0])
+             new_data.push(parseFloat(ddd[1]));
+             value += parseFloat(ddd[1])
           }
         }else{
           new_data.push(data[i][1]);
@@ -484,7 +484,7 @@ function get_dygraph_data(data, name){
   d_data = "Date,"+name+"\n"
   for(datai=0;datai<data.length; datai++){
      ddd = data[datai][1]
-     d_data += formatDateTime(data[datai][0])+","+ddd+";"+ddd+";"+ddd+ "\n" 
+     d_data += formatDateTime(data[datai][0])+","+0+";"+ddd+";"+ddd+ "\n" 
   }
   return d_data
 }
@@ -522,7 +522,7 @@ function graph_min(color, id, title, ytitle, url, chartype,lstartT,lendT, select
       get_dygraph_data(data,title),
       {
         showRoller:false, 
-        rollPeriod: rollPeriod,
+        rollPeriod: 1,
         
         color: "#"+color,
         customBars: true,
@@ -1002,7 +1002,7 @@ function realtime_graph(id, server, groups, name) {
 
   function get_real_history_data(ip, name, type) {
        url = "/monitor/graph/historyData?ip="+ip+"&name="+name+"&type="+type;
-       datas = eval(post({},url));
+      var datas = eval(post({},url));
        if(!datas){
            return getRandomData(100);
        }
@@ -1021,9 +1021,9 @@ function realtime_graph(id, server, groups, name) {
        return new_data;
    }
 
-   data = get_dygraph_data(get_real_history_data(server, name , groups), name)
+   var data = get_dygraph_data(get_real_history_data(server, name , groups), name)
    
-   g = new Dygraph(
+   var g = new Dygraph(
       document.getElementById(id),
       data,
       {
@@ -1038,26 +1038,35 @@ function realtime_graph(id, server, groups, name) {
         legend:false,
       }
    );
-   input_id = server.replace(/\./g,"")+name.replace(/\./g,"").replace(/-/g,"")
+   var input_id = server.replace(/\./g,"")+name.replace(/\./g,"").replace(/-/g,"")
    var timer = new Date().getTime()
-   $("#"+id).append("<input style='display:none;' value='"+timer+"' id='"+input_id+"'>")
-   header = "Date,"+name
-   start = 0
+   var last_time = $("#"+input_id).val()
+   if(!last_time){
+      $("#"+id).append("<input style='display:none;' value='"+timer+"' id='"+input_id+"'>")
+   }else{
+        $("#"+input_id).val(timer)
+   }
+
+   var header = "Date,"+name
+   var start = 0
    var timers ;
    timers = setInterval(function() {
       input_data = timer 
       input_value = $("#"+input_id).val()
       if(timer != input_value){
+        console.log("退出"+input_id)
         clearInterval(timers)
         return
       }
       var new_data = data;
-      v = get_realtime_data() 
-      new_data += formatDateTime(new Date().getTime())+ ","+v+";"+v+";"+v+"\n"
+      var v = get_realtime_data() 
+      if(!v){return}
+      new_data += formatDateTime(new Date().getTime())+ ","+0+";"+v+";"+v+"\n"
 
-      file_data = header+"\n" 
+      var file_data = header+"\n" 
 
       var old_data = new_data.split("\n");
+      var datas
       if(old_data.length>100){
          datas = old_data.slice(old_data.length-100, old_data.length);
       }else{
@@ -1073,7 +1082,7 @@ function realtime_graph(id, server, groups, name) {
       start += 1
       if(start > 300){clearInterval(timers)}
       g.updateOptions( { 'file': new_data});
-      }, 4000);
+      }, 5000);
 
 }
 
@@ -1263,7 +1272,7 @@ console.log("new_data1")
 
 
 
-function getPie(title, name, type, id, entName, data,size, legend) {
+function getPie(title, name, type, id, entName, data,size, legend,colors) {
  function get_name(data){
    names = new Array()
    for(i=0;i<data.length;i++){
@@ -1300,7 +1309,9 @@ function getPie(title, name, type, id, entName, data,size, legend) {
       entName = ""
  }
 
+if(!colors){
 var  colors = ["#1ab394", "#f8ac59","#CC66CC","#1f90d8","#FFB94F","#1cc09f","#3c763d","#99389f","#017ebc","#ACD6FF", "#CAFFFF", "#ADFEDC", "#28FF28", "#FFD306", "#CCFF80", "#FeFFAA", "#FFE4CA", "#81C0C0", "#82D900", "#D2E9FF", "#FF5151", "#921AFF", "#28FF28", "#FFDC35", "#DEFFAC", "#FF5809", "#4A4AFF"];
+}
 
 if(!data){
    data= post({type: type}, '/resource/configure/server/countDataReport?entName=' + entName)
@@ -1350,6 +1361,9 @@ option = {
                     label : {
                         position : 'outer',
                         formatter: "{b} : {c} ({d}%)",
+                        textStyle: {
+                             color :"#111111",
+                        },
                     },
                     labelLine : {
                         show : true 

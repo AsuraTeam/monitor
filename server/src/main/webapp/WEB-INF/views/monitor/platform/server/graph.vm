@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>监控服务器列表</title><body class="gray-bg1 top-navigation">
-    #include("/index/include.vm")
+    #include("/index/dygraph.vm")
 
 <div id="">
     <div id="page-wrapper" class="gray-bg">
@@ -122,8 +122,74 @@
    //     "#7FDCFE","#0074D9","#FF821B","#FEFBF8","#83144B","#FEF6FF","#FCFDFC","#FDEA74","#F9F7F9",
     //    "#16FD7E", "#77D6CE", "#3493E1","#f8ac59","#1f90d8",
     //],
+function get_graph_all(id, ips,title, groups, names, chartype,     startT, endT) {
+  function get_dygraph_data(data){
+  var d_data = "Date,"
+  // 获取名字
+  for(datai=0;datai<data.length; datai++){
+        d_data += data[datai]["name"] +","
+  }
+  d_data = d_data.substring(0, d_data.length -1 )
+  d_data = d_data+"\n"
 
-    function get_graph_all(image_id, ips,title, groups, names, chartype,     startT, endT) {
+  //ddd+";"+ddd+";"+ddd+ "\n"
+  ddd = data[0]["data"]
+  for(datai=0;datai<ddd.length; datai++){
+    d_data += formatDateTime(ddd[datai][0])+","
+    for(data_l=0;data_l<data.length; data_l++){
+       if(data[data_l]["data"][datai]){
+        d = data[data_l]["data"][datai][1]
+        d_data += (0)+";"+d+";"+(d)+","
+       }else{
+        d_data += 0+";"+0+";"+0+","
+       }
+    }
+    d_data = d_data.substring(0, d_data.length -1 )+"\n"
+  }
+    return d_data
+  }
+
+   ips = ips.split(",")
+   names = names.split(",")
+   var data = []
+   for (var i=0;i<ips.length;i++){
+            if(!ips[i]){
+                continue
+            }
+            for (var j=0;j<names.length;j++) {
+
+                name = names[j]
+                if(!name){
+                    continue;
+                }
+                url = "/monitor/graph/historyData?ip=" + ips[i] + "&name=" + name + "&type=" + groups+"&startT="+startT+"&endT="+endT;
+                get_data = eval(post({}, url));
+                data_dict = {}
+                data_dict["name"] = ips[i]+" "+name;
+                data_dict["data"] = get_data;
+                data.push(data_dict)
+            }
+   }
+   var g = new Dygraph(
+      document.getElementById(id),
+      get_dygraph_data(data),
+      {
+        showRoller:false,
+        rollPeriod: 1,
+
+       colors :  ['#fAB839','#A5F78F','#99CC33','#009966','#FFCC33', '#A5F78F', '#83CEDA','#ff0066', '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee', '#2b908f', 
+'#90ee7e'],
+        //color: "#"+color,
+        customBars: true,
+        //title: 'NYC vs. SF',
+        //ylabel: 'Temperature (F)',
+        //legend: 'always'
+      }
+   );
+console.log(13)
+}
+
+    function get_graph_all_h(image_id, ips,title, groups, names, chartype,     startT, endT) {
         $('#cpu').bind('mousemove touchmove touchstart', function (e) {
             var chart,
                     point,
@@ -266,7 +332,7 @@
     get_graph_all("loadavg", "$!{ip}","", "loadavg", "system.load.1,system.load.5,system.load.15","line","$!{startT}","$!{endT}")
     get_graph_all("memory", "$!{ip}","", "memory", "system.mem.used,system.mem.free","line","$!{startT}","$!{endT}")
     get_graph_all("disk", "$!{ip}","", "disk", "system.disk.used.percent.SLASH","$!{startT}","$!{endT}")
-    get_graph_all("traffic", "$!{ip}","", "traffic", "system.net.bytes.rcvd.eth0,system.net.bytes.send.eth0","$!{startT}","$!{endT}")
+    get_graph_all("traffic", "$!{ip}","", "traffic", "eth0.system.net.bytes.rcvd,eth0.system.net.bytes.send","$!{startT}","$!{endT}")
 
  function loadData(){
         $("#listTable").dataTable({
