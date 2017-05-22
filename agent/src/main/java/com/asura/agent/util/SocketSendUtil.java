@@ -89,7 +89,9 @@ public class SocketSendUtil {
      * @return
      */
     public static InetAddress getServer(InetAddress address) {
-        MonitorController.checkAgentRedis();
+        if (MonitorController.getErrorNumber()){
+            return null;
+        }
         if (serverList != null && serverList.size() > 0) {
             if (address == null) {
                 random = new Random();

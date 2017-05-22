@@ -93,7 +93,7 @@ import static com.asura.agent.util.RedisUtil.app;
 public class MonitorController {
 
     // 版本号
-    private final String VERSION = "1.0.0.18";
+    private final String VERSION = "1.0.0.19";
 
     private static final Logger logger = LoggerFactory.getLogger(MonitorController.class);
 
@@ -287,7 +287,7 @@ public class MonitorController {
      *
      * @return
      */
-   static boolean getErrorNumber(){
+  public static boolean getErrorNumber(){
        String key = "monitor_check_redis_active";
        if (ALARM_LAST_TIME == null){
            ALARM_LAST_TIME = new HashMap<>();
@@ -314,9 +314,13 @@ public class MonitorController {
         String key = "monitor_check_redis_active";
         initTimeMap(key);
         info(isDebug ? "开始检查redis可用" : null);
-        if (checkTimeMap(key, 8)) {
+        if (checkTimeMap(key, 6)) {
             String result = redisUtil.get(key);
             if (result == null || result.equals("") || result.length() < 1 ) {
+                if (ALARM_LAST_TIME.get(key) > 10){
+                    logger.error( "redis  失败, 不执行set操作 " + ALARM_LAST_TIME.get(key));
+                    return;
+                }
                 String set = redisUtil.set(key, DateUtil.getCurrTime() + "");
                 if (set.equals("err")) {
                     if (ALARM_LAST_TIME.containsKey(key)) {
