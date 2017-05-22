@@ -826,7 +826,8 @@
 
     <!--按单元计算虚拟机使用-->
     <select id="selectVmUsedNumber" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
-        select (case when (select <include refid="vmUseNumber"/> ) is null then 0 else (select <include refid="vmUseNumber"/> ) end) as cnt;
+        select (case when (select <include refid="vmUseNumber"/> )
+        is null then 0 else (select <include refid="vmUseNumber"/> ) end) as cnt;
     </select>
 
     <select id="selectVmPrice" resultType="com.asura.resource.entity.CmdbResourceServerEntity">

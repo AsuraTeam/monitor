@@ -30,6 +30,10 @@ public class CmdbResourceInventoryEntity extends BaseEntity{
     private String testVmInventoryNumber;
     // 测试环境未使用库存
     private String testUnused;
+    // 测试环境vm物理机使用
+    private String testVmPhyNumber;
+    // 测试环境应用物理机数量
+    private int testPhyUsedNumber;
 
     // 获取测试环境购买量
     private String onlineBuyNumber;
@@ -41,6 +45,12 @@ public class CmdbResourceInventoryEntity extends BaseEntity{
     private String onlineVmInventoryNumber;
     // 生产环境未使用机器
     private String onlineUnused;
+    // 测试环境vm物理机使用
+    private String onlineVmPhyNumber;
+    // 生产环境应用物理机数量
+    private int onlinePhyUsedNumber;
+    // 设置虚拟机库存数据量
+    private int vmInventoryNumber;
 
     // 获取生产环境已使用
     private String onlineVmUsedNumber;
@@ -64,7 +74,45 @@ public class CmdbResourceInventoryEntity extends BaseEntity{
     // 获取未使用库存
     private int unused;
 
+    public int getVmInventoryNumber() {
+        return vmInventoryNumber;
+    }
 
+    public void setVmInventoryNumber(int vmInventoryNumber) {
+        this.vmInventoryNumber = vmInventoryNumber;
+    }
+
+    public int getTestPhyUsedNumber() {
+        return testPhyUsedNumber;
+    }
+
+    public void setTestPhyUsedNumber(int testPhyUsedNumber) {
+        this.testPhyUsedNumber = testPhyUsedNumber;
+    }
+
+    public int getOnlinePhyUsedNumber() {
+        return onlinePhyUsedNumber;
+    }
+
+    public void setOnlinePhyUsedNumber(int onlinePhyUsedNumber) {
+        this.onlinePhyUsedNumber = onlinePhyUsedNumber;
+    }
+
+    public String getTestVmPhyNumber() {
+        return testVmPhyNumber;
+    }
+
+    public void setTestVmPhyNumber(String testVmPhyNumber) {
+        this.testVmPhyNumber = testVmPhyNumber;
+    }
+
+    public String getOnlineVmPhyNumber() {
+        return onlineVmPhyNumber;
+    }
+
+    public void setOnlineVmPhyNumber(String onlineVmPhyNumber) {
+        this.onlineVmPhyNumber = onlineVmPhyNumber;
+    }
 
     public String getTestVmUsedNumber() {
         return testVmUsedNumber;

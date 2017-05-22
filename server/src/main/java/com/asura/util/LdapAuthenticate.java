@@ -1,5 +1,6 @@
 package com.asura.util;
 
+import com.google.gson.Gson;
 import com.novell.ldap.LDAPAttribute;
 import com.novell.ldap.LDAPAttributeSet;
 import com.novell.ldap.LDAPConnection;
@@ -96,35 +97,45 @@ public class LdapAuthenticate {
 			String searchFilter = username;
 			int searchScope = 2;
 			LDAPSearchResults searchResults = lc.search(searchBase, searchScope, searchFilter, keys, false);
-
 			while (searchResults.hasMore()) {        //LDAPSearchResults 实现了 collection 接口
-				LDAPEntry le = searchResults.next();      //结果集中每个内容都是一个 LDAPEntry 对象
-				System.out.println(le.getDN());
-				LDAPAttributeSet attributeSet = le.getAttributeSet();  //通过 LDAPEntry 对象来获取 LDAPAttributeSet 对象
-				Set sortedAttributes = new TreeSet(attributeSet);
-				Iterator allAttributes = sortedAttributes.iterator();
+				try {
+					LDAPEntry le = searchResults.next();      //结果集中每个内容都是一个 LDAPEntry 对象
+					System.out.println(le.getDN() + "DN");
+					LDAPAttributeSet attributeSet = le.getAttributeSet();  //通过 LDAPEntry 对象来获取 LDAPAttributeSet 对象
+					Set sortedAttributes = new TreeSet(attributeSet);
+					Iterator allAttributes = sortedAttributes.iterator();
+					while (allAttributes.hasNext()) {
+						System.out.println(new Gson().toJson(allAttributes) + " ALL");
+						try {
+							LDAPAttribute attribute = (LDAPAttribute) allAttributes.next();
+							String attributeName = attribute.getName();   //获取参数名
 
-				while (allAttributes.hasNext()) {
-					LDAPAttribute attribute = (LDAPAttribute) allAttributes.next();
-					String attributeName = attribute.getName();   //获取参数名
-					System.out.println("\t\t" + attributeName);
-					Enumeration allValues = attribute.getStringValues();//其参数值可以为多个，利用Enumeration 列出全部该属性的值
-					if (allValues != null) {
-						while (allValues.hasMoreElements()) {
-							String Value = (String) allValues.nextElement();
-							System.out.println("\t\t\t" + Value);
-							for (String key : keys) {
-								if (key.equals(attributeName)) {
-									map.put(attributeName, Value);
+							Enumeration allValues = attribute.getStringValues();//其参数值可以为多个，利用Enumeration 列出全部该属性的值
+							if (allValues != null) {
+								while (allValues.hasMoreElements()) {
+									String Value = (String) allValues.nextElement();
+									System.out.println("\t\t\t" + Value);
+									for (String key : keys) {
+										if (key.equals(attributeName)) {
+											map.put(attributeName, Value);
+										}
+									}
 								}
 							}
+						}catch (Exception r){
+							r.printStackTrace();
 						}
 					}
+				}catch (Exception e1){
+					e1.printStackTrace();
 				}
-
 			}
 			lc.disconnect();
 		}catch (Exception e){
+			try {
+				lc.disconnect();
+			}catch (Exception e1){
+			}
 			logger.error("ldap错误", e);
 		}
 		return map;
@@ -159,9 +170,10 @@ public class LdapAuthenticate {
 					Map map = new HashMap<>();
 					LDAPAttribute attribute = (LDAPAttribute) allAttributes.next();
 					String attributeName = attribute.getName();   //获取参数名
-					System.out.println("\t\t" + attributeName);
+
 					Enumeration allValues = attribute.getStringValues();//其参数值可以为多个，利用Enumeration 列出全部该属性的值
 					if (allValues != null) {
+						System.out.println("\t\t" + attributeName +" " + allValues.nextElement());
 						while (allValues.hasMoreElements()) {
 							String Value = (String) allValues.nextElement();
 							System.out.println("\t\t\t" + Value);

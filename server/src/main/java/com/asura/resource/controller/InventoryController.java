@@ -203,9 +203,11 @@ public class InventoryController {
         entity.setOnlineBuyNumber(inventoryDataOnline.getBuyNumber() + "");
         entity.setOnlinePhyInventoryNumber(inventoryDataOnline.getPhyInventoryNumber()+"");
         entity.setOnlineFromNumber(inventoryDataOnline.getFromInventory() + "");
-        entity.setOnlineVmInventoryNumber(((inventoryDataOnline.getPhyVmNumber() / online) - inventoryDataOnline.getVmUnitsUsed())+"");
+        entity.setOnlineVmInventoryNumber(((inventoryDataOnline.getPhyVmNumber() * online) - inventoryDataOnline.getVmUnitsUsed())+"");
         entity.setOnlineVmUsedNumber(inventoryDataOnline.getVmUnitsUsed() + "");
         entity.setOnlineUnused(inventoryDataOnline.getUnused()+"");
+        entity.setOnlineVmPhyNumber(inventoryDataOnline.getPhyVmNumber()+"");
+        entity.setOnlinePhyUsedNumber(inventoryDataOnline.getPhyUsed());
 
         searchMap1.put("noOnline", "1");
         CmdbResourceInventoryEntity inventoryDataNoOnline = getInventoryData(searchMap1, used, groupsId, testNumber, onlineNumber);
@@ -213,9 +215,12 @@ public class InventoryController {
         entity.setTestFromNumber(inventoryDataNoOnline.getFromInventory() + "");
         entity.setTestPhyInventoryNumber(inventoryDataNoOnline.getPhyInventoryNumber()+"");
         entity.setTestVmUsedNumber(inventoryDataNoOnline.getInventoryNumber() + "");
-        entity.setTestVmInventoryNumber(((inventoryDataNoOnline.getPhyVmNumber() / test) - inventoryDataNoOnline.getVmUnitsUsed())+"");
+        entity.setTestVmInventoryNumber(((inventoryDataNoOnline.getPhyVmNumber() * test) - inventoryDataNoOnline.getVmUnitsUsed())+"");
         entity.setTestVmUsedNumber(inventoryDataNoOnline.getVmUnitsUsed()+"");
         entity.setTestUnused(inventoryDataNoOnline.getUnused()+"");
+        entity.setTestVmPhyNumber(inventoryDataNoOnline.getPhyVmNumber()+"");
+        entity.setTestPhyUsedNumber(inventoryDataNoOnline.getPhyUsed());
+        entity.setVmInventoryNumber(Integer.valueOf(entity.getTestVmInventoryNumber()) + Integer.valueOf(entity.getOnlineVmInventoryNumber()));
         return entity;
     }
 

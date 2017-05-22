@@ -1701,22 +1701,27 @@ public class MonitorController {
         for (String item : HOST_ITEMS) {
             info(isDebug ? "set scripts " + item : null);
             // 获取项目ID和配置ID
-            String[] items = item.split("_");
-            int itemId = Integer.valueOf(items[1]);
-            String configId = items[0];
-            for (Map.Entry<String, HashSet<MonitorItemEntity>> entry : ITEM_CONFIGS.entrySet()) {
-                HashSet<MonitorItemEntity> entryValues = entry.getValue();
-                for (MonitorItemEntity monitorItemEntity : entryValues) {
-                    if (monitorItemEntity != null && monitorItemEntity.getItemId().equals(itemId)) {
-                        int scriptId = monitorItemEntity.getScriptId();
-                        String key = configId + "_" + scriptId;
-                        SCRIPTS.add(key);
-                        SCRIPT_TO_ITEM.put(key, monitorItemEntity);
+            try {
+                String[] items = item.split("_");
+                int itemId = Integer.valueOf(items[1]);
+                String configId = items[0];
+                for (Map.Entry<String, HashSet<MonitorItemEntity>> entry : ITEM_CONFIGS.entrySet()) {
+                    HashSet<MonitorItemEntity> entryValues = entry.getValue();
+                    for (MonitorItemEntity monitorItemEntity : entryValues) {
+                        if (monitorItemEntity != null && monitorItemEntity.getItemId().equals(itemId)) {
+                            int scriptId = monitorItemEntity.getScriptId();
+                            String key = configId + "_" + scriptId;
+                            SCRIPTS.add(key);
+                            SCRIPT_TO_ITEM.put(key, monitorItemEntity);
 
-                        info(isDebug ? "SCRIPTS add " + configId + "_" + scriptId : null);
+                            info(isDebug ? "SCRIPTS add " + configId + "_" + scriptId : null);
 
+                        }
                     }
                 }
+            }catch (Exception e){
+                logger.error("项目配置失败", e);
+                continue;
             }
         }
     }

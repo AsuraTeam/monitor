@@ -265,6 +265,10 @@
         if(data["monitorConfigureTp"] == "item") {
             data["scriptId"] = ""
             data["templateId"] = ""
+            if(!data["itemId"] || data["itemId"] == "--请选择--"){
+                parent.layer.msg("请正确选择一个监控项目",  {icon:2});
+                return;
+            }
         }
 
         url = "/monitor/configure/"+site+"/save";
