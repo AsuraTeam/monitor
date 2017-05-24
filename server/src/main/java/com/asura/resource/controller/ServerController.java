@@ -23,6 +23,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import redis.clients.jedis.Jedis;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -398,6 +399,55 @@ public class ServerController {
         redisUtil.set(MonitorCacheConfig.hostsIdKey + entity.getIpAddress(), entity.getServerId() + "");
         indexController.logSave(request, "保存资产数据 " + entity.getIpAddress() + gson.toJson(entity));
         return ResponseVo.responseOk(null);
+    }
+
+
+    /**
+     * 停止监控
+     * @param serverId
+     * @param stopTime
+     */
+    @RequestMapping("stopMonitorSave")
+    @ResponseBody
+    public String stopMonitor(String serverId, String stopTime, HttpServletRequest request){
+        RedisUtil redisUtil = new RedisUtil();
+        String key = MonitorCacheConfig.cacheStopServer.concat(serverId);
+        redisUtil.del(key);
+        redisUtil.setex(key,Integer.valueOf(stopTime), "1");
+        indexController.logSave(request , "停止监控报警"+ serverId);
+        return "ok";
+    }
+
+    /**
+     * 获取监控停止还有多长时间过期
+     * @param serverId
+     */
+    @RequestMapping(value = "getStopMonitorTime", produces = {"application/json;charset=UTF-8"})
+    @ResponseBody
+    public ResponseVo getStopMonitorTime(String serverId){
+        RedisUtil redisUtil = new RedisUtil();
+        String key = MonitorCacheConfig.cacheStopServer.concat(serverId);
+        String result =  redisUtil.get(key);
+        if (CheckUtil.checkString(result)){
+            Jedis jedis = redisUtil.getJedis();
+            long value = jedis.ttl(RedisUtil.app+"_"+key);
+            if (value  < 60 ) {
+                return ResponseVo.responseOk("还有" + value + "秒恢复");
+            }
+            if (value  > 60 && value < 3600 ) {
+                return ResponseVo.responseOk( "还有" + ( value / 60 )  +"分钟恢复");
+            }
+            if (value  > 3600 && value < 86400 ) {
+                return ResponseVo.responseOk("还有" + (value / 60 / 60) + "小时恢复");
+            }
+            if (value  > 86400 && value < 604800 ) {
+                return ResponseVo.responseOk( "还有" +( value / 60 / 60 / 60) +"天恢复");
+            }
+            if (value  > 604800 && value < 2419200 ){
+                return ResponseVo.responseOk("还有" +( value / 60 / 60 / 60 / 7 ) +"周恢复");
+            }
+        }
+            return ResponseVo.responseOk("监控正常报警中");
     }
 
     /**

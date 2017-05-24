@@ -32,7 +32,17 @@ public class MailEntity {
 
     private String message; // 信息(支持HTML)
 
+    private String cc; // 抄送人
+
     private boolean auth; // 是否开启密码验证
+
+    public String getCc() {
+        return cc;
+    }
+
+    public void setCc(String cc) {
+        this.cc = cc;
+    }
 
     public boolean isAuth() {
         return auth;

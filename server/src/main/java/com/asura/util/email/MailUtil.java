@@ -73,6 +73,16 @@ public class MailUtil {
                 message.addRecipient(Message.RecipientType.TO, new InternetAddress(toUser));
             }
 
+            // 抄送人
+            if (mailEntity.getCc() != null){
+                for(String ccUser: mailEntity.getCc().split(",")) {
+                    if (ccUser != null && ccUser.length() > 3) {
+                        message.addRecipient(Message.RecipientType.CC, new InternetAddress(ccUser));
+                    }
+                }
+            }
+
+
             // Set Subject: 头字段
             message.setSubject(mailEntity.getSubject(), "UTF-8");
 

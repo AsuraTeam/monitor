@@ -152,4 +152,7 @@ public class MonitorCacheConfig {
     // 2017-03-30 _groupsId
     public static final String cacheServerAdmin = "cache_monitor_server_admin_";
 
+    // 停止报警 _serverId
+    public static final String cacheStopServer = "cache_monitor_stop_server_";
+
 }

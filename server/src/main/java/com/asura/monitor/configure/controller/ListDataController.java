@@ -413,6 +413,12 @@ public class ListDataController {
             searchMap.put("startT", startTime);
             searchMap.put("endT", endTime);
         }
+
+        List<MonitorScriptsEntity> scripts = scriptsService.getDataList(searchMap, "select0Id");
+        if (scripts.size() < 1){
+            messagesService.getDataList(searchMap, "setAgentScript");
+            messagesService.getDataList(searchMap, "updateAgentScript");
+        }
         PagingResult<MonitorMessagesEntity> result = messagesService.findAll(searchMap, pageBounds, "selectByAll");
         return PageResponse.getMap(result, draw);
     }

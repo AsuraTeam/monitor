@@ -290,11 +290,20 @@ public class ApiController {
      * @param messagesEntity
      */
     void sendMessages(MonitorMessagesEntity messagesEntity) {
+        String serverId = messagesEntity.getServerId()+"";
+        //  判断是否停止报警
+        String result = redisUtil.get(MonitorCacheConfig.cacheStopServer.concat(serverId));
+        if (CheckUtil.checkString(result)){
+            logger.info("该服务器已停止报警，不在发送报警信息");
+            messagesEntity.setEmail("服务停止报警,没有发出信息,只记录");
+            messagesEntity.setMobile("服务停止报警,没有发出信息,只记录");
+        }else{
+            sendEmail(messagesEntity);
+            sendMobile(messagesEntity);
+            sendDing(messagesEntity);
+            sendWeixin(messagesEntity);
+        }
         messagesService.save(messagesEntity);
-        sendEmail(messagesEntity);
-        sendMobile(messagesEntity);
-        sendDing(messagesEntity);
-        sendWeixin(messagesEntity);
     }
 
     /**

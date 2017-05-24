@@ -9,7 +9,7 @@ import com.asura.framework.dao.mybatis.base.MybatisDaoContext;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
-
+import java.util.List;
 
 
 /**
@@ -40,4 +40,14 @@ public class MonitorMessagesDao extends BaseDao<MonitorMessagesEntity>{
      public PagingResult<MonitorMessagesEntity> findAll(SearchMap searchMap, PageBounds pageBounds, String sqlId){
         return mybatisDaoContext.findForPage(this.getClass().getName()+"."+sqlId,MonitorMessagesEntity.class,searchMap,pageBounds);
      }
+
+    /**
+     * 通用
+     * @param searchMap
+     * @param sqlId
+     * @return
+     */
+    public List<MonitorMessagesEntity> getDataList(SearchMap searchMap, String sqlId){
+        return mybatisDaoContext.findAll(this.getClass().getName()+"."+sqlId,MonitorMessagesEntity.class,searchMap);
+    }
 }

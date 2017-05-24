@@ -259,7 +259,7 @@
                     return '<a  onclick="show_cache(\''+data+'\',\'item\')"><i style="margin-left: 25px;" class="fa fa-heart-o"></i></a>';
                 }
                 },
-                {"sWidth": "150px", "data": "itemId", "mRender": function(data, type, full) {
+                {"data": "itemId", "mRender": function(data, type, full) {
                     return '<button type="button" onclick="addConfig('+data+')" class="btn btn-sm btn-warning">编辑</button>&nbsp;'+
                            '<button type="button" onClick="deleteConfig('+data+')" class="btn btn-sm btn-danger">删除</button>&nbsp;'+
                            '<button type="button" onClick="export_item('+data+')" class="btn btn-sm btn-success">导出</button>'

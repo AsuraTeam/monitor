@@ -160,5 +160,10 @@
     <delete id="delete" parameterType="com.asura.monitor.configure.entity.MonitorScriptsEntity">
         DELETE from monitor_scripts where scripts_id=#{scriptsId}
     </delete>
+
+    <!--查询是否有id为0的项目-->
+    <select id="select0Id" resultType="com.asura.monitor.configure.entity.MonitorScriptsEntity">
+        select *  from monitor_scripts where scripts_id=0
+    </select>
 </mapper>
 

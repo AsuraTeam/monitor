@@ -27,6 +27,143 @@
             </div>
         </div>
 
+        <div class="modal fade" id="start_stop_monitor" tabindex="-1"
+             style="z-index: 12050 !important;margin-top:130px;" role="dialog" data-backdrop="true">
+            <div class="modal-dialog" style="width:60%;margin-top:-10px;">
+                <div class="modal-content" style="height: 300px;">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
+                                class="sr-only">Close</span></button>
+                        <h4 class="modal-title">监控启停设置</h4>
+                    </div>
+                    <div class="modal-body fadeInUp">
+                        <input type="hidden" value="" id="monitor_server_id">
+                        <div class="col-md-3" style="margin-top: 5px;">
+                        <div id="monitor_recover_time" ></div>
+                        </div>
+                        <div class="col-md-12" style=""></div>
+                        <div class="col-md-3" style="margin-top: 5px;">
+                            <div class="radio checkbox-success checkbox-inline">
+                                <input type="radio" name="stopTime" id="inlineCheckbox"
+                                       value="600">
+                                <label for="inlineCheckbox">10分钟</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3" style="margin-top: 5px;">
+                            <div class="radio checkbox-success checkbox-inline">
+                                <input type="radio" name="stopTime" id="inlineCheckbox2"
+                                       value="1200">
+                                <label for="inlineCheckbox2">20分钟</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3" style="margin-top: 5px;">
+                            <div class="radio checkbox-success checkbox-inline">
+                                <input type="radio" name="stopTime" id="inlineCheckbox22"
+                                       value="1800">
+                                <label for="inlineCheckbox22">30分钟</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3" style="margin-top: 5px;">
+                            <div class="radio checkbox-success checkbox-inline">
+                                <input type="radio" name="stopTime" id="inlineCheckbox23"
+                                       value="3000">
+                                <label for="inlineCheckbox23">50分钟</label>
+                            </div>
+                        </div>
+                        <div class="col-md-12" style=""></div>
+                        <div class="col-md-3" style="margin-top: 5px;">
+                            <div class="radio checkbox-success checkbox-inline">
+                                <input type="radio" name="stopTime" id="inlineCheckbox3"
+                                       value="3600">
+                                <label for="inlineCheckbox3">1小时</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3" style="margin-top: 5px;">
+                            <div class="radio checkbox-success checkbox-inline">
+                                <input type="radio" name="stopTime" id="inlineCheckbox4"
+                                       value="7200">
+                                <label for="inlineCheckbox4">2小时</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3" style="margin-top: 5px;">
+                            <div class="radio checkbox-success checkbox-inline">
+                                <input type="radio" name="stopTime" id="inlineCheckbox5"
+                                       value="21600">
+                                <label for="inlineCheckbox5">6小时</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3" style="margin-top: 5px;">
+                            <div class="radio checkbox-success checkbox-inline">
+                                <input type="radio" name="stopTime" id="inlineCheckbox6"
+                                       value="43200">
+                                <label for="inlineCheckbox6">12小时</label>
+                            </div>
+                        </div>
+                        <div class="col-md-12" style=""></div>
+                        <div class="col-md-3" style="margin-top: 5px;">
+                            <div class="radio checkbox-success checkbox-inline">
+                                <input type="radio" name="stopTime" id="inlineCheckbox7"
+                                       value="86400">
+                                <label for="inlineCheckbox7">1天</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3" style="margin-top: 5px;">
+                            <div class="radio checkbox-success checkbox-inline">
+                                <input type="radio" name="stopTime" id="inlineCheckbox8"
+                                       value="172800">
+                                <label for="inlineCheckbox8">2天</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3" style="margin-top: 5px;">
+                            <div class="radio checkbox-success checkbox-inline">
+                                <input type="radio" name="stopTime" id="inlineCheckbox18"
+                                       value="259200">
+                                <label for="inlineCheckbox18">3天</label>
+                            </div>
+                        </div>
+                        <div class="col-md-12" style=""></div>
+                        <div class="col-md-3" style="margin-top: 5px;">
+                            <div class="radio checkbox-success checkbox-inline">
+                                <input type="radio" name="stopTime" id="inlineCheckbox9"
+                                       value="604800">
+                                <label for="inlineCheckbox9">1周</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3" style="margin-top: 5px;">
+                            <div class="radio checkbox-success checkbox-inline">
+                                <input type="radio" name="stopTime" id="inlineCheckbox10"
+                                       value="1209600">
+                                <label for="inlineCheckbox10">2周</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3" style="margin-top: 5px;">
+                            <div class="radio checkbox-success checkbox-inline">
+                                <input type="radio" name="stopTime" id="inlineCheckbox20"
+                                       value="1814400">
+                                <label for="inlineCheckbox20">3周</label>
+                            </div>
+                        </div>
+                        <div class="col-md-12" style=""></div>
+                        <div class="col-md-3" style="margin-top: 5px;">
+                            <div class="radio checkbox-success checkbox-inline">
+                                <input type="radio" name="stopTime" id="inlineCheckbox11"
+                                       value="2419200">
+                                <label for="inlineCheckbox11">1月</label>
+                            </div>
+                        </div>
+                        <div class="col-md-12" style=""></div>
+	                <button style="margin-left: 78%;margin-top: 5px;margin-bottom:45px;"
+	                        	onclick="saveMonitorConfig();" class="btn btn-primary btn-lg"
+	                        	type="button">
+	                            <i class="fa fa-check"></i>&nbsp;保存
+	                </button>
+                        <div class="col-md-12" style=""><br></div>
+                        <div class="col-md-12" style=""><br></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="modal fade" id="dispaly_detail_id" tabindex="-1"
              style="z-index: 4112050 !important;margin-top:30px;" role="dialog" data-backdrop="true">
             <div class="modal-dialog" style="width:100%;margin-top:-10px;">
@@ -126,7 +263,7 @@
                                     <th>类型</th>
                                     <th>描述信息</th>
                                     <th>状态</th>
-                                    <th>编辑/删除</th>
+                                    <th>编辑/删除/(停止/开启)监控</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -153,12 +290,42 @@
                 $('#addConfig').html(html);
                 $('#add_getui_config').modal('toggle');
             }
+
+            /**
+             * 启动停止监控
+             */
+            function monitorConfig(serverId) {
+                $("#monitor_server_id").val(serverId)
+                url = "/resource/configure/" + site + "/stopMonitorSave";
+                $('#start_stop_monitor').modal('toggle');
+                monitor_time = post({serverId:serverId}, "/resource/configure/" + site + "/getStopMonitorTime");
+                $("#monitor_recover_time").html(monitor_time["data"]);
+            }
+
+
+            function saveMonitorConfig() {
+                id = $("#monitor_server_id").val()
+                url = "/resource/configure/" + site + "/stopMonitorSave";
+                parent.layer.confirm("点击同意后将停止该服务的所有报警", {
+                    btn: ['同意', '不同意'], //按钮
+                    shade: false//不显示遮罩
+                }, function () {
+                    value =  $("input[name='stopTime']:checked").val()
+                    if(!value){value=1}
+                    result = post({serverId: id, stopTime: value}, url);
+                    parent.layer.msg(JSON.stringify(result), {icon: 1})
+                }, function () {
+                    parent.layer.msg("取消操作", {icon: 2})
+                });
+            }
+
             function updateConfig(id) {
                 url = "/resource/configure/" + site + "/detail";
                 html = post({id: id}, url);
                 $('#addConfig').html(html);
                 $('#add_getui_config').modal('toggle');
             }
+
             function deleteConfig(id) {
                 url = "/resource/configure/" + site + "/deleteSave";
                 parent.layer.confirm("点击同意后,将删除数据", {
@@ -170,8 +337,8 @@
                 }, function () {
                     parent.layer.msg("取消操作", {icon: 2})
                 });
-
             }
+
             function saveConfig(id) {
                 data = get_form_data();
                 console.log(data)
@@ -277,7 +444,7 @@
                         {
                             "data": "entName", "mRender": function (data, type, full) {
                             return '<span onclick="loadData(\'' + data + '\',1)">' + data + "</span>"
-                        }
+                          }
                         },
                         {
                             "data": "ipAddress", "mRender": function (data, type, full) {
@@ -285,9 +452,9 @@
                         }
                         },
                         {
-                            "data": "groupsName", "mRender": function (data, type, full) {
+                         "data": "groupsName", "mRender": function (data, type, full) {
                             return '<span onclick="loadData(\'' + data + '\')">' + data + "</span>"
-                        }
+                          }
                         },
                         {"data": "memory"},
                         {"data": "cpu"},
@@ -313,9 +480,10 @@
                           }
                         },
                         {"data": "serverId", "mRender": function (data, type, full) {
-                            return '<button type="button" onclick="updateConfig(' + data + ')" class="btn btn-sm btn-warning">编辑</button>&nbsp;' +
-                                    '<button type="button" onClick="deleteConfig(' + data + ')" class="btn btn-sm btn-danger">删除</button>';
-                        }
+                            return '<button type="button" onclick="updateConfig(' + data + ')" class="btn btn-sm btn-success">编辑</button>&nbsp;' +
+                                    '<button type="button" onClick="deleteConfig(' + data + ')" class="btn btn-sm btn-danger">删除</button>&nbsp;'+
+                                    '<button type="button" onClick="monitorConfig(' + data + ')" class="btn btn-sm btn-warning">启停监控</button>';
+                           }
                         },
                     ],
                     "fnRowCallback": function (row, data) { // 每行创建完毕的回调

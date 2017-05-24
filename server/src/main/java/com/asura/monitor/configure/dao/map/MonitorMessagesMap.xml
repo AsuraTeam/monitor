@@ -120,5 +120,14 @@
         and messages_time &gt;= #{start} and messages_time &lt;= #{end}
     </select>
 
+    <!-- 设置agentping的脚本ID为0-->
+    <select id="setAgentScript" resultType="com.asura.monitor.configure.entity.MonitorMessagesEntity">
+         insert into monitor_scripts(scripts_id,description,monitor_name) values(999999,"agent监控ping","agent监控ping");
+    </select>
+
+    <select id="updateAgentScript" resultType="com.asura.monitor.configure.entity.MonitorMessagesEntity">
+       update monitor_scripts set scripts_id=0 where scripts_id=999999;
+    </select>
+
 </mapper>
 
