@@ -504,6 +504,10 @@ function graph_min(color, id, title, ytitle, url, chartype,lstartT,lendT, select
         startT=lstartT;
         endT = lendT;
    }
+   if (startT){
+        startT = startT.split(",")[0]
+       endT = endT.split(",")[0]
+   }
 
    if(url.indexOf("?") == -1){
      data= eval(post({}, url+"?startT="+startT+"&endT="+endT))

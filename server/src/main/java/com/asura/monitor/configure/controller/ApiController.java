@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -312,7 +313,6 @@ public class ApiController {
      * @param messagesEntity
      */
     void sendMonitorMessages(MonitorMessagesEntity messagesEntity) {
-//        MonitorMessagesEntity messagesEntity = gson.fromJson(queueData, MonitorMessagesEntity.class);
         if (messagesEntity != null) {
             // 报警开关
             String alarmSwitch = redisUtil.get(MonitorCacheConfig.cacheAlarmSwitch);
@@ -342,13 +342,32 @@ public class ApiController {
         }
     }
 
-    /**
-     * 从redis队列读取要发送的消息
-     */
-    void sendQueueMessages() {
-        // 获取队列的大小
-        Long queueLength = redisUtil.llen(MonitorCacheConfig.cacheAlarmQueueKey);
 
+    /**
+     *
+     * @param queueLength
+     */
+    void sendLongQueueMessages(Long queueLength){
+        List<MonitorMessagesEntity> monitorMessagesEntities = new ArrayList<>();
+        for (int i = 0; i < queueLength; i++) {
+            String queueData = redisUtil.rpop(MonitorCacheConfig.cacheAlarmQueueKey);
+            if (CheckUtil.checkString(queueData)) {
+                try {
+                    queueData = queueData.replace("\n", "<br>");
+                    MonitorMessagesEntity messagesEntity = gson.fromJson(queueData, MonitorMessagesEntity.class);
+                    monitorMessagesEntities.add(messagesEntity);
+                } catch (Exception e) {
+                    logger.error("合并发送报警失败:", e);
+                }
+            }
+        }
+    }
+
+    /**
+     *
+     * @param queueLength
+     */
+    void sendMinQueueMessages(Long queueLength){
         // 从队列获取报警的数据
         for (int i = 0; i < queueLength; i++) {
             String queueData = redisUtil.rpop(MonitorCacheConfig.cacheAlarmQueueKey);
@@ -359,9 +378,23 @@ public class ApiController {
                     MonitorMessagesEntity messagesEntity = gson.fromJson(queueData, MonitorMessagesEntity.class);
                     sendMonitorMessages(messagesEntity);
                 } catch (Exception e) {
-                    logger.info("发送报警失败:", e);
+                    logger.error("发送报警失败:", e);
                 }
             }
+        }
+    }
+
+    /**
+     * 从redis队列读取要发送的消息
+     */
+    void sendQueueMessages() {
+        // 获取队列的大小
+        Long queueLength = redisUtil.llen(MonitorCacheConfig.cacheAlarmQueueKey);
+        // 如果队列数据大于5的时候考虑做合并处理
+        if (queueLength > 50){
+            sendLongQueueMessages(queueLength);
+        }else {
+            sendMinQueueMessages(queueLength);
         }
     }
 
