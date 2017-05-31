@@ -113,6 +113,7 @@ public class GroupsController {
             service.save(entity);
         }
         cacheController.cacheGroups(service, serverService);
+        cacheController.cacheGroups();
         return ResponseVo.responseOk(null);
     }
 

@@ -87,13 +87,14 @@ import static com.asura.agent.util.RedisUtil.app;
  *          20170426 agent监控多线程支持
  *          20170515 修改报警重复
  *          20170517 报警不需要发送恢复修复
+ *          20170526 修复redis检查bug
  */
 @RestController
 @EnableAutoConfiguration
 public class MonitorController {
 
     // 版本号
-    private final String VERSION = "1.0.0.19";
+    private final String VERSION = "1.0.0.20";
 
     private static final Logger logger = LoggerFactory.getLogger(MonitorController.class);
 
@@ -238,7 +239,9 @@ public class MonitorController {
         queue = new LinkedTransferQueue();
         SCRIPT_STATUS = new HashMap<>();
         MONITOR_LOCK = new HashMap<>();
-        ALARM_LAST_TIME = new HashMap<>();
+        if (ALARM_LAST_TIME == null) {
+            ALARM_LAST_TIME = new HashMap<>();
+        }
         ARGV_HOST_MAP = new HashMap<>();
         SCRIPT_CHECK_INTERVAL = new HashMap<>();
         SCRIPT_RETRY_MAP = new HashMap<>();
@@ -298,7 +301,7 @@ public class MonitorController {
        }
        info(isDebug ? "检查redis错误次数: " + ALARM_LAST_TIME.get(key) : null);
        checkAgentRedis();
-        if (ALARM_LAST_TIME.get(key) > 10){
+        if (ALARM_LAST_TIME.get(key) > 3){
             logger.error("获取redis失败，程序终止执行");
             return true;
         }

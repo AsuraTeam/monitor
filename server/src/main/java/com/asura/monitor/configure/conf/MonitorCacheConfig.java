@@ -1,5 +1,7 @@
 package com.asura.monitor.configure.conf;
 
+import com.asura.framework.base.paging.SearchMap;
+
 /**
  * <p></p>
  *
@@ -154,5 +156,51 @@ public class MonitorCacheConfig {
 
     // 停止报警 _serverId
     public static final String cacheStopServer = "cache_monitor_stop_server_";
+
+    // 停止报警 _index_name
+    public static final String cacheStopIndexName = "cache_monitor_stop_index_name_";
+
+    // 停止报警 _entId
+    public static final String cacheStopEntname = "cache_monitor_stop_entname_";
+
+    // 停止报警 _cabinetId
+    public static final String cacheStopCabinet = "cache_monitor_stop_cabinet_";
+
+    // 停止报警 _userId
+    public static final String cacheStopUser = "cache_monitor_stop_usert_";
+
+    // 停止报警 _groupsId
+    public static final String cacheStopGroups = "cache_monitor_stop_groups_";
+
+    // 停止报警 _floorId
+    public static final String cacheStopFloor = "cache_monitor_stop_floor_";
+
+    // 停止报警 _serverId
+    public static final String cacheStopHosts = "cache_monitor_stop_hosts_";
+
+    // 停止报警 _itemId
+    public static final String cacheStopItem = "cache_monitor_stop_item_";
+
+    // 停止报警 _scriptsId
+    public static final String cacheStopScripts = "cache_monitor_stop_scripts_";
+
+    // 存储设置了要停止的数据
+    public static final String cacheStopMonitorData  = "cache_stop_monitor_data";
+
+    // 存放某个服务器的信息,环境，机柜,物理机等信息 _serverId, Map 类型
+    public static final String cacheServerInfo = "cache_stop_server_info_";
+
+    // 缓冲环境信息 _entId
+    public static final String cacheEntnameInfo = "cache_stop_entname_info_";
+    // 缓冲机柜信息
+    public static final String cacheCabinetInfo = "cache_stop_cabinet_info_";
+    // 缓冲机房信息
+    public static final String cacheFloorInfo = "cache_stop_floor_info_";
+    // 缓冲业务线
+    public static final String cacheGroupsInfo = "cache_stop_groups_info_";
+    // 缓冲负责人
+    public static final String cacheUserInfo = "cache_stop_user_info_";
+    // 缓冲脚本
+    public static final String cacheScriptInfo = "cache_stop_script_info_";
 
 }

@@ -18,6 +18,7 @@ import com.asura.framework.base.entity.BaseEntity;
  */
 public class CmdbResourceServerEntity extends BaseEntity{
 
+    private String floorId;
     private String hostname;
     private String lastModifyTime;
     private String groupsName;
@@ -39,6 +40,14 @@ public class CmdbResourceServerEntity extends BaseEntity{
     private String useTime;
     private String resourceCode;
     private String resourcePrice;
+
+    public String getFloorId() {
+        return floorId;
+    }
+
+    public void setFloorId(String floorId) {
+        this.floorId = floorId;
+    }
 
     public String getBuyUser() {
         return buyUser;
@@ -406,7 +415,7 @@ public class CmdbResourceServerEntity extends BaseEntity{
      * @param createTime the value for cmdb_resource_server.create_time
      */
 
-    private Integer createTime;
+    private Long createTime;
 
 
     /**
@@ -585,7 +594,7 @@ public class CmdbResourceServerEntity extends BaseEntity{
      * Comment: 创建时间
      * @param createTime the value for cmdb_resource_server.create_time
      */
-    public void setCreateTime(Integer createTime){
+    public void setCreateTime(Long createTime){
        this.createTime = createTime;
     }
 
@@ -765,7 +774,7 @@ public class CmdbResourceServerEntity extends BaseEntity{
      * Comment: 创建时间
      * @return the value of cmdb_resource_server.create_time
      */
-     public Integer getCreateTime() {
+     public Long getCreateTime() {
         return createTime;
     }
 

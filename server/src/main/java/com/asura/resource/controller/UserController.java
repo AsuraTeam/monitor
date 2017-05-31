@@ -5,6 +5,7 @@ import com.asura.framework.base.paging.SearchMap;
 import com.asura.framework.dao.mybatis.paginator.domain.PageBounds;
 import com.asura.common.response.PageResponse;
 import com.asura.common.response.ResponseVo;
+import com.asura.monitor.configure.controller.CacheController;
 import com.asura.resource.entity.CmdbResourceGroupsEntity;
 import com.asura.resource.entity.CmdbResourceUserEntity;
 import com.asura.resource.service.CmdbResourceGroupsService;
@@ -47,6 +48,9 @@ public class UserController {
     @Autowired
     private PermissionsCheck permissionsCheck;
 
+    @Autowired
+    private CacheController cacheController;
+
     /**
      * 列表
      * @return
@@ -83,7 +87,7 @@ public class UserController {
      */
     @RequestMapping("add")
     public String add(Model model){
-        model = getGroups(model);
+        getGroups(model);
         return "/resource/configure/user/add";
     }
 
@@ -106,6 +110,7 @@ public class UserController {
             entity.setCreateTime(DateUtil.getDateStampInteter());
             service.save(entity);
         }
+        cacheController.cacheUsers();
         return ResponseVo.responseOk(null);
     }
 

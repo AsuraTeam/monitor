@@ -5,6 +5,7 @@ import com.asura.framework.base.paging.SearchMap;
 import com.asura.framework.dao.mybatis.paginator.domain.PageBounds;
 import com.asura.common.response.PageResponse;
 import com.asura.common.response.ResponseVo;
+import com.asura.monitor.configure.controller.CacheController;
 import com.asura.util.DateUtil;
 import com.asura.util.PermissionsCheck;
 import com.asura.resource.entity.CmdbResourceEntnameEntity;
@@ -41,6 +42,9 @@ public class EntnameController {
 
     @Autowired
     private PermissionsCheck permissionsCheck;
+
+    @Autowired
+    private CacheController cacheController;
 
     /**
      * 列表
@@ -90,6 +94,7 @@ public class EntnameController {
             entity.setCreateTime(DateUtil.getDateStampInteter());
             service.save(entity);
         }
+        cacheController.cacheEntname();
         return ResponseVo.responseOk(null);
     }
 

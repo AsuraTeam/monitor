@@ -1,0 +1,441 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<div class="modal fade" id="start_stop_monitor" tabindex="-1"
+     style="z-index: 12050 !important;margin-top:10px;" role="dialog" data-backdrop="true">
+    <div class="modal-dialog" style="width:78%;margin-top:-10px;">
+        <div class="modal-content" style="height: 780px;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
+                        class="sr-only">Close</span></button>
+                <h4 class="modal-title">监控启停设置</h4>
+            </div>
+            <div class="modal-body fadeInUp">
+<form>
+           <div class="col-md-12" style="border:1px solid #f0f0f0">
+               <br>
+               <div class="col-md-12" style="margin:2px;size:18px;"><b>暂停类型选择</b></div>
+               <div class="col-md-12" style="margin:2px;"><br></div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">业务线选择:</label>
+                        <div class="col-sm-9">
+                            <select  class="selectpicker bla bla bli form-control"  name="groupsId" data-live-search="true">
+                                <option value="#if ($configs.groupsId)$configs.groupsId#else 0 #end">#if ($configs.groupsName) ${configs.groupsName}  #end</option>
+                                <option value="0">--</option>
+                                #foreach( $conf in $groups )
+                                    <option
+                                            value='$!{conf.groupsId}'>
+                                        $!{conf.groupsName}
+                                    </option>
+                                #end
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">环境选择:</label>
+                        <div class="col-sm-9">
+                            <select  class="selectpicker bla bla bli form-control"  name="entId" data-live-search="true">
+                                <option value="#if ($configs.entId)${configs.entId}#else 0 #end">#if ($configs.entName) ${configs.entName}  #end</option>
+                                <option value="0">--</option>
+                                #foreach( $conf in $entname )
+                                    <option
+                                            value='$!{conf.entId}'>
+                                        $!{conf.entName}
+                                    </option>
+                                #end
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-12" style="margin-top: 5px;"></div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">用户选择:</label>
+                        <div class="col-sm-9">
+                            <select  class="selectpicker bla bla bli form-control"  name="userId" data-live-search="true">
+                                <option value="#if ($configs.userId)${configs.userId}#else 0 #end">#if ($configs.userName) ${configs.userName}  #end</option>
+                                <option value="0">--</option>
+                                #foreach( $conf in $user )
+                                    <option
+                                            value='$!{conf.userId}'>
+                                        $!{conf.userName}
+                                    </option>
+                                #end
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                     <div class="form-group">
+                         <label class="col-sm-3 control-label">机房选择:</label>
+                         <div class="col-sm-9">
+                             <select  class="selectpicker bla bla bli form-control"  name="floorId" data-live-search="true">
+                                 <option value="#if ($configs.floorId) $configs.floorId #else 0 #end">#if ($configs.floorName) $configs.floorName  #end</option>
+                                 <option>--</option>
+                                 #foreach( $conf in $groups )
+                                     <option
+                                             value='$!{conf.floorId}'>
+                                         $!{conf.floorName}
+                                     </option>
+                                 #end
+                             </select>
+                         </div>
+                     </div>
+                </div>
+                <div class="col-md-12"><p><p></div>
+                <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">机柜选择:</label>
+                            <div class="col-sm-9">
+                                <select name="cabinetId" class="selectpicker bla bla bli form-control" name="cabinetId" data-live-search="true">
+                                    <option value="#if ($configs.cabinetId)$configs.cabinetId#else 0 #end">#if ($configs.cabinetName) ${configs.cabinetName}  #end</option>
+                                    <option value="1">--</option>
+                                    #foreach( $conf in $cabinet )
+                                        <option
+                                                value='$!{conf.cabinetId}'>
+                                            $!{conf.cabinetName}
+                                        </option>
+                                    #end
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">宿主机选择:</label>
+                            <div class="col-sm-9 multiple">
+                                <select id="id_select" class="selectpicker bla bla bli form-control" name="hostId" data-live-search="true">
+                                    <option value="#if ($configs.hostId)${configs.hostId}#else 0 #end">#if ($configs.hostIpAddress) ${configs.hostIpAddress}  #end</option>
+                                    <option value="0">--</option>
+                                    #foreach( $conf in $hosts )
+                                        <option
+                                                value='$!{conf.serverId}'>
+                                            $!{conf.hostIpAddress}
+                                        </option>
+                                    #end
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                   <div class="col-md-12"><p><p></div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                            <label class="col-sm-3 control-label">脚本名称:</label>
+                            <div class="col-sm-9"    >
+                                <select name="scriptId"  id="scriptId"  class="selectpicker bla bla bli form-control" ">
+                                    #if($configs.scriptId) <option value="$configs.scriptId">${configs.fileName}</option>
+                                        #else
+                                            <option value="">请选择</option>
+                                    #end
+                                    #foreach($s in $scripts)
+                                        <option title="${s.monitorName} <${s.description}>" value="${s.scriptsId}">${s.fileName}</option>
+                                    #end
+
+                                </select>
+                            </div>
+                    </div>
+                </div>
+               <div class="col-md-12"><p><p></div>
+               <div class="col-md-6">
+                      <label class="col-lg-3 control-label">服务器选择</label>
+                      <div class="col-lg-9">
+                          <div id="searchotherid+'">
+                              <input type="text" class="form-control" name="k" class="style5" placeholder="请搜索服务器" onkeyup="search_ip($(this).val(),'ip');" />
+                          </div>
+                          <div  id="search_ip_ip"></div>
+                          <br>
+                          <input id="select_ip_id" name="serverId" type="hidden"></input>
+                      </div>
+                </div>
+               <div class="col-md-6">
+                   <label class="col-lg-3 control-label">宿主机选择</label>
+                   <div class="col-lg-9">
+                       <div id="searchotherid+'">
+                           <input type="text" class="form-control" name="k" class="style5" placeholder="请搜索服务器" onkeyup="search_ip($(this).val(), 'host');" />
+                       </div>
+                       <div  id="search_host_ip"></div>
+                       <br>
+                       <input id="select_host_id" name="hostId" type="hidden"></input>
+                   </div>
+               </div>
+                <input type="hidden" value="" id="monitor_server_id">
+                <div class="col-md-3" style="margin-top: 5px;">
+                    <div id="monitor_recover_time" ></div>
+                </div>
+                <div class="col-md-12" style=""></div>
+           </div>
+           <div class="col-md-12" style=""><br></div>
+           <div class="col-md-12" style="border:1px solid #f0f0f0">
+               <br>
+               <div class="col-md-12" style="margin:2px;size:18px;"><b>暂停时间配置</b></div>
+               <div class="col-md-12" style="margin:2px;"><br></div>
+               <div class="col-md-3" style="margin-top: 5px;">
+                   <div class="radio checkbox-success checkbox-inline">
+                       <input type="radio" name="pauseTime" id="inlineCheckbox"
+                              value="600">
+                       <label for="inlineCheckbox">10分钟</label>
+                   </div>
+               </div>
+               <div class="col-md-3" style="margin-top: 5px;">
+                   <div class="radio checkbox-success checkbox-inline">
+                       <input type="radio" name="pauseTime" id="inlineCheckbox2"
+                              value="1200">
+                       <label for="inlineCheckbox2">20分钟</label>
+                   </div>
+               </div>
+               <div class="col-md-3" style="margin-top: 5px;">
+                   <div class="radio checkbox-success checkbox-inline">
+                       <input type="radio" name="pauseTime" id="inlineCheckbox22"
+                              value="1800">
+                       <label for="inlineCheckbox22">30分钟</label>
+                   </div>
+               </div>
+               <div class="col-md-3" style="margin-top: 5px;">
+                   <div class="radio checkbox-success checkbox-inline">
+                       <input type="radio" name="pauseTime" id="inlineCheckbox23"
+                              value="3000">
+                       <label for="inlineCheckbox23">50分钟</label>
+                   </div>
+               </div>
+               <div class="col-md-12" style=""></div>
+               <div class="col-md-3" style="margin-top: 5px;">
+                   <div class="radio checkbox-success checkbox-inline">
+                       <input type="radio" name="pauseTime" id="inlineCheckbox3"
+                              value="3600">
+                       <label for="inlineCheckbox3">1小时</label>
+                   </div>
+               </div>
+                <div class="col-md-3" style="margin-top: 5px;">
+                    <div class="radio checkbox-success checkbox-inline">
+                        <input type="radio" name="pauseTime" id="inlineCheckbox4"
+                               value="7200">
+                        <label for="inlineCheckbox4">2小时</label>
+                    </div>
+                </div>
+                <div class="col-md-3" style="margin-top: 5px;">
+                    <div class="radio checkbox-success checkbox-inline">
+                        <input type="radio" name="pauseTime" id="inlineCheckbox5"
+                               value="21600">
+                        <label for="inlineCheckbox5">6小时</label>
+                    </div>
+                </div>
+                <div class="col-md-3" style="margin-top: 5px;">
+                    <div class="radio checkbox-success checkbox-inline">
+                        <input type="radio" name="pauseTime" id="inlineCheckbox6"
+                               value="43200">
+                        <label for="inlineCheckbox6">12小时</label>
+                    </div>
+                </div>
+                <div class="col-md-12" style=""></div>
+                <div class="col-md-3" style="margin-top: 5px;">
+                    <div class="radio checkbox-success checkbox-inline">
+                        <input type="radio" name="pauseTime" id="inlineCheckbox7"
+                               value="86400">
+                        <label for="inlineCheckbox7">1天</label>
+                    </div>
+                </div>
+                <div class="col-md-3" style="margin-top: 5px;">
+                    <div class="radio checkbox-success checkbox-inline">
+                        <input type="radio" name="pauseTime" id="inlineCheckbox8"
+                               value="172800">
+                        <label for="inlineCheckbox8">2天</label>
+                    </div>
+                </div>
+                <div class="col-md-3" style="margin-top: 5px;">
+                    <div class="radio checkbox-success checkbox-inline">
+                        <input type="radio" name="pauseTime" id="inlineCheckbox18"
+                               value="259200">
+                        <label for="inlineCheckbox18">3天</label>
+                    </div>
+                </div>
+              <div class="col-md-3" style="margin-top: 5px;">
+                   <div class="radio checkbox-success checkbox-inline">
+                       <input type="radio" name="pauseTime" id="inlineCheckbox181"
+                              value="345600">
+                       <label for="inlineCheckbox181">4天</label>
+                   </div>
+               </div>
+                <div class="col-md-12" style=""></div>
+                <div class="col-md-3" style="margin-top: 5px;">
+                    <div class="radio checkbox-success checkbox-inline">
+                        <input type="radio" name="pauseTime" id="inlineCheckbox9"
+                               value="604800">
+                        <label for="inlineCheckbox9">1周</label>
+                    </div>
+                </div>
+                <div class="col-md-3" style="margin-top: 5px;">
+                    <div class="radio checkbox-success checkbox-inline">
+                        <input type="radio" name="pauseTime" id="inlineCheckbox10"
+                               value="1209600">
+                        <label for="inlineCheckbox10">2周</label>
+                    </div>
+                </div>
+                <div class="col-md-3" style="margin-top: 5px;">
+                    <div class="radio checkbox-success checkbox-inline">
+                        <input type="radio" name="pauseTime" id="inlineCheckbox20"
+                               value="1814400">
+                        <label for="inlineCheckbox20">3周</label>
+                    </div>
+                </div>
+                <div class="col-md-3" style="margin-top: 5px;">
+                   <div class="radio checkbox-success checkbox-inline">
+                       <input type="radio" name="pauseTime" id="inlineCheckbox201"
+                              value="2419200">
+                       <label for="inlineCheckbox201">4周</label>
+                   </div>
+               </div>
+                <div class="col-md-12" style=""></div>
+                <div class="col-md-12" style=""><br></div>
+                <div class="col-md-12" style="margin-left:0px;"><H5>自定义配置</H5></div>
+                <div class="col-md-6" style="margin-left:-15px;">
+                   <div class="form-group">
+                       <label class="col-sm-4 control-label">维护开始时间:</label>
+                       <div class="col-sm-8">
+                           <div class="col-sm-7">
+                               <input type="date" name="beginTime1"  class="form-control" id="beginTime1"
+                                      value="">
+                           </div>
+                           <div class="col-sm-5" style="margin-left:-20px;">
+                               <input type="time" name="beginTime2"  class="form-control" id="beginTime2"
+                                      value="14:01">
+                           </div>
+                       </div>
+                   </div>
+               </div>
+               <div class="col-md-6">
+                   <div class="form-group">
+                       <label class="col-sm-4 control-label">维护结束时间:</label>
+                       <div class="col-sm-8">
+                           <div class="col-sm-7">
+                               <input type="date" name="endTime1"  class="form-control" id="endTime1"
+                                      value="">
+                           </div>
+                           <div class="col-sm-5" style="margin-left:-20px;">
+                               <input type="time" name="endTime2"  class="form-control" id="endTime2"
+                                      value="14:01:00">
+                           </div>
+                       </div>
+                   </div>
+               </div>
+               <div class="col-md-12">
+                   <p>
+                   <p>
+               </div>
+</form>
+           </div>
+                <button style="margin-left: 88%;margin-top: 25px;margin-bottom:45px;"
+                        onclick="saveConfig();" class="btn btn-primary btn-lg"
+                        type="button">
+                    <i class="fa fa-check"></i>&nbsp;保存
+                </button>
+                <div class="col-md-12" style=""><br></div>
+                <div class="col-md-12" style=""><br></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    $('.selectpicker').selectpicker({
+        'selectedText': 'cat'
+    });
+
+   function saveConfig(){
+       data = get_form_data();
+       len = 0
+       for(var key in data){
+          if(key.indexOf("Id") != -1){
+              if(parseInt(data[key]) > 0){
+                   len += 1
+              }else{
+                   data[key] ="" 
+              }
+          }
+
+       }
+       if(len > 1){
+           parent.layer.msg("只能选择一个项目",  {icon:2});
+           return 
+       }
+       if(len == 0){
+           parent.layer.msg("请选择一个项目",  {icon:2});
+           return 
+       }
+       value =  $("input[name='pauseTime']:checked").val()
+       if(!value){
+           value = calc_time()
+       }
+       data["pauseTime"] = value
+       if(!data["pauseTime"] && parseInt(data["pauseTime"]) < 1 ){
+           parent.layer.msg("暂停时间必须选择",  {icon:2});
+           return 
+       }
+       url = "/monitor/" + site + "/save";
+       result = post(data, url);
+       parent.layer.msg(JSON.stringify(result),  {icon:1});
+       $('#listTable').dataTable().fnReloadAjax();
+    }
+
+
+    function calc_time(){
+        starts = $("#beginTime1").val() +" "+ $("#beginTime2").val()
+        end  = $("#endTime1").val() +" "+ $("#endTime2").val()
+        return ((new Date(end).getTime() / 1000) - (new Date(starts).getTime() / 1000));
+    }
+
+    function search_ip(value, html_id){
+        if(value.length < 8){
+            return false;
+        }
+        $.post('/resource/configure/server/listData?start=1&length=10&draw=1',{'ipAddress':value},function(data){
+            if(data=='[]') {
+                $('#search_'+html_id+'_ip').html('').css('display','none');
+            } else {
+            data = data["data"][0]
+            if(data && data["ipAddress"]){
+                ip = data["ipAddress"]
+                id = data["serverId"]
+                html = "<div onclick='$(\"#select_"+html_id+"_id\").val("+id+");$(\"#search_"+html_id+"_ip\").hide()'>"+ip+"</div>"
+console.log(html)
+                $('#search_'+html_id+'_ip').html(html).css('display','block');
+              }
+            }
+        });
+    }
+
+        /**
+         *
+         * 获取当前时间
+         */
+        function p(s) {
+            return s < 10 ? '0' + s: s;
+        }
+
+        var myDate = new Date();
+        //获取当前年
+        var year=myDate.getFullYear();
+        //获取当前月
+        var month=myDate.getMonth()+1;
+        //获取当前日
+        var str_date=myDate.getDay();
+        var h=myDate.getHours();       //获取当前小时数(0-23)
+        var m=myDate.getMinutes();     //获取当前分钟数(0-59)
+        var s=myDate.getSeconds();
+
+
+            if(parseInt(h) < 10 ){
+                h = "0"+h
+            }
+            if(parseInt(m) < 10 ){
+                m = "0"+m
+            }
+            $("#beginTime1").val(year+"-"+p(month)+"-"+p(str_date))
+            $("#beginTime2").val(h+":"+m+":00")
+            $("#endTime1").val(year+"-"+p(month)+"-"+p(str_date))
+            $("#endTime2").val(h+":"+m+":00")
+
+</script>

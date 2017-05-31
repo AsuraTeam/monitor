@@ -11,6 +11,7 @@ import com.asura.monitor.configure.conf.MonitorCacheConfig;
 import com.asura.monitor.configure.controller.CacheController;
 import com.asura.monitor.graph.controller.CommentController;
 import com.asura.monitor.graph.entity.PushEntity;
+import com.asura.monitor.util.MonitorUtil;
 import com.asura.resource.configure.server.entity.CmdbResourceServerHistoryEntity;
 import com.asura.resource.configure.server.service.CmdbResourceServerHistoryService;
 import com.asura.resource.entity.*;
@@ -24,6 +25,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import redis.clients.jedis.Jedis;
+import sun.misc.Cache;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -88,6 +90,7 @@ public class ServerController {
 
     @Autowired
     IndexController indexController;
+
 
     @Autowired
     private CmdbResourceServerHistoryService historyService;
@@ -224,7 +227,8 @@ public class ServerController {
                            String hostIp, String entname, String groupsName,
                            String typeName, String userName,
                            String time, String isOff, String hosts,
-                           String inventoryId, String t
+                           String inventoryId, String t,
+                           String ipAddress
     ) {
         PageBounds pageBounds;
         if (hostIp == null) {
@@ -290,6 +294,9 @@ public class ServerController {
         if (CheckUtil.checkString(hosts)) {
             String[] host = hosts.split(",");
             searchMap.put("hosts", host);
+        }
+        if (CheckUtil.checkString(ipAddress)){
+            searchMap.put("ipAddress", ipAddress);
         }
 
         if (isOff != null) {
@@ -385,7 +392,7 @@ public class ServerController {
             if (entity.getCreateUser() != null) {
                 entity.setCreateUser(entity.getCreateUser());
             }
-            entity.setCreateTime(DateUtil.getDateStampInteter());
+            entity.setCreateTime(System.currentTimeMillis() / 1000);
             service.save(entity);
         }
 
@@ -394,6 +401,7 @@ public class ServerController {
         historyService.save(historyEntity);
         // 主机的id
         RedisUtil redisUtil = new RedisUtil();
+        cacheController.setServerInfoCache(service, serverId+"", null);
         redisUtil.set(MonitorCacheConfig.getCacheHostGroupsKey + entity.getIpAddress(), entity.getGroupsId() + "");
         redisUtil.set(MonitorCacheConfig.cacheHostIdToIp + entity.getServerId(), entity.getIpAddress());
         redisUtil.set(MonitorCacheConfig.hostsIdKey + entity.getIpAddress(), entity.getServerId() + "");
@@ -431,21 +439,8 @@ public class ServerController {
         if (CheckUtil.checkString(result)){
             Jedis jedis = redisUtil.getJedis();
             long value = jedis.ttl(RedisUtil.app+"_"+key);
-            if (value  < 60 ) {
-                return ResponseVo.responseOk("还有" + value + "秒恢复");
-            }
-            if (value  > 60 && value < 3600 ) {
-                return ResponseVo.responseOk( "还有" + ( value / 60 )  +"分钟恢复");
-            }
-            if (value  > 3600 && value < 86400 ) {
-                return ResponseVo.responseOk("还有" + (value / 60 / 60) + "小时恢复");
-            }
-            if (value  > 86400 && value < 604800 ) {
-                return ResponseVo.responseOk( "还有" +( value / 60 / 60 / 60) +"天恢复");
-            }
-            if (value  > 604800 && value < 2419200 ){
-                return ResponseVo.responseOk("还有" +( value / 60 / 60 / 60 / 7 ) +"周恢复");
-            }
+            String data =  MonitorUtil.getStopMonitorTime(value);
+            return ResponseVo.responseOk(data);
         }
             return ResponseVo.responseOk("监控正常报警中");
     }

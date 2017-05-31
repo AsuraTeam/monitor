@@ -321,6 +321,7 @@ public class SaveController {
             entity.setScriptsId(id);
             scriptsService.save(entity);
         }
+        cacheController.cacheScript();
         indexController.logSave(request, "添加脚本" + GSON.toJson(entity));
         REDIS_UTIL.setex(MonitorCacheConfig.cacheScriptIdKey + entity.getScriptsId(), 600, GSON.toJson(entity));
         CONFIGURE_UTIL.updateHostUpdate("script");

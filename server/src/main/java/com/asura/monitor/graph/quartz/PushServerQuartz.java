@@ -88,6 +88,7 @@ public class PushServerQuartz {
         cacheController.setItemCache(itemService);
         cacheController.setMessagesCache(channelService);
         cacheController.setServerCache(service);
+        cacheController.setServerInfoCache(service, null, null);
         cacheController.setScriptCache(scriptsService);
         cacheController.cacheGroups(resourceGroupsService, service);
         cacheController.setContactGroupCache(contactGroupService);

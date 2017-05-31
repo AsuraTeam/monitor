@@ -2,6 +2,7 @@ package com.asura.monitor.util;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.asura.common.response.ResponseVo;
 import com.asura.monitor.graph.entity.PushEntity;
 import com.asura.monitor.graph.util.FileRender;
 import com.asura.monitor.graph.util.FileWriter;
@@ -124,5 +125,24 @@ public class MonitorUtil {
                 }
             }
         }
+    }
+    
+    public static String getStopMonitorTime(long value){
+        if (value  < 60 ) {
+            return "还有" + value + "秒恢复";
+        }
+        if (value  > 60 && value < 3600 ) {
+            return  "还有" + ( value / 60 )  +"分钟恢复";
+        }
+        if (value  > 3600 && value < 86400 ) {
+            return "还有" + (value / 60 / 60) + "小时恢复";
+        }
+        if (value  > 86400 && value < 604800 ) {
+            return  "还有" +( value / 60 / 60 / 60) +"天恢复";
+        }
+        if (value  > 604800 && value < 2419200 ){
+            return "还有" +( value / 60 / 60 / 60 / 7 ) +"周恢复";
+        }
+        return "监控正常报警中";
     }
 }

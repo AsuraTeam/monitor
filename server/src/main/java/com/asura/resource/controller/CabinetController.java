@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import com.asura.common.controller.IndexController;
 import com.asura.common.response.PageResponse;
 import com.asura.common.response.ResponseVo;
+import com.asura.monitor.configure.controller.CacheController;
 import com.asura.resource.entity.CmdbResourceServerEntity;
 import com.asura.resource.service.CmdbResourceServerService;
 import com.asura.util.CheckUtil;
@@ -57,7 +58,8 @@ public class CabinetController {
     private IndexController logSave;
     @Autowired
     private CmdbResourceServerService serverService;
-
+    @Autowired
+    private CacheController cacheController;
 
 
    /**
@@ -128,6 +130,7 @@ public class CabinetController {
             entity.setCreateTime(DateUtil.getDateStampInteter());
             service.save(entity);
         }
+        cacheController.cacheCabinet();
         return ResponseVo.responseOk(null);
     }
 

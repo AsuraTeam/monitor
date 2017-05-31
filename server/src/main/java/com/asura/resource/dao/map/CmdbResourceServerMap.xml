@@ -129,6 +129,11 @@
             and f.user_name=#{userName}
         </if>
 
+        <!-- 获取IP地址 -->
+        <if test="ipAddress != null">
+            and a.ip_address=#{ipAddress}
+        </if>
+
         <!-- 获取机房的数据 -->
         <if test="cabinetName != null">
             and e.cabinet_name=#{cabinetName}
@@ -869,6 +874,22 @@
      a.buy_user in <include refid="groups"/>
     and (a.use_user is null or trim(a.use_user) = "0" or a.use_user="")
         <include refid="ent"/>
+    </select>
+
+    <!-- 暂停报警使用 -->
+    <select id="selectServerInfo" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
+    select b.floor_id as floorId,
+    d.ent_id as entId,
+    a.groups_id as groupsId,
+    d.server_id as serverId,
+    a.cabinet_id as cabinetId,
+    a.user_id as userId,d.host_id as hostId
+    from cmdb_resource_server a ,
+    cmdb_resource_floor b , cmdb_resource_cabinet c ,
+    cmdb_resource_server d where d.host_id=a.server_id and  b.floor_id = c.floor_id and a.cabinet_id = c.cabinet_id
+    <if test="serverId != null">
+        and a.server_id=#{serverId}
+    </if>
     </select>
 </mapper>
 
