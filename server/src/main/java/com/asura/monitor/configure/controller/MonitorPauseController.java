@@ -195,13 +195,15 @@ public class MonitorPauseController {
         }
         logger.info("获取到停止信息" + gson.toJson(entity));
         ArrayList<MonitorPauseEntity> list = new ArrayList();
+        ArrayList newList = new ArrayList();
+        boolean isUpdate = false;
         String data = redisUtil.get(MonitorCacheConfig.cacheStopMonitorData);
         if (CheckUtil.checkString(data) && data.length() > 10 ){
             Type type = new TypeToken<ArrayList<MonitorPauseEntity>>() {
             }.getType();
-            ArrayList newList = new ArrayList();
+
             list = gson.fromJson(data, type);
-            boolean isUpdate = false;
+
             for (MonitorPauseEntity entity1: list){
                 if (    checkUpdate(entity.getCabinetId(), entity1.getCabinetId()) ||
                         checkUpdate(entity.getEntId(), entity1.getEntId()) ||
@@ -217,13 +219,19 @@ public class MonitorPauseController {
                     newList.add(entity1);
                 }else{
                     logger.info("添加暂停数据 " + gson.toJson(entity));
-                    newList.add(entity);
+                    newList.add(entity1);
                 }
-                redisUtil.set(MonitorCacheConfig.cacheStopMonitorData, gson.toJson(newList));
             }
         }else{
             list.add(entity);
             redisUtil.set(MonitorCacheConfig.cacheStopMonitorData, gson.toJson(list));
+        }
+        if (!isUpdate){
+            logger.info("添加新的暂停数据 " + gson.toJson(entity));
+            newList.add(entity);
+        }
+        if (newList.size() >  0 ) {
+            redisUtil.set(MonitorCacheConfig.cacheStopMonitorData, gson.toJson(newList));
         }
         return "ok";
     }
@@ -235,7 +243,7 @@ public class MonitorPauseController {
      * @return
      */
     boolean checkUpdate(String id1, String id2){
-        if (id1 != null && id2.equals(id1)){
+        if (id1 != null && id1.length() > 0 && id2 != null && id2.length()  > 0   && id2.equals(id1)){
             return true;
         }
         return false;

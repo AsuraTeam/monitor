@@ -97,6 +97,9 @@ public class ApiController {
     @Autowired
     private MonitorReportDayService reportDayService;
 
+    @Autowired
+    private MonitorPauseController pauseController;
+
     // 报错报警的参数信息，启动或更改时改数据
     private static Map<String, MonitorIndexAlarmEntity> alarmEntities;
     private static long alarmEntitiesTime;
@@ -325,15 +328,15 @@ public class ApiController {
                     // 单个机器
                     checkServerStopInfo(serverId, entity.getServerId()+"", sizeList, entity);
                     // 环境
-                    checkServerStopInfo(serverEntity.getEntId() + "", entity.getServerId()+"", sizeList, entity);
+                    checkServerStopInfo(serverEntity.getEntId() + "", entity.getServerId(), sizeList, entity);
                     // 机柜
-                    checkServerStopInfo(serverEntity.getCabinetId() + "", entity.getCabinetId()+"", sizeList, entity);
+                    checkServerStopInfo(serverEntity.getCabinetId() + "", entity.getCabinetId(), sizeList, entity);
                     // 负责人
                     checkServerStopInfo(serverEntity.getUserId() + "", entity.getUserId(), sizeList, entity);
                     // 业务线
-                    checkServerStopInfo(serverEntity.getGroupsId() + "", entity.getGroupsId()+"", sizeList, entity);
+                    checkServerStopInfo(serverEntity.getGroupsId() + "", entity.getGroupsId(), sizeList, entity);
                     // 宿主机
-                    checkServerStopInfo(serverEntity.getHostId() + "", entity.getHostId()+"", sizeList, entity);
+                    checkServerStopInfo(serverEntity.getHostId() + "", entity.getHostId(), sizeList, entity);
                     // 机房
                     checkServerStopInfo(serverEntity.getFloorId() + "", entity.getFloorId(), sizeList, entity);
                 }
@@ -359,6 +362,12 @@ public class ApiController {
         String data = redisUtil.get(MonitorCacheConfig.cacheStopMonitorData);
         boolean isStopMonitor = false;
         if (CheckUtil.checkString(data) && data.length() > 10){
+            //  先去清除掉过期的数据
+            try {
+                pauseController.listData();
+            }catch (Exception e){
+                logger.error("在api设置监控暂停数据报错", e);
+            }
             isStopMonitor = testServerStopMonitor(serverId, data, messagesEntity.getScriptsId()+"");
         }
 
