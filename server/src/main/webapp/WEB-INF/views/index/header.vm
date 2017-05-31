@@ -85,6 +85,7 @@
                                     </ul>
                                 </li>
                                 <li><a href="/monitor/configure/index/list">监控指标配置</a></li>
+                                <li><a href="/monitor/pause/list">服务维护配置</a></li>
                             </ul>
                         </li>
                         <li><a href="/monitor/configure/messages/record">报警记录</a>
