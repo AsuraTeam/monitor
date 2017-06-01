@@ -22,6 +22,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import sun.rmi.runtime.Log;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Type;
@@ -99,7 +100,8 @@ public class MonitorPauseController {
             logger.info("获取到距离关闭时间"+closeTime);
             logger.info("redis数据为" + gson.toJson(entity));
             if (closeTime <  Long.valueOf(entity.getPauseTime())) {
-                entity.setCloseTime(MonitorUtil.getStopMonitorTime(closeTime - Long.valueOf(entity.getPauseTime())));
+                String sleep = (closeTime - Long.valueOf(entity.getPauseTime()))+"";
+                entity.setCloseTime(MonitorUtil.getStopMonitorTime(Long.valueOf(sleep.replace("-", ""))));
                 newList.add(entity);
             }
         }

@@ -1178,7 +1178,7 @@ UNLOCK TABLES;
 
 CREATE TABLE `monitor_images_collection` (
   `collection_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `images` varchar(500) DEFAULT NULL COMMENT '收录图片地址',
+  `images` text DEFAULT NULL COMMENT '收录图片地址',
   `create_time` varchar(32) DEFAULT NULL COMMENT '收录时间',
   `user` varchar(32) DEFAULT NULL COMMENT '收录人',
   `description` varchar(100) DEFAULT NULL COMMENT '描述信息',

@@ -34,23 +34,7 @@ public class LdapAuthenticate {
 
 	private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapAuthenticate.class);
 
-//	public LdapAuthenticate(){
-//		this.ldapDao = new LdapEntity();
-//		org.springframework.core.io.Resource resource = null;
-//		Properties props = null;
-//		try {
-//			resource = new ClassPathResource("/system.properties");
-//			props = PropertiesLoaderUtils.loadProperties(resource);
-//			this.ldapDao.setLdapPassword((String) props.get("ldap.password"));
-//			this.ldapDao.setLdapPrefix((String) props.get("ldap.prefix"));
-//			this.ldapDao.setLdapUsername((String) props.get("ldap.username"));
-//			this.ldapDao.setLdapServer((String) props.get("ldap.server"));
-//			String port = (String) props.get("ldap.port");
-//			this.ldapDao.setLdapPort(Integer.valueOf(port));
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//	}
+
 
 	/**
 	 * 连接LDAP

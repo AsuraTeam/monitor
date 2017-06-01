@@ -452,7 +452,6 @@ public class ServerController {
     @RequestMapping("detail")
     public String detail(int id, Model model, String detail) {
         CmdbResourceServerEntity result = service.findById(id, CmdbResourceServerEntity.class);
-        System.out.println("result ssssssss " + gson.toJson(result));
         model = getData(model);
         model.addAttribute("configs", result);
         String buyUserId = result.getBuyUser();

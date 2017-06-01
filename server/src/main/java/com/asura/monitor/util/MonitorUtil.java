@@ -138,10 +138,10 @@ public class MonitorUtil {
             return "还有" + (value / 60 / 60) + "小时恢复";
         }
         if (value  > 86400 && value < 604800 ) {
-            return  "还有" +( value / 60 / 60 / 60) +"天恢复";
+            return  "还有" +( value / 60 / 60 / 24) +"天恢复";
         }
         if (value  > 604800 && value < 2419200 ){
-            return "还有" +( value / 60 / 60 / 60 / 7 ) +"周恢复";
+            return "还有" +( value / 60 / 60 / 24 / 7 ) +"周恢复";
         }
         return "监控正常报警中";
     }
