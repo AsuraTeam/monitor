@@ -368,6 +368,8 @@
        value =  $("input[name='pauseTime']:checked").val()
        if(!value){
            value = calc_time()
+           starts = $("#beginTime1").val() +" "+ $("#beginTime2").val()
+           data["createTime"] = new Date(starts).getTime() / 1000
        }
        data["pauseTime"] = value
        if(!data["pauseTime"] && parseInt(data["pauseTime"]) < 1 ){

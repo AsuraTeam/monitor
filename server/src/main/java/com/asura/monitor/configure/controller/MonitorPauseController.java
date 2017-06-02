@@ -96,12 +96,20 @@ public class MonitorPauseController {
         ArrayList newList = new ArrayList();
         long closeTime;
         for (MonitorPauseEntity entity: list){
-            closeTime = ((System.currentTimeMillis() / 1000 ) - entity.getCreateTime()) ;
+            if (entity.getCreateTime() > System.currentTimeMillis() / 1000){
+                closeTime = 0;
+            }else {
+                closeTime = ((System.currentTimeMillis() / 1000) - entity.getCreateTime());
+            }
             logger.info("获取到距离关闭时间"+closeTime);
             logger.info("redis数据为" + gson.toJson(entity));
-            if (closeTime <  Long.valueOf(entity.getPauseTime())) {
+            if (closeTime <  Long.valueOf(entity.getPauseTime()) || closeTime > 0) {
                 String sleep = (closeTime - Long.valueOf(entity.getPauseTime()))+"";
-                entity.setCloseTime(MonitorUtil.getStopMonitorTime(Long.valueOf(sleep.replace("-", ""))));
+                if (closeTime == 0) {
+                    entity.setCloseTime("未到维护时间");
+                }else {
+                    entity.setCloseTime(MonitorUtil.getStopMonitorTime(Long.valueOf(sleep.replace("-", ""))));
+                }
                 newList.add(entity);
             }
         }
@@ -152,7 +160,9 @@ public class MonitorPauseController {
     public String save(MonitorPauseEntity entity, HttpServletRequest request) {
         Gson gson = new Gson();
         RedisUtil redisUtil = new RedisUtil();
-        entity.setCreateTime(System.currentTimeMillis() / 1000);
+        if (entity.getCreateTime()==0) {
+            entity.setCreateTime(System.currentTimeMillis() / 1000);
+        }
         entity.setCreateUser(permissionsCheck.getLoginUser(request.getSession()));
 
         // 对单个server进行暂停
