@@ -48,6 +48,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import static com.asura.monitor.configure.conf.MonitorCacheConfig.cacheConfigureHostsListKey;
+
 /**
  * <p></p>
  *
@@ -175,17 +177,25 @@ public class CacheController {
     @ResponseBody
     public String setConfigureCache() {
         SearchMap searchMap = new SearchMap();
+        HashSet hostSet = new HashSet();
         PagingResult<MonitorConfigureEntity> result = configureService.findAll(searchMap, PageResponse.getPageBounds(10000000, 1), "selectByAll");
         for (MonitorConfigureEntity m : result.getRows()) {
             redisUtil.set(MonitorCacheConfig.cacheConfigureKey + m.getConfigureId(), gson.toJson(m));
             try {
                 ConfigureUtil configureUtil = new ConfigureUtil();
-                configureUtil.makeHostMonitorTag(m);
+                hostSet = configureUtil.makeHostMonitorTag(m, hostSet);
                 configureUtil.setUpdateMonitor(m);
             }catch (Exception e){
 
             }
         }
+        ArrayList arrayList = new ArrayList();
+        ConfigureUtil configureUtil = new ConfigureUtil();
+        MonitorConfigureEntity entity = new MonitorConfigureEntity();
+        entity.setIsValid(1);
+        HashSet<String> cacheHosts = gson.fromJson(redisUtil.get(cacheConfigureHostsListKey), HashSet.class);
+        hostSet = configureUtil.setHostGroupData(cacheHosts, hostSet, entity, arrayList);
+        redisUtil.set(cacheConfigureHostsListKey, gson.toJson(hostSet));
         return "ok";
     }
     /**
@@ -326,7 +336,7 @@ public class CacheController {
                 if(!hostMap.containsKey(host)){
                     hostIdArr = new HashSet();
                 }else {
-                    hostIdArr = (HashSet)hostMap.get(host);
+                    hostIdArr = hostMap.get(host);
                 }
                 hostIdArr.add(m.getGroupsId());
                 hostMap.put(host,hostIdArr);
@@ -354,7 +364,7 @@ public class CacheController {
         if(!hostMap.containsKey(hostId)){
             conf = new HashSet();
         }else {
-            conf = (HashSet)hostMap.get(hostId);
+            conf = hostMap.get(hostId);
         }
         conf.add(configId);
         hostMap.put(hostId , conf);
@@ -371,12 +381,10 @@ public class CacheController {
         SearchMap searchMap = new SearchMap();
         searchMap.put("isValid",1);
         HashSet hostIds = new HashSet();
-        HashSet groupIds = new HashSet();
 
         // 存放每个主机拥有的所有配置文件id
         Map<String, HashSet> hostMap = new HashMap();
         // 存放每个组拥有的所有配置文件的ID
-        Map<String, HashSet> groupMap = new HashMap();
 
         PagingResult<MonitorConfigureEntity> result;
         try {
@@ -385,36 +393,34 @@ public class CacheController {
             result = configureService.findAll(searchMap, PageResponse.getPageBounds(1000000, 1), "selectByAll");
         }
         for (MonitorConfigureEntity m : result.getRows()) {
+            String[] hosts = null;
+            if(CheckUtil.checkString(m.getHosts()) && m.getMonitorHostsTp().equals("host")) {
 
-            if(m.getHosts()!=null) {
-                String[] hosts = m.getHosts().split(",");
-                for (String s : hosts) {
-                    if(s.length()<1){continue;}
-                    hostIds.add(s);
-                    hostMap = setGroupHostConfig(hostMap, m.getConfigureId()+"", s);
-                }
+                hosts = m.getHosts().split(",");
             }
+            // 设置组的信息
+            if(CheckUtil.checkString(m.getGname()) && m.getMonitorHostsTp().equals("groups")){
+                hosts = redisUtil.get(MonitorCacheConfig.cacheGroupsKey.concat(m.getGname())).split(",");
+                logger.info("获取到组配置信息 " + gson.toJson(hostIds));
+            }
+
+            for (String s : hosts) {
+                if(s.length() < 1){continue;}
+                hostIds.add(s);
+                hostMap = setGroupHostConfig(hostMap, m.getConfigureId()+"", s);
+            }
+
             for (Map.Entry<String, HashSet> entry : hostMap.entrySet()) {
-                jedis.set(RedisUtil.app+"_"+MonitorCacheConfig.cacheHostConfigKey + entry.getKey(), gson.toJson(entry.getValue()));
-            }
-
-            if(m.getGname()!=null){
-                String[] groups = m.getGname().split(",");
-                for (String s : groups) {
-                    if(s.length()<1){continue;}
-                    groupIds.add(s);
-                    // 将每个host拥有的配置写入到redis
-                    groupMap = setGroupHostConfig(groupMap, m.getConfigureId()+"", s);
+                try {
+                    jedis.set(RedisUtil.app + "_" + MonitorCacheConfig.cacheHostConfigKey + entry.getKey(), gson.toJson(entry.getValue()));
+                }catch (Exception e){
+                    jedis = redisUtil.getJedis();
+                    jedis.set(RedisUtil.app + "_" + MonitorCacheConfig.cacheHostConfigKey + entry.getKey(), gson.toJson(entry.getValue()));
                 }
-            }
-            for (Map.Entry<String, HashSet> entry : groupMap.entrySet()) {
-                jedis.set(RedisUtil.app+"_"+MonitorCacheConfig.cacheGroupConfigKey + entry.getKey(), gson.toJson(entry.getValue()));
             }
         }
         String allHost = gson.toJson(hostIds);
         redisUtil.set(MonitorCacheConfig.cacheAllHostIsValid, allHost);
-        String allGroup = gson.toJson(groupIds);
-        redisUtil.set(MonitorCacheConfig.cacheAllGroupsIsValid, allGroup);
         return "ok";
     }
 

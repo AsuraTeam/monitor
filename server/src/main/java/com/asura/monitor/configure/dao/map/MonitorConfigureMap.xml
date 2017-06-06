@@ -69,6 +69,9 @@
         <if test="ip != null">
             and a.hosts LIKE concat("%", #{ip}, "%")
         </if>
+        <if test="gname != null">
+            and a.gname = #{gname}
+        </if>
         ORDER BY a.last_modify_time desc
     </select>
 

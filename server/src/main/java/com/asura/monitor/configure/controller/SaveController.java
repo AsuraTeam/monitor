@@ -39,6 +39,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -129,6 +130,7 @@ public class SaveController {
         return ResponseVo.responseOk(null);
     }
 
+
     /**
      * 监控组配置
      *
@@ -144,6 +146,8 @@ public class SaveController {
         entity.setLastModifyUser(user);
         entity.setLastModifyTime(DateUtil.getTimeStamp());
         if (entity.getGroupsId() != null) {
+            LOGGER.info("获取到更新数据" + GSON.toJson(entity));
+            CONFIGURE_UTIL.deleteGroupMonitor(entity.getHosts(), entity.getGroupsId(), false, entity, configureService);
             groupsService.update(entity);
         } else {
             groupsService.save(entity);
@@ -154,11 +158,10 @@ public class SaveController {
     }
 
     /**
-     * 联系组配置删除
-     *
+     * 监控组配置删除
      * @return
      */
-    @RequestMapping("groups/deleteSave")
+    @RequestMapping(value = "groups/deleteSave", produces = {"application/json;charset=UTF-8"})
     @ResponseBody
     public ResponseVo groupsDelete(int id, HttpServletRequest request) {
         String user = permissionsCheck.getLoginUser(request.getSession());
@@ -166,8 +169,15 @@ public class SaveController {
         String lastUser = entity.getLastModifyUser();
         if (lastUser.equals(user) || user.equals("admin")) {
             indexController.logSave(request, "删除组" + GSON.toJson(entity));
-            groupsService.delete(entity);
-            REDIS_UTIL.del(MonitorCacheConfig.cacheGroupsKey.concat(id + ""));
+            List<MonitorConfigureEntity> conf = CONFIGURE_UTIL.getConfigure(entity.getGroupsId(), configureService);
+            if (conf.size() < 1) {
+                LOGGER.info("删除监控组" + GSON.toJson(entity));
+                REDIS_UTIL.del(MonitorCacheConfig.cacheGroupsKey.concat(id + ""));
+                CONFIGURE_UTIL.deleteGroupMonitor(entity.getHosts(), id, true, entity, configureService);
+                groupsService.delete(entity);
+            }else{
+                return ResponseVo.responseError("还有使用该组的监控配置,请删除后操作" + conf.get(0).getDescription());
+            }
         }
         return ResponseVo.responseOk(null);
     }
@@ -547,16 +557,23 @@ public class SaveController {
             } catch (Exception e) {
                 id = 1;
             }
-            hosts = entity.getHosts().split(",");
+
+            // 设置组的信息
+            if(CheckUtil.checkString(entity.getGname()) && entity.getMonitorHostsTp().equals("groups")){
+                hosts = REDIS_UTIL.get(MonitorCacheConfig.cacheGroupsKey.concat(entity.getGname())).split(",");
+                LOGGER.info("获取到组配置信息 " + GSON.toJson(hosts));
+            }else{
+                hosts = entity.getHosts().split(",");
+            }
+
             entity.setConfigureId(id);
             try {
                 configureService.save(entity);
             }catch (Exception e){
-                return ResponseVo.responseError("保存监控重复或数据库希尔错误 ".concat(e.toString()));
+                return ResponseVo.responseError("保存监控重复或数据库错误");
             }
         }
         REDIS_UTIL.set(MonitorCacheConfig.cacheConfigureKey + entity.getConfigureId(), GSON.toJson(entity));
-        CONFIGURE_UTIL.makeHostMonitorTag(entity);
         CONFIGURE_UTIL.setUpdateMonitor(entity);
         MakeCacheThread cacheThread = new MakeCacheThread(cacheController, hosts);
         cacheThread.start();
@@ -595,8 +612,13 @@ public class SaveController {
         if (dept != null && !user.equals(lastModifyUser) && !user.equals("admin") && !dept.contains("运维")) {
             return "no permissions";
         }
-        String hosts = configureEntity.getHosts();
-        String[] hostsList = hosts.split(",");
+        String[] hostsList = null;
+        if (CheckUtil.checkString(configureEntity.getGname()) && configureEntity.getMonitorHostsTp().equals("groups")){
+            hostsList = REDIS_UTIL.get(MonitorCacheConfig.cacheGroupsKey.concat(configureEntity.getGname())).split(",");
+        }
+        if (CheckUtil.checkString(configureEntity.getHosts()) && configureEntity.getMonitorHostsTp().equals("host")) {
+            hostsList = configureEntity.getHosts().split(",");
+        }
         for (String hostId : hostsList) {
             if (hostId.equals("") || hostId.length() < 1) {
                 continue;

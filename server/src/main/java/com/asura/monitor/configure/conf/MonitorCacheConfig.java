@@ -25,14 +25,8 @@ public class MonitorCacheConfig {
     // 存放有配置的主机的配置信息
     public static final String cacheConfigureHostsListKey = "cache_configure_hosts_list";
 
-    // 存放有配置的组的信息组 cache_configure_groups_list_groupsId
-    public static final String cacheConfigureGroupsListKey = "cache_configure_groups_list";
-
     // 存放主机的配置文件， 里面放的配置 cache_host_configure_hostId
     public static final String cacheHostCnfigureKey = "cache_host_configure_";
-
-    // 存放组的配置文件，里面放的配置
-    public static final String cacheGroupsConfigureKey = "cache_groups_configure_";
 
     // 项目缓存 cache_item_itemId CACHE_ITEM_KEY
     public static final String cacheItemKey = "cache_item_";
@@ -61,17 +55,11 @@ public class MonitorCacheConfig {
     // 保存所有host的id,有效的监控, ageng可以从这里判断是否需要开启监控
     public static final String cacheAllHostIsValid = "cache_all_host_is_valid";
 
-    // 保存所有groups的id,有效的监控, ageng可以从这里判断是否需要开启监控
-    public static final String cacheAllGroupsIsValid = "cache_all_groups_is_valid";
-
     // 存放每个host id的组的id,能获取到自己的组 cache_host_groups_hostID
     public static final String cacheHostGroupsKey = "cache_host_groups_";
 
     // 存放每个host id对应的所有配置文件id cache_host_config_HostId
     public static final String cacheHostConfigKey = "cache_host_config_";
-
-    // 存放每个组对应的所有配置文件
-    public static final String cacheGroupConfigKey = "cache_group_config_";
 
     // 存放每个主机的业务线 cache_get_cache_host_groups_ip
     public static final String getCacheHostGroupsKey = "cache_get_cache_host_groups_";

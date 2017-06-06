@@ -2,15 +2,23 @@ package com.asura.monitor.configure.util;
 
 import com.asura.framework.base.paging.SearchMap;
 import com.google.gson.Gson;
+import com.sun.org.apache.regexp.internal.RE;
 import com.asura.monitor.configure.conf.MonitorCacheConfig;
 import com.asura.monitor.configure.controller.CacheController;
 import com.asura.monitor.configure.entity.MonitorConfigureEntity;
 import com.asura.monitor.configure.entity.MonitorGroupsEntity;
 import com.asura.monitor.configure.entity.MonitorItemEntity;
 import com.asura.monitor.configure.service.MonitorConfigureService;
+import com.asura.monitor.configure.service.MonitorGroupsService;
 import com.asura.monitor.configure.service.MonitorItemService;
+import com.asura.util.CheckUtil;
 import com.asura.util.HttpUtil;
 import com.asura.util.RedisUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.stereotype.Controller;
 import redis.clients.jedis.Jedis;
 
 import java.util.ArrayList;
@@ -35,9 +43,11 @@ import static com.asura.monitor.configure.conf.MonitorCacheConfig.cacheHostCnfig
  * @version 1.0
  * @since 1.0
  */
-
+@Controller
+@ComponentScan
 public class ConfigureUtil {
 
+    private final Logger logger = LoggerFactory.getLogger(ConfigureUtil.class);
     private static final RedisUtil REDIS_UTIL = new RedisUtil();
     private static final Gson GSON = new Gson();
 
@@ -133,24 +143,23 @@ public class ConfigureUtil {
         Jedis jedis = REDIS_UTIL.getJedis();
         HashSet<String> hostSet = new HashSet<>();
         String host = entity.getHosts();
-        String group = entity.getGroupsId();
+        String group = entity.getGname();
         if (host != null) {
             String[] hosts = host.split(",");
             if (entity.getIsValid() == 1) {
                 hostSet = getHosts(hosts, hostSet);
             }
         }
-        if (group != null) {
-            String[] groups = group.split(",");
-            for (String g : groups) {
-                String result = REDIS_UTIL.get(MonitorCacheConfig.cacheGroupsKey + g);
-                if (result != null && result.length() > 1) {
+        // 把组里的主机都找到
+        if (CheckUtil.checkString(group)) {
+                String result = REDIS_UTIL.get(MonitorCacheConfig.cacheGroupsKey + group);
+                if (CheckUtil.checkString(result)) {
                     MonitorGroupsEntity groupsEntity = GSON.fromJson(result, MonitorGroupsEntity.class);
                     String[] hosts = groupsEntity.getHosts().split(",");
                     hostSet = getHosts(hosts, hostSet);
                 }
-            }
         }
+        logger.info("获取到配置文件"+  entity.getConfigureId() + GSON.toJson(hostSet));
         for (String h : hostSet) {
             jedis.lpush(RedisUtil.app + "_" + MonitorCacheConfig.cacheHostUpdateQueue + h, "configure");
         }
@@ -162,45 +171,30 @@ public class ConfigureUtil {
      *
      * @param entity
      */
-    public void makeHostMonitorTag(MonitorConfigureEntity entity) {
+    public HashSet makeHostMonitorTag(MonitorConfigureEntity entity, HashSet hostSet) {
         String cacheData = entity.getConfigureId() + "";
-        if (entity.getHostId() != null) {
+        if (entity.getHostId() != null || entity.getGname() != null) {
             // 监控的组
-            String[] groups = entity.getGroupsId().split(",");
-            ArrayList<String> arrayList = new ArrayList<>();
-            for (String c : groups) {
-                if (entity.getIsValid() == 1) {
-                    arrayList.add(c);
+            String groups = entity.getGname();
+            String[] hosts;
+            if (CheckUtil.checkString(groups)){
+                try {
+                    hosts = REDIS_UTIL.get(MonitorCacheConfig.cacheGroupsKey.concat(groups)).split(",");
+                    logger.info("获取到组的成员信息" + GSON.toJson(hosts));
+                }catch (Exception e){
+                    hosts = "".split(",");
                 }
+            }else {
+                // 监控的主机
+                hosts = entity.getHosts().split(",");
+                logger.info("获取到监控成员信息" + GSON.toJson(hosts));
             }
-
-            HashSet<String> groupSet = new HashSet<>();
-
-            for (int i = 0; i < groups.length; i++) {
-                String key = MonitorCacheConfig.cacheGroupsConfigureKey + groups[i] + "_" +
-                        entity.getConfigureId();
-                if (entity.getIsValid() == 1) {
-                    // 缓存组的数据
-                    REDIS_UTIL.set(key, cacheData);
-                    groupSet.add(groups[i]);
-                } else {
-                    REDIS_UTIL.del(key);
-                }
-            }
-            HashSet<String> cacheGroups = GSON.fromJson(REDIS_UTIL.get(MonitorCacheConfig.cacheConfigureGroupsListKey), HashSet.class);
-            groupSet = setHostGroupData(cacheGroups, groupSet, entity, arrayList);
-            REDIS_UTIL.set(MonitorCacheConfig.cacheConfigureGroupsListKey, GSON.toJson(groupSet));
-        }
-
-        if (entity.getHosts() != null) {
-            // 监控的主机
-            String[] hosts = entity.getHosts().split(",");
             // 从redis获取监控的组和host
-            HashSet<String> hostSet = new HashSet<>();
+//            HashSet<String> hostSet = new HashSet<>();
 
             ArrayList<String> arrayList = new ArrayList<>();
-            for (String c : hosts) {
-                if (entity.getIsValid() == 1) {
+            if (entity.getIsValid() == 1) {
+                for (String c : hosts) {
                     arrayList.add(c);
                 }
             }
@@ -215,10 +209,11 @@ public class ConfigureUtil {
                     REDIS_UTIL.del(key);
                 }
             }
-            HashSet<String> cacheHosts = GSON.fromJson(REDIS_UTIL.get(cacheConfigureHostsListKey), HashSet.class);
-            hostSet = setHostGroupData(cacheHosts, hostSet, entity, arrayList);
-            REDIS_UTIL.set(cacheConfigureHostsListKey, GSON.toJson(hostSet));
+//            HashSet<String> cacheHosts = GSON.fromJson(REDIS_UTIL.get(cacheConfigureHostsListKey), HashSet.class);
+//            hostSet = setHostGroupData(cacheHosts, hostSet, entity, arrayList);
+//            REDIS_UTIL.set(cacheConfigureHostsListKey, GSON.toJson(hostSet));
         }
+        return hostSet;
     }
 
     /**
@@ -230,14 +225,24 @@ public class ConfigureUtil {
         SearchMap searchMap = new SearchMap();
         searchMap.put("itemId", itemId);
         String hosts;
+        String gname;
+        String[] ghosts = null;
         List<MonitorConfigureEntity> result = configureService.getDataList(searchMap, "selectItemHosts");
         for (MonitorConfigureEntity entity: result){
             hosts = entity.getHosts();
             if (hosts != null){
-                for (String host: hosts.split(",")){
-                    if (host.length() > 0 && ! hostList.contains(host)) {
-                        hostList.add(host);
-                    }
+                ghosts =  hosts.split(",");
+            }
+            if(CheckUtil.checkString(entity.getGname())){
+                gname = entity.getGname();
+                ghosts = REDIS_UTIL.get(MonitorCacheConfig.cacheGroupsKey.concat(gname)).split(",");
+            }
+            if (ghosts == null){
+                continue;
+            }
+            for (String host: ghosts){
+                if (host.length() > 0 && ! hostList.contains(host)) {
+                    hostList.add(host);
                 }
             }
         }
@@ -293,4 +298,81 @@ public class ConfigureUtil {
         }
         jedis.close();
     }
+
+    /**
+     *
+     * @param hosts
+     * @return
+     */
+   public ArrayList stringToArrayList(String hosts){
+        ArrayList arrayList = new ArrayList();
+        for (String host: hosts.split(",")){
+            arrayList.add(host);
+        }
+        return arrayList;
+    }
+
+    /**
+     * 获取某个组拥有的配置信息
+     * 2017-06-05
+     * @param groupsId
+     * @return
+     */
+    public List<MonitorConfigureEntity>  getConfigure(int groupsId, MonitorConfigureService configureService){
+        SearchMap searchMap = new SearchMap();
+        searchMap.put("gname", groupsId);
+        List<MonitorConfigureEntity> conf = configureService.getDataList(searchMap, "selectByAll");
+        return conf;
+    }
+
+    /**
+     *
+     * @param hosts
+     * @param groupsId
+     */
+    public  void deleteGroupMonitor(String hosts, int groupsId, boolean isDel, MonitorGroupsEntity oldEntity, MonitorConfigureService configureService){
+        // 将删除的host的监控删除掉
+        ArrayList<String > old = stringToArrayList(oldEntity.getHosts());
+        ArrayList<String > newHosts = stringToArrayList(hosts);
+        ArrayList<String> delList = new ArrayList();
+
+        for (String oldHost: old){
+            if (!newHosts.contains(old)){
+                delList.add(oldHost);
+            }
+        }
+
+        if (isDel){
+            for (String oldHost: old){
+                delList.add(oldHost);
+            }
+        }
+
+        // 如果有删除的机器，就删除监控
+        List<MonitorConfigureEntity> conf = getConfigure(groupsId, configureService);
+        for (MonitorConfigureEntity entity: conf){
+            for (String del: delList){
+                HashSet newHash = new HashSet();
+                String configs = REDIS_UTIL.get(MonitorCacheConfig.cacheHostConfigKey.concat(del));
+                if (CheckUtil.checkString(configs)){
+                    HashSet<String> configsSet = GSON.fromJson(configs, HashSet.class);
+                    for (String cs: configsSet){
+                        if (!cs.equals(entity.getConfigureId())){
+                            newHash.add(entity.getConfigureId());
+                        }
+                    }
+                }
+                // 将某个监控项从主机的监控数据删除掉
+                REDIS_UTIL.set(MonitorCacheConfig.cacheHostConfigKey.concat(del), GSON.toJson(newHash));
+            }
+        }
+
+        // 发布删除通知
+        if (isDel) {
+            for (String oldHost: old) {
+                REDIS_UTIL.lpush(MonitorCacheConfig.cacheHostUpdateQueue.concat(oldHost), "configure");
+            }
+        }
+    }
+
 }

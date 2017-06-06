@@ -12,14 +12,13 @@ import org.springframework.stereotype.Component;
 
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import javax.naming.Context;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
+import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
+import java.util.*;
 
 /**
  * 
@@ -61,6 +60,9 @@ public class LdapAuthenticate {
 			return false;
 		}
 	}
+
+
+
 
 
 	/**
