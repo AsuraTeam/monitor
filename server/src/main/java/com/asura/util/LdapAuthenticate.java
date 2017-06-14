@@ -74,6 +74,7 @@ public class LdapAuthenticate {
 	 */
 	@SuppressWarnings("deprecation")
 	public Map ldapSearch(String[] keys, String username) {
+
 		LDAPConnection lc = new LDAPConnection();
 		Map map = new HashMap<>();
 		try {

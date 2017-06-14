@@ -367,6 +367,10 @@
                     parent.layer.msg("操作系统类型必须选择", {icon: 2});
                     return;
                 }
+                if (data["typeId"] == 0) {
+                    parent.layer.msg("服务器类型必须选择", {icon: 2});
+                    return;
+                }
                 if (data["osId"] == 0) {
                     parent.layer.msg("操作系统类型必须选择", {icon: 2});
                     return;

@@ -45,8 +45,6 @@ import java.util.Map;
 @RequestMapping("/resource/inventory/")
 public class InventoryController {
 
-    @Autowired
-    private LdapAuthenticate ldapAuthenticate;
 
     @Autowired
     private CmdbResourceInventoryService service;
@@ -319,10 +317,36 @@ public class InventoryController {
 
 
     /**
-     * 添加页面
      *
+     * @param draw
+     * @param inventoryId
+     * @param testNumber
+     * @param onlineNumber
      * @return
      */
+    @RequestMapping(value = "listDataAll", produces = {"application/json;charset=UTF-8"})
+    @ResponseBody
+    public String listDataAll(int draw, String inventoryId, String testNumber, String onlineNumber) {
+        Gson gson = new Gson();
+        SearchMap searchMap = new SearchMap();
+        PageBounds pageBounds = PageResponse.getPageBounds(100000,1 );
+        PagingResult<CmdbResourceInventoryEntity> result = service.findAll(searchMap, pageBounds, "selectByAll");
+        List list = new ArrayList();
+        Map map1 = gson.fromJson(listData(1, 1, "0", testNumber, onlineNumber), Map.class);
+        list.add(((List) map1.get("data")).get(0));
+        for (CmdbResourceInventoryEntity entity: result.getRows()) {
+            String data = listData(1, 1, entity.getInventoryId()+"", testNumber, onlineNumber);
+            Map map = gson.fromJson(data, Map.class);
+            list.add(((List) map.get("data")).get(0));
+        }
+        return PageResponse.getList(list, draw);
+    }
+
+        /**
+         * 添加页面
+         *
+         * @return
+         */
     @RequestMapping("add")
     public String add(int id, Model model) {
         if (id > 0) {

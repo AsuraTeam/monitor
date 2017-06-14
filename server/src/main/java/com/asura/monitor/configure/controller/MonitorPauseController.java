@@ -101,15 +101,17 @@ public class MonitorPauseController {
             }else {
                 closeTime = ((System.currentTimeMillis() / 1000) - entity.getCreateTime());
             }
-            logger.info("获取到距离关闭时间"+closeTime);
-            logger.info("redis数据为" + gson.toJson(entity));
-            if (closeTime <  Long.valueOf(entity.getPauseTime()) || closeTime > 0) {
-                String sleep = (closeTime - Long.valueOf(entity.getPauseTime()))+"";
-                if (closeTime == 0) {
-                    entity.setCloseTime("未到维护时间");
-                }else {
+            if (closeTime < Long.valueOf(entity.getPauseTime())) {
+                logger.info("获取到距离关闭时间" + closeTime);
+                logger.info("redis数据为" + gson.toJson(entity));
+                if (closeTime < Long.valueOf(entity.getPauseTime()) || closeTime > 0) {
+                    String sleep = (closeTime - Long.valueOf(entity.getPauseTime())) + "";
                     entity.setCloseTime(MonitorUtil.getStopMonitorTime(Long.valueOf(sleep.replace("-", ""))));
+                    newList.add(entity);
                 }
+            }
+            if (closeTime == 0){
+                entity.setCloseTime("未到维护时间");
                 newList.add(entity);
             }
         }
