@@ -70,7 +70,7 @@ EOF
 fi
 
 
-#cd server
+cd server
 #sed -i "s/redis.server=10.10.10.10/redis.server=$redis_server/g" src/main/resources/system.properties 
 #sed -i "s/os.dbm.com/$mysql.server/g" src/main/resources/jdbc.properties
 
