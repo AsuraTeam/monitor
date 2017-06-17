@@ -315,6 +315,7 @@ function get_max_min_avg_last_value(data,opts, name){
                    data.push(d) 
                    return data;
                 }
+console.log(datas)
                 return datas;
             }
 
@@ -554,6 +555,11 @@ if(opts["color"]) {
 }else{
     colors =  ['#fAB839','#E26742', '#A5F78F', '#83CEDA','#ff0066', '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee', '#2b908f', '#90ee7e'];
 }
+                Echarts.setOptions({
+                    global: {
+                        useUTC: false
+                    }
+                });
 var gaugeOptions1 = {
     chart: {
         type: 'area',
@@ -571,29 +577,32 @@ var gaugeOptions1 = {
                 fontSize: "10px",
             },
     },    
-    yAxis: {
-       title: {
-            text: ""
-       },
-       labels: {
-        enabled: false
-       },
-    },
     legend: {
           enabled:false
     },
     xAxis: {
-         crosshair: true,
-         type: 'datetime',
-         tickPixelInterval: 75,
-         dashstyle : 'Solid',
-         lineColor: '#101010',
-         lineWidth: 0,
-         crosshair: {
-             width: 0.9,
-             color: 'red'
-         }
-     },
+        crosshair: true,
+        type: 'datetime',
+        tickPixelInterval: 75,
+        gridLineWidth: 0.4,
+        gridLineColor: '#e0e0e0',
+        dashstyle : 'Solid',
+        events: {
+            setExtremes: syncExtremes
+        },
+        valueSuffix: opt["units"],
+        labels: {
+            style: {
+                color: '#ffffff'
+            }
+        },
+        lineColor: '#101010',
+        lineWidth: 1,
+        crosshair: {
+            width: 0.9,
+            color: 'red'
+        }
+    },
      yAxis: {
          title: {
              text: ""
@@ -608,7 +617,7 @@ var gaugeOptions1 = {
          tickPixelInterval: 28,
          gridLineColor: '#e0e0e0',
      },
-       plotOptions: {
+     plotOptions: {
            area: {
                states: {
                    hover: {
@@ -622,6 +631,26 @@ var gaugeOptions1 = {
                pointInterval: 10,
            }
        },
+     tooltip: {
+         backgroundColor: '#1F1D1D',
+         // 大开提示同时显示所有
+         shared: (opt["tooltipShared"] == "1" ) ? true: false,
+         crosshairs: true,
+         borderWdith:0,
+         borderColor:"#1f1d1d",
+         style: {
+             color: '#ffffff',
+             fontWeight: 'bold'
+         },
+         valueSuffix: opt["units"],
+         useHTML: true,
+         xDateFormat: '%Y-%m-%d %H:%M%S',
+         headerFormat: '<div class="small-font"><small><b>{point.key}</b></small><table>',
+         pointFormat: '<tr style="height:8px;overflow:hidden" nowrap><td style="height:5px;"><nobr><hr style="background-color: {series.color};margin:0px;width:14px;height:2px;" size="1"/></nobr></td><td>'+
+         '&nbsp;{series.name}: </td>' +
+         '<td style="text-align: right"><span style="margin-left:20px;"><b>{point.y}</b></span></td></tr>',
+         footerFormat: '</table></div>',
+     },
 
 }
 
