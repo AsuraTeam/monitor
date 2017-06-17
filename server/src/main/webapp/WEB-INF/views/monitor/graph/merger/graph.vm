@@ -2,6 +2,7 @@
 <http://play.grafana.org/dashboard/db/graph-styles>
 <script src="/static/js/jquery-3.1.1.min.js"></script>
 <script src="/static/js/plugins/echarts.js"></script>
+<script src="/static/js/plugins/echarts-more.js"></script>
 <script src="/static/js/public.js"></script>
 <link href="/static/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
 
@@ -209,6 +210,14 @@ function get_max_min_avg_last_value(data,opts, name){
                     write_html = '<div class="col-sm-'+_width+' graph"  id="image_'+opts["id"]+'" style="height:'+_height+'"></div>'
                     old_html = $("#image_all_id").html()
                     if (old_html.indexOf('id="image_'+id+'"') == -1 ){
+
+                        if(opts["merger"] == "1" &&  opts["gaugeDataGraph"] == "1"  ){
+                              _height2 = (parseInt(_height.replace(/px;/, "")) /2 )-10 + "px"
+                              _height1 = (parseInt(_height.replace(/px;/, "")) /2 )+10 + "px"
+                              write_html1 = '<div   id="image_'+opts["id"]+'" style="height:'+_height1+'"></div>'
+                              write_html2 = '<div   id="image_'+opts["id"]+"_1"+'" style="height:'+_height2+';margin-top:-10px;"></div>'
+                              write_html = '<div class="col-sm-'+_width+' graph"  style="height: '+_height+'; margin: 0 auto">' + write_html1 + write_html2 + "</div>"
+                        } 
                         $("#image_all_id").append(write_html)
                     }
                 }
@@ -284,17 +293,24 @@ function get_max_min_avg_last_value(data,opts, name){
                     d["fillOpacity"] = 0
                     datas.push(d)
                 }
-                if(opts["imageTp"] == "pie" ) {
+                if(opts["imageTp"] == "pie" || opts["imageTp"] == "gauge"  ) {
                     data = new Array();
                     d = {}
                     d["name"] = opts["title"] 
                     //d["showInLegend"]= true
                     d["data"] = new Array(); 
                     for(piei = 0 ; piei < datas.length; piei ++ ){
+                      try{
                         ddd = {}
                         ddd["y"] = datas[piei]["data"][datas.length-1][1]
                         ddd["name"] = datas[piei]["name"]
                         d["data"].push(ddd)
+                      }catch(e){
+                        ddd = {}
+                        ddd["y"] = 0 
+                        ddd["name"] = datas[piei]["name"]
+                        d["data"].push(ddd)
+                      }
                      }
                    data.push(d) 
                    return data;
@@ -350,6 +366,282 @@ function get_max_min_avg_last_value(data,opts, name){
              }
         })
   }
+
+function speedGraph(opt){
+
+var opts = JSON.stringify(opt)
+var opts = JSON.parse(opts)
+opts["imageTp"] = "area"
+opts["id"] = opts["id"]+ "_1"
+
+
+//graphAll(opts)
+
+opt["merger"] = "1"
+make_image_id(opt);
+//opt["ipTitle"] =""
+
+size = "110%"
+if (opts["gaugeDataGraph"] != "1"){
+ size = "100%"
+}
+
+var title = ""
+if (opts["gaugeDataGraph"] != "1"){
+   title = (opt["ipTitle"] ? opt["ip"] + " " : " " ) + opt["title"]
+}
+
+var gaugeThickness= "5"
+if(opt["gaugeThickness"]){
+  gaugeThickness = opt["gaugeThickness"]
+}
+
+var gaugeFontSize = ""
+var gaugeFontSizeShow = false;
+if(opt["gaugeFontSize"]){
+  gaugeFontSize = opt["gaugeFontSize"]
+  gaugeFontSizeShow = true;
+}
+
+var gaugeOptions = {
+
+    chart: {
+        type: 'gauge',
+        plotBackgroundImage: null,
+        backgroundColor: '#1F1D1D',
+        plotBorderWidth: 0,
+         marginBottom: 0,
+        plotShadow: false
+    },
+
+    title: {
+        text: title,
+        style:{
+            color: '#ffffff',
+            fontSize: "14px",
+        },
+    },
+    pane: {
+        size: size, // 图像大小
+        startAngle: -100, // 控制半圆的起点
+        endAngle: 100, // 控制半圆的终点
+        borderWidth: 30,
+        background: [{
+            backgroundColor: {
+                linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+                stops: [
+                    [0, '#FFF'],
+                    [1, '#FFF']
+                ]
+            },
+            outerRadius: '0%'
+        }, 
+        ]
+    },
+
+
+    // the value axis
+    yAxis: {
+        min: 0,
+        max: parseInt(opt["gaugeMax"]),
+
+        minorTickInterval: 'auto',
+        minorTickWidth: 1,
+        minorTickLength: (opt["gaugeTickLength"]) ? parseInt(opt["gaugeTickLength"]) : 10, // 指针边框
+        minorTickPosition: 'inside',
+        minorTickColor: '#FFF',
+
+
+        tickPixelInterval: parseInt(opt["gaugeMax"]) / 4, //  数值间隔
+        tickWidth: 1,
+        tickPosition: 'inside',
+        tickLength: 0, // 指针
+        tickColor: '#FFF',
+
+        labels: {
+            step: 2, 
+            rotation: 'auto'
+        },
+     // title: {
+     //     text: 'km/h'
+     // },
+      plotBands: [{
+            from: 0,
+            thickness: gaugeThickness + '%',
+            to: parseInt(opt["gaugeOk"]),
+            color: opt["gaugeOkColor"] // green
+        }, {
+            from: parseInt(opt["gaugeOk"]) ,
+            to: parseInt(opt["gaugeWarning"]) ,
+            thickness: gaugeThickness + '%',
+            color: opt["gaugeWarningColor"] //waring 
+        }, {
+            from: parseInt(opt["gaugeWarning"]) ,
+            to: parseInt(opt["gaugeMax"]),
+            thickness: gaugeThickness + '%',
+            color: opt["gaugeDangerColor"] //waring 
+        }]
+    },
+    xAxis: {
+        crosshair: true,
+        crosshair: {
+            width: 0.9,
+            color: 'red'
+        }
+    },
+    tooltip: {
+        enabled: false,
+    },
+    plotOptions: {
+        series: {
+            dataLabels: {
+                enabled: gaugeFontSizeShow,
+                borderRadius: 0,
+                backgroundColor: '#1F1D1D',
+                borderWidth: 0,
+                borderColor: '#f7a54a',
+                shadow:false,
+                format: '{y} '+opt["units"],
+                style:{
+                    textOutline: '0px contrast',
+                    fontSize: opt["gaugeFontSize"] + 'px', 
+                    color: (opt["gaugeFontColor"]) ? opt["gaugeFontColor"] : '#1F1D1D',
+                    borderColor: (opt["gaugeFontColor"]) ? opt["gaugeFontColor"] : '#1F1D1D',
+                    fontWeight: "bold",
+                    backgroundColor: '#1F1D1D'
+                },
+            }
+        },
+        gauge : {
+	   dataLabels : {
+                     baseLength:'0%' ,
+                     rearLength:'0%',  
+                     enabled :false 
+		},
+		dial : {
+	          backgroundColor: '#FFFFFF',
+	          // 半径：指针长度
+	          radius : '100%',
+            	},
+             pivot: {
+                enabled : false,
+                radius: 0,
+                borderWidth: 5,
+                borderColor: '#f7a54a',
+	        backgroundColor: '#f7a54a',
+            },
+          }
+    },
+
+}
+
+series = getDatas(opt)
+Echarts.chart('image_' + opt["id"], Echarts.merge(gaugeOptions, {
+
+    series: series 
+  //series: [{
+  //    name: 'Speed',
+  //    data: [80],
+  //    tooltip: {
+  //        valueSuffix: ' km/h'
+  //    }
+  //}]
+
+}));
+
+if(opts["color"]) {
+    colors = opts["color"].split(",")
+}else{
+    colors =  ['#fAB839','#E26742', '#A5F78F', '#83CEDA','#ff0066', '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee', '#2b908f', '#90ee7e'];
+}
+var gaugeOptions1 = {
+    chart: {
+        type: 'area',
+        backgroundColor: '#1F1D1D',
+        plotBorderWidth: 0,
+        plotShadow: false
+    },
+
+    colors: colors,
+    title: {
+            text: opt["title"] +"  "+ series[0]["data"][0]["y"] +" "+ opt["units"],
+            floating:true,
+            style:{
+                color: '#ffffff',
+                fontSize: "10px",
+            },
+    },    
+    yAxis: {
+       title: {
+            text: ""
+       },
+       labels: {
+        enabled: false
+       },
+    },
+    legend: {
+          enabled:false
+    },
+    xAxis: {
+         crosshair: true,
+         type: 'datetime',
+         tickPixelInterval: 75,
+         dashstyle : 'Solid',
+         lineColor: '#101010',
+         lineWidth: 0,
+         crosshair: {
+             width: 0.9,
+             color: 'red'
+         }
+     },
+     yAxis: {
+         title: {
+             text: ""
+         },
+         labels: {
+             style: {
+                 color: '#a0a0a0'
+             },
+             format: "{value} " + opt["units"],
+         },
+         gridLineWidth: 0.1,
+         tickPixelInterval: 28,
+         gridLineColor: '#e0e0e0',
+     },
+       plotOptions: {
+           area: {
+               states: {
+                   hover: {
+                       lineWidth: opt["lineStatesHoverLineWidth"] ? opt["lineStatesHoverLineWidth"]  : 1.1,
+                   }
+               },
+           },
+           series: {
+               lineWidth : 0.2,
+               fillOpacity: 0.15,
+               pointInterval: 10,
+           }
+       },
+
+}
+
+// 显示单图
+if(opts["gaugeDataGraph"] != "1"){
+  return
+}
+
+// The RPM gauge
+var chartRpm = Echarts.chart('image_'+opts["id"] , Echarts.merge(gaugeOptions1, {
+    yAxis: {
+        min: 0,
+        title: {
+            text: ''
+        }
+    },
+    series: getDatas(opts)
+}));
+
+}
 
   function graphAll(opt) {
                 opt["color"] =  opt["color"]
@@ -643,6 +935,9 @@ function get_max_min_avg_last_value(data,opts, name){
                     }
                     if(opt["imageTp"] == "text" ){
                           noDataGraph(opt)
+                    }
+                    if(opt["imageTp"] == "gauge" ){
+                          speedGraph(opt)
                     }
                 }
             }

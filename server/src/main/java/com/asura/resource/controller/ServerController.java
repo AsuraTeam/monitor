@@ -143,13 +143,14 @@ public class ServerController {
      * @return
      */
     @RequestMapping("list")
-    public String list(Model model, String groupsName, String typeName, String time, String isOff, String inventoryId, String t) {
+    public String list(Model model, String groupsName, String typeName, String time, String isOff, String inventoryId, String t, String domain) {
         model.addAttribute("groupsName", groupsName);
         model.addAttribute("typeName", typeName);
         model.addAttribute("time", time);
         model.addAttribute("isOff", isOff);
         model.addAttribute("inventoryId", inventoryId);
         model.addAttribute("t", t);
+        model.addAttribute("domain", domain);
         model = CommentController.getGroups(model, groupsService);
         model.addAttribute("username", userService.findAll(searchMapNull, PageResponse.getPageBounds(1000, 1)).getRows());
         model.addAttribute("entname", entnameService.findAll(searchMapNull, PageResponse.getPageBounds(1000, 1)).getRows());
@@ -162,6 +163,41 @@ public class ServerController {
     @RequestMapping("noRecord")
     public String noRecord() {
         return "/resource/configure/server/noRecord";
+    }
+
+
+
+    /**
+     * 域名信息统计
+     */
+    @RequestMapping("domain")
+    public String domain(Model model) {
+        getData(model);
+        return "/resource/configure/server/domain";
+    }
+
+    /**
+     * 列表数据
+     *
+     * @return
+     */
+    @RequestMapping(value = "selectServerDomain", produces = {"application/json;charset=UTF-8"})
+    @ResponseBody
+    public String selectServerDomain(int draw, int start, int length, String  entName, String groupsName, HttpServletRequest request) {
+        SearchMap searchMap = new SearchMap();
+        if (CheckUtil.checkString(entName)){
+            searchMap.put("entName", entName);
+        }
+        if (CheckUtil.checkString(groupsName)){
+            searchMap.put("groupsName", groupsName);
+        }
+        String search = request.getParameter("search[value]");
+        if (search != null && search.length() > 2) {
+            searchMap.put("search", search);
+        }
+        PageBounds pageBounds = PageResponse.getPageBounds(length, start);
+        PagingResult<CmdbResourceServerEntity> result = service.findAll(searchMap, pageBounds, "selectServerDomain");
+        return PageResponse.getMap(result, draw);
     }
 
     /**
@@ -228,7 +264,8 @@ public class ServerController {
                            String typeName, String userName,
                            String time, String isOff, String hosts,
                            String inventoryId, String t,
-                           String ipAddress
+                           String ipAddress,
+                           String domain
     ) {
         PageBounds pageBounds;
         if (hostIp == null) {
@@ -272,7 +309,9 @@ public class ServerController {
         }
         if (hostIp != null && hostIp.length() > 2) {
             searchMap.put("hostIp", hostIp);
-
+        }
+        if (CheckUtil.checkString(domain)){
+            searchMap.put("domain", domain);
         }
         if (CheckUtil.checkString(typeName)) {
             searchMap.put("typeName", typeName);

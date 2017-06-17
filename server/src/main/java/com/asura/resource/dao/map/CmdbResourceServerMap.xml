@@ -102,6 +102,10 @@
             and a.cabinet_id=#{cabinetId}
         </if>
 
+        <!-- 获取域名相关 -->
+        <if test="domain != null">
+            and a.domain_name=#{domain}
+        </if>
 
         <!-- 获取时间 -->
         <if test="time !=null">
@@ -890,6 +894,26 @@
     <if test="serverId != null">
         and a.server_id=#{serverId}
     </if>
+    </select>
+
+    <!-- 获取域名信息 -->
+    <select id="selectServerDomain" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
+       select distinct domain_name as domainName,description,c.ent_name as entName,
+        b.groups_name as  groupsName from cmdb_resource_server a,
+        cmdb_resource_groups b , cmdb_resource_entname c where
+         domain_name is not null
+         and domain_name != "" and
+        domain_name like '%.%.%' and
+        a.groups_id=b.groups_id and a.ent_id=c.ent_id
+        <if test="entName != null">
+            and c.ent_name=#{entName}
+        </if>
+        <if test="groupsName != null">
+            and b.groups_name=#{groupsName}
+        </if>
+        <if test="key != null">
+            and domain_name like concat("%", #{key},"%")
+        </if>
     </select>
 </mapper>
 

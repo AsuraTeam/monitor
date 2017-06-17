@@ -105,10 +105,208 @@
                                         <option value="bar">bar</option>
                                         <option value="pie">pie</option>
                                         <option value="text">text</option>
+                                        <option value="gauge">gauge</option>
                                     </select>
                                 </div>
                             </div>
                         </div>
+
+
+                       <div class="col-md-12" title="选择后,在文字下面会有图像" style="display:none" id="show_gauge_set">
+                                <div class="col-md-12 top-10"></div>
+				<div class="col-md-6">
+				    <div class="form-group">
+					<label class="col-sm-4 control-label">最大值:</label>
+					<div class="col-sm-8">
+					    <input type="text" name="gaugeMax" placeholder="100" class="form-control" id="gaugeMax"
+						   value="#if($!{imagesGson.get("gaugeMax")})$!{imagesGson.get("gaugeMax")}#end">
+					</div>
+				    </div>
+				</div>
+
+
+				<div class="col-md-6">
+				    <div class="form-group">
+					<label class="col-sm-4 control-label">显示数据图:</label>
+					<div class="col-sm-8">
+					    <div class="checkbox checkbox-warning checkbox-inline">
+						<input type="checkbox" name="gaugeDataGraph" id="gaugeDataGraph" #if($!{imagesGson.get("gaugeDataGraph")}) checked #end
+						       onchange="change(this)"
+						       value="#if($!{imagesGson.get("gaugeDataGraph")})$!{imagesGson.get("gaugeDataGraph")}#else 1 #end">
+						<label for="gaugeDataGraph"></label>
+					    </div>
+					</div>
+				    </div>
+                                </div>
+
+                                <div class="col-md-12 top-10"></div>
+				<div class="col-md-6">
+				    <div class="form-group">
+					<label class="col-sm-4 control-label">数据标识长度:</label>
+					<div class="col-sm-8">
+					    <input type="text" name="gaugeTickLength" placeholder="10" class="form-control" id="gaugeTickLength"
+						   value="#if($!{imagesGson.get("gaugeTickLength")})$!{imagesGson.get("gaugeTickLength")}#end">
+					</div>
+				    </div>
+				</div>
+
+				<div class="col-md-6">
+				    <div class="form-group">
+					<label class="col-sm-4 control-label">仪表宽度:</label>
+					<div class="col-sm-8">
+					    <input type="number" name="gaugeThickness" placeholder="10" class="form-control" id="gaugeThickness"
+						   value="#if($!{imagesGson.get("gaugeThickness")})$!{imagesGson.get("gaugeThickness")}#end">
+					</div>
+				    </div>
+				</div>
+                                <div class="col-md-12 top-10"></div>
+
+				<div class="col-md-6">
+				    <div class="form-group">
+					<label class="col-sm-4 control-label">字体大小:</label>
+					<div class="col-sm-8">
+					    <input type="number" name="gaugeFontSize" placeholder="为空则不显示" class="form-control" id="gaugeFontSize"
+						   value="#if($!{imagesGson.get("gaugeFontSize")})$!{imagesGson.get("gaugeFontSize")}#end">
+					</div>
+				    </div>
+				</div>
+
+                            <div class="col-md-6" title="只支持16进制">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">字体颜色:</label>
+                                    <div class="col-sm-8">
+                                    <input type="text" id="gaugeFontColor" name="gaugeFontColor" onchange="change_color($(this).val(), 'base_line', 7)" class="form-control"  style="width:50%;float:left;background-color:$!{imagesGson.get("gaugeFontColor")}" value="$!{imagesGson.get("gaugeFontColor")}">
+                 <div id="pickerbasecolorfont" style="float:left;"></div>
+                 <script>
+                   $("#gaugeFontColor").click(function(){
+                      v= $("#gaugeFontColor").val()
+                      if(!v){
+                          $("#gaugeFontColor").val("#ff4776")
+                      }
+                      $('#pickerbasecolorfont').farbtastic('#gaugeFontColor');
+                      $("#pickerbasecolorfont").show(); 
+                      setTimeout(function(){
+                         $("#pickerbasecolorfont").hide(); 
+                      }, 4000)
+                   })
+                 </script>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+
+                                <div class="col-md-12 top-10"></div>
+
+
+                            <div class="col-md-6" title="只支持16进制">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">正常颜色:</label>
+                                    <div class="col-sm-8">
+                                    <input type="text" id="gaugeOkColor" name="gaugeOkColor" onchange="change_color($(this).val(), 'base_line', 7)" class="form-control"  style="width:50%;float:left;background-color:$!{imagesGson.get("gaugeOkColor")}" value="$!{imagesGson.get("gaugeOkColor")}">
+                 <div id="pickerbasecolor1" style="float:left;"></div>
+                 <script>
+                   $("#gaugeOkColor").click(function(){
+                      v= $("#gaugeOkColor").val()
+                      if(!v){
+                          $("#gaugeOkColor").val("#ff4776")
+                      }
+                      $('#pickerbasecolor1').farbtastic('#gaugeOkColor');
+                      $("#pickerbasecolor1").show(); 
+                      setTimeout(function(){
+                         $("#pickerbasecolor1").hide(); 
+                      }, 5000)
+                   })
+                 </script>
+                                    </div>
+                                </div>
+                            </div>
+
+				<div class="col-md-6">
+				    <div class="form-group">
+					<label class="col-sm-4 control-label">正常值:</label>
+					<div class="col-sm-8">
+					    <input type="number" name="gaugeOk" placeholder="10" class="form-control" id="gaugeOk"
+						   value="#if($!{imagesGson.get("gaugeOk")})$!{imagesGson.get("gaugeOk")}#end">
+					</div>
+				    </div>
+				</div>
+
+                        <div class="col-md-12 top-10"></div>
+
+                            <div class="col-md-6" title="只支持16进制">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">警告颜色:</label>
+                                    <div class="col-sm-8">
+                                    <input type="text" id="gaugeWarningColor" name="gaugeWarningColor" onchange="change_color($(this).val(), 'base_line', 7)" class="form-control"  style="width:50%;float:left;background-color:$!{imagesGson.get("gaugeWarningColor")}" value="$!{imagesGson.get("gaugeWarningColor")}">
+                 <div id="pickerbasecolor2" style="float:left;"></div>
+                 <script>
+                   $("#gaugeWarningColor").click(function(){
+                      v= $("#gaugeWarningColor").val()
+                      if(!v){
+                          $("#gaugeWarningColor").val("#ff4776")
+                      }
+                      $('#pickerbasecolor2').farbtastic('#gaugeWarningColor');
+                      $("#pickerbasecolor2").show(); 
+                      setTimeout(function(){
+                         $("#pickerbasecolor2").hide(); 
+                      }, 5000)
+                   })
+                 </script>
+                                    </div>
+                                </div>
+                            </div>
+
+
+				<div class="col-md-6">
+				    <div class="form-group">
+					<label class="col-sm-4 control-label">警告值:</label>
+					<div class="col-sm-8">
+					    <input type="number" name="gaugeWarning" placeholder="10" class="form-control" id="gaugeWarning"
+						   value="#if($!{imagesGson.get("gaugeWarning")})$!{imagesGson.get("gaugeWarning")}#end">
+					</div>
+				    </div>
+				</div>
+
+
+                        <div class="col-md-12 top-10"></div>
+
+                            <div class="col-md-6" title="只支持16进制">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">危险颜色:</label>
+                                    <div class="col-sm-8">
+                                    <input type="text" id="gaugeDangerColor" name="gaugeDangerColor" onchange="change_color($(this).val(), 'base_line', 7)" class="form-control"  style="width:50%;float:left;background-color:$!{imagesGson.get("gaugeDangerColor")}" value="$!{imagesGson.get("gaugeDangerColor")}">
+                 <div id="pickerbasecolor3" style="float:left;"></div>
+                 <script>
+                   $("#gaugeDangerColor").click(function(){
+                      v= $("#gaugeDangerColor").val()
+                      if(!v){
+                          $("#gaugeDangerColor").val("#ff4776")
+                      }
+                      $('#pickerbasecolor3').farbtastic('#gaugeDangerColor');
+                      $("#pickerbasecolor3").show(); 
+                      setTimeout(function(){
+                         $("#pickerbasecolor3").hide(); 
+                      }, 5000)
+                   })
+                 </script>
+                                    </div>
+                                </div>
+                            </div>
+
+				<div class="col-md-6">
+				    <div class="form-group">
+					<label class="col-sm-4 control-label">危险值:</label>
+					<div class="col-sm-8">
+					    <input type="number" name="gaugeDanger" placeholder="10" class="form-control" id="gaugeDanger"
+						   value="#if($!{imagesGson.get("gaugeDanger")})$!{imagesGson.get("gaugeDanger")}#end">
+					</div>
+				    </div>
+				</div>
+
+
+
                         <div class="col-md-6" title="选择后,在文字下面会有图像" style="display:none" id="show_text_graph">
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">显示图像:</label>
@@ -530,7 +728,9 @@
             $("#lengendShow").prop("checked", true);
             $("#show_legend_id").show()
         }
-console.log("$!{imagesGson.get("valueLegend")}")
+        if("$!{imagesGson.get("imageTp")}" == "gauge"){
+           $("#show_gauge_set").show()
+        }
         if("$!{imagesGson.get("valueLegend")}" == "1") {
            $("#valueLegend").prop("checked", true);
            $("#valueLegend").val(1);
@@ -545,6 +745,10 @@ console.log("$!{imagesGson.get("valueLegend")}")
            $("#textGraphShow").val(1);
            $("#show_text_graph").show();
         }
+        if("$!{imagesGson.get("gaugeDataGraph")}"){
+           $("#gaugeDataGraph").val(1);
+        }
+
         i = 1
         new_html = $("#data_source_add_html").val()
             #foreach($name in $names)
@@ -664,6 +868,26 @@ console.log("$!{imagesGson.get("valueLegend")}")
     }
 
     function changeImageTp(value){
+         if(value=="gauge"){
+              $("#show_gauge_set").show()
+              $("#gaugeMax").val(100)
+              $("#gaugeThickness").val(10)
+              $("#gaugeOkColor").val("#55BF3B")
+              $("#gaugeOkColor").css("background-color", "#55BF3B")
+              $("#gaugeWarningColor").val("#DDDF0D")
+              $("#gaugeWarningColor").css("background-color","#DDDF0D")
+
+              $("#gaugeOk").val(70)
+              $("#gaugeDanger").val(80)
+              $("#gaugeWarning").val(90)
+
+              $("#gaugeDangerColor").val("#DF5353")
+              $("#gaugeDangerColor").css("background-color", "#DF5353")
+              $("#gaugeTickLength").val(10)
+              $("#gaugeDataGraph").prop("checked",true)
+              return
+         }
+         $("#show_gauge_set").hide()
          if(value=="text"){
              $(".delete-css-hide").hide()
              $("#display_legend_id").hide()

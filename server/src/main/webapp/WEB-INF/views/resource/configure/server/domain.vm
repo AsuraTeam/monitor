@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>域名信息</title>
+<body class="gray-bg top-navigation">
+    #include("/index/include.vm")
+
+<div id="">
+    <div id="page-wrapper" class="gray-bg">
+        #include("/index/header.vm")
+        <body>
+        <div class=" animated fadeInRight">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <div style="float:left;">
+                                <div style="float:left;width: 120px;margin-left: 5px;margin-top: -10px;">
+                                    <select onchange="loadData('',$(this).val())" class="form-control" id="entId">
+                                        <option value="">#if($status)$status#else 环境选择 #end</option>                                        <option value="0">--</option>
+                                        #foreach( $conf in $entname )
+                                            <option
+                                                    value='$!{conf.entName}'>
+                                                $!{conf.entName}
+                                            </option>
+                                        #end
+                                    </select>
+                                </div>
+                                <div style="float:left;width: 200px;margin-left: 5px;margin-top: -10px;">
+                                    <select onchange="loadData($(this).val())"  id="groupsId"
+                                            class="form-control">
+                                        <option value="">#if($status)$status#else 业务线请选择 #end</option>
+                                        #foreach( $conf in $groups )
+                                            <option
+                                                    value='$!{conf.groupsName}'>
+                                                $!{conf.groupsName}
+                                            </option>
+                                        #end
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="ibox-content" style="overflow:scroll;margin-top: -10px;">
+                            <table id="listTable"
+                                   class="table table-striped table-bordered table-hover dataTables-example">
+                                <thead>
+                                <tr nowrap="nowrap" role="rows">
+                                    <th>环境名称</th>
+                                    <th onclick="loadData()">所属业务线</th>
+                                    <th>域名</th>
+                                    <th>描述信息</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function load_page(domain){
+               url = "/resource/configure/server/list?domain="+domain
+               window.open(url)
+            }
+
+            function loadData(groupsName, entName) {
+                if (!groupsName) {
+                    groupsName = '$!{groupsName}';
+                }
+                if (!entName) {
+                    entName = ""
+                }
+                if(!groupsName){
+                    groupsName = $('#groupsId').val()
+                }
+
+                if (!entName) {
+                    entName = ""
+                }
+                if (!groupsName) {
+                    groupsName = '$!{groupsName}';
+                }
+                $("#listTable").dataTable({
+                    "filter": true,//去掉搜索框
+                    "ordering": false, // 是否允许排序
+                    "paginationType": "full_numbers", // 页码类型
+                    "destroy": true,
+                    "processing": true,
+                    "serverSide": true,
+                    "scrollX": true, // 是否允许左右滑动
+                    "displayLength": 10, // 默认长度
+                    "ajax": { // 请求地址
+                        "url": "/resource/configure/server/selectServerDomain?t1=" + new Date().getTime() + "&groupsName=" + groupsName + "&entName=" + entName,
+                        "type": 'post'
+                    },
+
+                    "columns": [ // 数据映射
+                        {
+                            "data": "entName", "mRender": function (data, type, full) {
+                               return data;
+                          }
+                        },
+                        {
+                         "data": "groupsName", "mRender": function (data, type, full) {
+                            return '<span onclick="loadData(\'' + data + '\')">' + data + "</span>"
+                         }
+                        },
+                        {"data": "domainName",  "mRender": function (data, type, full) {
+                            return '<span onclick="load_page(\'' + data + '\')">' + data + "</span>"
+                        }},
+                        {"data": "description", "mRender": function (data, type, full) {
+                            if(data && data.length > 30){
+                                return "<span title='"+data+"'>" + data.substring(1, 30) +"</span>";
+                            }
+                            return data;
+                        }
+                        },
+                    ],
+                    "fnRowCallback": function (row, data) { // 每行创建完毕的回调
+                        $(row).data('recordId', data.recordId);
+                    }
+                });
+            }
+
+            loadData("","生产环境");
+
+        </script>
+        </body>
+</html>
