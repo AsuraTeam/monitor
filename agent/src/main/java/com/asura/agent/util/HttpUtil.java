@@ -12,6 +12,8 @@ import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.List;
+import java.util.Map;
 
 public class HttpUtil {
 
@@ -111,5 +113,48 @@ public class HttpUtil {
         } catch (IOException e) {
             logger.error(e.toString());
         }
+    }
+
+    /**
+     *
+     * @param url
+     * @return
+     */
+    public static String sendGet(String url) {
+        logger.info("url" + url);
+        String result = "";
+        BufferedReader in = null;
+        try {
+            String urlNameString = url ;
+            URL realUrl = new URL(urlNameString);
+            // 打开和URL之间的连接
+            URLConnection connection = realUrl.openConnection();
+            // 设置通用的请求属性
+            connection.setRequestProperty("accept", "*/*");
+            connection.setRequestProperty("connection", "Keep-Alive");
+            connection.connect();
+            // 定义 BufferedReader输入流来读取URL的响应
+            in = new BufferedReader(new InputStreamReader(
+                    connection.getInputStream()));
+            String line;
+            while ((line = in.readLine()) != null) {
+                result += line;
+            }
+        } catch (Exception e) {
+            System.out.println("发送GET请求出现异常！" + e);
+            e.printStackTrace();
+        }
+        // 使用finally块来关闭输入流
+        finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (Exception e2) {
+                e2.printStackTrace();
+            }
+        }
+        logger.info("获取到get数据"+ result);
+        return result;
     }
 }

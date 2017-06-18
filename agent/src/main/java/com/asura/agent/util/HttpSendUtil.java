@@ -1,6 +1,7 @@
 package com.asura.agent.util;
 
 import com.asura.agent.conf.MonitorCacheConfig;
+import com.asura.agent.controller.MonitorController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,13 +40,15 @@ public class HttpSendUtil {
         String ip = address.toString().replace("/","");
         String port = redisUtil.get(MonitorCacheConfig.getCachePushServerPort.concat(ip).trim());
         server = address;
-        servers.append("http://")
-                .append(ip)
-                .append(":")
-                .append(port)
-                .append("/");
-        url = servers.toString();
-        logger.info(url);
+        if (MonitorController.checkSecurityServer(ip)) {
+            servers.append("http://")
+                    .append(ip)
+                    .append(":")
+                    .append(port)
+                    .append("/");
+            url = servers.toString();
+            logger.info(url);
+        }
     }
 
     /**

@@ -190,6 +190,20 @@
 登录后请修改密码<br>
 如果需要ldap登录，需要修改配置文件进行配置ldap服务信息<br>
 </br>
+安全设置<br>
+redis添加密码:<br>
+修改server redis.properties 和 agent agent.conf<br>
+添加 redis.password="redis密码"<br>
+
+<h5><安全服务器设置</h5><br>
+针对授信任的server<br>
+agent只接受该服务器的数据和发送数据到该服务器<br>
+请到 tomcat_8081/webapps/ROOT/static/agent/agent.jar.servers 添加服务器地址,多个用换行分隔<br>
+比如<br>
+vim tomcat_8081/webapps/ROOT/static/agent/agent.jar.servers<br>
+10.16.25.111<br> 
+10.16.25.222<br>
+添加后,所有agent只接受这些服务器的数据和上报数据到这些服务器<br>
  
  
 <br>
