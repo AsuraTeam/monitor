@@ -21,6 +21,9 @@
         <if test="groupsName != null">
             and groups_name=#{groupsName}
         </if>
+        <if test="groupsId != null">
+            and groups_id=#{groupsId}
+        </if>
         ORDER by groups_id desc
         </select>
 

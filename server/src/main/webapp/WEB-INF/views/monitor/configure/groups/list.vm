@@ -151,6 +151,7 @@
             parent.layer.msg("组名称必须选择",  {icon:2})
         }
         to = $('#undo_redo_to').html();
+        to = to.replace(/<\/option>/g, "</option>\n")
         to_hosts = to.match(/>.*</g)
         to = to.match(/"(\d+)"/g);
 

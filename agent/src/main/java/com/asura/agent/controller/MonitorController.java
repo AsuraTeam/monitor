@@ -1486,17 +1486,18 @@ public class MonitorController {
      */
     void setMonitorGroups() {
         String result;
-        HashSet<Double> groups;
+        HashSet<String> groups;
         String id = HOST_IDS;
         result = redisUtil.get(MonitorCacheConfig.cacheHostGroupsKey + id);
 
         info(isDebug ? "get groups data " + result : null);
         if (result != null && result.length() > 0) {
-            groups = gson.fromJson(result, HashSet.class);
-//            HOST_GROUPS.put(id, groups);
+            Type type = new TypeToken<HashSet<String>>() {
+            }.getType();
+            groups = gson.fromJson(result, type);
             try {
-                for (Double g : groups) {
-                    GROUPS_IDS.add(new Double(g).intValue() + "");
+                for (String g : groups) {
+                    GROUPS_IDS.add(g);
                 }
             } catch (Exception e) {
                 logger.error("groups id error", e);
@@ -1521,7 +1522,9 @@ public class MonitorController {
             String result = redisUtil.get(key + id);
             info(isDebug ? "setHostGroupsConfigs" + result : null);
             if (result != null && result.length() > 0) {
-                HashSet<String> configs = gson.fromJson(result, HashSet.class);
+                Type type = new TypeToken<HashSet<String>>() {
+                }.getType();
+                HashSet<String> configs = gson.fromJson(result, type);
                 if (configs != null) {
                     for (String c : configs) {
                         hostConfigs.add(c);

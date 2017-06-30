@@ -2,6 +2,7 @@ package com.asura.monitor.configure.util;
 
 import com.asura.framework.base.paging.SearchMap;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.sun.org.apache.regexp.internal.RE;
 import com.asura.monitor.configure.conf.MonitorCacheConfig;
 import com.asura.monitor.configure.controller.CacheController;
@@ -11,6 +12,7 @@ import com.asura.monitor.configure.entity.MonitorItemEntity;
 import com.asura.monitor.configure.service.MonitorConfigureService;
 import com.asura.monitor.configure.service.MonitorGroupsService;
 import com.asura.monitor.configure.service.MonitorItemService;
+import com.asura.monitor.graph.entity.PushEntity;
 import com.asura.util.CheckUtil;
 import com.asura.util.HttpUtil;
 import com.asura.util.RedisUtil;
@@ -21,6 +23,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Controller;
 import redis.clients.jedis.Jedis;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -307,7 +310,7 @@ public class ConfigureUtil {
    public ArrayList stringToArrayList(String hosts){
         ArrayList arrayList = new ArrayList();
         for (String host: hosts.split(",")){
-            arrayList.add(host);
+            arrayList.add(host.trim());
         }
         return arrayList;
     }
@@ -336,13 +339,17 @@ public class ConfigureUtil {
         ArrayList<String > newHosts = stringToArrayList(hosts);
         ArrayList<String> delList = new ArrayList();
 
+        logger.info("获取到最新数"+ GSON.toJson(newHosts));
+        logger.info("获取到oldhosts "+ GSON.toJson(old));
         for (String oldHost: old){
-            if (!newHosts.contains(old)){
-                delList.add(oldHost);
+            if (!newHosts.contains(oldHost.trim())){
+                delList.add(oldHost.trim());
+                logger.info("获取到要删除的主机" + oldHost);
             }
         }
 
         if (isDel){
+            logger.info("删除监控组"+ GSON.toJson(old));
             for (String oldHost: old){
                 delList.add(oldHost);
             }
@@ -352,10 +359,14 @@ public class ConfigureUtil {
         List<MonitorConfigureEntity> conf = getConfigure(groupsId, configureService);
         for (MonitorConfigureEntity entity: conf){
             for (String del: delList){
+                logger.info("删除监控配置" + del);
                 HashSet newHash = new HashSet();
                 String configs = REDIS_UTIL.get(MonitorCacheConfig.cacheHostConfigKey.concat(del));
                 if (CheckUtil.checkString(configs)){
-                    HashSet<String> configsSet = GSON.fromJson(configs, HashSet.class);
+                    Type type = new TypeToken<HashSet<String>>() {
+                    }.getType();
+                    HashSet<String> configsSet = GSON.fromJson(configs, type);
+                    logger.info("删除监控configsSet"+ GSON.toJson(configsSet));
                     for (String cs: configsSet){
                         if (!cs.equals(entity.getConfigureId())){
                             newHash.add(entity.getConfigureId());

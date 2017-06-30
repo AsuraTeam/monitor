@@ -9,11 +9,14 @@ import com.asura.monitor.configure.service.MonitorScriptsService;
 import com.asura.monitor.graph.util.FileRender;
 import com.asura.monitor.graph.util.FileWriter;
 import com.asura.monitor.socket.server.UDPServer;
+import com.asura.resource.entity.CmdbResourceServerEntity;
 import com.asura.resource.service.CmdbResourceGroupsService;
 import com.asura.resource.service.CmdbResourceServerService;
 import com.asura.util.CheckUtil;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.ArrayList;
 
 /**
  * <p></p>
@@ -84,14 +87,14 @@ public class PushServerQuartz {
     }
 
     void makeCache(){
-        cacheController.makeAllHostKey(configureService);
-        cacheController.setItemCache(itemService);
+        cacheController.makeAllHostKey(configureService, null);
+        cacheController.setItemCache(itemService, null);
         cacheController.setMessagesCache(channelService);
-        cacheController.setServerCache(service);
+        cacheController.setServerCache(service, null);
         cacheController.setServerInfoCache(service, null, null);
-        cacheController.setScriptCache(scriptsService);
+        cacheController.setScriptCache(scriptsService, null);
         cacheController.cacheGroups(resourceGroupsService, service);
-        cacheController.setContactGroupCache(contactGroupService);
+        cacheController.setContactGroupCache(contactGroupService, null);
     }
 
     /**

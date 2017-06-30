@@ -34,6 +34,7 @@
          <include refid="baseSql" />
         where 1=1
         <include refid="graphId" />
+        order by graph_id desc
      </select>
 
     <select id="findById" resultType="com.asura.monitor.graph.entity.MonitorGraphMergerEntity">

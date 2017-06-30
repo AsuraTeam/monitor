@@ -570,7 +570,7 @@ var gaugeOptions1 = {
 
     colors: colors,
     title: {
-            text: opt["title"] +"  "+ series[0]["data"][0]["y"] +" "+ opt["units"],
+            text: (opt["ipTitle"] ? opt["ip"] + " " : " " )  + opt["title"] +"  "+ series[0]["data"][0]["y"] +" "+ opt["units"],
             floating:true,
             style:{
                 color: '#ffffff',

@@ -166,6 +166,7 @@
             or b.groups_name like concat('%',#{search},'%')
             or a.manager_ip like concat('%',#{search},'%')
             or a.asset_coding like concat('%',#{search},'%')
+            or a.description like concat('%',#{search},'%')
             )
 
         </if>

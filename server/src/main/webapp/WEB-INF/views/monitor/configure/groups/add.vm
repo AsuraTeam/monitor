@@ -167,12 +167,13 @@
 
     function search(ip) {
         temp = ""
-         data =  $('#ip_address').val().split("\n")
-         for(i=0;i<data.length;i++){
+        data =  $('#ip_address').val().split("\n")
+        for(i=0;i<data.length;i++){
              if(data[i].indexOf(ip) != -1){
-                 temp += data[i]
+                 temp += data[i]+"\n"
              }
-         }
+        }
+console.log(temp)
         $('#undo_redo').html(temp)
     }
 

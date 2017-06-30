@@ -29,8 +29,8 @@ public class MakeCacheThread extends Thread {
 
     @Override
     public void run() {
-        cacheController.setConfigureCache();
-        cacheController.makeAllHostKey(null);
+        cacheController.setConfigureCache(null);
+        cacheController.makeAllHostKey(null, null);
         SaveController saveController = new SaveController();
         for (String hostId : hosts){
             saveController.initMonitor(hostId);

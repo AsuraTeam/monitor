@@ -147,7 +147,8 @@ public class SaveController {
         entity.setLastModifyTime(DateUtil.getTimeStamp());
         if (entity.getGroupsId() != null) {
             LOGGER.info("获取到更新数据" + GSON.toJson(entity));
-            CONFIGURE_UTIL.deleteGroupMonitor(entity.getHosts(), entity.getGroupsId(), false, entity, configureService);
+            MonitorGroupsEntity groupsEntity = groupsService.findById(entity.getGroupsId(), MonitorGroupsEntity.class);
+            CONFIGURE_UTIL.deleteGroupMonitor(entity.getHosts(), entity.getGroupsId(), false, groupsEntity, configureService);
             groupsService.update(entity);
         } else {
             groupsService.save(entity);
@@ -254,7 +255,7 @@ public class SaveController {
             contactGroupService.save(entity);
         }
         indexController.logSave(request, "添加监控联系组" + GSON.toJson(entity));
-        cacheController.setContactGroupCache(contactGroupService);
+        cacheController.setContactGroupCache(contactGroupService, null);
         return ResponseVo.responseOk(null);
     }
 
@@ -378,7 +379,7 @@ public class SaveController {
             itemService.save(entity);
         }
         indexController.logSave(request, "添加监控项目" + GSON.toJson(entity));
-        cacheController.setItemCache(itemService);
+        cacheController.setItemCache(itemService, null);
         if (entity.getIsDefault() != null && entity.getIsDefault().equals("1")) {
             cacheController.setDefaultMonitorChange();
         }else{
