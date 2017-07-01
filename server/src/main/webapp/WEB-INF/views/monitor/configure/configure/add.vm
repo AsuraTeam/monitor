@@ -1093,6 +1093,13 @@
    }
 
    function set_alarm_up(obj, add){
+        
+       var retry = $("#retry").val()
+       if(retry && parseInt(retry) == 0){
+          parent.layer.msg("重试次数为0不能触发报警升级",  {icon:2})
+          return
+       } 
+
        if($(obj).prop("checked") || add){
                var oldcount = $("#alarmCount").val().trim()
                if(!oldcount){
