@@ -1,5 +1,6 @@
 package com.asura.agent.monitor;
 
+import com.google.gson.Gson;
 import com.asura.agent.entity.PushEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +31,6 @@ import java.util.List;
 
 public class AgentMonitor {
 
-    private static final Logger logger = LoggerFactory.getLogger(AgentMonitor.class);
     private static final DecimalFormat df = new DecimalFormat("######0.00");
 
     /**
@@ -114,4 +114,5 @@ public class AgentMonitor {
 
         }
     }
+
 }

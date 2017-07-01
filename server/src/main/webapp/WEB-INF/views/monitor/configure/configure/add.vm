@@ -461,6 +461,21 @@
                 <div class="col-md-12" style="margin-top: 10px;">&nbsp;</div>
                 <div class="col-md-6">
                     <div class="form-group">
+                        <label class="col-sm-4 control-label">报警升级:</label>
+                        <div class="col-sm-4">
+                            <div class="checkbox checkbox-primary checkbox-inline">
+                                <input type="checkbox" onchange="set_alarm_up(this)" name="alarm_up" 
+                                       id="alarm_up" class="form-control" value="" >
+                                <label for="checkbox5 control-label">&nbsp;</label></strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12" id="alarm_up_add_id" style="display:none;margin-top:5px;">&nbsp;</div>
+
+                <div class="col-md-12" style="margin-top: 10px;">&nbsp;</div>
+                <div class="col-md-6">
+                    <div class="form-group">
                         <label class="col-sm-4 control-label">是否有效:</label>
                         <div class="col-sm-4">
                             <div class="checkbox checkbox-primary checkbox-inline">
@@ -519,7 +534,11 @@
     }
 
     // 设置所有报警组的选择项
-    function setAlarmTo(ids, html_id) {
+    function setAlarmTo(ids, html_id, upadd) {
+        if(!upadd){
+           set_alarm_up_groups(ids, htmls)
+        }
+        var ids = ids.split("|")[0]
         html = ""
         url = "/monitor/configure/contactGroup/listData?draw=1&start=1&length=10000"
         result = eval(post({groupsId: ids}, url))["data"];
@@ -529,6 +548,24 @@
             html += "<option value=" + result[i]["groupId"] + ">" + result[i]["groupName"] + "</option>\n"
         }
         $('#' + html_id).html(html)
+    }
+
+    function set_alarm_up_groups(upids, htmls){
+        var upids = upids.split("|")
+        for(upi = 1; upi<(upids.length+1);upi++){
+            updatas = upids[upi]
+            if(!updatas){break}
+            $("#alarm_up_add_id").show();
+            $("#alarm_up").prop("checked", "true")
+            var updata = updatas.split(";")
+            set_alarm_up('', 1);
+            $("#undo_contact_all_alarm_up_"+upi+"_redo").html(htmls)
+            setAlarmTo(updata[1], "undo_contact_all_alarm_up_"+upi+"_redo_to", 1)
+            $("#alarmCount"+upi).val(updata[0])
+            $("#undo_contact_all_alarm_up_"+upi+"_redo").multiselect({
+               keepRenderingSort: true
+            });
+        }
     }
 
     htmls = $('#contact_groups_id').val()
@@ -998,6 +1035,108 @@
     $('.selectpicker').selectpicker({
         'selectedText': 'cat'
     });
+   
+   function set_alarm_up_add(i){
+       html = '<div class="col-md-12" id="delete_alarm_up_"'+i+'>'+
+        '<div class="col-md-12" style="margin-left:-30px;">'+
+        '    <div class="form-group">'+
+        '        <label class="col-sm-4 control-label">报警超过几次升级:</label>'+
+        '        <div class="col-sm-3" style="margin-left: -13%;">'+
+        '            <input type="number" name="alarmCount'+i+'" class="form-control" id="alarmCount'+i+'"'+
+        '                   value="0">'+
+        '        </div>'+
+        '    </div>'+
+        '</div>'+
+        '<div class="col-md-12" style="margin-top: 15px;"></div>'+
+        '<div class="col-md-12">'+
+        '    <label class="col-sm-3 control-label" style="margin-left: -32px;">升级成员配置->'+i+'</label>'+
+        '    <label class="col-sm-3"><input placeholder="搜索报警组"'+
+        '                                   onkeyup="searchAlarmMember($(this).val(),\'undo_contact_all_alarm_up_'+i+'_redo\')"'+
+        '                                   class="fa-border form-control"'+
+        '                                   style="margin-top:-5px;margin-left:-19%;"></label>'+
+        '    <label class="col-sm-3 control-label">已选报警组</label>'+
+        '</div>'+
+        '<div class="col-md-12" style="margin-top: 5px;"></div>'+
+        '<div class="col-xs-5">'+
+        '    <select name="from" id="undo_contact_all_alarm_up_'+i+'_redo" class="form-control" size="5"'+
+        '            multiple="multiple">'+
+        '    </select>'+
+        '</div>'+
+        '<div class="col-xs-2">'+
+        '    <div style="margin-top: 8px;">&nbsp;</div>'+
+        '    <button type="button" id="undo_contact_all_alarm_up_'+i+'_redo_rightSelected"'+
+        '            class="btn btn-primary btn-block"><i'+
+        '            class="glyphicon glyphicon-chevron-right"></i></button'+
+        '    >'+
+        '    <button type="button" id="undo_contact_all_alarm_up_'+i+'_redo_leftSelected"'+
+        '            class="btn btn-warning btn-block"><i'+
+        '            class="glyphicon glyphicon-chevron-left"></i></button>'+
+        '</div>'+
+        '<div class="col-xs-5">'+
+        '    <select name="to" id="undo_contact_all_alarm_up_'+i+'_redo_to" class="form-control" size="5"'+
+        '            multiple="multiple"></select>'+
+        '</div>'+
+        '</div>'+
+        '</div>'+
+        '<div class="col-md-12" style="margin-left:-30px;" id="set_alarm_up_add_'+i+'">'+
+        '    <div class="form-group">'+
+        '        <div class="col-sm-2" >'+
+        '       <button style="margin-left: 25%;margin-top: 5px;margin-bottom: 10px;"'+
+        '               onclick="set_alarm_up(0,1);" class="btn btn-danger btn-sm" type="button">'+
+        '           <i class="fa fa-upload"></i>&nbsp;还要升级'+
+        '      <span style="width:10%;">&nbsp;</span>'+
+        '      </button>  </div>'+
+        '    </div>'+
+        '</div>'+
+        '<div class="col-md-12" style="margin-top: 10px;">&nbsp;</div>'
+        return html
+   }
+
+   function set_alarm_up(obj, add){
+       if($(obj).prop("checked") || add){
+               var oldcount = $("#alarmCount").val().trim()
+               if(!oldcount){
+                 parent.layer.msg("报警次数没有配置",  {icon:2})
+                 return
+               }
+               if(oldcount <= 1){
+                 parent.layer.msg("报警次数太小,不可进行报警升级",  {icon:2})
+                 return
+               }
+               $("#alarm_up").val(1)
+               $("#alarm_up_add_id").show();
+               var old_html = $("#alarm_up_add_id").html()
+               for(i=1;i<6;i++){
+                  if(old_html.indexOf("undo_contact_all_alarm_up_"+i+"_redo") == -1){
+                       var groups = $('#contact_groups_id').val()
+                       var maxcount = parseInt($("#alarmCount"+(i-1)).val())
+                       if(maxcount <= 1){
+                           parent.layer.msg("不可升级了",  {icon:2})
+                           return
+                       }
+                       $("#alarm_up_add_id").append(set_alarm_up_add(i))
+                       var id = "undo_contact_all_alarm_up_"+i+"_redo"
+                       $("#"+id).html(groups)
+                       $('#' +id).multiselect({
+                	  keepRenderingSort: true
+                       });
+                       if(i==1){
+                         oldcount = $("#alarmCount").val().trim()
+                         $("#alarmCount"+i).val(parseInt(oldcount) -1)
+                       }else{
+                         $("#alarmCount"+i).val(parseInt($("#alarmCount"+(i-1)).val()) - 1)
+                       }
+                       break;
+                  } else{
+                    $("#set_alarm_up_add_"+i).remove()
+                  }
+               } 
+      }else{
+          $("#alarm_up").val(0)
+          $("#alarm_up_add_id").hide();
+          $("#alarm_up_add_id").html("<span></span>")
+      }
+   }
 
 </script>
 </body>

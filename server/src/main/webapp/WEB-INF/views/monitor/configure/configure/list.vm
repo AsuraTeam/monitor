@@ -235,6 +235,36 @@
         data["allGroups"] = getMutilSelect("undo_contact_all_redo_to")[0]
         data["templateId"] = getMutilSelect("undo2_redo_to")[0]
 
+        // 报警升级
+        if(data["alarm_up"] == "1"){
+          for(icount=1;icount<6;icount++){
+             var alarmCount = data["alarmCount"+icount]
+             if(!alarmCount){break}
+             users  = getMutilSelect("undo_contact_all_alarm_up_"+icount+"_redo_to")[0]
+             if(!users){
+                 break; 
+             }
+             var add_data = ",0|"+alarmCount+";"+users
+             if(data["allGroups"]){
+               data["allGroups"] += add_data 
+             }
+             if(data["weixinGroups"]){
+               data["weixinGroups"] += add_data 
+             }
+             if(data["mobileGroups"]){
+               data["mobileGroups"] += add_data 
+
+             }
+             if(data["emailGroups"]){
+               data["emailGroups"] += add_data 
+             }
+             if(data["dingGroups"]){
+               data["dingGroups"] += add_data 
+
+             }
+          }
+        }
+        console.log(data)
 
         // 如果是单机选择的，则去掉组的选择值
         if(data["monitorHostsTp"]=="host"){

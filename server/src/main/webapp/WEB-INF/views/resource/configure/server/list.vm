@@ -463,7 +463,13 @@
                         {"data": "memory"},
                         {"data": "cpu"},
                         {"data": "diskSize"},
-                        {"data": "domainName"},
+                        {"data": "domainName", "mRender": function (data, type, full) {
+                            if(data && data.length > 15){
+                                return "<span title='"+data+"'>" + data.substring(1, 15) +"</span>";
+                            }
+                            return data;
+                        }
+                        },
                         {"data": "userName"},
                         {"data": "typeName"},
                         {"data": "description", "mRender": function (data, type, full) {

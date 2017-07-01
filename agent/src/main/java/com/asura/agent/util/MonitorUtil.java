@@ -21,7 +21,7 @@ import java.util.Map;
 
 /**
  * <p></p>
- *
+ * <p>
  * <PRE>
  * <BR>	修改记录
  * <BR>-----------------------------------------------
@@ -44,10 +44,11 @@ public class MonitorUtil {
 
     /**
      * 打印日志
+     *
      * @param messages
      */
     public static void info(String messages) {
-        if (null == messages){
+        if (null == messages) {
             return;
         }
         if (Configure.get("DEBUG").equals("true")) {
@@ -57,6 +58,7 @@ public class MonitorUtil {
 
     /**
      * 检查缓存文件，并获取内容
+     *
      * @param name
      * @param interval
      * @return
@@ -121,7 +123,6 @@ public class MonitorUtil {
 
     /**
      * @param groupsId
-     *
      * @return
      */
     public static List<String> getHosts(String groupsId) {
@@ -167,13 +168,14 @@ public class MonitorUtil {
 
     /**
      * 获取默认的管理员组
+     *
      * @param itemEntity
      * @return
      */
     public static String getAdminGroup(MonitorItemEntity itemEntity) {
         // 在项目中配置发送给管理员的项目全部发报警给管理员
         String adminGroup;
-        if (itemEntity.getIsAdmin() != null && itemEntity.getIsAdmin().length() > 0 && Integer.valueOf(itemEntity.getIsAdmin()) == 1 ) {
+        if (itemEntity.getIsAdmin() != null && itemEntity.getIsAdmin().length() > 0 && Integer.valueOf(itemEntity.getIsAdmin()) == 1) {
             adminGroup = getAdminGroup();
         } else {
             adminGroup = "";
@@ -261,51 +263,51 @@ public class MonitorUtil {
 
     /**
      * 直接发送报警消息
+     *
      * @param messages
      */
-    public static void sendPostMessages(String messages, String url){
+    public static void sendPostMessages(String messages, String url) {
         MonitorMessagesEntity entity = gson.fromJson(messages, MonitorMessagesEntity.class);
-        String mess = "alarmCount="+entity.getAlarmCount()+
-                "&serverId="+ entity.getServerId()+
-                "&groupsId="+entity.getGroupsId()+
-                "&scriptsId="+entity.getScriptsId()+
-                "&severtityId="+entity.getSevertityId()+"" +
-                "&messages="+entity.getMessages()+
-                "&messagesTime="+entity.getMessagesTime();
-        if (entity.getMobile() != null ) {
+        String mess = "alarmCount=" + entity.getAlarmCount() +
+                "&serverId=" + entity.getServerId() +
+                "&groupsId=" + entity.getGroupsId() +
+                "&scriptsId=" + entity.getScriptsId() +
+                "&severtityId=" + entity.getSevertityId() + "" +
+                "&messages=" + entity.getMessages() +
+                "&messagesTime=" + entity.getMessagesTime();
+        if (entity.getMobile() != null) {
             mess += "&mobile=" + entity.getMobile();
         }
-        if (entity.getEmail() != null ) {
+        if (entity.getEmail() != null) {
             mess += "&email=" + entity.getEmail();
         }
-        if (entity.getDing() != null ) {
+        if (entity.getDing() != null) {
             mess += "&ding=" + entity.getDing();
         }
-        if (entity.getWeixin() != null ) {
-            mess += "&weixin=" + entity.getWeixin() ;
+        if (entity.getWeixin() != null) {
+            mess += "&weixin=" + entity.getWeixin();
         }
         logger.info(mess);
         logger.info(HttpSendUtil.sendPost(url, mess));
     }
 
     /**
-     *
      * @param server
      * @return
      */
-   public static String getIpHostName(String server){
+    public static String getIpHostName(String server) {
         String serverId;
         serverId = redisUtil.get(MonitorCacheConfig.hostsIdKey + server);
-        if (serverId == null ){
+        if (serverId == null) {
             return "";
         }
         String portData = redisUtil.get(MonitorCacheConfig.cacheAgentServerInfo + serverId);
         if (portData != null && portData.length() > 10) {
-            Map<String, String> map =  gson.fromJson(portData, HashMap.class);
-            if (map != null){
+            Map<String, String> map = gson.fromJson(portData, HashMap.class);
+            if (map != null) {
                 try {
                     return map.get("hostname");
-                }catch (Exception e){
+                } catch (Exception e) {
                     logger.info("获取主机名失败: " + server);
                 }
             }
@@ -327,14 +329,26 @@ public class MonitorUtil {
 
     /**
      * 设置文件可执行权限
+     *
      * @param filePath
      */
-    public static void setFileExec(String filePath){
+    public static void setFileExec(String filePath) {
         if (separator.equals("/")) {
             File file = new File(filePath);
             if (file.exists())
-            file.setExecutable(true);
+                file.setExecutable(true);
         }
     }
 
+    /**
+     * 检查字符串是否为空
+     * @param str
+     * @return
+     */
+    public static boolean checkString(String str) {
+        if ( null != str && str.length() > 0) {
+            return true;
+        }
+        return false;
+    }
 }
