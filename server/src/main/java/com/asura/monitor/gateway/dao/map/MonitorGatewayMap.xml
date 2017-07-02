@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.monitor.gateway.dao.MonitorGatewayDao">
+     <sql id="baseSql">
+        select 
+            gateway_id as gatewayId,
+            a.floor_id as floorId,
+            a.last_modify_time as lastModifyTime,
+            a.last_modify_user as lastModifyUser,
+            a.description as description,
+            roles as roles,
+            port as port,
+            ip_address as ipAddress,
+            b.floor_name as floorName
+         from monitor_gateway a, cmdb_resource_floor b
+         where a.floor_id=b.floor_id
+     </sql>
+    <select id="selectByAll" resultType="com.asura.monitor.gateway.entity.MonitorGatewayEntity">
+         <include refid="baseSql" />
+     </select>
+      <select id="findById" resultType="com.asura.monitor.gateway.entity.MonitorGatewayEntity">
+                   <include refid="baseSql" />
+            where gateway_id=#{gatewayId}       </select>
+
+    <insert id="save" parameterType="com.asura.monitor.gateway.entity.MonitorGatewayEntity">
+        insert into monitor_gateway(
+            gateway_id,
+            floor_id,
+            last_modify_time,
+            last_modify_user,
+            description,
+            roles,
+            port,
+            ip_address
+        ) 
+        values(        
+            #{gatewayId},
+            #{floorId},
+            #{lastModifyTime},
+            #{lastModifyUser},
+            #{description},
+            #{roles},
+            #{port},
+            #{ipAddress}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.monitor.gateway.entity.MonitorGatewayEntity">
+        update monitor_gateway set   
+            gateway_id=#{gatewayId},
+            floor_id=#{floorId},
+            last_modify_time=#{lastModifyTime},
+            last_modify_user=#{lastModifyUser},
+            description=#{description},
+            roles=#{roles},
+            port=#{port},
+            ip_address=#{ipAddress}
+         where gateway_id=#{gatewayId}
+    </update>
+
+    <delete id="delete" parameterType="com.asura.monitor.gateway.entity.MonitorGatewayEntity">
+        delete from monitor_gateway where gateway_id=#{gatewayId}
+    </delete>
+
+</mapper>
+

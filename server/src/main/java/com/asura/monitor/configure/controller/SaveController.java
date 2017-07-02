@@ -204,7 +204,7 @@ public class SaveController {
             contactsService.save(entity);
         }
         indexController.logSave(request, "添加监控联系人" + GSON.toJson(entity));
-        cacheController.setContactCache();
+        cacheController.setContactCache(null);
         return ResponseVo.responseOk(null);
     }
 
@@ -520,10 +520,8 @@ public class SaveController {
 
     /**
      * 监控配置保存
-     *
      * @param entity
      * @param request
-     *
      * @return
      */
     @RequestMapping("configure/save")

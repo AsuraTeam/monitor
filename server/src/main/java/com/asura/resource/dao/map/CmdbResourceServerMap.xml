@@ -19,6 +19,30 @@
         </foreach>
     </sql>
 
+    <sql id="cacheServer">
+           a.server_id as serverId,
+        a.groups_id as groupsId,
+        b.groups_name as groupsName,
+        a.type_id as typeId,
+        a.asset_coding as assetCoding,
+        c.type_name as typeName,
+        a.os_id as osId,
+        a.cabinet_id as cabinetId,
+        e.cabinet_name as cabinetName,
+        e.cabinet_scope as cabinetScope,
+        a.user_id as userId,
+        f.user_name as userName,
+        a.service_id as serviceId,
+        g.service_name as serviceName,
+        i.ent_name as entName,
+        h.ip_address as hostIpAddress,
+        a.host_id as hostId,
+        a.manager_ip as managerIp,
+        a.ent_id as entId,
+        a.ip_address as ipAddress,
+        a.cabinet_level as cabinetLevel
+    </sql>
+
     <sql id="sqlId">
         a.server_id as serverId,
         a.groups_id as groupsId,
@@ -77,7 +101,12 @@
 
     <select id="selectByAll" parameterType="map" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
         select
-        <include refid="sqlId"/>
+        <if test="cache != null">
+            <include refid="cacheServer"/>
+        </if>
+        <if test="cache == null">
+            <include refid="sqlId"/>
+        </if>
         from
         <include refid="column"/>
         where a.groups_id = b.groups_id
@@ -100,6 +129,11 @@
 
         <if test="cabinetId != null">
             and a.cabinet_id=#{cabinetId}
+        </if>
+
+        <!--获取不同机房的-->
+        <if test="floorId != null">
+            and a.floor_id=#{floorId}
         </if>
 
         <!-- 获取域名相关 -->

@@ -1324,5 +1324,22 @@ CREATE TABLE `cmdb_resource_server_history` (
   `resource_code` varchar(64) DEFAULT NULL COMMENT '资产编码',
   `resource_price` varchar(64) DEFAULT NULL COMMENT '资产价格'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ;
+
+/**
+* 2017-07-02
+*/
+CREATE TABLE `monitor_gateway` (
+  `gateway_id` int(11) NOT NULL AUTO_INCREMENT,
+  `floor_id` int(11) DEFAULT NULL COMMENT '参考机房ID',
+  `last_modify_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最近修改时间',
+  `last_modify_user` varchar(20) DEFAULT NULL COMMENT '最近修改人',
+  `description` varchar(200) DEFAULT NULL COMMENT '描述信息',
+  `roles` varchar(10) DEFAULT NULL COMMENT '服务器角色,一个机房的都为一个角色，master,proxy',
+  `port` varchar(10) DEFAULT NULL COMMENT 'http端口',
+  `ip_address` varchar(32) DEFAULT NULL,
+  PRIMARY KEY (`gateway_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ;
 select "\n\n\n        友情提示:     \n\n请将你的数据库配置成utf8\n请修改mysql的配置文件永久生效\n数据库授权不要写成127.0.0.1的\n请对server的IP地址授权\n\n\n" as "";
+
+
 

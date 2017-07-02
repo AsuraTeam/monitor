@@ -258,10 +258,12 @@ public class CacheController {
      */
     @RequestMapping("contacts/setCache")
     @ResponseBody
-    public String setContactCache() {
+    public String setContactCache(PagingResult<MonitorContactsEntity> result ) {
         try {
             SearchMap searchMap = new SearchMap();
-            PagingResult<MonitorContactsEntity> result = contactsService.findAll(searchMap, PageResponse.getPageBounds(10000000, 1), "selectByAll");
+            if (null == result){
+                result = contactsService.findAll(searchMap, PageResponse.getPageBounds(10000000, 1), "selectByAll");
+            }
             for (MonitorContactsEntity m : result.getRows()) {
                 redisUtil.set(MonitorCacheConfig.cacheContactKey + m.getContactsId(), gson.toJson(m));
             }
@@ -600,7 +602,7 @@ public class CacheController {
         cacheGroups(cmdbResourceGroupsService, service);
         setMessagesCache(channelService);
         try {
-            setContactCache();
+            setContactCache(null);
             cacheUsers();
             cacheCabinet();
             cacheGroups();

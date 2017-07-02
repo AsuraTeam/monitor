@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<body>
+<div class="modal fade" id="add_getui_config" tabindex="-1"
+     role="dialog" style="background-color: #FfFfFf; margin-top: 16px;"
+     data-backdrop="false">
+    <div class="modal-dialog"
+         style="margin-top: 0px; width: 40%; ">
+        <div class="modal-content"
+             style=" width: 100%; ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title">&nbsp;&nbsp;监控网关配置</h4>
+            </div>
+            <div class="animated fadeInRight">
+                <form>
+                    <div class="col-md-12">
+                        <p>&nbsp;
+                           <code><span><br>&nbsp;&nbsp;只需要添加非主要机房的监控server到这里<br>&nbsp;&nbsp;请注意防火墙开放端口</span></code>
+                        </p>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label">服务器地址:</label>
+                            <div class="col-sm-7">
+                                <input type="text" name="ipAddress"  class="form-control"
+                                       value="$!{configs.ipAddress}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12" style="margin-top: 5px;">
+                        </p>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label">机房选择:</label>
+                            <div class="col-sm-7 multiple">
+                                <select id="id_select_floor" class="selectpicker bla bla bli form-control" name="floorId" data-live-search="true">
+                                    <option value="#if ($configs.floorId)${configs.floorId}#else 0 #end">#if ($configs.floorName) ${configs.floorName}  #end</option>
+                                    <option value="0">--</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12" style="margin-top: 5px;">
+                        </p>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label">服务端口:</label>
+                            <div class="col-sm-7">
+                                <input type="text" name="port"  id="port" class="form-control"
+                                       value="$!{configs.port}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12" style="margin-top: 5px;">
+                        </p>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label">角色:</label>
+                            <div class="col-sm-7">
+                                <select type="text"  name="roles"
+                                        class="form-control" value="$!{configs.roles}">
+                                    <option value=>--</option>
+                                    <option value="master">主</option>
+                                    <option value="slave">从</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12" style="margin-top: 5px;">
+                        </p>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label">描述信息:</label>
+                            <div class="col-sm-7">
+                                <input type="text" name="description" class="form-control"
+                                       value="$!{configs.description}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12" style="margin-top: 5px;">
+                        </p>
+                    </div>
+                </form>
+                <div class="col-md-12">
+                    <p>
+                    <p>
+                </div>
+
+            </div>
+            <div class="modal-footer" style="border:solid 1px #e0e0e0">
+            </div>
+            <button style="margin-left: 81%;margin-top: 15px;margin-bottom: 10px;"
+                    onclick="saveConfig($!{configs.logstashServerId});" class="btn btn-primary btn-lg"
+                    type="button">
+                <i class="fa fa-check"></i>&nbsp;保存
+            </button>
+        </div>
+
+    </div>
+</div>
+<script>
+    function getFloor(){
+        url = "/resource/configure/floor/listData?length=100000&start=1&draw=1";
+        result = post({},url);
+        data = result["data"];
+
+        select = ""
+        html = ""
+        for(i=0;i<data.length;i++){
+            floorId = "$!{configs.floorId}"
+            if (floorId+"" == data[i]["floorId"]+"") {
+                select += "<option value="+data[i]["floorId"]+">"+data[i]["floorName"]+"</option>"
+
+            }
+            html += "<option value="+data[i]["floorId"]+">"+data[i]["floorName"]+"</option>"
+        }
+        $("#id_select_floor").empty();
+        $("#id_select_floor").append(select + html);
+        //更新内容刷新到相应的位置
+        $('#id_select_floor').selectpicker('render');
+        $('#id_select_floor').selectpicker('refresh');
+    }
+
+    getFloor();
+
+    $(".selectpicker").selectpicker({});  //初始化
+
+  //$(".bs-searchbox").bind("propertychange input",function(event){   //添加input框事件
+  //    s = event["target"]["value"];
+  //    if(s.length>8){
+  //            getIp(s);
+  //    }
+  //})
+    #if(!$configs.port)
+        $("#port").val(8081)
+    #end
+</script>
+</body>
