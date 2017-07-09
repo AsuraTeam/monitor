@@ -6,6 +6,7 @@ import com.asura.common.response.ResponseVo;
 import com.asura.monitor.graph.entity.PushEntity;
 import com.asura.monitor.graph.util.FileRender;
 import com.asura.monitor.graph.util.FileWriter;
+import com.asura.util.CheckUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +42,7 @@ public class MonitorUtil {
      * @return
      */
     public static List<PushEntity>  getPushEntity(String lentity){
-        if( lentity!=null ) {
+        if( null != lentity  ) {
             Type type = new TypeToken<ArrayList<PushEntity>>() {
             }.getType();
             List<PushEntity> list = new Gson().fromJson(lentity, type);
@@ -57,7 +58,7 @@ public class MonitorUtil {
     public static void writePush(String lentity,  String writeType, String ip, Map<String, Long> map){
         try {
             List<PushEntity> list = getPushEntity(lentity);
-            if (map != null) {
+            if (null != map) {
                 if (!map.containsKey("indexCounter")) {
                     map.put("indexCounter", Long.valueOf(list.size()));
                 }else{
@@ -65,7 +66,7 @@ public class MonitorUtil {
                 }
             }
             for (PushEntity entity1 : list) {
-                if (entity1 == null) {
+                if (null == entity1) {
                     continue;
                 }
                 pushMonitorData(entity1, writeType, ip);
@@ -103,7 +104,7 @@ public class MonitorUtil {
                 + FileRender.replace(entity.getStatus())) + "_"
                 + FileRender.replace(entity.getGroups())+ "_"+ FileRender.replace(entity.getName());
 
-        if (entity.getStatus().equals("2")){
+        if ("2".equals(entity.getStatus())){
             logger.info(name);
         }
         String groups = FileRender.replace(entity.getGroups());
@@ -111,16 +112,16 @@ public class MonitorUtil {
         // 记录每个指标的服务器地址
         writeIndexHosts(entity);
         // 获取客户端IP
-        if (entity.getIp() != null && entity.getIp().length() > 7 ) {
+        if (null != entity.getIp() && entity.getIp().length() > 7 ) {
             ipAddr = FileRender.replace(entity.getIp());
         }
         // 只将数据写入到文件
-        if (name != null && value != null && value.length() > 0) {
+        if (CheckUtil.checkString(name) && CheckUtil.checkString(value)) {
             // 画图数据生成
             FileWriter.writeHistory(groups, ipAddr, historyName, value);
             if(writeType.equals("success")) {
                 // 监控历史数据生成
-                if (entity.getServer() != null) {
+                if (CheckUtil.checkString(entity.getServer())) {
                     FileWriter.writeMonitorHistory(FileRender.replace(entity.getServer()), name, entity);
                 }
             }

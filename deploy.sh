@@ -17,17 +17,10 @@
 
 ## 以上配置完成后修改下面的变量
 
-export mysql_server=10.10.10.10
 
 # redis本脚本自带redis单机服务安装，如果有自己安装好的redis，请修改下面的127.0.0.1为对应的redis服务器地址
 # 使用本机只是单机模式，多节点部署需要配置同一个ip地址
 export redis_server=127.0.0.1
-
-
-if [ "$mysql_server" == "10.10.10.10" ] ; then
-  echo "请配置好mysql服务"
-  exit
-fi
 
 # 程序运行路径
 RUNPATH="/home/runtime/"

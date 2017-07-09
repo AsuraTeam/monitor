@@ -7,14 +7,19 @@ import com.google.gson.Gson;
 import com.asura.common.controller.IndexController;
 import com.asura.common.response.PageResponse;
 import com.asura.common.response.ResponseVo;
+import com.asura.monitor.configure.controller.CacheController;
 import com.asura.monitor.configure.entity.*;
 import com.asura.monitor.configure.service.*;
 import com.asura.monitor.gateway.entity.MonitorGatewayEntity;
 import com.asura.monitor.gateway.service.MonitorGatewayService;
 import com.asura.resource.entity.CmdbResourceServerEntity;
-import com.asura.resource.service.CmdbResourceGroupsService;
 import com.asura.resource.service.CmdbResourceServerService;
-import com.asura.util.*;
+import com.asura.util.CheckUtil;
+import com.asura.util.DateUtil;
+import com.asura.util.HttpUtil;
+import com.asura.util.PermissionsCheck;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,6 +72,11 @@ public class ConfigGatewayController {
 
     @Autowired
     private CmdbResourceServerService service;
+
+    @Autowired
+    private CacheController cacheController;
+
+    private Logger logger = LoggerFactory.getLogger(ConfigGatewayController.class);
 
     /**
      *
@@ -136,40 +147,60 @@ public class ConfigGatewayController {
      * @param map
      * @return
      */
-    void getSendData(String type, int floorId, Map map){
+    void getSendData(String type, int floorId, Map<String, String> map){
         SearchMap searchMap = new SearchMap();
         searchMap.put("floorId", floorId);
         searchMap.put("cache", 1);
         Gson gson = new Gson();
+        String data = "";
         switch (type) {
-            case "setServerToRedis":
+            case "setServerToRedis": //ok
                 List<CmdbResourceServerEntity> cmdbResourceServerEntities = service.getDataList(searchMap, "selectByAll");
-                map.put("setServerToRedis", gson.toJson(cmdbResourceServerEntities));
-            case "setMonitorItemToRedis":
+                data = gson.toJson(cmdbResourceServerEntities);
+                break;
+            case "setMonitorItemToRedis": // ok
                 List<MonitorItemEntity> itemEntities = itemService.getDataList(searchMap, "selectByAll");
-                map.put("setMonitorItemToRedis",  gson.toJson(itemEntities));
-            case "setMonitorScriptsToRedis":
+                data = gson.toJson(itemEntities);
+                break;
+            case "setMonitorScriptsToRedis": // ok
                 List<MonitorScriptsEntity> scriptsEntities = scriptsService.getDataList(searchMap, "selectByAll");
-                map.put("setMonitorItemToRedis", gson.toJson(scriptsEntities));
-            case "setContactGroupCacheToRedis":
+                data = gson.toJson(scriptsEntities);
+                break;
+            case "setContactGroupCacheToRedis": //ok
                 PagingResult<MonitorContactGroupEntity> contactGroupEntityPagingResult = contactGroupService.findAll(searchMap,PageResponse.getPageBounds(1000000,1), "selectByAll");
-                map.put("setMonitorItemToRedis", gson.toJson(contactGroupEntityPagingResult));
+                data = gson.toJson(contactGroupEntityPagingResult);
+                break;
             case "makeAllHostKey":
                 PagingResult<CmdbResourceServerEntity> serverEntityPagingResult = service.findAll(searchMap, PageResponse.getPageBounds(1000000, 1), "selectByAll");
-                map.put("setMonitorItemToRedis", gson.toJson(serverEntityPagingResult));
+                data =  gson.toJson(serverEntityPagingResult);
+                break;
             case "setConfigureCache":
                 PagingResult<MonitorConfigureEntity> configureEntityPagingResult = configureService.findAll(searchMap,PageResponse.getPageBounds(1000000,1), "selectByAll");
-                map.put("setMonitorItemToRedis", gson.toJson(configureEntityPagingResult));
-            case "setTemplateCache":
+                data = gson.toJson(configureEntityPagingResult);
+                break;
+            case "setTemplateCache": //ok
                 PagingResult<MonitorTemplateEntity> templateEntityPagingResult = templateService.findAll(searchMap,PageResponse.getPageBounds(1000000,1), "selectByAll");
-                map.put("setMonitorItemToRedis", gson.toJson(templateEntityPagingResult));
-            case "setGroupsCache":
+                data = gson.toJson(templateEntityPagingResult);
+                break;
+            case "setGroupsCache": //ok
                 PagingResult<MonitorGroupsEntity> groupsEntityPagingResult = groupsService.findAll(searchMap,PageResponse.getPageBounds(1000000,1), "selectByAll");
-                map.put("setMonitorItemToRedis", gson.toJson(groupsEntityPagingResult));
-            case "setContacCacheToRedis":
+                String hosts;
+                List list = new ArrayList();
+                Map groupHostMap = new HashMap();
+                for (MonitorGroupsEntity entity:groupsEntityPagingResult.getRows()) {
+                    hosts = cacheController.getHosts(entity);
+                    groupHostMap.put(entity.getGroupsId(), hosts);
+                }
+                list.add(groupsEntityPagingResult);
+                list.add(groupHostMap);
+                data = gson.toJson(list);
+                break;
+            case "setContacCacheToRedis": // ok
                 PagingResult<MonitorContactsEntity> contactsEntityPagingResult = contactsService.findAll(searchMap,PageResponse.getPageBounds(1000000,1), "selectByAll");
-                map.put("setMonitorItemToRedis", gson.toJson(contactsEntityPagingResult));
+                data = gson.toJson(contactsEntityPagingResult);
+                break;
         }
+        map.put(type, data);
     }
 
     /**
@@ -179,20 +210,20 @@ public class ConfigGatewayController {
      */
     @RequestMapping("cache")
     @ResponseBody
-    public ResponseVo cache(int floorId, HttpServletRequest request, String type){
-        Gson gson = new Gson();
+    public ResponseVo cache(int floorId, String type){
         SearchMap searchMap = new SearchMap();
         searchMap.put("floorId", floorId);
         List<MonitorGatewayEntity> data = gatewayService.getListData(searchMap, "selectByAll");
         String url;
-        Map dataMap = new HashMap();
+        Map<String,String> dataMap = new HashMap();
         getSendData(type, floorId, dataMap);
-        String sendData = Base64Util.encode(gson.toJson(dataMap.get(type)));
         for (MonitorGatewayEntity entity:data){
             url = "http://{0}:{1}/monitor/gateway/api/".concat(type);
             url = url.replace("{0}", entity.getIpAddress());
             url = url.replace("{1}", entity.getPort());
-            HttpUtil.sendPost(url, "data="+sendData);
+            logger.info(url);
+            logger.info("data=" + dataMap.get(type));
+            HttpUtil.sendPost(url, "data="+ dataMap.get(type));
         }
         return ResponseVo.responseOk("ok");
     }

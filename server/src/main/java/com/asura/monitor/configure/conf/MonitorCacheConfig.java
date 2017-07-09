@@ -145,9 +145,6 @@ public class MonitorCacheConfig {
     // 停止报警 _serverId
     public static final String cacheStopServer = "cache_monitor_stop_server_";
 
-    // 停止报警 _index_name
-    public static final String cacheStopIndexName = "cache_monitor_stop_index_name_";
-
     // 停止报警 _entId
     public static final String cacheStopEntname = "cache_monitor_stop_entname_";
 

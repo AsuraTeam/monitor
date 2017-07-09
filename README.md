@@ -28,6 +28,7 @@
 18、支持grafana风格图像自定义展示<br>
 19、支持对单个主机停止报警,多时间段内<br>
 20、支持报警升级，最多5个级别的升级<br>
+21、自动结合grafana画图工具,自动可生成图像<br>
 </br>
 
 为国内用户下载方便，同步更新开源中国<br>
@@ -142,9 +143,10 @@
  
 
 <h3>准备工作:</h3><br>
-   1、mysql准备好，将cmdb.sql 导入到数据库<br>
+   1、mysql准备好，将cmdb.sql grafana.sql 导入到数据库<br>
      对需要链接的服务器进行授权<br>
      mysql>source cmdb.sql
+     mysql>source grafana.sql
      mysql>grant select,update,insert,delete on cmdb.* to monitor@你的ip地址 identified by "aZkl299feM";<br>
      mysql>flush privileges;<br>
      请绑定host os.dbm.com 到你的数据库的地址<br>

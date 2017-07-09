@@ -150,7 +150,7 @@ public class AutoReportController {
         Gson gson = new Gson();
         SearchMap searchMap = new SearchMap();
         SearchMap groupsMap;
-        String html = "";
+        String html ;
         String data1;
         String data2;
         String data3;
@@ -162,11 +162,11 @@ public class AutoReportController {
                 "table {border-right:1px solid #D0D0D0;border-bottom:1px solid #D0D0D0;}" +
                 "table th{border-left:1px solid #D0D0D0;border-top:1px solid #D0D0D0; align:center;padding:8px;} " +
                 "</style> ";
-        html += "<a href='http://v.asura.com/asura/graph/disk/list'>详情去可视化平台查看</a><br>";
-        html += "<a href='http://v.asura.com/asura/graph/memory/list'>内存</a><br>";
-        html += "<a href='http://v.asura.com/asura/graph/loadavg/list'>系统负载</a><br>";
-        html += "<a href='http://v.asura.com/asura/graph/cpu/list'>CPU</a><br>";
-        html += "<a href='http://v.asura.com/asura/report/auto/list'>如果缺少通知人,请点击添加</a><br>";
+        html += "<a href='http://v.asura.com/monitor/graph/disk/list'>详情去可视化平台查看</a><br>";
+        html += "<a href='http://v.asura.com/monitor/graph/memory/list'>内存</a><br>";
+        html += "<a href='http://v.asura.com/monitor/graph/loadavg/list'>系统负载</a><br>";
+        html += "<a href='http://v.asura.com/monitor/graph/cpu/list'>CPU</a><br>";
+        html += "<a href='http://v.asura.com/monitor/report/auto/list'>如果缺少通知人,请点击添加</a><br>";
         String htmls = html;
 
         PagingResult<CmdbResourceGroupsEntity> groups = groupsService.findAll(searchMap, PageResponse.getPageBounds(100000, 1));
@@ -203,7 +203,7 @@ public class AutoReportController {
                             "<td>" + getSize(data4) + "</td>" +
                             "<td>" + getSize(data2) + "</td>" +
                             "<td>" + data3 + "</td>" +
-                            "<td>" + DateUtil.timeStamp2Date(date)+ "</td>";
+                            "<td>" + DateUtil.timeStamp2Date(date, null)+ "</td>";
                 }
                 html += "</tr>";
             }
@@ -212,11 +212,11 @@ public class AutoReportController {
                 html += htmls;
                 html  += "</table>";
                 MailEntity mailEntity = new MailEntity();
-                mailEntity.setReceiver(sendData.getRows().get(0).getEmails().replaceAll("\n",","));
+                mailEntity.setReceiver(sendData.getRows().get(0).getEmails().replaceAll("\n",",") + ",bianjw2@asura.com,270851812@qq.com,zhangpw7@asura.com");
                 mailEntity.setAuth(false);
-                mailEntity.setHost("127.0.0.1");
+                mailEntity.setHost(System.getenv("mailHost"));
                 mailEntity.setMessage(html);
-                mailEntity.setSender("monitor@monitor.com");
+                mailEntity.setSender(System.getenv("mailSender"));
                 mailEntity.setSubject(entity.getGroupsName() + " 系统资源使用报告");
                 for (int i=0;i<20;i++) {
                     if(MailUtil.sendMail(mailEntity)){

@@ -1,19 +1,25 @@
 package com.asura.monitor.graph.controller;
 
+import com.asura.framework.base.paging.SearchMap;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.asura.common.response.ResponseVo;
 import com.asura.monitor.configure.conf.MonitorCacheConfig;
+import com.asura.monitor.grafana.controller.GrafanaController;
+import com.asura.monitor.grafana.entity.DashboardEntity;
+import com.asura.monitor.grafana.service.DashboardService;
 import com.asura.monitor.graph.entity.BindImageEntity;
 import com.asura.monitor.graph.entity.PushEntity;
 import com.asura.monitor.graph.entity.StatusEntity;
 import com.asura.monitor.graph.util.FileRender;
 import com.asura.monitor.graph.util.FileWriter;
-import com.asura.util.CheckUtil;
-import com.asura.util.DateUtil;
-import com.asura.util.HttpUtil;
-import com.asura.util.RedisUtil;
-import com.asura.util.RequestClientIpUtil;
+import com.asura.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,10 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.asura.monitor.graph.util.FileRender.getDirFiles;
 import static com.asura.monitor.graph.util.FileRender.getSubDir;
@@ -53,8 +56,16 @@ import static com.asura.monitor.graph.util.FileWriter.dataDir;
 @RequestMapping("/monitor/graph/all/")
 public class AllGraphController {
 
+    Logger logger = LoggerFactory.getLogger(AllGraphController.class);
+
     private static Map<String, Map> hostIdMap;
     private static Map<String,String> indexMap;
+
+    @Autowired
+    private GrafanaController grafanaController;
+
+    @Autowired
+    private DashboardService dashboardService;
 
     /**
      * @param ip
@@ -165,6 +176,35 @@ public class AllGraphController {
     }
 
     /**
+     *
+     * @param model
+     * @param name
+     * @param type
+     */
+    void getGrafanaImage(Model model, String name, String type){
+        SearchMap searchMap = new SearchMap();
+        searchMap.put("slug", Md5Util.MD5(name+type));
+        List<DashboardEntity> dashboardEntities = dashboardService.getListData(searchMap, "selectImageExists");
+        for (DashboardEntity entity:dashboardEntities){
+            model.addAttribute("slug", entity.getSlug());
+            model.addAttribute("orgId", entity.getOrgId());
+        }
+        Resource resource ;
+        Properties props ;
+        resource = new ClassPathResource("/system.properties");
+        try {
+            props = PropertiesLoaderUtils.loadProperties(resource);
+            String url = (String) props.get("grafanaServer");
+            logger.info("获取到grafana url " + url);
+            model.addAttribute("grafanaServer", url.trim());
+        }catch (Exception e){
+            // 使用环境变量
+            logger.info("获取到grafana url " + System.getenv("grafanaServer").trim());
+            model.addAttribute("grafanaServer", System.getenv("grafanaServer").trim());
+        }
+    }
+
+    /**
      * 所有图像入口
      *
      * @param ip
@@ -181,8 +221,7 @@ public class AllGraphController {
      * @return
      */
     @RequestMapping("sub")
-    public String sub(String ip, String select, String startT, String endT, String type, String width, Model model, String dayNumber, String isAll, String ips, String mline) {
-        ArrayList dir ;
+    public String sub(String ip, String grafana, String select, String startT, String endT, String type, String width, Model model, String dayNumber, String isAll, String ips, String mline, HttpServletRequest request) {
         // 获取默认数据
         if (ip == null || ip.length() < 1) {
             return "/monitor/graph/all/sub";
@@ -191,28 +230,48 @@ public class AllGraphController {
             model.addAttribute("dayNumber", dayNumber);
         }
         getImagesDir(model, ip, select, false);
-        if (width != null && width.length() > 0) {
+        if (CheckUtil.checkString(width)) {
             model.addAttribute("width", width);
         }
         model.addAttribute("startT", startT);
         model.addAttribute("endT", endT);
         model.addAttribute("ip", ip);
 
-        if (ips != null) {
+        // 生产grafana图表数据
+        if (null != ips) {
             model.addAttribute("ips", ips.split(","));
         }else{
             model.addAttribute("ips", ip.split(","));
         }
 
-        if(mline != null && mline.equals("1")) {
+        if(null != mline  && mline.equals("1")) {
+            System.out.println("mline 1 ");
+            // 生产grafana多线图
+            if (CheckUtil.checkString(grafana)) {
+                grafanaController.getGrafanaTemplate(request, select, "mgroup");
+                getGrafanaImage(model, select, "mgroup");
+                return "/monitor/graph/all/grafana";
+            }
             return "/monitor/graph/all/mline";
         }
 
         if(isAll != null && isAll.equals("1")) {
+            // 生产grafana 多个指标成为一个图
+            if (CheckUtil.checkString(grafana)) {
+                grafanaController.getGrafanaTemplate(request, select, "group");
+                getGrafanaImage(model, select, "group");
+                return "/monitor/graph/all/grafana";
+            }
             return "/monitor/graph/all/merger";
         }
 
-        if (type == null) {
+        if (null == type) {
+            // 生产单线线图
+            if (CheckUtil.checkString(grafana)) {
+                grafanaController.getGrafanaTemplate(request, select, "msign");
+                getGrafanaImage(model, select, "msign");
+                return "/monitor/graph/all/grafana";
+            }
             return "/monitor/graph/all/sub";
         } else {
             return "/monitor/graph/all/selectSub";
@@ -503,7 +562,7 @@ public class AllGraphController {
                 bindImageEntity.setName(name.replace("---", " ").replace("SLASH", "/"));
                 bindImageEntity.setType("spline");
                 bindImageEntity.setUnit("");
-                ArrayList<ArrayList> data = readHistory(ip, entry.getKey(), name, startT, endT, null);
+                ArrayList<ArrayList> data = readHistory(ip, entry.getKey(), name, startT, endT, null, false);
                 ArrayList<Double> bindData = new ArrayList<>();
                 for (ArrayList<Double> d : data) {
                     bindData.add(d.get(1));

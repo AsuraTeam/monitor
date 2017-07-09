@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.monitor.grafana.dao.DataSourceDao">
+     <sql id="baseSql">
+        select 
+            id as id,
+            org_id as orgId,
+            version as version,
+            type as type,
+            name as name,
+            access as access,
+            url as url,
+            password as password,
+            user as user,
+            database as database,
+            basic_auth as basicAuth,
+            basic_auth_user as basicAuthUser,
+            basic_auth_password as basicAuthPassword,
+            is_default as isDefault,
+            json_data as jsonData,
+            created as created,
+            updated as updated,
+            with_credentials as withCredentials,
+            secure_json_data as secureJsonData
+         from data_source 
+     </sql>
+    <select id="selectByAll" resultType="com.asura.monitor.grafana.entity.DataSourceEntity">
+         <include refid="baseSql" />
+     </select>
+      <select id="findById" resultType="com.asura.monitor.grafana.entity.DataSourceEntity">
+                   <include refid="baseSql" />
+            where id=#{id}       </select>
+
+    <insert id="save" parameterType="com.asura.monitor.grafana.entity.DataSourceEntity">
+        insert into data_source(
+            id,
+            org_id,
+            version,
+            type,
+            name,
+            access,
+            url,
+            password,
+            user,
+            database,
+            basic_auth,
+            basic_auth_user,
+            basic_auth_password,
+            is_default,
+            json_data,
+            created,
+            updated,
+            with_credentials,
+            secure_json_data
+        ) 
+        values(        
+            #{id},
+            #{orgId},
+            #{version},
+            #{type},
+            #{name},
+            #{access},
+            #{url},
+            #{password},
+            #{user},
+            #{database},
+            #{basicAuth},
+            #{basicAuthUser},
+            #{basicAuthPassword},
+            #{isDefault},
+            #{jsonData},
+            #{created},
+            #{updated},
+            #{withCredentials},
+            #{secureJsonData}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.monitor.grafana.entity.DataSourceEntity">
+        update data_source set   
+            id=#{id},
+            org_id=#{orgId},
+            version=#{version},
+            type=#{type},
+            name=#{name},
+            access=#{access},
+            url=#{url},
+            password=#{password},
+            user=#{user},
+            database=#{database},
+            basic_auth=#{basicAuth},
+            basic_auth_user=#{basicAuthUser},
+            basic_auth_password=#{basicAuthPassword},
+            is_default=#{isDefault},
+            json_data=#{jsonData},
+            created=#{created},
+            updated=#{updated},
+            with_credentials=#{withCredentials},
+            secure_json_data=#{secureJsonData}
+         where id=#{id}
+    </update>
+
+    <delete id="delete" parameterType="com.asura.monitor.grafana.entity.DataSourceEntity">
+        delete from data_source where id=#{id}
+    </delete>
+
+</mapper>
+

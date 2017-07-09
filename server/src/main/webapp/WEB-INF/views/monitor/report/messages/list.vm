@@ -81,7 +81,7 @@
 
             <script>
                 
-                function load_detail() {
+                function load_detail(dates) {
                     startTime = $('#startSendTime').val()
                     endTime = $('#endSendTime').val()
                     if(!startTime){
@@ -90,9 +90,19 @@
                     if(!endTime){
                         endTime = ""
                     }
-                    url = "/monitor/report/messages/detail/list?startT="+startTime+"&endT="+endTime;
+                    if(dates){
+                        if(!startTime){
+                            url = "/monitor/report/messages/detail/messages?dates="+dates;
+                        }else{
+                            url = "/monitor/report/messages/detail/messages?startT="+startTime+"&endT="+endTime;
+                        }
+                    }else {
+                        url = "/monitor/report/messages/detail/list?startT="+startTime+"&endT="+endTime;
+                    }
                     window.open(url);
                 }
+
+
 
                 function loadData() {
                     startTime = $('#startSendTime').val()
@@ -121,8 +131,8 @@
                             {"data": "messagesTime","mRender":function (data) {
                                 return data.split(" ")[0];
                             }},
-                            {"data": "emailCount","mRender":function (data) {
-                                return data;
+                            {"data": "emailCount","mRender":function (data, type, full) {
+                                return "<span><a onclick=\"load_detail('"+full["messagesTime"]+"')\">"+data+"</a></span>";
                             }},
                             {"data": "mobileCount","mRender":function (data) {
                                 return data;

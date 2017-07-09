@@ -131,11 +131,6 @@
             and a.cabinet_id=#{cabinetId}
         </if>
 
-        <!--获取不同机房的-->
-        <if test="floorId != null">
-            and a.floor_id=#{floorId}
-        </if>
-
         <!-- 获取域名相关 -->
         <if test="domain != null">
             and a.domain_name=#{domain}

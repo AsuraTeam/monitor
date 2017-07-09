@@ -3,12 +3,11 @@ package com.asura.monitor.gateway.controller;
 import com.asura.framework.base.paging.PagingResult;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.asura.monitor.configure.conf.MonitorCacheConfig;
 import com.asura.monitor.configure.controller.CacheController;
 import com.asura.monitor.configure.entity.*;
-import com.asura.monitor.graph.entity.PushEntity;
+import com.asura.monitor.configure.entity.MonitorGroupsEntity;
 import com.asura.resource.entity.CmdbResourceServerEntity;
-import com.asura.util.Base64Util;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,8 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * 跨机房网关接口
@@ -32,6 +30,7 @@ public class GatewayController {
     private CacheController cacheController;
 
     private final Gson gson = new Gson();
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(GatewayController.class);
 
     /**
      * @param type
@@ -41,7 +40,6 @@ public class GatewayController {
     @RequestMapping(value = "api/{type}", method = RequestMethod.POST, produces = {"application/json;charset=UTF-8"})
     @ResponseBody
     public String api(@PathVariable String type, String data) {
-        data = Base64Util.decode(data);
         switch (type) {
             case "setServerToRedis":
                 return setServerToRedis(data);
@@ -180,11 +178,15 @@ public class GatewayController {
      */
     @RequestMapping("setGroupsCache")
     @ResponseBody
-    public String setGroupsCache(String data) {
+    public String setGroupsCache(String datas) {
+        List list = gson.fromJson(datas, ArrayList.class);
         Type type = new TypeToken<PagingResult<MonitorGroupsEntity>>() {
         }.getType();
-        PagingResult<MonitorGroupsEntity> entities = gson.fromJson(data, type);
-        cacheController.setGroupsCache(entities);
+        PagingResult<MonitorGroupsEntity> entities = gson.fromJson(gson.toJson(list.get(0)), type);
+        Map<String, String> map = gson.fromJson(gson.toJson(list.get(1)), HashMap.class);
+        cacheController.setGroupsCache(entities, map);
+        logger.info("获取到数据gson2" + new Gson().toJson(entities));
+
         return "ok";
     }
 

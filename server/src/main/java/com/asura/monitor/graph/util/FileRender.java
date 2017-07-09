@@ -94,7 +94,7 @@ public class FileRender {
      *
      * @return
      */
-    public static ArrayList readTxtFile(String filePath, ArrayList arr, String totle) {
+    public static ArrayList readTxtFile(String filePath, ArrayList arr, String totle, boolean isTimestamp) {
 
         try {
             String encoding = "UTF-8";
@@ -102,16 +102,24 @@ public class FileRender {
             if (file.isFile() && file.exists()) { //判断文件是否存在
                 InputStreamReader read = new InputStreamReader(new FileInputStream(file), encoding);//考虑到编码格式
                 BufferedReader bufferedReader = new BufferedReader(read);
-                String lineTxt = null;
+                String lineTxt;
                 while ((lineTxt = bufferedReader.readLine()) != null) {
                     if (lineTxt.length() < 10) {
                         continue;
                     }
                     String[] d = lineTxt.split(" ");
                     ArrayList data = new ArrayList();
-                    data.add(Long.valueOf(d[0]));
-                    if (totle == null) {
-                        data.add(Double.valueOf(d[1]));
+                    if (isTimestamp){
+                        data.add(Long.valueOf(d[0].substring(0, 10)));
+                    }else {
+                        data.add(Long.valueOf(d[0]));
+                    }
+                    if (null == totle) {
+                        if (isTimestamp) {
+                            data.add(d[1]);
+                        }else{
+                            data.add(Double.valueOf(d[1]));
+                        }
                     } else {
                         data.add(getPercent(totle, Double.valueOf(d[1])));
                     }
@@ -125,7 +133,7 @@ public class FileRender {
         return arr;
     }
 
-    public static ArrayList readHistory(String ip, String type, String name, String startT, String endT, String totle) {
+    public static ArrayList readHistory(String ip, String type, String name, String startT, String endT, String totle, boolean isTimestamp) {
         ip = replace(ip);
         type = replace(type);
         name = replace(name);
@@ -159,7 +167,7 @@ public class FileRender {
                     tt[1] + separator +
                     tt[2] + separator +
                     separator + name;
-            readTxtFile(dir, arr, totle);
+            readTxtFile(dir, arr, totle, isTimestamp);
         }
         return arr;
 

@@ -54,14 +54,14 @@
             if(olds[i].length<5){continue}
             if (!f_check_IP(olds[i]) && !select){
                 if (olds[i] != value ) {
-                    news += olds[i] + "\n"
+                    news += olds[i].trim() + "\n"
                 }else{
                     is_exists = true
                 }
             }
         }
         if(!is_exists){
-            news += value
+            news += value.trim()
         }
         $('#select_all_ip_textarea').val(news);
         $.cookie("select_all_ip_textarea", news);
@@ -519,12 +519,15 @@
 
 
 
-    function getCheckValue(img, ip, dayNumber) {
+    function getCheckValue(img, ip, dayNumber, grafana) {
         if(!ip){
             ip="$!{ip}"
         }
         if(!ip){
             ip = $('#search_ip').val();
+        }
+        if(!grafana){
+           grafana = ""
         }
         startT= $('#startSendTime').val()
         endT = $('#endSendTime').val()
@@ -580,6 +583,9 @@
             endT = ""
         }
         url += "&startT="+startT+"&endT="+endT
+        if(grafana){
+          url += "&grafana=1"
+        }
         $('#iframepage').attr("src",url);
         if(img){
             $('#show_graph_imgages').modal("toggle")

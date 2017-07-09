@@ -129,5 +129,43 @@
        update monitor_scripts set scripts_id=0 where scripts_id=999999;
     </select>
 
+    <!-- 获取报警统计分析 -->
+    <select id="selectMonitorMessagesReportGraph" resultType="com.asura.monitor.configure.entity.MonitorMessagesEntity">
+           select count(*) , b.monitor_name as monitorName,
+            substring(replace(unix_timestamp(concat(substring(a.messages_time,1,7),"-01 00:00:000")),".", ""),1,13) as messagesTime
+            from monitor_messages a, monitor_scripts b
+    where a.scripts_id=b.scripts_id
+    group by b.monitor_name,substring(a.messages_time,1,7)
+    order by 3,1 desc
+    </select>
+
+    <!--  获取各种信息的统计 -->
+    <select id="selectMonitorMessagesReport" resultType="com.asura.monitor.configure.entity.MonitorMessagesEntity">
+        select count(*) as cnt , b.monitor_name as monitorName,
+        <if test="month == null">
+            substring(a.messages_time,1,10) as stime
+        </if>
+        <if test="month != null">
+            substring(a.messages_time,1,7) as stime
+        </if>
+        from
+         monitor_messages a, monitor_scripts b where
+         a.scripts_id=b.scripts_id
+         <if test="dates != null">
+             and substring(a.messages_time,1,10) = #{dates}
+         </if>
+        <if test="start != null">
+            and messages_time &gt;= #{start} and messages_time &lt;= #{end}
+        </if>
+         group by
+         b.monitor_name,
+        <if test="month != null">
+            substring(a.messages_time,1,7) as stime
+        </if>
+        <if test="month == null">
+            substring(a.messages_time,1,10)
+        </if>
+        order by 1 desc
+    </select>
 </mapper>
 

@@ -39,7 +39,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import sun.misc.Cache;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Type;
@@ -177,28 +176,28 @@ public class ApiController {
             String gtValue = entity.getGtValue();
             String ltValue = entity.getLtValue();
             double pushValue = Double.valueOf(pushEntity.getValue());
-            if (ltValue != null && ltValue.length() > 0) {
+            if (CheckUtil.checkString(ltValue)) {
                 if (Double.valueOf(ltValue) < pushValue) {
                     mess = "期望值小于实际值: " + pushValue + " < " + ltValue;
                     sendAlarm = true;
 
                 }
             }
-            if (gtValue != null && gtValue.length() > 0) {
+            if (CheckUtil.checkString(gtValue)) {
                 if (pushValue > Double.valueOf(gtValue)) {
                     mess = "期望值大于实际值: " + pushValue + " > " + gtValue;
                     sendAlarm = true;
                 }
             }
             String eqValue = entity.getEqValue();
-            if (eqValue != null && eqValue.length() > 0) {
+            if (CheckUtil.checkString(eqValue)) {
                 if (pushEntity.getValue().equals(eqValue)) {
                     mess = "期望值等于实际值: " + eqValue + " = " + pushValue;
                     sendAlarm = true;
                 }
             }
             String notEqValue = entity.getNotEqValue();
-            if (notEqValue != null && notEqValue.length() > 0) {
+            if (CheckUtil.checkString(notEqValue)) {
                 if (!notEqValue.equals(pushEntity.getValue())) {
                     mess = "期望值不等于实际值: " + notEqValue + " != " + pushValue;
                     sendAlarm = true;

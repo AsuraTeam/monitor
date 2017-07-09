@@ -189,7 +189,7 @@ public class CacheController {
                 hostSet = configureUtil.makeHostMonitorTag(m, hostSet);
                 configureUtil.setUpdateMonitor(m);
             }catch (Exception e){
-
+                logger.error("setConfigureCache ERROR", e);
             }
         }
         ArrayList arrayList = new ArrayList();
@@ -334,15 +334,24 @@ public class CacheController {
      */
     @RequestMapping("groups/setCache")
     @ResponseBody
-    public String setGroupsCache(PagingResult<MonitorGroupsEntity> result ) {
+    public String setGroupsCache(PagingResult<MonitorGroupsEntity> result, Map<String,String> map) {
         HashSet hostIdArr ;
         Map<String,HashSet> hostMap = new HashMap<>();
         SearchMap searchMap = new SearchMap();
+        logger.info("result == null" + new Gson().toJson(result));
+
         if (null == result) {
+            logger.info("result == null");
             result = groupsService.findAll(searchMap, PageResponse.getPageBounds(100000, 1), "selectByAll");
         }
+        String hosts;
         for (MonitorGroupsEntity m : result.getRows()) {
-            String hosts = getHosts(m);
+            if (null == map) {
+                 hosts = getHosts(m);
+            }
+            else {
+                hosts = map.get(m.getGroupsId());
+            }
             m.setIpList(hosts);
             String[] hostIds = m.getHosts().split(",");
             for(String host:hostIds){
@@ -494,7 +503,7 @@ public class CacheController {
     }
 
     /**
-     * 缓冲每个服务器的相信新
+     * 缓冲每个服务器的信息
      */
     @RequestMapping("/cache/serverInfoSave")
     @ResponseBody
@@ -598,7 +607,7 @@ public class CacheController {
         setScriptCache(scriptsService, null);
         setContactGroupCache(contactGroupService, null);
         setTemplateCache(null);
-        setGroupsCache(null);
+        setGroupsCache(null, null);
         cacheGroups(cmdbResourceGroupsService, service);
         setMessagesCache(channelService);
         try {

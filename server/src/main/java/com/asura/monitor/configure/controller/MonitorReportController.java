@@ -52,6 +52,25 @@ public class MonitorReportController {
         return "/monitor/report/messages/list";
     }
 
+
+    /**
+     *
+     * @param startT
+     * @param endT
+     * @param model
+     * @return
+     */
+    @RequestMapping("messages/detail/messages")
+    public String messagesDay( String startT, String endT, Model model)
+    {
+        if (CheckUtil.checkString(startT) && CheckUtil.checkString(endT)) {
+            model.addAttribute("startT", startT);
+            model.addAttribute("endT", endT);
+        }
+        return "/monitor/report/messages/detail";
+    }
+
+
     /**
      *
      * @param model
@@ -73,6 +92,28 @@ public class MonitorReportController {
         }
         return "/monitor/report/messages/detailList";
     }
+
+    /**
+     * 最小单位为天的报警名字统计
+     * @param startTime
+     * @param endTime
+     * @return
+     */
+    @RequestMapping(value = "selectMonitorMessagesReport", produces = {"application/json;charset=UTF-8"})
+    @ResponseBody
+    public String selectMonitorMessagesReport(String startTime, String endTime, String dates, String isMonth){
+        SearchMap searchMap = getSearchMap(startTime, endTime);
+        if (CheckUtil.checkString(dates)){
+            searchMap.put("dates", dates);
+        }
+        if (CheckUtil.checkString(isMonth)){
+            searchMap.put("month", "1");
+        }
+        PageBounds pageBounds = PageResponse.getPageBounds(1000000, 1);
+        PagingResult<MonitorMessagesEntity> result = messagesService.findAll(searchMap, pageBounds, "selectMonitorMessagesReport");
+        return PageResponse.getMap(result, 1);
+    }
+
 
     /**
      *
@@ -108,6 +149,7 @@ public class MonitorReportController {
         }
         return searchMap;
     }
+
     /**
      * @return
      */

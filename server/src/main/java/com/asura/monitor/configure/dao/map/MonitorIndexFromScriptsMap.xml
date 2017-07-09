@@ -28,6 +28,10 @@
         ORDER  by a.last_modify_time desc
         </select>
 
+    <select id="selectIndexName" resultType="com.asura.monitor.configure.entity.MonitorIndexFromScriptsEntity">
+       select index_name as indexName from monitor_index_from_scripts
+    </select>
+
     <select id="findById" resultType="com.asura.monitor.configure.entity.MonitorIndexFromScriptsEntity">
         <include refid="baseSql" />
         and a.index_id=#{indexId}

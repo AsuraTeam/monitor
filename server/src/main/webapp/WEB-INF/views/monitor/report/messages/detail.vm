@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>报警信息详细统计</title>
+    #include("/index/include.vm")
+</head>
+<body class="top-navigation">
+
+<div id="wrapp11er">
+    <div id="page-wrapp1er" class="gray-bg">
+        #include("/index/header.vm")
+        <div style="margin-left: 30%;"><h2><strong>&nbsp;&nbsp;$!{startT}&nbsp;&nbsp;-&nbsp;&nbsp;$!{endT}&nbsp;&nbsp;<span style="margin-left: 10px;">报警统计报表</span></strong></h2></div>
+            <div class="col-sm-12" style="margin-top:-35px">
+
+                                <table id="listTable"
+                                       class="table  table-bordered table-hover dataTables-example">
+                                    <thead>
+                                    <tr role="rows">
+                                        <th>报警名称</th>
+                                        <th>告警次数</th>
+                                        <th>报警时间</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+
+                function loadData(month) {
+                    startTime = "$!{startT}"
+                    endTime = "$!{endT}"
+                    if(!month){
+                        month = ""
+                    }
+                    $("#listTable").dataTable({
+                        "filter": false,//去掉搜索框
+                        "ordering": false, // 是否允许排序
+                        "paginationType": "full_numbers", // 页码类型
+                        "destroy": true,
+                        "processing": false,
+                        "serverSide": true,
+                        "scrollX": true, // 是否允许左右滑动
+                        "displayLength": 10, // 默认长度
+                        "ajax": { // 请求地址
+                            "url": "/monitor/report/selectMonitorMessagesReport?t=" + new Date().getTime() + "&startTime=" + startTime +"&endTime=" + endTime +"&month="+month,
+                            "type": 'post'
+                        },
+                        "columns": [ // 数据映射
+                            {"data": "monitorName","mRender":function (data) {
+                                return data;
+                            }},
+                            {"data": "cnt","mRender":function (data) {
+                                return data;
+                            }},
+                            {"data": "stime","mRender":function (data) {
+                                return data;
+                            }},
+                        ],
+                        "fnRowCallback": function (row, data) { // 每行创建完毕的回调
+                            $(row).data('recordId', data.recordId);
+                        }
+                    });
+                }
+                loadData();
+            </script>
+            </div>
+        </div>
+    </div>
+</body>
+

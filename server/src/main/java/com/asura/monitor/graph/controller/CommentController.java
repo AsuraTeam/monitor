@@ -54,9 +54,6 @@ public class CommentController {
     private CmdbResourceGroupsService groupsService;
 
     @Autowired
-    private MonitorClusterConfigureService clusterConfigureService;
-
-    @Autowired
     private MonitorClusterController clusterController;
 
     private Gson gson = new Gson();
@@ -116,7 +113,7 @@ public class CommentController {
         }
         ArrayList result = new ArrayList();
         if (dayNumber == null || dayNumber.length() < 1) {
-            result = readHistory(ip, type, name, startT, endT, totle);
+            result = readHistory(ip, type, name, startT, endT, totle, false);
         } else {
             DateUtil dateUtil = new DateUtil();
             StringBuilder stringBuilder = new StringBuilder();
@@ -135,7 +132,7 @@ public class CommentController {
                     .append(separator)
                     .append(name);
             String dir = stringBuilder.toString();
-            result = FileRender.readTxtFile(dir, result, totle);
+            result = FileRender.readTxtFile(dir, result, totle, false);
         }
         return gson.toJson(result);
     }
@@ -167,7 +164,7 @@ public class CommentController {
             String[] servers = server.split(",");
             for (String ser: servers) {
                 ip = jedis.get(RedisUtil.app + "_" + MonitorCacheConfig.cacheHostIdToIp + ser);
-                list.add(readHistory(ip, type, name, startT, endT, null));
+                list.add(readHistory(ip, type, name, startT, endT, null,false));
             }
         }
         ArrayList<Object> temp = new ArrayList<>();
@@ -206,7 +203,7 @@ public class CommentController {
      */
     @RequestMapping("cpu/list")
     public String list(Model model) {
-        model = CommentController.getGroups(model, groupsService);
+        CommentController.getGroups(model, groupsService);
         return "monitor/graph/cpu/list";
     }
 
@@ -217,7 +214,7 @@ public class CommentController {
      */
     @RequestMapping("memory/list")
     public String memlist(Model model) {
-        model = CommentController.getGroups(model, groupsService);
+        CommentController.getGroups(model, groupsService);
         return "monitor/graph/memory/list";
     }
 
@@ -228,7 +225,7 @@ public class CommentController {
      */
     @RequestMapping("swap/list")
     public String swaplist(Model model) {
-        model = CommentController.getGroups(model, groupsService);
+        CommentController.getGroups(model, groupsService);
         return "monitor/graph/swap/list";
     }
 
@@ -239,7 +236,7 @@ public class CommentController {
      */
     @RequestMapping("loadavg/list")
     public String loadavglist(Model model) {
-        model = CommentController.getGroups(model, groupsService);
+        CommentController.getGroups(model, groupsService);
         return "monitor/graph/loadavg/list";
     }
 
@@ -251,7 +248,7 @@ public class CommentController {
      */
     @RequestMapping("disk/list")
     public String diskUse(Model model) {
-        model = CommentController.getGroups(model, groupsService);
+       CommentController.getGroups(model, groupsService);
         return "monitor/graph/disk/list";
     }
 
@@ -262,7 +259,7 @@ public class CommentController {
      */
     @RequestMapping("traffic/list")
     public String trafficUse(Model model) {
-        model = CommentController.getGroups(model, groupsService);
+        CommentController.getGroups(model, groupsService);
         return "monitor/graph/traffic/list";
     }
 

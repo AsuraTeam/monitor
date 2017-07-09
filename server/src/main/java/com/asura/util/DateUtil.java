@@ -215,11 +215,13 @@ public class DateUtil {
 	 * @param seconds 精确到秒的字符串
 	 * @return
 	 */
-	public static String timeStamp2Date(String seconds) {
+	public static String timeStamp2Date(String seconds, String format) {
 		if(seconds == null || seconds.isEmpty() || seconds.equals("null")){
 			return "";
 		}
-		String format = "yyyy-MM-dd HH:mm:ss";
+		if (null == format) {
+			 format = "yyyy-MM-dd HH:mm:ss";
+		}
 		SimpleDateFormat sdf = new SimpleDateFormat(format);
 		return sdf.format(new Date(Long.valueOf(seconds)));
 	}
@@ -233,6 +235,4 @@ public class DateUtil {
 		cal.add(Calendar.DATE,-number);
 		return new SimpleDateFormat("yyyy-MM-dd").format(cal.getTime());
 	}
-
-
 }

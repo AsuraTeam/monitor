@@ -1,0 +1,3 @@
+ <script>
+        window.open("$!{grafanaServer}/dashboard/db/$!{slug}?orgId=$!{orgId}&var-host=$!{ip}")
+</script>

@@ -10,8 +10,13 @@
                 <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
             </button>
             <h4 class="modal-title">图像指标选择  <i class="fa fa-line-chart"></i>
-                <button style="margin-left: 86%;margin-top: -24px;margin-bottom: 0px;"
-                        onclick="getCheckValue(1);" class="btn btn-primary btn-lg"
+                <button style="margin-left: 75%;margin-bottom: 0px;"
+                        onclick="getCheckValue(1,'','',1);" class="btn btn-warning btn-sm"
+                        type="button">
+                    <i class="fa fa-area-chart"></i>&nbsp;grafana图
+                </button>
+                <button style="margin-left: 92%;margin-top: -53px;margin-bottom: 0px;"
+                        onclick="getCheckValue(1);" class="btn btn-primary btn-sm"
                         type="button">
                     <i class="fa fa-area-chart"></i>&nbsp;看图去
                 </button>

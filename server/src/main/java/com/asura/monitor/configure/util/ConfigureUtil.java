@@ -176,7 +176,7 @@ public class ConfigureUtil {
      */
     public HashSet makeHostMonitorTag(MonitorConfigureEntity entity, HashSet hostSet) {
         String cacheData = entity.getConfigureId() + "";
-        if (entity.getHostId() != null || entity.getGname() != null) {
+        if (null != entity.getHostId() || null != entity.getGname() ) {
             // 监控的组
             String groups = entity.getGname();
             String[] hosts;

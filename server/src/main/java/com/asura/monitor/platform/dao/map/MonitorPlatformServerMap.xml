@@ -17,10 +17,14 @@
         <if test="key != null">
             and (ip LIKE concat("%",#{key},"%")
             or hostname like concat("%",#{key},"%")
+            or c.groups_name like concat("%",#{key},"%")
             )
         </if>
         <if test="groups != null">
             and c.groups_name = #{groups}
+        </if>
+        <if test="hostname != null">
+            and hostname  like concat("%",#{hostname},"%")
         </if>
         <if test="groupsId != null">
             and c.groups_id = #{groupsId}
