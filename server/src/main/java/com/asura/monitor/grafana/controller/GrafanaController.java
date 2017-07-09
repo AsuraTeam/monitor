@@ -63,6 +63,7 @@ public class GrafanaController {
         dataSourceEntity.setIsDefault(1);
         dataSourceEntity.setJsonData("{}");
         dataSourceEntity.setSecureJsonData("{}");
+        dataSourceEntity.setWithCredentials(0);
         dataSourceEntity.setCreated(DateUtil.getTimeStamp());
         dataSourceEntity.setUpdated(DateUtil.getTimeStamp());
         dataSourceEntity.setUrl("http://{0}:{1}".replace("{0}", request.getServerName()).replace("{1}", ""+request.getServerPort()));
@@ -109,7 +110,11 @@ public class GrafanaController {
      * @return
      */
     public String getGrafanaTemplate(HttpServletRequest request, String names, String line){
-        init(request);
+        try {
+            init(request);
+        }catch (Exception e){
+            
+        }
         DashboardEntity entity = new DashboardEntity();
         entity.setCreated(DateUtil.getTimeStamp());
         entity.setUpdated(DateUtil.getTimeStamp());
