@@ -113,7 +113,7 @@ public class GrafanaController {
         try {
             init(request);
         }catch (Exception e){
-            
+
         }
         DashboardEntity entity = new DashboardEntity();
         entity.setCreated(DateUtil.getTimeStamp());

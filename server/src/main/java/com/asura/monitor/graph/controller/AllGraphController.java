@@ -176,12 +176,18 @@ public class AllGraphController {
     }
 
     /**
-     *
+     * 2017-07-09 添加grafana支持
      * @param model
      * @param name
      * @param type
      */
-    void getGrafanaImage(Model model, String name, String type){
+    void getGrafanaImage(Model model, String name, String type, String startT, String endT){
+        if (CheckUtil.checkString(startT) && startT.length() > 10){
+            logger.info("获取到图像启动时间 " + startT);
+            logger.info("获取到图像完成时间 " + endT);
+            model.addAttribute("start", DateUtil.dateToStamp(startT.split(",")[0]+" 00:00:00")+"000");
+            model.addAttribute("to", DateUtil.dateToStamp(endT.split(",")[0] + " 00:00:00")+"000");
+        }
         SearchMap searchMap = new SearchMap();
         searchMap.put("slug", Md5Util.MD5(name+type));
         List<DashboardEntity> dashboardEntities = dashboardService.getListData(searchMap, "selectImageExists");
@@ -249,7 +255,7 @@ public class AllGraphController {
             // 生产grafana多线图
             if (CheckUtil.checkString(grafana)) {
                 grafanaController.getGrafanaTemplate(request, select, "mgroup");
-                getGrafanaImage(model, select, "mgroup");
+                getGrafanaImage(model, select, "mgroup", startT, endT);
                 return "/monitor/graph/all/grafana";
             }
             return "/monitor/graph/all/mline";
@@ -259,7 +265,7 @@ public class AllGraphController {
             // 生产grafana 多个指标成为一个图
             if (CheckUtil.checkString(grafana)) {
                 grafanaController.getGrafanaTemplate(request, select, "group");
-                getGrafanaImage(model, select, "group");
+                getGrafanaImage(model, select, "group",startT, endT);
                 return "/monitor/graph/all/grafana";
             }
             return "/monitor/graph/all/merger";
@@ -269,7 +275,7 @@ public class AllGraphController {
             // 生产单线线图
             if (CheckUtil.checkString(grafana)) {
                 grafanaController.getGrafanaTemplate(request, select, "msign");
-                getGrafanaImage(model, select, "msign");
+                getGrafanaImage(model, select, "msign", startT, endT);
                 return "/monitor/graph/all/grafana";
             }
             return "/monitor/graph/all/sub";
