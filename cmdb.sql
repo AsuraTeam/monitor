@@ -1340,6 +1340,20 @@ CREATE TABLE `monitor_gateway` (
   PRIMARY KEY (`gateway_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ;
 
+/**
+* 20170714
+*/
+create table monitor_alarm_configure (configure_id int primary key auto_increment,
+`description` varchar(200) DEFAULT NULL COMMENT '描述信息',
+`last_modify_time` varchar(32) COMMENT '最近修改时间', 
+`last_modify_user` varchar(20) DEFAULT NULL COMMENT '最近修改人',
+ent_id varchar(5) comment "对不同的环境接报警",
+hosts varchar(1000) comment "对不同的主机接收任何报警", 
+item_id varchar(6) comment "对不同的项目进行报警", 
+start_time varchar(11) comment "报警开始接收时间", 
+end_time varchar(11) comment "报警完成时间",
+all_groups varchar(1000) comment "接收报警组"); 
+
 source grafana.sql;
 select "\n\n\n        友情提示:     \n\n请将你的数据库配置成utf8\n请修改mysql的配置文件永久生效\n数据库授权不要写成127.0.0.1的\n请对server的IP地址授权\n\n\n" as "";
 
