@@ -6,22 +6,8 @@ import com.google.gson.reflect.TypeToken;
 import com.asura.common.controller.IndexController;
 import com.asura.common.response.ResponseVo;
 import com.asura.monitor.configure.conf.MonitorCacheConfig;
-import com.asura.monitor.configure.entity.MonitorConfigureEntity;
-import com.asura.monitor.configure.entity.MonitorContactGroupEntity;
-import com.asura.monitor.configure.entity.MonitorContactsEntity;
-import com.asura.monitor.configure.entity.MonitorGroupsEntity;
-import com.asura.monitor.configure.entity.MonitorItemEntity;
-import com.asura.monitor.configure.entity.MonitorMessageChannelEntity;
-import com.asura.monitor.configure.entity.MonitorScriptsEntity;
-import com.asura.monitor.configure.entity.MonitorTemplateEntity;
-import com.asura.monitor.configure.service.MonitorConfigureService;
-import com.asura.monitor.configure.service.MonitorContactGroupService;
-import com.asura.monitor.configure.service.MonitorContactsService;
-import com.asura.monitor.configure.service.MonitorGroupsService;
-import com.asura.monitor.configure.service.MonitorItemService;
-import com.asura.monitor.configure.service.MonitorMessageChannelService;
-import com.asura.monitor.configure.service.MonitorScriptsService;
-import com.asura.monitor.configure.service.MonitorTemplateService;
+import com.asura.monitor.configure.entity.*;
+import com.asura.monitor.configure.service.*;
 import com.asura.monitor.configure.thread.MakeCacheThread;
 import com.asura.monitor.configure.util.ConfigureUtil;
 import com.asura.util.CheckUtil;
@@ -104,6 +90,9 @@ public class SaveController {
 
     @Autowired
     private CacheController cacheController;
+
+    @Autowired
+    private MonitorAlarmConfigureService alarmConfigureService;
 
     private final ConfigureUtil CONFIGURE_UTIL = new ConfigureUtil();
 
@@ -463,6 +452,41 @@ public class SaveController {
         return ResponseVo.responseOk(null);
     }
 
+    /**
+     * 项目配置删除
+     * @param request
+     * @return
+     */
+    @RequestMapping("alarm/save")
+    @ResponseBody
+    public ResponseVo alarmSave(MonitorAlarmConfigureEntity entity, HttpServletRequest request) {
+        String user = permissionsCheck.getLoginUser(request.getSession());
+        entity.setLastModifyUser(user);
+        entity.setLastModifyTime(DateUtil.getDate(DateUtil.TIME_FORMAT));
+        if (entity.getConfigureId() != null) {
+            alarmConfigureService.update(entity);
+        } else {
+            alarmConfigureService.save(entity);
+        }
+        indexController.logSave(request, "添加监控报警信息" + GSON.toJson(entity));
+        return ResponseVo.responseOk(null);
+    }
+
+
+    /**
+     * 项目配置删除
+     * @param id
+     * @param request
+     * @return
+     */
+    @RequestMapping("alarm/deleteSave")
+    @ResponseBody
+    public ResponseVo alarmDelete(int id, HttpServletRequest request) {
+        MonitorAlarmConfigureEntity entity = alarmConfigureService.findById(id, MonitorAlarmConfigureEntity.class);
+        alarmConfigureService.delete(entity);
+        indexController.logSave(request, "删除监控报警信息");
+        return ResponseVo.responseOk(null);
+    }
 
     /**
      * 项目配置删除

@@ -292,7 +292,36 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-12">
+           <div class="col-md-12">
+               <p>
+               <p>
+           </div>
+           <div class="col-md-6">
+               <div class="form-group">
+                   <label class="col-sm-3 control-label">交换机选择:</label>
+                   <div class="col-sm-9">
+                       <select class="form-control" name="switchId" >
+                           <option value="#if ($configs.switchId)$configs.switchId#else 1 #end">#if ($configs.switchId) ${configs.switchId}  #end</option>
+                           <option value="1">--</option>
+                           #foreach( $conf in $switchs )
+                               <option value='$!{conf.ipAddress}'>
+                                   $!{conf.ipAddress}
+                               </option>
+                           #end
+                       </select>
+                   </div>
+               </div>
+           </div>
+           <div class="col-md-6">
+               <div class="form-group">
+                   <label class="col-sm-3 control-label">交换机端口:</label>
+                   <div class="col-sm-9">
+                       <input type="text" name="switchPort" class="form-control"
+                              value="$!{configs.switchPort}">
+                   </div>
+               </div>
+           </div>
+           <div class="col-md-12">
                         <p>
                     </div>
                     <div class="col-md-6">

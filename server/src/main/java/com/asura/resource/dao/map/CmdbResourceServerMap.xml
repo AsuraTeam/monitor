@@ -41,6 +41,7 @@
         a.ent_id as entId,
         a.ip_address as ipAddress,
         a.cabinet_level as cabinetLevel
+
     </sql>
 
     <sql id="sqlId">
@@ -84,6 +85,8 @@
         a.last_modify_time as lastModifyTime,
         a.cabinet_level as cabinetLevel,
         a.status,
+        a.switch_id as switchId,
+        a.switch_port as switchPort,
         a.description</sql>
 
     <select id="selectByIp" parameterType="map" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
@@ -131,9 +134,14 @@
             and a.cabinet_id=#{cabinetId}
         </if>
 
+        <if test="switchId != null">
+            and a.switch_id=#{switchId}
+        </if>
+
         <!-- 获取域名相关 -->
         <if test="domain != null">
-            and a.domain_name=#{domain}
+            and ( a.domain_name=#{domain} or a.domain_name LIKE concat("%", #{domain}, "%")
+            )
         </if>
 
         <!-- 获取时间 -->
@@ -291,6 +299,12 @@
         and a.server_id=#{serverId}
     </select>
 
+    <select id="selectNetworkIp" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
+       select a.ip_address as ipAddress from cmdb_resource_server a ,
+       cmdb_resource_server b where a.host_id=b.server_id
+        and b.ip_address=#{ipAddress}
+    </select>
+
     <!-- 库存统计功能 -->
     <select id="countByGroups" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
         select count(*) as cnt from cmdb_resource_server where groups_id in
@@ -430,7 +444,9 @@
             use_user,
             use_time,
             resource_code,
-            resource_price
+            resource_price,
+            switch_id,
+            switch_port
         ) 
         values(        
             #{serverId},
@@ -461,7 +477,9 @@
             #{useUser},
             #{useTime},
             #{resourceCode},
-            #{resourcePrice}
+            #{resourcePrice},
+            #{switchId},
+            #{switchPort}
         )
     </insert>
 
@@ -501,6 +519,8 @@
             buy_time=#{buyTime},
             use_user=#{useUser},
             use_time=#{useTime},
+            switch_id = #{switchId},
+            switch_port=#{switchPort},
             resource_code=#{resourceCode},
             resource_price=#{resourcePrice},
         </if>
@@ -854,19 +874,29 @@
          <include refid="ent"/>
     </select>
 
+    <!--<sql id="vmUseNumber">-->
+        <!--sum(case round(((cpu/2) + (memory/8) + (disk_size/60)) /3 ) when-->
+        <!--0 then 1 else round(((cpu/2) + (memory/8) + (disk_size/60)) /3 )  end ) as cnt-->
+        <!--from cmdb_resource_server  a, cmdb_resource_entname b where a.ent_id = b.ent_id and-->
+        <!--type_id in (select type_id from cmdb_resource_server_type where type_name in ("KVM虚拟机", "VMware虚拟机", "docker容器", "虚拟机"))-->
+        <!--and groups_id in  <include refid="groups"/>-->
+        <!--<include refid="ent"/>-->
+    <!--</sql>-->
+
     <sql id="vmUseNumber">
-        sum(case round(((cpu/2) + (memory/8) + (disk_size/60)) /3 ) when
-        0 then 1 else round(((cpu/2) + (memory/8) + (disk_size/60)) /3 )  end ) as cnt
+        sum(case ((cpu/2) + (memory/8) + (disk_size/60) /3 ) when
+        0 then 1 else ((cpu/2) + (memory/8) + (disk_size/60)) /3  end ) as cnt
         from cmdb_resource_server  a, cmdb_resource_entname b where a.ent_id = b.ent_id and
-        type_id in (select type_id from cmdb_resource_server_type where type_name in ("KVM虚拟机", "VMware虚拟机", "docker容器", "虚拟机"))
+        type_id in (select type_id from cmdb_resource_server_type
+        where type_name in ("KVM虚拟机", "VMware虚拟机", "docker容器", "虚拟机"))
         and groups_id in  <include refid="groups"/>
         <include refid="ent"/>
     </sql>
 
     <!--按单元计算虚拟机使用-->
     <select id="selectVmUsedNumber" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
-        select (case when (select <include refid="vmUseNumber"/> )
-        is null then 0 else (select <include refid="vmUseNumber"/> ) end) as cnt;
+        select round((case when (select <include refid="vmUseNumber"/> )
+        is null then 0 else (select <include refid="vmUseNumber"/> ) end)) as cnt;
     </select>
 
     <select id="selectVmPrice" resultType="com.asura.resource.entity.CmdbResourceServerEntity">

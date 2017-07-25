@@ -103,7 +103,7 @@ public class CommentController {
      */
     @RequestMapping(value = "historyData", produces = {"application/json;charset=utf8"})
     @ResponseBody
-    public String historyData(String ip, String name, String startT, String endT, String totle, String type, String dayNumber) {
+    public String historyData(String ip, String name, String startT, String endT, String totle, String type, String dayNumber, String last) {
         if (startT == null || startT.length() < 6) {
             startT = DateUtil.getDay();
             endT = DateUtil.getDay();
@@ -113,7 +113,7 @@ public class CommentController {
         }
         ArrayList result = new ArrayList();
         if (dayNumber == null || dayNumber.length() < 1) {
-            result = readHistory(ip, type, name, startT, endT, totle, false);
+                result = readHistory(ip, type, name, startT, endT, totle, false, last);
         } else {
             DateUtil dateUtil = new DateUtil();
             StringBuilder stringBuilder = new StringBuilder();
@@ -132,7 +132,9 @@ public class CommentController {
                     .append(separator)
                     .append(name);
             String dir = stringBuilder.toString();
-            result = FileRender.readTxtFile(dir, result, totle, false);
+
+                result = FileRender.readTxtFile(dir, result, totle, false);
+
         }
         return gson.toJson(result);
     }
@@ -164,7 +166,7 @@ public class CommentController {
             String[] servers = server.split(",");
             for (String ser: servers) {
                 ip = jedis.get(RedisUtil.app + "_" + MonitorCacheConfig.cacheHostIdToIp + ser);
-                list.add(readHistory(ip, type, name, startT, endT, null,false));
+                list.add(readHistory(ip, type, name, startT, endT, null,false, null));
             }
         }
         ArrayList<Object> temp = new ArrayList<>();

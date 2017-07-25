@@ -73,7 +73,7 @@ public class CommandUtil {
      */
     public static String execScript(String command){
         String result = "";
-        String line = "";
+        String line;
         try {
             MonitorUtil.info("run 获取到脚本 " + command);
             Process process = runtime.exec(command);

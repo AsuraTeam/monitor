@@ -1,5 +1,6 @@
 package com.asura.monitor.graph.util;
 
+import com.asura.util.CheckUtil;
 import com.asura.util.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -133,16 +135,16 @@ public class FileRender {
         return arr;
     }
 
-    public static ArrayList readHistory(String ip, String type, String name, String startT, String endT, String totle, boolean isTimestamp) {
+    public static ArrayList readHistory(String ip, String type, String name, String startT, String endT, String totle, boolean isTimestamp, String last) {
         ip = replace(ip);
         type = replace(type);
         name = replace(name);
         ArrayList arr = new ArrayList();
-        String[] tt = new String[3];
+        String[] tt ;
         name = name.replace("---", separator);
         ArrayList<String> lDate = findDates(startT, endT);
         String[] checkTS = startT.split("-");
-        String[] checkTE = startT.split("-");
+        String[] checkTE = endT.split("-");
         for (String s : checkTS) {
             try {
                 Integer.parseInt(s);
@@ -167,7 +169,20 @@ public class FileRender {
                     tt[1] + separator +
                     tt[2] + separator +
                     separator + name;
-            readTxtFile(dir, arr, totle, isTimestamp);
+            if (CheckUtil.checkString(last)){
+                String[] data;
+                try {
+                    data = readLastLine(dir).split(" ");
+                }catch (Exception e){
+                    data = (DateUtil.getDateStampInteter() + " 0.0").split(" ");
+                }
+                ArrayList datas = new ArrayList();
+                datas.add(Long.valueOf(data[0]));
+                datas.add(Double.valueOf(data[1]));
+                arr.add(datas);
+            }else {
+                readTxtFile(dir, arr, totle, isTimestamp);
+            }
         }
         return arr;
 

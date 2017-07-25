@@ -28,18 +28,59 @@
 
 <div class=" animated fadeInRight">
     <div class="row">
-        <div class="col-sm-12">
+        <div class="col-sm-12" style="margin-top:-25px;">
             <div class="ibox float-e-margins"></p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <div class="col-md-12" style="border:1px solid #f2f2f2;padding:5px;">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">IP包含:</label>
+                        <div class="col-sm-9">
+                            <input type="text" id="ip" class="form-control" onKeyup="searchData($(this).val())"
+                                   value="">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">接收人包含:</label>
+                        <div class="col-sm-8">
+                            <input type="text" id="user" class="form-control" onKeyup="searchData($(this).val())"
+                                   value="">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">域名包含:</label>
+                        <div class="col-sm-8">
+                            <input type="text" id="domain" class="form-control" onKeyup="searchData($(this).val())"
+                                   value="">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">内容包含:</label>
+                        <div class="col-sm-8">
+                            <input type="text" id="messagesId" class="form-control" onKeyup="searchData($(this).val())"
+                                   value="">
+                        </div>
+                    </div>
+                </div>
+              </div>
+              <div class="col-md-12">
                 <span title="点击关闭或开启发送报警功能">
-                <button  class="btn btn-outline #if($alarm=="1") btn-danger fa fa-close
-#else btn-success fa fa-undo #end" onclick="setAlarm(${alarm})">&nbsp;#if($alarm=="1") 关闭报警 #else 开始报警#end&nbsp;&nbsp;&nbsp;</button>
-                         <div class="input-group col-md-6 pull-right" style="margin-top:-5px;margin-right: 10px;">
+                <button style="margin-top:5px;"  class="btn btn-outline #if($alarm=="1") btn-danger fa fa-close
+#else btn-success fa fa-undo #end" onclick="setAlarm(${alarm})">&nbsp;#if($alarm=="1") 关闭报警 #else 开始报警#end&nbsp;&nbsp;&nbsp;
+                </button>
+                <div class="input-group col-md-6 pull-right" style="margin-top:5px;margin-right: 10px;">
                         <span class="input-group-addon">时间选择：</span>
                         <input type="text" class="form-control" id="startSendTime" name="startSendTime">
                         <span class="input-group-addon">-</span>
                         <input type="text" class="form-control" id="endSendTime" name="endSendTime">
-                    </div>
+                </div>
                 </span>
+              </div>
 
                 <div class="ibox-content" style="overflow:scroll;">
 
@@ -90,15 +131,25 @@
         $('#dispaly_detail_content_1').html(html)
     }
 
+    function getData(id){
+        data = $('#'+id).val()
+       if(!data){data=""}
+       return data;
+
+    }
+
+    function searchData(val){
+       if(val.length < 5){return}
+       loadData()
+    }
+
     function loadData(){
-        startTime = $('#startSendTime').val()
-        endTime = $('#endSendTime').val()
-        if(!startTime){
-            startTime = ""
-        }
-        if(!endTime){
-            endTime = ""
-        }
+        startTime = getData('startSendTime')
+        endTime = getData('endSendTime')
+        domain = getData('domain')
+        user = getData('user')
+        ip = getData('ip')
+        messages = getData('messagesId')
         $("#listTable").dataTable({
             "filter": true,//去掉搜索框
             "ordering": false, // 是否允许排序
@@ -109,7 +160,7 @@
             "scrollX": true, // 是否允许左右滑动
             "displayLength": 10, // 默认长度
             "ajax": { // 请求地址
-                "url": "/monitor/configure/"+site+"/recordData?startTime=" + startTime +"&endTime=" + endTime ,
+                "url": "/monitor/configure/"+site+"/recordData?startTime=" + startTime +"&endTime=" + endTime +"&domain="+domain+"&user="+user+"&ip="+ip+"&messages="+messages,
                 "type": 'post'
             },
 
@@ -159,7 +210,6 @@
                     }
                 }},
                 {"data": "messagesTime","mRender":function (data) {
-                    console.log(data)
                     return data;
                 }},
                 {"sWidth": "150px", "data": "messagesId", "mRender": function(data, type, full) {

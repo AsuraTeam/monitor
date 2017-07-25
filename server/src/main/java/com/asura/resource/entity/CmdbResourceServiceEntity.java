@@ -22,6 +22,8 @@ public class CmdbResourceServiceEntity extends BaseEntity{
     public String getLastModifyTime() {
         return lastModifyTime;
     }
+    private String switchId;
+    private String switchPort;
 
     public void setLastModifyTime(String lastModifyTime) {
         this.lastModifyTime = lastModifyTime;

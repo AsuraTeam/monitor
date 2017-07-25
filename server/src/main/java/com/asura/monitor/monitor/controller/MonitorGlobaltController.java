@@ -695,7 +695,7 @@ public class MonitorGlobaltController {
     @RequestMapping(value = "IndexData", produces = {"application/json;charset=utf-8"})
     @ResponseBody
     public String IndexData(String exclude) {
-        if (GROUP_HOSTS == null) {
+        if (null == GROUP_HOSTS) {
             CACHE_HOSTS_TIME = System.currentTimeMillis() / 1000;
             GROUP_HOSTS = new HashMap<>();
         }

@@ -113,6 +113,15 @@ public class ListController {
         return "monitor/configure/item/list";
     }
 
+    /**
+     * 监控报警配置
+     * @return
+     */
+    @RequestMapping("alarm/list")
+    public String alarmList(){
+        return "monitor/configure/alarm/list";
+    }
+
 
     /**
      * 监控信息

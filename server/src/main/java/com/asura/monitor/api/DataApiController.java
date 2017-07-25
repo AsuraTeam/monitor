@@ -156,7 +156,7 @@ public class DataApiController {
         String startT = DateUtil.timeStamp2Date(start+"000", "yyyy-MM-dd");
         String endT = DateUtil.timeStamp2Date(end+"000", "yyyy-MM-dd");
 
-        ArrayList<ArrayList> list = FileRender.readHistory(host,names[0], name,startT,endT,null, true);
+        ArrayList<ArrayList> list = FileRender.readHistory(host,names[0], name,startT,endT,null, true, null);
         ArrayList valueList = new ArrayList();
         Long times;
         for (ArrayList data:list){

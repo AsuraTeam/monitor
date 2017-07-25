@@ -40,6 +40,24 @@ public class CmdbResourceServerEntity extends BaseEntity{
     private String useTime;
     private String resourceCode;
     private String resourcePrice;
+    private String switchId;
+    private String switchPort;
+
+    public String getSwitchId() {
+        return switchId;
+    }
+
+    public void setSwitchId(String switchId) {
+        this.switchId = switchId;
+    }
+
+    public String getSwitchPort() {
+        return switchPort;
+    }
+
+    public void setSwitchPort(String switchPort) {
+        this.switchPort = switchPort;
+    }
 
     public String getFloorId() {
         return floorId;

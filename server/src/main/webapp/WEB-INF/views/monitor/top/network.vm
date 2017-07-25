@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE9"/>
+    <link rel="stylesheet" type="text/css" href="/static/top/css/base.css">
+    <link href="/static/top/css/jquery.snippet.min.css" rel="stylesheet">
+
+
+    <script src="/static/js/jquery.min.js?v=2.1.4"></script>
+    <script src="/static/js/bootstrap.min.js?v=3.3.6"></script>
+
+    <script type="text/javascript" src="/static/top/js/snippet/jquery.snippet.min.js"></script>
+
+    <script type="text/javascript" src="/static/top/js/jtopo-min.js"></script>
+    <script type="text/javascript" src="/static/top/js/toolbar.js"></script>
+
+    <script id='code'>
+
+        function post(paramter, url) {
+            var result = "";
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: paramter,
+                async: false,
+                success: function (data) {
+                    result = data;
+                }
+            });
+            return result;
+        }
+
+        function get_count(datas, data) {
+            if (!data) {
+                return datas
+            }
+            for (i = 0; i < data.length; i++) {
+                datas += data[i][1]
+            }
+            return datas
+        }
+
+        /**
+         * 获取机柜ID
+         * @param ip
+         */
+        function getCabinetId(ip) {
+            url = "/resource/configure/server/listData?ipAddress="+ip+"&start=1&length=2&draw=1";
+            data = post({}, url)["data"]
+            if (data){
+                return data[0]["cabinetId"]
+            }
+            return 1;
+        }
+        // 获取今日总流量
+        function get_traffic(ip) {
+            count_url = "/monitor/graph/historyData?ip=" + ip + "&name=TrafficOutputTotle.MB&dayNumber=&type=SwitchTraffic&startT=&endT="
+            data = post({}, count_url)
+            datas = 0
+            datas = get_count(datas, data)
+            input_url = "/monitor/graph/historyData?ip=" + ip + "&name=TrafficInputTotle.MB&dayNumber=&type=SwitchTraffic&startT=&endT="
+            data = post({}, input_url)
+            datas = get_count(datas, data)
+            return (datas / 1000 ).toFixed(2) + "GB"
+        }
+
+
+        function get_server_traffic(ip) {
+            datas = 0
+            url = "/monitor/graph/historyData?ip=" + ip + "&dayNumber=&type=traffic&startT=&endT=&name="
+            count_url = url + "br0.system.net.bytes.rcvd"
+            data = post({}, count_url)
+            datas = get_count(datas, data)
+            count_url = url + "br0.system.net.bytes.send"
+            data = post({}, count_url)
+            datas = get_count(datas, data)
+            count_url = url + "etho.system.net.bytes.send"
+            data = post({}, count_url)
+            datas = get_count(datas, data)
+            count_url = url + "etho.system.net.bytes.rcvd"
+            data = post({}, count_url)
+            datas = get_count(datas, data)
+            return (datas / 1000 / 1000).toFixed(2) + "GB"
+        }
+
+        function get_realtime_traffic(ip) {
+            url = "/monitor/graph/historyData?ip=" + ip + "&name=TrafficOutputTotle.MB&dayNumber=&type=SwitchTraffic&startT=&endT=&last=1"
+            data1 = post({}, url)
+            url = "/monitor/graph/historyData?ip=" + ip + "&name=TrafficInputTotle.MB&dayNumber=&type=SwitchTraffic&startT=&endT=&last=1"
+            data2 = post({}, url)
+            if (data1 && data2) {
+                return (data1[0][1] + data2[0][1]).toFixed(2) + "MB"
+            }
+            return "0MB"
+        }
+
+
+        function load_graph(ip) {
+            url = "/monitor/graph/all/index?ip=" + ip + "&width=&select=SwitchTraffic|TrafficInputTotle.MB,SwitchTraffic|TrafficOutputTotle.MB&ips=" + ip + "&startT=&endT="
+            window.open(url)
+        }
+
+        function load_server_graph(ip) {
+            url = "/monitor/graph/all/index?ip=" + ip + "&width=&select=traffic|br0.system.net.bytes.rcvd,traffic|br0.system.net.bytes.send,traffic|eth0.system.net.bytes.rcvd,traffic|eth0.system.net.bytes.send&ips=" + ip + "&startT=&endT="
+            window.open(url)
+        }
+
+        $(document).ready(function () {
+            var canvas = document.getElementById('canvas');
+            var stage = new JTopo.Stage(canvas);
+            //显示工具栏
+            //showJTopoToobar(stage);
+
+            var scene = new JTopo.Scene();
+            //scene.background = './img/bg.jpg';
+
+            function node(x, y, img) {
+                var node = new JTopo.Node();
+                node.setImage('/static/top/img/statistics/' + img, true);
+                node.setLocation(x, y);
+                scene.add(node);
+                return node;
+            }
+
+            function textNodeF(ip, x, y) {
+                var textNode = new JTopo.TextNode(ip);
+                textNode.font = 'bold 16px 微软雅黑';
+                textNode.fontColor = '0,0,0';
+                textNode.setLocation(x, y);
+                textNode.font = "12px Consolas"
+                return textNode
+            }
+
+            function linkNode(nodeA, nodeZ, f, width) {
+                var link;
+                if (f) {
+                    link = new JTopo.FoldLink(nodeA, nodeZ);
+                } else {
+                    link = new JTopo.Link(nodeA, nodeZ);
+                }
+                link.lineWidth = width; // 线宽
+                link.bundleOffset = 60; // 折线拐角处的长度
+                link.bundleGap = 10; // 线条之间的间隔
+                link.textOffsetY = -43; // 文本偏移量（向下3个像素）
+                link.strokeColor = '0,200,255';
+                link.fontColor = '0,0,0';
+                //link.text = "traffic";
+                //if(traffic){
+                //   link.text = traffic;
+                // }
+                link.direction = 'vertical';
+                scene.add(link);
+                return link;
+            }
+
+
+            var width = document.body.clientWidth
+            //var s2 = node(365, 43, 'server.png');
+            //var s3 = node(425, 43, 'server.png');
+
+            //linkNode(s2, g1, true);
+            //linkNode(s3, g1, true);
+            var switchColor = "57,175,72"
+
+            var convergence_list = new Array();
+            #foreach($c in $convergence)
+                convergence_list.push("${c}");
+            #end
+            // 汇聚层宽度
+            var convergence_space = 6 * 60
+            var convergence_number = convergence_list.length;
+            var convergence_data = convergence_list
+
+            // 防火墙层
+            var firewall = node(convergence_space * 2 / 2 - 140, 43, 'firewall.png');
+            firewall.alarm = '防火墙 $!{firewall}';
+            firewall.alarmColor = '0,0,0';
+            firewall.mouseover(function () {
+
+                var textNode = textNodeF("$!{firewall}", convergence_space * 2 / 2 - 340, 43)
+                var textNode2 = textNodeF("今日流量合计:" + get_traffic("$!{firewall}"), convergence_space * 2 / 2 - 340, 63)
+                scene.add(textNode);
+                scene.add(textNode2);
+
+                setTimeout(function () {
+                    // 移除
+                    scene.remove(textNode)
+                    scene.remove(textNode2)
+                }, 2000)
+            })
+
+            firewall.click(function () {
+                load_graph("$!{firewall}")
+            })
+
+            // 防火墙数据刷新
+            var firewallTimer;
+            var firewallTimerCounter = 0
+            firewallTimer = setInterval(function () {
+                firewall.alarm = '防火墙 $!{firewall} ' + get_realtime_traffic("$!{firewall}")
+                if (firewall.alarmColor == switchColor) {
+                    firewall.alarmColor = '0,0,0';
+                } else {
+                    firewall.alarmColor = switchColor;
+                }
+                firewallTimerCounter += 1
+                if (firewallTimerCounter > 100) {
+                    clearInterval(firewallTimer)
+                }
+            }, 3200);
+
+            // 核心层
+            var core_switch = node(convergence_space * 2 / 2 - 140, 183, 'switch_core.png');
+            core_switch.alarm = '核心交换机';
+            core_switch.alarmColor = '0,0,0';
+            core_switch.click(function () {
+                load_graph("$!{core}")
+            })
+            linkNode(firewall, core_switch, true, 2);
+
+            core_switch.mouseover(function () {
+
+                var textNode = textNodeF("$!{core}", convergence_space * 2 / 2 - 340, 183)
+                var textNode2 = textNodeF("今日流量合计:" + get_traffic("$!{core}"), convergence_space * 2 / 2 - 340, 203)
+                scene.add(textNode);
+                scene.add(textNode2);
+
+                setTimeout(function () {
+                    // 移除
+                    scene.remove(textNode)
+                    scene.remove(textNode2)
+                }, 4000)
+            })
+
+            // 防火墙数据刷新
+            var coreTimer;
+            var coreTimerCounter = 0
+            coreTimer = setInterval(function () {
+                core_switch.alarm = '核心交换机 $!{core} ' + get_realtime_traffic("$!{core}")
+                coreTimerCounter += 1
+                if (core_switch.alarmColor == switchColor) {
+                    core_switch.alarmColor = '0,0,0';
+                } else {
+                    core_switch.alarmColor = switchColor;
+                }
+                if (coreTimerCounter > 100) {
+                    clearInterval(coreTimer)
+                }
+            }, 2000);
+
+
+            // 汇聚层
+            convergence_y = 0
+
+        ##            var access_number = "$!{access}"
+        ##
+        ##            //
+        ##            convergence_width = access_number * 220
+            j = 1;
+            #foreach($c in $convergence)
+                var h = 343
+                if (j > 1) {
+                    h = (430) * j
+                }
+                var convergence_switch$!{c.replace(".", "")} = node(convergence_space * 2 / 2 - 140, h, 'wanjet.png');
+                convergence_switch$!{c.replace(".",
+                    "")}.alarm = '汇聚交换机 ' + convergence_data[j - 1] + get_realtime_traffic(convergence_data[j - 1]);
+                convergence_switch$!{c.replace(".", "")}.alarmColor = '0,0,0';
+
+                convergence_switch$!{c.replace(".", "")}.click(function () {
+                    load_graph("$!{c}")
+                })
+
+                convergence_switch$!{c.replace(".", "")}.mouseover(function () {
+
+                    var textNode = textNodeF("$!{c}", this.getBound()["left"] - 160, this.getBound()["top"])
+                    var textNode2 = textNodeF("今日流量合计:" + get_traffic("$!{c}"), this.getBound()["left"] - 160, this.getBound()["top"] + 20)
+                    scene.add(textNode);
+                    scene.add(textNode2);
+
+                    setTimeout(function () {
+                        // 移除
+                        scene.remove(textNode)
+                        scene.remove(textNode2)
+                    }, 2000)
+                })
+
+                linkNode(core_switch, convergence_switch$!{c.replace(".", "")}, true, 2);
+                var convergenceTimer$!{c.replace(".", "")};
+                var convergenceTimerCounter$!{c.replace(".", "")} = 0
+                convergenceTimer$!{c.replace(".", "")} = setInterval(function () {
+                    convergence_switch$!{c.replace(".", "")}.alarm = '汇聚交换机 $!{c} ' + get_realtime_traffic("$!{c}")
+                    coreTimerCounter += 1
+                    if (convergence_switch$!{c.replace(".", "")}.alarmColor == switchColor) {
+                        convergence_switch$!{c.replace(".", "")}.alarmColor = '0,0,0';
+                    } else {
+                        convergence_switch$!{c.replace(".", "")}.alarmColor = switchColor;
+                    }
+                    if (convergenceTimerCounter$!{c.replace(".", "")} > 100) {
+                        clearInterval(convergenceTimer$!{c.replace(".", "")})
+                    }
+                }, parseInt((Math.ceil(Math.random() * 10) + 1) * 1000));
+
+                convergence_y += convergence_space
+                // 接入交换机层
+                var y = 11;
+                #foreach($ip in ${access.get($c)})
+                    var w1$!{ip.replace(".","")}$!{c.replace(".","")} = node(y, h + 360, 'switch_access.png');
+                    w1$!{ip.replace(".","")}$!{c.replace(".","")}.alarm = '接入${ip}';
+                    w1$!{ip.replace(".","")}$!{c.replace(".","")}.alarmColor = '0,0,0';
+
+                    w1$!{ip.replace(".", "")}$!{c.replace(".","")}.click(function () {
+                        load_graph("$!{ip}")
+                    })
+
+
+                    w1$!{ip.replace(".", "")}$!{c.replace(".","")}.mouseover(function () {
+                        var textNode = textNodeF("$!{ip}", this.getBound()["left"], this.getBound()["top"] - 340)
+                        var textNode2 = textNodeF("今日流量合计:" + get_traffic("$!{ip}"), this.getBound()["left"], this.getBound()["top"] - 320)
+
+                        // 获取某个机柜的数据
+                        var server_data = post({}, "/resource/configure/server/listData?switchId=$!{ip}" + "&start=1&length=14&draw=1")
+                        server_data = server_data["data"]
+                        for (var jj = server_data.length; jj > 0; jj--) {
+                            var cabinet = node(this.getBound()["left"] + 66, this.getBound()["top"] - ((jj + 1) * 19), 'ups.png');
+                            cabinet.a = jj - 1
+                            cabinet.click(function () {
+                                load_server_graph(server_data[this.a]["ipAddress"])
+                            })
+                            //cabinet.alarmColor = "0,0,0"
+                            ip = server_data[jj - 1]["ipAddress"]
+                            var temp = textNodeF(ip + " " + get_server_traffic(ip), this.getBound()["left"] + 136, this.getBound()["top"] - ((jj + 1) * 19))
+                            temp.font = "12px Consolas"
+                            scene.add(temp);
+                            //cabinet.alarm = server_data[jj-1]["ipAddress"]
+                            //cabinet.textPosition = 'Middle_Right';
+                            scene.add(cabinet);
+                        }
+                        ;
+
+
+                        scene.add(textNode);
+                        scene.add(textNode2);
+
+                        setTimeout(function () {
+                            window.location.reload()
+                        }, 14000)
+                    })
+
+                    var w1TimerCounter$!{ip.replace(".", "")}$!{c.replace(".","")} = 0
+                    var w1$!{ip.replace(".", "")}$!{c.replace(".","")}Timter;
+                    w1$!{ip.replace(".", "")}$!{c.replace(".","")}Timter = setInterval(function () {
+                        w1$!{ip.replace(".", "")}$!{c.replace(
+                            ".","")}.alarm = '接入 $!{c} ' + get_realtime_traffic("$!{ip}")
+                        coreTimerCounter += 1
+                        if (w1$!{ip.replace(".", "")}$!{c.replace(".","")}.alarmColor == switchColor) {
+                            w1$!{ip.replace(".", "")}$!{c.replace(".","")}.alarmColor = '0,0,0';
+                        } else {
+                            w1$!{ip.replace(".", "")}$!{c.replace(".","")}.alarmColor = switchColor;
+                        }
+                        if (w1TimerCounter$!{ip.replace(".", "")}$!{c.replace(".","")} > 100) {
+                            clearInterval(w1$!{ip.replace(".", "")}$!{c.replace(".","")}Timter)
+                        }
+                    }, parseInt((Math.ceil(Math.random() * 10) + 1) * 2000));
+
+                    y += 200;
+                    linkNode(convergence_switch$!{c.replace(".", "")}, w1$!{ip.replace(".","")}$!{c.replace(
+                        ".","")}, false);
+                #end
+                j += 1;
+                //      var c1 = node(364, 214, 'router2.png');
+                //      linkNode(w1, c1, '', "");
+            #end
+
+
+            //   var w3 = node(34, 167, 'router2.png');
+            //      w3.alarm= '10.16.20.1 正常';
+            //              w3.alarmColor = '0,0,0';
+            //      linkNode(s1, w3, false, "100Mib");
+
+            //var jg1 = node(64, 247, 'mainframe.png');
+            //linkNode(w3, jg1);
+
+            //var w12 = node(164, 167, 'router2.png');
+            //w12.alarm= '10.16.20.1 正常';
+            //w12.alarmColor = '0,0,0';
+            //linkNode(s1, w12, false, "140Mib");
+
+            //var w13 = node(564, 167, 'router2.png');
+            //linkNode(s1, w13);
+
+            //var w14 = node(694, 167, 'router2.png');
+            //linkNode(s1, w14);
+
+            //var cloud = node(344, 959, 'cloud.png');
+            ////linkNode(c1, cloud);
+            //
+            //var c2 = node(364, 928, 'center.png');
+            //linkNode(cloud, c2);
+            //
+
+            //var w2 = node(334, 977, 'wanjet.png');
+            //linkNode(c2, w2);
+
+            //var g2 = node(366, 911, 'gather.png');
+            //linkNode(w2, g2);
+            //
+            //function hostLink(nodeA, nodeZ){
+            //   var link = new JTopo.FlexionalLink(nodeA, nodeZ);
+            //   link.shadow = false;
+            //   link.offsetGap = 44;
+            //   scene.add(link);
+            //   return link;
+            //}
+            //
+            //var h1 = node(218, 920, 'host.png');
+            //h1.alarm = '';
+            //hostLink(g2, h1);
+            //var h2 = node(292, 920, 'host.png');
+            //hostLink(g2, h2);
+            //var h3 = node(366, 920, 'host.png');
+            //h3.alarm = '二级告警';
+            //hostLink(g2, h3);
+            //var h4 = node(447, 920, 'host.png');
+            //hostLink(g2, h4);
+            //var h5 = node(515, 920, 'host.png');
+            //h5.alarm = '1M';
+            //hostLink(g2, h5);
+            //
+            //setInterval(function(){
+            //   if(h3.alarm == '二级告警'){
+            //      h3.alarm = null;
+            //   }else{
+            //      h3.alarm = '二级告警'
+            //   }
+            //}, 600);
+
+            stage.add(scene);
+        });
+    </script>
+</head>
+
+<body style="background:#ffffff;">
+<div id="cache_data">
+</div>
+<div class="content">
+    <div id="">
+        <canvas width="5850" height="1550" id="canvas"></canvas>
+    </div>
+</div>
+</body>
+</html>

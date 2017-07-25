@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<body xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+<div class="modal fade" id="add_getui_config" tabindex="-1"
+     role="dialog" style="background-color: #FfFfFf; margin-top: 16px;"
+     data-backdrop="false">
+    <div class="modal-dialog"
+         style="margin-top: 0px; width: 80%; ">
+        <div class="modal-content"
+             style=" width: 100%; height: auto;">
+            <form>
+            <div class="modal-header" >
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title">&nbsp;&nbsp;报警自定义配置</h4>
+            </div>
+            <div class="">
+
+                    <div class="col-md-12" style="margin-top: 15px;">
+                    </div>
+                <div class="col-md-11"
+                     style="border: 1px solid #f0f0f0;margin-left: 50px;margin-right: 130px;margin-top: 10px;">
+                    <span style="position:fixed;margin-top: -10px;margin-left: 25px;">常规信息</span>
+                    <p>&nbsp;</p>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">业务线选择:</label>
+                            <div class="col-sm-9">
+                                <select class="form-control" name="groupsId">
+                                    <option value="#if ($configs.groupsId)$configs.groupsId#else 0 #end">#if ($configs.groupsName) ${configs.groupsName}  #end</option>
+                                    <option value="0">--</option>
+                                    #foreach( $conf in $groups )
+                                        <option
+                                                value='$!{conf.groupsId}'>
+                                            $!{conf.groupsName}
+                                        </option>
+                                    #end
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">环境选择:</label>
+                            <div class="col-sm-9">
+                                <select class="form-control" name="entId">
+                                    <option value="#if ($configs.entId)${configs.entId}#else 0 #end">#if ($configs.entName) ${configs.entName}  #end</option>
+                                    <option value="0">--</option>
+                                    #foreach( $conf in $entname )
+                                        <option
+                                                value='$!{conf.entId}'>
+                                            $!{conf.entName}
+                                        </option>
+                                    #end
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <p>
+                        <p>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">用户选择:</label>
+                            <div class="col-sm-9">
+                                <select class="form-control" name="userId">
+                                    <option value="#if ($configs.userId)${configs.userId}#else 0 #end">#if ($configs.userName) ${configs.userName}  #end</option>
+                                    <option value="0">--</option>
+                                    #foreach( $conf in $user )
+                                        <option
+                                                value='$!{conf.userId}'>
+                                            $!{conf.userName}
+                                        </option>
+                                    #end
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <p>
+                        <p>
+                    </div>
+                </div>
+
+                <div class="col-md-12" style="margin-top: 15px;"></div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">描述信息:</label>
+                        <div class="col-sm-10" style="margin-left: -5%;width: 88%;">
+                            <input type="text" name="description" class="form-control" id="script_description"
+                                   value="$!{configs.description}">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12" style="margin-top: 15px;"></div>
+                <button style="margin-left: 87%;margin-top: 5px;margin-bottom: 10px;"
+                        onclick="saveConfig($!{configs.itemId});" class="btn btn-primary btn-lg" type="button">
+                    <i class="fa fa-check"></i>&nbsp;保存
+                </button>
+        </div>
+        </form>
+
+    </div>
+
+</div>
+</div>
+<script type="text/javascript">
+
+    function change(obj) {
+        value = $(obj).val();
+        if (value == 0) {
+            console.log(1);
+            $(obj).val(1);
+        } else {
+            console.log(0)
+            $(obj).val(0);
+        }
+    }
+
+
+</script>
+</body>

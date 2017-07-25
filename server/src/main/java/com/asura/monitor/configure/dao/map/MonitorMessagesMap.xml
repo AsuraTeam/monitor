@@ -26,13 +26,36 @@
       </sql>
     <select id="selectByAll" resultType="com.asura.monitor.configure.entity.MonitorMessagesEntity">
              <include refid="baseSql" />
-        <if test="search != null">
-            and ( messages like concat("%",#{search},"%")
-            or mobile like concat("%",#{search},"%")
-            or email like concat("%",#{search},"%")
-            or weixin like concat("%",#{search},"%")
-            or ding like concat("%",#{search},"%")
-            or b.ip_address  like concat("%",#{search},"%")
+        <if test="searchM != null">
+            and ( messages like concat("%",#{searchM},"%")
+            or mobile like concat("%",#{searchM},"%")
+            or email like concat("%",#{searchM},"%")
+            or weixin like concat("%",#{searchM},"%")
+            or ding like concat("%",#{searchM},"%")
+            or b.ip_address  like concat("%",#{searchM},"%")
+            )
+        </if>
+        <if test="domainList != null">
+            and a.server_id in
+            <foreach collection="domainList" item="item" separator="," open="(" close=")"  index="index">
+                #{item}
+            </foreach>
+        </if>
+        <if test="ipList != null">
+            and a.server_id in
+            <foreach collection="ipList" item="item" separator="," open="(" close=")"  index="index">
+                #{item}
+            </foreach>
+        </if>
+        <if test="messages != null">
+           and messages like concat("%",#{messages},"%")
+        </if>
+        <if test="user != null">
+            and (
+            mobile like concat("%",#{searchM},"%")
+            or email like concat("%",#{searchM},"%")
+            or weixin like concat("%",#{searchM},"%")
+            or ding like concat("%",#{searchM},"%")
             )
         </if>
         <if test="startT != null">

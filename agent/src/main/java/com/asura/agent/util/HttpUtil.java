@@ -22,7 +22,7 @@ public class HttpUtil {
     public static String sendPost(String url, String param){
         for (int i=0 ; i < 3; i++) {
             String result = sendPost(url, param, ""+i);
-            if (result != null){
+            if (null != result){
                 return result;
             }
         }

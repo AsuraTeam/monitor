@@ -26,6 +26,7 @@ import com.asura.monitor.configure.service.MonitorScriptsService;
 import com.asura.monitor.configure.service.MonitorTemplateService;
 import com.asura.resource.entity.CmdbResourceServerEntity;
 import com.asura.resource.service.CmdbResourceServerService;
+import com.asura.util.CheckUtil;
 import com.asura.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -396,22 +397,62 @@ public class ListDataController {
     }
 
     /**
+     * 搜索服务器的ID
+     * @param list
+     * @param searchMap
+     * @return
+     */
+    ArrayList getServerData(ArrayList list, SearchMap searchMap){
+        List<CmdbResourceServerEntity> data = serverService.getDataList(searchMap, "selectByAll");
+        for (CmdbResourceServerEntity serverEntity:data){
+            list.add(serverEntity.getServerId());
+        }
+        return list;
+    }
+
+    /**
      * 消息通道
      *
      * @return
      */
     @RequestMapping(value = "messages/recordData", produces = {"application/json;charset=UTF-8"})
     @ResponseBody
-    public String recordData(int draw, int start, int length, HttpServletRequest request, String startTime, String endTime) {
+    public String recordData(int draw, int start, int length, HttpServletRequest request, String startTime, String endTime, String ip, String messages, String user, String domain) {
         PageBounds pageBounds = PageResponse.getPageBounds(length, start);
         SearchMap searchMap = new SearchMap();
         String search = request.getParameter("search[value]");
-        if (search != null && search.length() > 1) {
-            searchMap.put("search", search);
+        if (CheckUtil.checkString(search)) {
+            searchMap.put("searchM", search);
         }
-        if (startTime != null && startTime.length() > 1) {
+
+        if (CheckUtil.checkString(startTime) && CheckUtil.checkString(endTime)) {
             searchMap.put("startT", startTime);
             searchMap.put("endT", endTime);
+        }
+
+        ArrayList domainList = new ArrayList();
+        if (CheckUtil.checkString(domain)) {
+            searchMap.put("domain", domain);
+            domainList = getServerData(domainList, searchMap);
+        }
+
+        ArrayList ipList = new ArrayList();
+        if (CheckUtil.checkString(ip)){
+            searchMap.remove("domain");
+            searchMap.put("search", ip);
+            ipList = getServerData(ipList, searchMap);
+        }
+        if (domainList.size() > 0){
+            searchMap.put("domainList", domainList);
+        }
+        if (ipList.size() > 0){
+            searchMap.put("ipList", ipList);
+        }
+        if (CheckUtil.checkString(messages)){
+            searchMap.put("messages", messages);
+        }
+        if (CheckUtil.checkString(user)){
+            searchMap.put("user", user);
         }
 
         List<MonitorScriptsEntity> scripts = scriptsService.getDataList(searchMap, "select0Id");

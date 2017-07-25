@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.monitor.configure.dao.MonitorAlarmConfigureDao">
+     <sql id="baseSql">
+        select 
+            configure_id as configureId,
+            description as description,
+            last_modify_time as lastModifyTime,
+            last_modify_user as lastModifyUser,
+            ent_id as entId,
+            hosts as hosts,
+            item_id as itemId,
+            start_time as startTime,
+            end_time as endTime,
+            all_groups as allGroups,
+            gson_data as gsonData
+         from monitor_alarm_configure 
+     </sql>
+    <select id="selectByAll" resultType="com.asura.monitor.configure.entity.MonitorAlarmConfigureEntity">
+         <include refid="baseSql" />
+     </select>
+      <select id="findById" resultType="com.asura.monitor.configure.entity.MonitorAlarmConfigureEntity">
+                   <include refid="baseSql" />
+            where configure_id=#{configureId}       </select>
+
+    <insert id="save" parameterType="com.asura.monitor.configure.entity.MonitorAlarmConfigureEntity">
+        insert into monitor_alarm_configure(
+            configure_id,
+            description,
+            last_modify_time,
+            last_modify_user,
+            ent_id,
+            hosts,
+            item_id,
+            start_time,
+            end_time,
+            all_groups,
+            gson_data
+        ) 
+        values(        
+            #{configureId},
+            #{description},
+            #{lastModifyTime},
+            #{lastModifyUser},
+            #{entId},
+            #{hosts},
+            #{itemId},
+            #{startTime},
+            #{endTime},
+            #{allGroups},
+            #{gsonData}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.monitor.configure.entity.MonitorAlarmConfigureEntity">
+        update monitor_alarm_configure set   
+            configure_id=#{configureId},
+            description=#{description},
+            last_modify_time=#{lastModifyTime},
+            last_modify_user=#{lastModifyUser},
+            ent_id=#{entId},
+            hosts=#{hosts},
+            item_id=#{itemId},
+            start_time=#{startTime},
+            end_time=#{endTime},
+            all_groups=#{allGroups},
+            gson_data=#{gsonData}
+         where configure_id=#{configureId}
+    </update>
+
+    <delete id="delete" parameterType="com.asura.monitor.configure.entity.MonitorAlarmConfigureEntity">
+        delete from monitor_alarm_configure where configure_id=#{configureId}
+    </delete>
+
+</mapper>
+

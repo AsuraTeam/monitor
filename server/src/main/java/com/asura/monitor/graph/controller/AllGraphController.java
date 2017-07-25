@@ -513,7 +513,6 @@ public class AllGraphController {
         }
 
         if (hostIdMap.containsKey(server)) {
-            serverId = (String) hostIdMap.get(server).get("serverId");
             port = (String) hostIdMap.get(server).get("port");
         } else {
             Map map =getHostInfo(server, redisUtil,  gson);
@@ -568,7 +567,7 @@ public class AllGraphController {
                 bindImageEntity.setName(name.replace("---", " ").replace("SLASH", "/"));
                 bindImageEntity.setType("spline");
                 bindImageEntity.setUnit("");
-                ArrayList<ArrayList> data = readHistory(ip, entry.getKey(), name, startT, endT, null, false);
+                ArrayList<ArrayList> data = readHistory(ip, entry.getKey(), name, startT, endT, null, false, null);
                 ArrayList<Double> bindData = new ArrayList<>();
                 for (ArrayList<Double> d : data) {
                     bindData.add(d.get(1));

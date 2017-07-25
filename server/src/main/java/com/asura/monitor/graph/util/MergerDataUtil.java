@@ -111,7 +111,7 @@ public class MergerDataUtil extends Thread {
         String startT = getLastNDay(dayNumber);
         String endT = getYestDay();
         ArrayList<ArrayList> datas;
-        datas = readHistory(ip, groups, name, startT, endT, null, false);
+        datas = readHistory(ip, groups, name, startT, endT, null, false, null);
         return datas;
     }
 

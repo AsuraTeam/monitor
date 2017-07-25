@@ -3,22 +3,10 @@ package com.asura.monitor.configure.controller;
 import com.asura.framework.base.paging.SearchMap;
 import com.asura.framework.dao.mybatis.paginator.domain.PageBounds;
 import com.asura.common.response.PageResponse;
-import com.asura.monitor.configure.entity.MonitorConfigureEntity;
-import com.asura.monitor.configure.entity.MonitorContactGroupEntity;
-import com.asura.monitor.configure.entity.MonitorContactsEntity;
-import com.asura.monitor.configure.entity.MonitorGroupsEntity;
-import com.asura.monitor.configure.entity.MonitorItemEntity;
-import com.asura.monitor.configure.entity.MonitorMessageChannelEntity;
-import com.asura.monitor.configure.entity.MonitorScriptsEntity;
-import com.asura.monitor.configure.entity.MonitorTemplateEntity;
-import com.asura.monitor.configure.service.MonitorConfigureService;
-import com.asura.monitor.configure.service.MonitorContactGroupService;
-import com.asura.monitor.configure.service.MonitorContactsService;
-import com.asura.monitor.configure.service.MonitorGroupsService;
-import com.asura.monitor.configure.service.MonitorItemService;
-import com.asura.monitor.configure.service.MonitorMessageChannelService;
-import com.asura.monitor.configure.service.MonitorScriptsService;
-import com.asura.monitor.configure.service.MonitorTemplateService;
+import com.asura.monitor.configure.entity.*;
+import com.asura.monitor.configure.service.*;
+import com.asura.resource.controller.ServerController;
+import com.asura.resource.service.CmdbResourceEntnameService;
 import com.asura.util.CheckUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -70,6 +58,12 @@ public class AddController {
 
     @Autowired
     private MonitorTemplateService templateService;
+
+    @Autowired
+    private ServerController serverController;
+
+    @Autowired
+    private MonitorAlarmConfigureService alarmConfigureService;
 
     private SearchMap searchMapNull = new SearchMap();
     private PageBounds pageBoundsNull = PageResponse.getPageBounds(10000, 1);
@@ -183,6 +177,21 @@ public class AddController {
         }
         model.addAttribute("scripts", scriptsService.findAll(searchMapNull, pageBoundsNull, "selectByAll").getRows());
         return "monitor/configure/item/add";
+    }
+
+    /**
+     *
+     * 对不同类型的报警
+     * @return
+     */
+    @RequestMapping("alarm/add")
+    public String alarmAdd(int id, Model model) {
+        if (id > 0) {
+            MonitorAlarmConfigureEntity result = alarmConfigureService.findById(id, MonitorAlarmConfigureEntity.class);
+            model.addAttribute("configs", result);
+        }
+        serverController.getData(model);
+        return "monitor/configure/alarm/add";
     }
 
 

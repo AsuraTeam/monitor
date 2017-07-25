@@ -90,6 +90,7 @@ public class SocketSendUtil {
      */
     public static InetAddress getServer(InetAddress address) {
         if (MonitorController.getErrorNumber()){
+            logger.info("获取到redis失败，程序不再执行");
             return null;
         }
         if (serverList != null && serverList.size() > 0) {

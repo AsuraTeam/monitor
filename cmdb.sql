@@ -419,6 +419,8 @@ CREATE TABLE `cmdb_resource_server` (
   `expire` varchar(32) DEFAULT NULL COMMENT '过期时间',
   `asset_coding` varchar(132) DEFAULT NULL COMMENT '资产编码',
   `status` int(11) DEFAULT NULL COMMENT '简单测试连通性,ping，检查是否活着',
+  `switch_id` varchar(32) DEFAULT NULL COMMENT '交换机id',
+  `switch_port` varchar(32 DEFAULT NULL COMMENT '交换机端口',
   PRIMARY KEY (`server_id`),
   UNIQUE KEY `uid_ip_address` (`ip_address`),
   UNIQUE KEY `uidx_cabinet_levelcabinet_id` (`cabinet_id`,`cabinet_level`),
@@ -1352,6 +1354,7 @@ hosts varchar(1000) comment "对不同的主机接收任何报警",
 item_id varchar(6) comment "对不同的项目进行报警", 
 start_time varchar(11) comment "报警开始接收时间", 
 end_time varchar(11) comment "报警完成时间",
+gson_data varchar(1000) comment "其他数据",
 all_groups varchar(1000) comment "接收报警组"); 
 
 source grafana.sql;

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+  <head>
+   <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+   <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE9"/>
+   <link rel="stylesheet" type="text/css" href="/static/top/css/base.css">
+   <link href="/static/top/css/jquery.snippet.min.css" rel="stylesheet">
+   
+   <script src="/static/top/js/jquery.js"></script>
+   
+   <script type="text/javascript" src="/static/top/js/snippet/jquery.snippet.min.js"></script>
+   
+   <script type="text/javascript" src="/static/top/js/jtopo-min.js"></script>
+   <script type="text/javascript" src="/static/top/js/toolbar.js"></script>
+   
+   <script id='code'>            
+      $(document).ready(function(){               
+         var canvas = document.getElementById('canvas');
+         var stage = new JTopo.Stage(canvas);
+         //显示工具栏
+         //showJTopoToobar(stage);
+
+         var scene = new JTopo.Scene();   
+         //scene.background = './img/bg.jpg';
+         
+         function node(x, y, img){
+            var node = new JTopo.Node();
+            node.setImage('./img/statistics/' + img, true);            
+            node.setLocation(x, y);
+            scene.add(node);
+            return node;
+         }            
+         
+         function linkNode(nodeA, nodeZ, f, width){
+            var link;
+            if(f){
+               link = new JTopo.FoldLink(nodeA, nodeZ);
+            }else{
+               link = new JTopo.Link(nodeA, nodeZ);
+            }
+            link.lineWidth = width; // 线宽
+            link.bundleOffset = 60; // 折线拐角处的长度
+            link.bundleGap = 20; // 线条之间的间隔
+            link.textOffsetY = 3; // 文本偏移量（向下3个像素）
+            link.strokeColor = '0,200,255';
+            //if(traffic){
+             //   link.text = traffic;
+           // }
+            link.direction = 'vertical';
+            scene.add(link);
+            return link;
+         }
+         var width = document.body.clientWidth
+         //var s2 = node(365, 43, 'server.png');
+         //var s3 = node(425, 43, 'server.png');
+         
+         //linkNode(s2, g1, true);
+         //linkNode(s3, g1, true);
+
+        // 汇聚层宽度
+        var convergence_space = 14 * 60
+	var convergence_number = 5
+
+         // 防火墙层
+         var firewall = node(convergence_space * 2/ 2 - 140, 43, 'wanjet.png');
+         firewall.alarm = '防火墙';
+         firewall.alarmColor = '0,0,0';
+
+       // 防火墙数据刷新
+       var firewallTimer ;
+       var firewallTimerCounter = 0
+       firewallTimer = setInterval(function(){
+          firewall.alarm = '防火墙 '+ (Math.random()*100).toFixed(2) + " Mib"
+          firewallTimerCounter += 1
+          if(firewallTimerCounter > 100){
+             clearInterval(firewallTimer)
+          }
+       }, 2000);
+                   
+       // 核心层
+       var core_switch = node(convergence_space * 2/ 2 - 140, 143, 'wanjet.png');
+       core_switch.alarm = '核心交换机';
+       core_switch.alarmColor = '0,0,0';
+       linkNode(firewall, core_switch, true, 2);
+
+       // 防火墙数据刷新
+       var coreTimer ;
+       var coreTimerCounter = 0
+       firewallTimer = setInterval(function(){
+          core_switch.alarm = '核心交换机 '+(Math.random()*100).toFixed(2) + " Mib"
+          coreTimerCounter += 1
+          if(coreTimerCounter> 100){
+             clearInterval(coreTimer)
+          }
+       }, 2000);
+
+
+         // 汇聚层
+        convergence_y = 0 
+
+        var access_number = 15
+
+       //
+       convergence_width = access_number * 220 
+
+        for(j=1;j< convergence_number;j++){
+           var h = 263 
+           if(j>1){
+            h = (323 + 10) * j
+           }
+           var convergence_switch= node(convergence_space * 2/ 2 - 140  , h, 'wanjet.png');
+           convergence_switch.alarm = '汇聚交换机 ' + j + " 100M";
+           convergence_switch.alarmColor = '0,0,0';
+           linkNode(core_switch, convergence_switch, true, 2);
+           convergence_y += convergence_space
+          // 接入交换机层
+          var y = 11
+          var h2 = 393 * j
+          for(i=1;i< access_number ;i++){
+            //var g1 = node(y, h1 , 'gather.png');
+            //linkNode(s1, g1, true);
+            var w1 = node(y, h2, 'router2.png');
+            w1.alarm = '接入 10.16.20.'+i;
+            w1.alarmColor = '0,0,0';
+
+            y+=120;
+            linkNode(convergence_switch, w1, false);
+          }
+   //      var c1 = node(364, 214, 'router2.png');
+   //      linkNode(w1, c1, '', "");
+        }
+    
+
+      //   var w3 = node(34, 167, 'router2.png');
+   //      w3.alarm= '10.16.20.1 正常';
+          //              w3.alarmColor = '0,0,0';
+   //      linkNode(s1, w3, false, "100Mib");
+
+         //var jg1 = node(64, 247, 'mainframe.png');
+         //linkNode(w3, jg1);
+
+                 //var w12 = node(164, 167, 'router2.png');
+                 //w12.alarm= '10.16.20.1 正常';
+                      //w12.alarmColor = '0,0,0';
+                 //linkNode(s1, w12, false, "140Mib");
+
+            //var w13 = node(564, 167, 'router2.png');
+            //linkNode(s1, w13);
+
+            //var w14 = node(694, 167, 'router2.png');
+            //linkNode(s1, w14);
+         
+       //var cloud = node(344, 959, 'cloud.png');
+       ////linkNode(c1, cloud);
+       //
+       //var c2 = node(364, 928, 'center.png');
+       //linkNode(cloud, c2);
+       //
+
+       //var w2 = node(334, 977, 'wanjet.png');
+       //linkNode(c2, w2);
+
+       //var g2 = node(366, 911, 'gather.png');
+       //linkNode(w2, g2);
+       //
+       //function hostLink(nodeA, nodeZ){            
+       //   var link = new JTopo.FlexionalLink(nodeA, nodeZ);            
+       //   link.shadow = false;
+       //   link.offsetGap = 44;
+       //   scene.add(link);
+       //   return link;
+       //}
+       //
+       //var h1 = node(218, 920, 'host.png');
+       //h1.alarm = '';
+       //hostLink(g2, h1);
+       //var h2 = node(292, 920, 'host.png');
+       //hostLink(g2, h2);
+       //var h3 = node(366, 920, 'host.png');
+       //h3.alarm = '二级告警';
+       //hostLink(g2, h3);
+       //var h4 = node(447, 920, 'host.png');
+       //hostLink(g2, h4);
+       //var h5 = node(515, 920, 'host.png');
+       //h5.alarm = '1M';
+       //hostLink(g2, h5);
+       //
+       //setInterval(function(){
+       //   if(h3.alarm == '二级告警'){
+       //      h3.alarm = null;
+       //   }else{
+       //      h3.alarm = '二级告警'
+       //   }
+       //}, 600);
+         
+         stage.add(scene);
+      });
+   </script>
+  </head>
+
+<body style="background:#ffffff;" >
+   <div class="content">
+       <div id="">
+           <canvas width="5850" height="1550" id="canvas"></canvas>   
+       </div>
+  </div>
+</body>
+</html>

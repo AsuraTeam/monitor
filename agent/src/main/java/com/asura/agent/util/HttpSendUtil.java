@@ -36,6 +36,9 @@ public class HttpSendUtil {
     static void setServer(InetAddress failServer){
         RedisUtil redisUtil = new RedisUtil();
         InetAddress address = SocketSendUtil.getServer(failServer);
+        if (null == address){
+            return;
+        }
         StringBuilder servers = new StringBuilder();
         String ip = address.toString().replace("/","");
         String port = redisUtil.get(MonitorCacheConfig.getCachePushServerPort.concat(ip).trim());
@@ -58,7 +61,7 @@ public class HttpSendUtil {
      * @return
      */
     public static String sendPost(String apiUrl, String param){
-        if (url == null){
+        if (null == url){
             SocketSendUtil.init();
             SocketSendUtil.setServer();
             setServer(null);
@@ -74,7 +77,7 @@ public class HttpSendUtil {
         }
         for (int i=0 ; i < 3; i++) {
             String result = HttpUtil.sendPost(url, param, ""+i);
-            if (result != null){
+            if (null != result){
                 return HttpUtil.sendPost(url.concat(apiUrl), param);
             }else{
                 setServer(server);

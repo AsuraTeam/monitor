@@ -19,6 +19,8 @@ import com.asura.resource.entity.report.ServerReportEntity;
 import com.asura.resource.service.*;
 import com.asura.util.*;
 import com.asura.util.network.ThreadPing;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -51,6 +53,9 @@ import java.util.Random;
 @Controller
 @RequestMapping("/resource/configure/server/")
 public class ServerController {
+
+    private Logger logger = LoggerFactory.getLogger(ServerController.class);
+
     @Autowired
     private CmdbResourceServerService service;
 
@@ -128,6 +133,11 @@ public class ServerController {
         PagingResult<CmdbResourceServiceEntity> services = serviceService.findAll(searchMap, pageBounds);
         model.addAttribute("service", services.getRows());
 
+
+        // 服务类型
+        searchMap.put("typeName", "接入交换机");
+        PagingResult<CmdbResourceServerEntity> switchs  = service.findAll(searchMap, pageBounds, "selectByAll");
+        model.addAttribute("switchs", switchs.getRows());
         return model;
     }
 
@@ -265,7 +275,9 @@ public class ServerController {
                            String time, String isOff, String hosts,
                            String inventoryId, String t,
                            String ipAddress,
-                           String domain
+                           String domain,
+                           String cabinetId,
+                           String switchId
     ) {
         PageBounds pageBounds;
         if (hostIp == null) {
@@ -321,6 +333,10 @@ public class ServerController {
             searchMap.put("groupsName", groupsName);
         }
 
+        if (CheckUtil.checkString(cabinetId)){
+            searchMap.put("cabinetId", cabinetId);
+        }
+
         if (CheckUtil.checkString(userName)) {
             searchMap.put("userName", userName);
         }
@@ -336,6 +352,9 @@ public class ServerController {
         }
         if (CheckUtil.checkString(ipAddress)){
             searchMap.put("ipAddress", ipAddress);
+        }
+        if (CheckUtil.checkString(switchId)){
+            searchMap.put("switchId", switchId);
         }
 
         if (isOff != null) {
@@ -575,12 +594,15 @@ public class ServerController {
 
         // 获取可用的数量
         CmdbResourceCabinetEntity cabinet = cabinetService.findById(cabinetId, CmdbResourceCabinetEntity.class);
+        if (null == cabinet){
+            return "[]";
+        }
 
         ArrayList data = new ArrayList();
         for (int i = 1; i <= cabinet.getNumber(); i++) {
             boolean is = false;
             for (CmdbResourceServerEntity c : result) {
-                if (c.getCabinetLevel() == i) {
+                if (c != null && c.getCabinetLevel() != null && c.getCabinetLevel() == i) {
                     is = true;
                 }
             }
