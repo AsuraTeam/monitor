@@ -8,9 +8,11 @@ import com.asura.common.controller.IndexController;
 import com.asura.common.response.PageResponse;
 import com.asura.common.response.ResponseVo;
 import com.asura.monitor.top.entity.MonitorTopEntity;
+import com.asura.monitor.top.service.MonitorTopImagesService;
 import com.asura.monitor.top.service.MonitorTopService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -39,6 +41,9 @@ public class TopController {
     @Autowired
     private IndexController indexController;
 
+    @Autowired
+    private MonitorTopImagesService topImagesService;
+
     private final Gson GSON = new Gson();
 
     /**
@@ -46,8 +51,18 @@ public class TopController {
      * @return
      */
     @RequestMapping("top")
-    public String top(){
+    public String top(Model model){
+        model.addAttribute("images", topImagesService.getListData(new SearchMap(), "selectByAll"));
         return "/monitor/top/top";
+    }
+
+    /**
+     *
+     * @return
+     */
+    @RequestMapping("topIframe")
+    public String topIframe(){
+        return "/monitor/top/topIframe";
     }
 
     /**

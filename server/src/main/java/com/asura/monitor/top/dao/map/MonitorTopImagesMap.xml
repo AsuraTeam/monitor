@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asura.monitor.top.dao.MonitorTopImagesDao">
+     <sql id="baseSql">
+        select 
+            images_id as imagesId,
+            name as name,
+            description as description,
+            create_time as createTime,
+            create_user as createUser
+         from monitor_top_images 
+     </sql>
+    <select id="selectByAll" resultType="com.asura.monitor.top.entity.MonitorTopImagesEntity">
+         <include refid="baseSql" />
+     </select>
+      <select id="findById" resultType="com.asura.monitor.top.entity.MonitorTopImagesEntity">
+                   <include refid="baseSql" />
+            where images_id=#{imagesId}       </select>
+
+    <insert id="save" parameterType="com.asura.monitor.top.entity.MonitorTopImagesEntity">
+        insert into monitor_top_images(
+            images_id,
+            name,
+            description,
+            create_time,
+            create_user
+        ) 
+        values(        
+            #{imagesId},
+            #{name},
+            #{description},
+            #{createTime},
+            #{createUser}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.asura.monitor.top.entity.MonitorTopImagesEntity">
+        update monitor_top_images set   
+            images_id=#{imagesId},
+            name=#{name},
+            description=#{description},
+            create_time=#{createTime},
+            create_user=#{createUser}
+         where images_id=#{imagesId}
+    </update>
+
+    <delete id="delete" parameterType="com.asura.monitor.top.entity.MonitorTopImagesEntity">
+        delete from monitor_top_images where images_id=#{imagesId}
+    </delete>
+
+</mapper>
+
