@@ -420,7 +420,7 @@ CREATE TABLE `cmdb_resource_server` (
   `asset_coding` varchar(132) DEFAULT NULL COMMENT '资产编码',
   `status` int(11) DEFAULT NULL COMMENT '简单测试连通性,ping，检查是否活着',
   `switch_id` varchar(32) DEFAULT NULL COMMENT '交换机id',
-  `switch_port` varchar(32 DEFAULT NULL COMMENT '交换机端口',
+  `switch_port` varchar(32) DEFAULT NULL COMMENT '交换机端口',
   PRIMARY KEY (`server_id`),
   UNIQUE KEY `uid_ip_address` (`ip_address`),
   UNIQUE KEY `uidx_cabinet_levelcabinet_id` (`cabinet_id`,`cabinet_level`),
