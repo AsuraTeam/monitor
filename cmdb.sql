@@ -1363,6 +1363,7 @@ INSERT INTO `monitor_top_images` VALUES (1,'Router_symbol_48.png',NULL,NULL,NULL
 * 2017-08-18
 */
 alter table monitor_top add gson_data text comment "存储图像top数据";
+alter table monitor_top modify  top_id int auto_increment ;
 
 source grafana.sql;
 select "\n\n\n        友情提示:     \n\n请将你的数据库配置成utf8\n请修改mysql的配置文件永久生效\n数据库授权不要写成127.0.0.1的\n请对server的IP地址授权\n\n\n" as "";
