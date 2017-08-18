@@ -8,6 +8,7 @@ import com.asura.common.controller.IndexController;
 import com.asura.common.response.PageResponse;
 import com.asura.common.response.ResponseVo;
 import com.asura.monitor.top.entity.MonitorTopEntity;
+import com.asura.monitor.top.entity.MonitorTopImagesEntity;
 import com.asura.monitor.top.service.MonitorTopImagesService;
 import com.asura.monitor.top.service.MonitorTopService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +55,15 @@ public class TopController {
     public String top(Model model){
         model.addAttribute("images", topImagesService.getListData(new SearchMap(), "selectByAll"));
         return "/monitor/top/top";
+    }
+
+    /**
+     *
+     * @return
+     */
+    @RequestMapping("images")
+    public String images(){
+        return "/monitor/top/images";
     }
 
     /**
@@ -115,6 +125,26 @@ public class TopController {
             searchMap.put("search", search);
         }
         PagingResult<MonitorTopEntity> result = topService.findAll(searchMap, pageBounds, "selectByAll");
+        return PageResponse.getMap(result, draw);
+    }
+
+
+    /**
+     * 消息通道
+     *
+     * @return
+     */
+    @RequestMapping(value = "imagesData", produces = {"application/json;charset=UTF-8"})
+    @ResponseBody
+    public String imagesData(int draw, int start, int length, HttpServletRequest request, String size) {
+        PageBounds pageBounds = PageResponse.getPageBounds(length, start);
+        SearchMap searchMap = new SearchMap();
+        String search = request.getParameter("search[value]");
+        if (search != null && search.length() > 1) {
+            searchMap.put("search", search);
+        }
+        searchMap.put("sizes", size);
+        PagingResult<MonitorTopImagesEntity> result = topImagesService.findAll(searchMap, pageBounds, "selectByAll");
         return PageResponse.getMap(result, draw);
     }
 }

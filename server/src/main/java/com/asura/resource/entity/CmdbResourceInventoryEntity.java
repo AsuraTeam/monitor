@@ -18,6 +18,8 @@ import com.asura.framework.base.entity.BaseEntity;
  */
 public class CmdbResourceInventoryEntity extends BaseEntity{
 
+    // 获取数据库使用量
+    private int dbUsed;
     // 获取测试环境购买量
     private String testBuyNumber;
     // 获取测试环境借用量
@@ -73,6 +75,14 @@ public class CmdbResourceInventoryEntity extends BaseEntity{
     private int phyUsed;
     // 获取未使用库存
     private int unused;
+
+    public int getDbUsed() {
+        return dbUsed;
+    }
+
+    public void setDbUsed(int dbUsed) {
+        this.dbUsed = dbUsed;
+    }
 
     public int getVmInventoryNumber() {
         return vmInventoryNumber;

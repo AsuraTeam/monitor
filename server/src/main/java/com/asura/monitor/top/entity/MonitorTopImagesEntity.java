@@ -13,7 +13,7 @@ import com.asura.framework.base.entity.BaseEntity;
  *
  * @author zhaozq14
  * @version 1.0
- * @date 2017-07-29 11:51:37
+ * @date 2017-08-01 18:10:41
  * @since 1.0
  */
 public class MonitorTopImagesEntity extends BaseEntity{

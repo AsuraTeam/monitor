@@ -312,6 +312,9 @@ public class ServerController {
                 case "6" :
                     searchMap.put("fromInventory", "1");
                     break;
+                case "7" :
+                    searchMap.put("dbPhyUsed", "1");
+                    break;
             }
         }
 

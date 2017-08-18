@@ -50,8 +50,17 @@
                     </iframe>
                 </div>
             <div id="edit_top_id">
-                <div class="col-md-3" style="border-top:1px solid #f0f0f0; border-left:1px solid #f0f0f0;">
-                    <p>
+                </p>
+                <div class="col-md-3" style="border-left:1px solid #f0f0f0;margin-top:10px;">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">图像名称:</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="description" class="form-control" id="global_description"
+                                   value="$!{configs.description}" placeholder="">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3" style="border-top:1px solid #f0f0f0; border-left:1px solid #f0f0f0;margin-top:10px;">
                     <p>
                     <div class="form-group">
                        <label class="col-sm-4 control-label">图标类型:</label>
@@ -79,7 +88,7 @@
                     <div class="form-group">
                         <label class="col-sm-4 control-label">描述:</label>
                         <div class="col-sm-8">
-                            <input type="text" name="description" class="form-control" id="top_description"
+                            <input type="text" name="top_description" class="form-control" id="top_description"
                                    value="$!{configs.description}" placeholder="连接点的信息">
                         </div>
                     </div>
@@ -179,12 +188,38 @@
                 </div>
                 <div class="col-md-3" style="border-left:1px solid #f0f0f0;margin-top:5px;">
                     <div class="form-group">
-                        <label class="col-sm-4 control-label">线条值获取:</label>
+                        <label class="col-sm-4 control-label">线条值指标:</label>
                         <div class="col-sm-8">
-                            <input type="number" name="topLinkSize" title="连接线条粗细" class="form-control" id="topLinkSize" placeholder="指标名称"
+                            <input type="text" name="topLinkValue" title="指标名称例如: loadavg|system.load.1" class="form-control" id="topLinkValue" placeholder="指标名称例如: loadavg|system.load.1"
                                    value="">
                         </div>
                     </div>
+                </div>
+                <div class="col-md-3" title="只支持16进制" style="margin-top:10px;">
+                    <div class="form-group">
+                             <label class="col-sm-4 control-label">文字颜色:</label>
+                             <div class="col-sm-8">
+                                 <input type="text" id="topLinkTextColor"  class="form-control"  style="width:50%;float:left;" value="">
+                                 <button onclick="$('#pickerbasecolor').hide();" class="btn btn-outline btn-md" type="button">
+                                      <i class="fa fa-eye"></i>&nbsp;隐藏 
+                                 </button>
+                                 <div id="pickerbasecolor1" style="float:left;"></div>
+                                      <script>
+                                        $("#topLinkTextColor").click(function(){
+                                           v= $("#topLinkTextColor").val()
+                                           if(!v){
+                                               $("#topLinkTextColor").val("#555555")
+                                           }
+                                           $('#pickerbasecolor1').farbtastic('#topLinkTextColor');
+                                           $("#pickerbasecolor1").show(); 
+                                           setTimeout(function(){
+                                              $("#pickerbasecolor1").hide(); 
+                                           }, 4000)
+                                        })
+                                      </script>
+                             </div>
+                         </div>
+                     </div>
                 </div>
                 <div class="col-md-3" title="只支持16进制" style="margin-top:10px;">
                     <div class="form-group">
@@ -371,13 +406,37 @@
         }
 
 
+        function get_value(obj, key, default_value){
+            var value =  $("#"+key).val()
+            if(value){
+              obj[key] = value 
+            }else{
+              obj[key] = default_value 
+            }
+            return obj
+
+       }
+
 
         function saveConfig(){
             list = {};
-            _data = {}
             graphType = $('input[name="graphType"]:checked').val()
             models = go.Model.fromJson(document.getElementById("mySavedModel").value);
             nodeData = models.nodeDataArray;
+            if(nodeData.length == 0){
+                _title = {} 
+                _title["graphType"] = "text"
+                _title["key"] = "text00001"
+                _title["y"] =  10
+                _title["x"] =  500 
+                _title["img"] = "" 
+                _title["topLinkType"] = "link" 
+                _title["to"] = "text00001"
+                _title["__gohashid"] = 205 
+                _title["top_text"] = $("#global_description").val() ? $("#global_description").val() : "新图像"
+                nodeData.push(_title)
+            }
+            _data = {}
             _data["text"] = $("#top_ip").val();
             _data["graphType"] = graphType; 
             lefts = $("#top_left").val();
@@ -388,22 +447,12 @@
             _data["top_text"] = $("#top_text").val(); 
             _data["img"] = $("#top_select_images").val();
             _data["topLinkSize"] = $("#topLinkSize").val();
-
-            // 线条颜色
-            var topLinkColor =  $("#topLinkColor").val()
-            if(topLinkColor){
-              _data["topLinkColor"] = topLinkColor 
-            }else{
-              _data["topLinkColor"] = "#28ff28"; // 默认 
-            }
-
-            // 线条类型
-            var topLinkType = $("#topLinkType").val()
-            if(topLinkColor){
-              _data["topLinkType"] = topLinkType
-            }else{
-              _data["topLinkType"] = "link"; // 默认 
-            }
+ 
+            // 文字颜色
+             _data = get_value(_data, "topLinkTextColor",  "#55555"); // 默认
+             _data = get_value(_data, "topLinkColor",  "#28ff28"); // 默认
+             _data = get_value(_data, "topLinkType",  "link"); // 默认
+             _data = get_value(_data, "topLinkValue",  ""); // 默认
 
             var old_to = $("#top_to").val()
             if(old_to.indexOf("image") == -1 && old_to.indexOf("text") == -1){
@@ -440,26 +489,14 @@
             list["nodeDataArray"] = nodeData
             var linkData = models.linkDataArray;
 
-            if($("#top_to").val()){
+            if($("#top_to").val() && $("#top_src").val() ){
                 from = {}
-
-                // 线条颜色
-                var topLinkColor =  $("#topLinkColor").val()
-                if(topLinkColor){
-                  from["topLinkColor"] = topLinkColor 
-                }else{
-                  from["topLinkColor"] = "#28ff28"; // 默认 
-                }
-
+                from = get_value(from, "topLinkTextColor",  "#55555"); // 默认
+                from = get_value(from, "topLinkColor",  "#28ff28"); // 默认
+                from = get_value(from, "topLinkType",  "link"); // 默认
+                from = get_value(from, "topLinkValue",  ""); // 默认
                 from["topLinkSize"] = $("#topLinkSize").val()
-
-                // 线条类型
-                var topLinkType = $("#topLinkType").val()
-                if(topLinkColor){
-                    from["topLinkType"] = topLinkType
-                }else{
-                    from["topLinkType"] = "link"; // 默认 
-                }
+                from["ip"] = $("#top_ip").val();
            
                 if(key == "exists"){
                     from["src"] = $("#top_src").val() 
@@ -480,13 +517,18 @@
                      if(linkData.length < 1) {
                         linkData.push(from)
                      }
+                     var is_add = 0;
                      for(dataI=0;dataI<linkData.length;dataI++){
                         var d ;
                         d = linkData[dataI];
                         if($("#top_src").val() == linkData[dataI]["src"]){
+                           var is_add = 1;
                            from["src"] = $("#top_src").val() 
                            linkData[dataI] = from 
                         }
+                     }
+                     if(is_add==0){
+                        linkData.push(from)
                      }
                 }
             }

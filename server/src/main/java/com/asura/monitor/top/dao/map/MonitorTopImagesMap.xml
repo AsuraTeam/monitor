@@ -12,6 +12,10 @@
      </sql>
     <select id="selectByAll" resultType="com.asura.monitor.top.entity.MonitorTopImagesEntity">
          <include refid="baseSql" />
+        WHERE 1=1
+        <if test="sizes != null">
+            and name like concat("%",#{sizes},"%")
+        </if>
      </select>
       <select id="findById" resultType="com.asura.monitor.top.entity.MonitorTopImagesEntity">
                    <include refid="baseSql" />

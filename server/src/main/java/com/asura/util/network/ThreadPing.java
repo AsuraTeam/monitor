@@ -40,7 +40,7 @@ public class ThreadPing {
         executor.shutdown();
         try {
             while (!executor.isTerminated()) {
-                if(downList.size()>ipNumber){
+                if(downList.size() > ipNumber){
                     logger.info("获取到未使用数量 "+downList.size() + " 实际需求数量 "+ipNumber);
                     break;
                 }

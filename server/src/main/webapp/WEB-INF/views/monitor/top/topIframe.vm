@@ -15,6 +15,21 @@
 </div>
 
 <script>
+
+function post(paramter, url) {
+    var result = "";
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: paramter,
+        async: false,
+        success: function (data) {
+            result = data;
+        }
+    });
+    return result;
+}
+
 /*16进制颜色转为RGB格式*/  
 String.prototype.colorRgb = function(){  
     //十六进制颜色值的正则表达式  
@@ -38,6 +53,32 @@ String.prototype.colorRgb = function(){
         return sColor;    
     }  
 };  
+
+function get_count(datas, data) {
+    if (!data) {
+        return datas
+    }
+    for (i = 0; i < data.length; i++) {
+        datas += data[i][1]
+    }
+    return datas
+}
+
+
+// 获取今日总流量
+function get_top_link_value(ip, index_name, type) {
+   if(!index_name){return}
+   indexs = index_name.split("|")
+   count_url = "/monitor/graph/historyData?ip=" + ip + "&name="+indexs[1]+"&dayNumber=&type="+indexs[0]+"&startT=&endT="
+   if(type == "last"){
+     count_url = count_url + "&last=1"
+   }
+   data = post({}, count_url)
+   if(type=="last" && data){
+      return indexs[1] +" " + data[0][1]
+   }
+   return index_name +" " + data 
+}
 
 
 function make_top(){
@@ -89,7 +130,7 @@ function make_top(){
 
         
     // 简单连线
-    function newLink(nodeA, nodeZ, text,linkColor,dashedPattern , lineWidth){
+    function newLink(nodeA, nodeZ, text,linkColor,dashedPattern , lineWidth, topLinkTextColor){
         var link = new JTopo.Link(nodeA, nodeZ, text);        
         link.lineWidth = lineWidth; // 线宽
         if(dashedPattern){
@@ -99,12 +140,13 @@ function make_top(){
         link.bundleGap = 20; // 线条之间的间隔
         link.textOffsetY = 3; // 文本偏移量（向下3个像素）
         link.strokeColor = linkColor;
+        link.fontColor = topLinkTextColor;
         scene.add(link);
         return link;
     }
     
     // 折线
-    function newFoldLink(nodeA, nodeZ, text, linkColor,  direction, dashedPattern, lineWidth){
+    function newFoldLink(nodeA, nodeZ, text, linkColor,  direction, dashedPattern, lineWidth, topLinkTextColor){
         var link = new JTopo.FoldLink(nodeA, nodeZ, text);
         link.strokeColor = linkColor;
         link.direction = direction || 'horizontal';
@@ -113,6 +155,7 @@ function make_top(){
         link.bundleOffset = 60; // 折线拐角处的长度
         link.bundleGap = 20; // 线条之间的间隔
         link.textOffsetY = 3; // 文本偏移量（向下3个像素）
+        link.fontColor = topLinkTextColor;
         if(dashedPattern){
            link.dashedPattern = dashedPattern; // 虚线
         }
@@ -121,7 +164,7 @@ function make_top(){
     }
     
     // 二次折线
-    function newFlexionalLink(nodeA, nodeZ, text, linkColor, direction, dashedPattern, lineWidth){
+    function newFlexionalLink(nodeA, nodeZ, text, linkColor, direction, dashedPattern, lineWidth, topLinkTextColor){
         var link = new JTopo.FlexionalLink(nodeA, nodeZ, text);
         link.strokeColor = linkColor;
         link.direction = direction || 'horizontal';
@@ -131,6 +174,7 @@ function make_top(){
         link.bundleGap = 15; // 线条之间的间隔
         link.textOffsetY = 10; // 文本偏移量（向下15个像素）
         link.strokeColor = linkColor;
+        link.fontColor = topLinkTextColor;
         if(dashedPattern){
            link.dashedPattern = dashedPattern; // 虚线
         }
@@ -139,7 +183,7 @@ function make_top(){
     }
     
     // 曲线
-    function newCurveLink(nodeA, nodeZ, text, linkColor, dashedPattern, lineWidth){
+    function newCurveLink(nodeA, nodeZ, text, linkColor, dashedPattern, lineWidth, topLinkTextColor){
         var link = new JTopo.CurveLink(nodeA, nodeZ, text);
         link.lineWidth = lineWidth; // 线宽
         link.arrowsRadius = 10;
@@ -147,6 +191,7 @@ function make_top(){
         link.textOffsetY = 10; // 文本偏移量（向下15个像素）
         link.bundleGap = 15; // 线条之间的间隔
         link.strokeColor = linkColor;
+        link.fontColor = topLinkTextColor;
         if(dashedPattern){
            link.dashedPattern = dashedPattern; // 虚线
         }
@@ -159,7 +204,6 @@ function make_top(){
             textNode.font = 'bold 16px 微软雅黑';
             textNode.fontColor = '0,0,0';
             textNode.setLocation(x, y);
-            textNode.font = "12px Consolas"
             return textNode
     }
 
@@ -215,6 +259,8 @@ function make_top(){
         	 }
         	 $("#top_text", parent.document).val(this.editData["top_text"])
         	 $("#topLinkColor", parent.document).val(this.editData["topLinkColor"])
+        	 $("#topLinkValue", parent.document).val(this.editData["topLinkValue"])
+        	 $("#topLinkTextColor", parent.document).val(this.editData["topLinkTextColor"])
         	 $("#topLinkType", parent.document).val(this.editData["topLinkType"])
         	 $("#top_ip",   parent.document).val(this.editData["text"])
         	 $("#topLinkSize",   parent.document).val(this.editData["topLinkSize"])
@@ -268,34 +314,32 @@ function make_top(){
            var d ;
            d = linkNodeData[dataI];
            var to = window["nodeData"+d["to"]];
-           var src = window["nodeData"+d["src"]] 
-           var topLinkSize = parseInt(d["topLinkSize"]) 
-console.log(topLinkSize)
-           var color = d["topLinkColor"].colorRgb() 
+           var src = window["nodeData"+d["src"]]
+           var topLinkSize = parseInt(d["topLinkSize"])
+           var topLinkTextColor = d["topLinkTextColor"].colorRgb()
+           var color = d["topLinkColor"].colorRgb()
+           var topLinkValue = get_top_link_value(d["ip"], d["topLinkValue"], "last");
            switch(d["topLinkType"]){
               case "link":
-                newLink(src, to, "link", color, false, topLinkSize);
+                newLink(src, to, topLinkValue, color, false, topLinkSize, topLinkTextColor);
                 break;
               case "link2":
-                newLink(src, to, "link", color, 2, topLinkSize);
+                newLink(src, to, topLinkValue, color, 2, topLinkSize, topLinkTextColor);
                 break;
               case "foldLink":
-                newFoldLink(src, to, "foldLink", color, false, topLinkSize);
+                newFoldLink(src, to, topLinkValue, color, false, topLinkSize, topLinkTextColor);
                 break;
               case "foldLink2":
-                newFoldLink(src, to, "foldLink2", color,"horizontal", 2, topLinkSize);
+                newFoldLink(src, to, topLinkValue, color,"horizontal", 2, topLinkSize, topLinkTextColor);
                 break;
               case "flexionalLink":
-                newFlexionalLink(src, to, "aaa", color,"", false, topLinkSize);
+                newFlexionalLink(src, to, topLinkValue, color,"", false, topLinkSize, topLinkTextColor);
                 break;
               case "flexionalLink2":
-                newFlexionalLink(src, to, "bbb",color, "vertical",2, topLinkSize);
+                newFlexionalLink(src, to, topLinkValue,color, "vertical",2, topLinkSize, topLinkTextColor);
                 break;
               case "curveLink":
-                newCurveLink(src, to, "curveLink", color, false, topLinkSize);
-                break;
-              case "curveLink2":
-                newCurveLink(src, to, "curveLink", color, 2, topLinkSize);
+                newCurveLink(src, to, topLinkValue, color, false, topLinkSize, topLinkTextColor);
                 break;
               default :
                 linkNode(src, to, "default", color);

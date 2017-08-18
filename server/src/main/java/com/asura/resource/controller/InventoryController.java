@@ -123,12 +123,17 @@ public class InventoryController {
             // 物理机已使用数量
             entity.setPhyUsed(selectPhyInventoryUse.get(0).getCnt());
 
+            // 获取数据库使用量 selectDatabasePhyInventoryUse
+            List<CmdbResourceServerEntity> selectDbPhyInventoryUse = serverService.getDataList(searchMaps, "selectDatabasePhyInventoryUse");
+            entity.setDbUsed(selectDbPhyInventoryUse.get(0).getCnt());
+
+
             // 获取未使用库存selectPhyUnusedInventory
             List<CmdbResourceServerEntity> selectPhyUnusedInventory = serverService.getDataList(searchMaps, "selectPhyUnusedInventory");
             entity.setUnused(selectPhyUnusedInventory.get(0).getCnt());
 
             // 非虚拟化库存数量
-            entity.setPhyInventoryNumber(entity.getBuyNumber() - entity.getPhyUsed() - entity.getPhyVmNumber());
+            entity.setPhyInventoryNumber(entity.getBuyNumber() - entity.getPhyUsed() - entity.getPhyVmNumber() - entity.getDbUsed());
             groupsId += entity.getGroupsId() + ",";
 
             // 按单元计算虚拟机数量
@@ -240,6 +245,11 @@ public class InventoryController {
         List<CmdbResourceServerEntity> selectVmUsedNumber = serverService.getDataList(searchMap1, "selectVmUsedNumber");
         entity.setVmUnitsUsed(selectVmUsedNumber.get(0).getCnt());
 
+
+        // 数据库物理机使用情况
+        List<CmdbResourceServerEntity> selectDbPhyNumber = serverService.getDataList(searchMap1, "selectDbPhyNumber");
+        entity.setDbUsed(selectDbPhyNumber.get(0).getCnt());
+
         // 按单元计算虚拟机数量
         List<CmdbResourceServerEntity> selectVmPrice = serverService.getDataList(searchMap1, "selectVmPrice");
         entity.setInventoryId(0);
@@ -257,7 +267,7 @@ public class InventoryController {
         entity.setUnused(selectPhyUnusedInventory.get(0).getCnt());
 
         // 物理机已使用数量
-        entity.setPhyUsed(entity.getBuyNumber() - entity.getPhyVmNumber());
+        entity.setPhyUsed(entity.getBuyNumber() - entity.getPhyVmNumber() - entity.getDbUsed());
         entity.setInventoryUsed(used);
         entity.setTitle("库存总数");
         entity.setGroupsId(groupsId);

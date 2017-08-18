@@ -249,12 +249,21 @@
             and (a.use_user is null or trim(a.use_user) = "0" or a.use_user="")
         </if>
 
-        <!-- 非虚拟化物理机使用 -->
+        <!-- 非虚拟化物理机使用 dbPhyUsed -->
         <if test="phyUsed != null" >
             and a.use_user in
             <include refid="groups"/>
             and a.type_id in (
-            select type_id from cmdb_resource_server_type where type_name in ("数据库物理机", "应用物理机", "物理机"))
+            select type_id from cmdb_resource_server_type where type_name in ("应用物理机", "物理机"))
+        </if>
+
+
+        <!-- 非虚拟化物理机使用  -->
+        <if test="dbPhyUsed != null" >
+            and a.use_user in
+            <include refid="groups"/>
+            and a.type_id in (
+            select type_id from cmdb_resource_server_type where type_name in ("数据库物理机"))
         </if>
 
         <!-- 用于虚拟化的机器 -->
@@ -874,6 +883,15 @@
          <include refid="ent"/>
     </select>
 
+    <!--获取数据库的机器数量-->
+    <select id="selectDbPhyNumber" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
+        select count(*) as cnt from cmdb_resource_server a, cmdb_resource_entname b
+        where a.ent_id= b.ent_id and  type_id in
+        (select type_id from cmdb_resource_server_type where type_name in ("数据库物理机"))
+        and use_user  in <include refid="groups"/>
+        <include refid="ent"/>
+    </select>
+
     <!--<sql id="vmUseNumber">-->
         <!--sum(case round(((cpu/2) + (memory/8) + (disk_size/60)) /3 ) when-->
         <!--0 then 1 else round(((cpu/2) + (memory/8) + (disk_size/60)) /3 )  end ) as cnt-->
@@ -918,11 +936,21 @@
      select count(*) as cnt from cmdb_resource_server a, cmdb_resource_entname b where
         a.ent_id = b.ent_id and
          a.type_id in (
-          select type_id from cmdb_resource_server_type where type_name in ("数据库物理机", "应用物理机", "物理机"))
+          select type_id from cmdb_resource_server_type where type_name in ("应用物理机", "物理机"))
                 and a.use_user in <include refid="groups"/>
         <include refid="ent"/>
     </select>
 
+    <!-- 获取数据库物理机的使用量 -->
+    <select id="selectDatabasePhyInventoryUse" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
+        select count(*) as cnt from cmdb_resource_server a, cmdb_resource_entname b where
+          a.ent_id = b.ent_id and
+          a.type_id in (
+            select type_id from cmdb_resource_server_type where type_name in ("数据库物理机")
+          )
+         and a.use_user in <include refid="groups"/>
+        <include refid="ent"/>
+    </select>
 
     <!-- 获取借用的库存 -->
     <select id="selectPhyFromInventory" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
@@ -939,6 +967,8 @@
     and (a.use_user is null or trim(a.use_user) = "0" or a.use_user="")
         <include refid="ent"/>
     </select>
+
+
 
     <!-- 暂停报警使用 -->
     <select id="selectServerInfo" resultType="com.asura.resource.entity.CmdbResourceServerEntity">

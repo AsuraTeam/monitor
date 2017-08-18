@@ -32,7 +32,7 @@ public class ScriptUtil {
      *
      * @return
      */
-    public  static  void  run(String command) {
+    public  static  String   run(String command) {
         String result = "";
         String line = "";
         try {
@@ -50,5 +50,6 @@ public class ScriptUtil {
             e.printStackTrace();
             logger.error(command + " run faild");
         }
+        return result;
     }
 }
