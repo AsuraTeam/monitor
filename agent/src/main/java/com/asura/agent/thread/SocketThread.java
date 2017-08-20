@@ -1,12 +1,19 @@
 package com.asura.agent.thread;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.asura.agent.entity.PushEntity;
+import com.asura.agent.util.MonitorUtil;
 import com.asura.agent.util.SocketSendUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Type;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p></p>
@@ -39,6 +46,7 @@ public class SocketThread extends Thread {
         this.port = port;
     }
 
+
     /**
      * 发送udp数据到服务端
      * @param datas
@@ -50,6 +58,7 @@ public class SocketThread extends Thread {
             byte[] data = datas.getBytes();//将字符串转换为字节数组
             //创建数据报
             DatagramPacket packet = new DatagramPacket(data, data.length, address, port);
+
             //创建DatagramSocket，实现数据发送和接收
             DatagramSocket socket = new DatagramSocket();
             //向服务器端发送数据报
@@ -57,12 +66,13 @@ public class SocketThread extends Thread {
             socket.close();
             return true;
         }catch (Exception e){
+            logger.info("数据包大小" + datas.length());
             e.printStackTrace();
             return false;
         }
     }
 
-    public void run(){
+    void sendSplitData(String data){
         boolean isSendOk = sendData(data, server, port);
         if (isSendOk) {
             this.interrupt();
@@ -77,6 +87,56 @@ public class SocketThread extends Thread {
                     break;
                 }
             }
+        }
+    }
+
+    /**
+     *
+     * @param lentity
+     * @return
+     */
+    public static List<PushEntity>  getPushEntity(String lentity){
+        if( null != lentity  ) {
+            Type type = new TypeToken<ArrayList<PushEntity>>() {
+            }.getType();
+            List<PushEntity> list = new Gson().fromJson(lentity, type);
+            return list;
+        }
+        return new ArrayList<>();
+    }
+
+    /**
+     * @param gson
+     */
+    void sendSplitData(List<PushEntity> list, Gson gson){
+        sendSplitData(gson.toJson(list));
+        MonitorUtil.info("通过数据切割发送数据 " + list.size());
+    }
+
+    public void run(){
+        Gson gson = new Gson();
+        if (data.length() > 65534){
+            List<PushEntity> newList = new ArrayList<>();
+            List<PushEntity> list = getPushEntity(data);
+            int counter = 0;
+            for (int i=0; i<list.size(); i++){
+                if (i % 10 == 0) {
+                    sendSplitData(newList, gson);
+                    counter = i;
+                    newList = new ArrayList<>();
+                }else{
+                    newList.add(list.get(i));
+                }
+            }
+            if (counter < list.size()){
+                newList = new ArrayList<>();
+                for (int i= counter; i<list.size();i++){
+                    newList.add(list.get(i));
+                }
+                sendSplitData(newList,gson);
+            }
+        }else {
+            sendData(data, server, port);
         }
     }
 }

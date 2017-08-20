@@ -13,7 +13,7 @@ import com.asura.framework.base.entity.BaseEntity;
  *
  * @author zhaozq14
  * @version 1.0
- * @date 2017-03-25 11:14:24
+ * @date 2017-08-18 08:57:38
  * @since 1.0
  */
 public class MonitorTopEntity extends BaseEntity{
@@ -99,6 +99,15 @@ public class MonitorTopEntity extends BaseEntity{
 
 
     /**
+     * This field corresponds to the database column monitor_top.gson_data
+     * Comment: 存储图像top数据
+     * @param gsonData the value for monitor_top.gson_data
+     */
+
+    private java.lang.String gsonData;
+
+
+    /**
      * This field corresponds to the database column monitor_top.top_id
      * Comment: 主键
      * @param topId the value for monitor_top.top_id
@@ -180,6 +189,15 @@ public class MonitorTopEntity extends BaseEntity{
     }
 
     /**
+     * This field corresponds to the database column monitor_top.gson_data
+     * Comment: 存储图像top数据
+     * @param gsonData the value for monitor_top.gson_data
+     */
+    public void setGsonData(java.lang.String gsonData){
+       this.gsonData = gsonData;
+    }
+
+    /**
      * This field corresponds to the database column monitor_top.top_id
      * Comment: 主键
      * @return the value of monitor_top.top_id
@@ -258,5 +276,14 @@ public class MonitorTopEntity extends BaseEntity{
      */
      public java.lang.String getImageName() {
         return imageName;
+    }
+
+    /**
+     * This field corresponds to the database column monitor_top.gson_data
+     * Comment: 存储图像top数据
+     * @return the value of monitor_top.gson_data
+     */
+     public java.lang.String getGsonData() {
+        return gsonData;
     }
 }

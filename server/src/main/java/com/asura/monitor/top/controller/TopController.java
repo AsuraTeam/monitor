@@ -11,6 +11,9 @@ import com.asura.monitor.top.entity.MonitorTopEntity;
 import com.asura.monitor.top.entity.MonitorTopImagesEntity;
 import com.asura.monitor.top.service.MonitorTopImagesService;
 import com.asura.monitor.top.service.MonitorTopService;
+import com.asura.util.CheckUtil;
+import com.asura.util.DateUtil;
+import com.asura.util.PermissionsCheck;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -45,14 +48,23 @@ public class TopController {
     @Autowired
     private MonitorTopImagesService topImagesService;
 
-    private final Gson GSON = new Gson();
+    private final static Gson GSON = new Gson();
+
+    @Autowired
+    private PermissionsCheck permissionsCheck;
 
     /**
      *
      * @return
      */
     @RequestMapping("top")
-    public String top(Model model){
+    public String top(Model model, String topId){
+        if (CheckUtil.checkString(topId)){
+            MonitorTopEntity topEntity = topService.findById(Integer.valueOf(topId), MonitorTopEntity.class);
+            model.addAttribute("gsonData", topEntity.getGsonData());
+            model.addAttribute("imageName", topEntity.getImageName());
+            model.addAttribute("topId", topId);
+        }
         model.addAttribute("images", topImagesService.getListData(new SearchMap(), "selectByAll"));
         return "/monitor/top/top";
     }
@@ -93,20 +105,28 @@ public class TopController {
     @RequestMapping("save")
     @ResponseBody
     public ResponseVo save(MonitorTopEntity entity, HttpServletRequest request){
-        topService.save(entity);
-        indexController.logSave(request, "添加top图:".concat(GSON.toJson(entity)) );
+        entity.setDescription(DateUtil.getDate(DateUtil.TIME_FORMAT));
+        entity.setTopComm(permissionsCheck.getLoginUser(request.getSession()));
+        if (entity.getTopId() > 0){
+            topService.update(entity);
+            indexController.logSave(request, "修改top图:".concat(GSON.toJson(entity)) );
+        }else {
+            topService.save(entity);
+            indexController.logSave(request, "添加top图:".concat(GSON.toJson(entity)) );
+        }
         return ResponseVo.responseOk(null);
     }
 
     /**
-     *
-     * @param entity
+     * @param topId
      * @return
      */
     @RequestMapping("deleteSave")
-    public ResponseVo delete(MonitorTopEntity entity, HttpServletRequest request){
-        topService.delete(entity);
-        indexController.logSave(request, "删除top图:".concat(GSON.toJson(entity)) );
+    @ResponseBody
+    public ResponseVo delete(int topId, HttpServletRequest request){
+        MonitorTopEntity topEntity = topService.findById(topId, MonitorTopEntity.class);
+        topService.delete(topEntity);
+        indexController.logSave(request, "删除top图:".concat(GSON.toJson(topEntity)) );
         return ResponseVo.responseOk(null);
     }
 

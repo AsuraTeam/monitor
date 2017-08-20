@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.asura.monitor.top.dao.MonitorTopDao">
-    <sql id="baseSql">
-             select
+     <sql id="baseSql">
+        select 
             top_id as topId,
             server_id as serverId,
             description as description,
@@ -11,21 +11,19 @@
             top as top,
             top_to as topTo,
             top_graph_id as topGraphId,
-            image_name as imageName
-         from monitor_top WHERE 1=1
-    </sql>
+            image_name as imageName,
+            gson_data as gsonData
+         from monitor_top 
+     </sql>
     <select id="selectByAll" resultType="com.asura.monitor.top.entity.MonitorTopEntity">
-          <include refid="baseSql" />
-    </select>
-
-    <select id="findById" resultType="com.asura.monitor.top.entity.MonitorTopEntity">
-        <include refid="baseSql" />
-        AND top_id=#{topId}
-    </select>
+         <include refid="baseSql" />
+     </select>
+      <select id="findById" resultType="com.asura.monitor.top.entity.MonitorTopEntity">
+                   <include refid="baseSql" />
+            where top_id=#{topId}       </select>
 
     <insert id="save" parameterType="com.asura.monitor.top.entity.MonitorTopEntity">
         insert into monitor_top(
-            top_id,
             server_id,
             description,
             top_comm,
@@ -33,10 +31,10 @@
             top,
             top_to,
             top_graph_id,
-            image_name
+            image_name,
+            gson_data
         ) 
         values(        
-            #{topId},
             #{serverId},
             #{description},
             #{topComm},
@@ -44,12 +42,13 @@
             #{top},
             #{topTo},
             #{topGraphId},
-            #{imageName}
+            #{imageName},
+            #{gsonData}
         )
     </insert>
 
     <update id="update" parameterType="com.asura.monitor.top.entity.MonitorTopEntity">
-        update monitor_top set
+        update monitor_top set   
             server_id=#{serverId},
             description=#{description},
             top_comm=#{topComm},
@@ -57,12 +56,14 @@
             top=#{top},
             top_to=#{topTo},
             top_graph_id=#{topGraphId},
-            image_name=#{imageName}
-         where   top_id=#{topId}
+            image_name=#{imageName},
+            gson_data=#{gsonData}
+         where top_id=#{topId}
     </update>
 
     <delete id="delete" parameterType="com.asura.monitor.top.entity.MonitorTopEntity">
-        delete from monitor_top where  top_id=#{topId}
+        delete from monitor_top where top_id=#{topId}
     </delete>
+
 </mapper>
 
