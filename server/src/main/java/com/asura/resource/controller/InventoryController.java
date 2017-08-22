@@ -266,8 +266,12 @@ public class InventoryController {
         List<CmdbResourceServerEntity> selectPhyUnusedInventory = serverService.getDataList(searchMap1, "selectPhyUnusedInventory");
         entity.setUnused(selectPhyUnusedInventory.get(0).getCnt());
 
+
+
         // 物理机已使用数量
-        entity.setPhyUsed(entity.getBuyNumber() - entity.getPhyVmNumber() - entity.getDbUsed());
+        entity.setPhyUsed(entity.getBuyNumber() - entity.getPhyVmNumber() - entity.getDbUsed() - entity.getUnused());
+        // 物理机库存总数
+        entity.setPhyInventoryNumber(entity.getInventoryTotle() - (entity.getPhyUsed() + entity.getPhyVmNumber() + entity.getDbUsed()));
         entity.setInventoryUsed(used);
         entity.setTitle("库存总数");
         entity.setGroupsId(groupsId);

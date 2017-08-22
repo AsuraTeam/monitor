@@ -30,6 +30,38 @@ function post(paramter, url) {
     return result;
 }
 
+function get_server_detail(ip){
+     url = "/resource/configure/server/listData"
+     result = post({start:1, length:2,draw:1, "ipAddress":ip}, url)
+     if(result){
+        id = result["data"][0]["serverId"]
+        url = '/resource/configure/server/detail?detail=1&start=1&length=1&draw=1&id='+id
+        result = post({topId:id}, url);
+        $('#show_server_detail', parent.document).modal('toggle');
+        $('#show_server_detail_html', parent.document).html(result);
+     }
+}
+
+function set_top_data(key, objt){
+   $("#" + key, parent.document).val(objt.editData[key])
+}
+
+
+function get_status(sta){
+  switch(sta){
+    case "1":
+        return ["正常","green", "0,0,0"];
+    case "2":
+        return ["危险", "red2", "255,0,0"];
+    case "3":
+        return ["警告", "red1", "255,255,0"];
+    case "4":
+        return ["未知", "gray","211,211,211"];
+    default:
+        return ["正常", "green", "0,0,0"];
+  } 
+}
+
 function edit_top(objt){
     if(objt.editData["graphType"] == "text"){
        $("#inlineCheckbox2",   parent.document).prop("checked", "true")
@@ -43,13 +75,11 @@ function edit_top(objt){
     }else{
         $("#show_ip_title", parent.document).prop("checked", "")
     }
-    $("#top_text", parent.document).val(objt.editData["top_text"])
-    $("#topLinkColor", parent.document).val(objt.editData["topLinkColor"])
-    $("#topLinkValue", parent.document).val(objt.editData["topLinkValue"])
-    $("#topLinkTextColor", parent.document).val(objt.editData["topLinkTextColor"])
-    $("#topLinkType", parent.document).val(objt.editData["topLinkType"])
+    var key_data = ["topLinkColor", "top_text", "topLinkValue", "topLinkTextColor", "topLinkType", "topLinkSize", "metricUpdateTime", "topLinkValueCircle", "imageConnectTopId"]
+    for (var i=0;i<key_data.length;i++){
+       set_top_data(key_data[i], objt);
+    }
     $("#top_ip",   parent.document).val(objt.editData["text"])
-    $("#topLinkSize",   parent.document).val(objt.editData["topLinkSize"])
     $("#top_description", parent.document).val(objt.editData["description"])
     $("#top_left", parent.document).val(objt.getBound()["left"])
     $("#top_top",  parent.document).val(objt.getBound()["top"])
@@ -68,7 +98,6 @@ function edit_top(objt){
         $("#circleTop", parent.document).prop("checked", "")
         $("#show_circle_top_id", parent.document).hide();
     }
-    $("#topLinkValueCircle",   parent.document).val(objt.editData["topLinkValueCircle"])
     $("#top_src", parent.document).val(objt.key)
     $("#top_select_images", parent.document).attr("value", objt.editData["img"])
     top_img = $('#top_select_images', parent.document).html().split("\n");
@@ -154,6 +183,10 @@ function make_top(){
         var scene = new JTopo.Scene();
         //scene.background = './img/bg.jpg';
         scene.mode = "edit"
+
+        // 存放当前图片所有指标数据
+        var index_maps = {}
+        var index_maps_data = {}
 
         function node(x, y, img) {
                 var node = new JTopo.Node();
@@ -337,46 +370,131 @@ function make_top(){
        scene.add(window[k]);
       }
 
-    function make_metric_top(scene, d){
+      
+      // 监控状态小圆点添加
+      //var icons = ['green', 'blue', 'red1', 'red2','gray'];
+      function addNode(text, icon, x , y){
+          var node = new JTopo.Node();
+          node.setImage('/static/top/img/topo/'+ icon +'.png', true);
+          node.fontColor = '0,0,0';
+          node.setLocation(x, y);
+          node.textPosition = "Middle_Left";
+          scene.add(node);
+
+          
+          node.mouseover(function(){
+              this.text = text;
+          });
+          node.mouseout(function(){
+              this.text = null;
+          });
+          return node;
+      }
+
+
+
+
+    function make_metric_top(scene, d, timer){
        ip = d["text"]
        index =  d["topLinkValue"]
        if(!index){return}
        var index_data = index.split(",")
        for(index_datai=0; index_datai<index_data.length;index_datai++){
-              var k = "indexdata"+d["key"] + ip.replace(/./g,"") + index_data[index_datai].replace(/./g,"").replace(/|/g,"")
-              var topLinkValue = get_top_link_value(ip, index_data[index_datai], "last");
-              window[k] = textNodeF(topLinkValue, d["x"]+100, d["y"]+(20*index_datai));
-              // 点击事件
-              window[k].ip = ip
+              var k = "indexdata"+d["key"]+ index_data[index_datai].replace(/\|/g,"").replace(/\./g, "")
+              if(window[k]){
+                 scene.remove(window[k]);
+                 if(window[k+"icon"]){
+                    scene.remove(window[k+"icon"]);
+                 }
+              }
+              //var topLinkValue = get_top_link_value(ip, index_data[index_datai], "last");
+              var topLinkValue = index_maps_data[ip+index_data[index_datai]]
+              var stat = get_status(index_maps_data[ip+index_data[index_datai]+"status"]);
+
+              window[k+"icon"] = addNode(stat[0], stat[1], d["x"]+110,  d["y"]+(20*index_datai));    
+
+              window[k]=  textNodeF(" " + topLinkValue, d["x"]+129, d["y"]+(20*index_datai));
+              window[k].ip = ip 
+              window[k].index_datai = index_datai
               window[k].index = index_data[index_datai] 
               window[k].click(function () {
-                   window.open("/monitor/graph/all/index?ip="+this.ip+"&width=100&select="+this.index)
+                 window.open("/monitor/graph/all/index?ip="+this.ip+"&width=100&select="+this.index)
               })
               scene.add(window[k]);
        }
-       var k = "indexdata"+d["key"] + ip.replace(/./g,"") + index.replace(/./g,"").replace(/|/g,"")
-       window[k] = textNodeF("ALL", d["x"]+100, d["y"]+(20*index_data.length+1));
-       window[k].ip = ip
-       window[k].index_length = index_data.length
-       window[k].index = index
-       window[k].click(function () {
-             width =  100
-           if(this.index_length % 2 == 0) {
-             width = 49 
-           } 
-           if(this.index_length % 3 == 0 || this.index_length > 3 ) {
-             width = 32 
-           } 
-           window.open("/monitor/graph/all/index?ip="+this.ip+"&width="+width+"&select="+this.index)
-       })
-       scene.add(window[k]);
+       if(timer){return}
+           var k = "indexdata"+d["key"] + ip.replace(/./g,"") + index.replace(/./g,"").replace(/|/g,"")
+           window[k] = textNodeF("ALL", d["x"]+110, d["y"]+(20*index_data.length+1));
+           window[k].ip = ip
+           window[k].index_length = index_data.length
+           window[k].index = index
+           window[k].click(function () {
+                 width =  100
+               if(this.index_length % 2 == 0) {
+                 width = 49 
+               } 
+               if(this.index_length % 3 == 0 || this.index_length > 3 ) {
+                 width = 32 
+               } 
+               window.open("/monitor/graph/all/index?ip="+this.ip+"&width="+width+"&select="+this.index)
+           })
+           scene.add(window[k]);
       }
+
 
 
        var data = $("#mySavedModel", parent.document).val().replace(/\n/g,"")
        var vdata = JSON.parse(data);
        var dataNodeData = vdata["nodeDataArray"]
        var linkNodeData = vdata["linkDataArray"]
+
+       // 获取所有指标名称和对应的IP地址
+       function set_index_name(){
+            for(dataI=0;dataI<dataNodeData.length;dataI++){
+              var d ;
+              d = dataNodeData[dataI];
+              index =  d["topLinkValue"]
+              if(!index){continue}
+              var index_data = index.split(",")
+              for(index_datai=0; index_datai<index_data.length;index_datai++){
+                 if( index_maps[index_data[index_datai]]){
+                    index_maps[index_data[index_datai]].push(d["text"])
+                 }else{
+                    index_maps[index_data[index_datai]] = []
+                    index_maps[index_data[index_datai]].push(d["text"])
+                 }
+              }
+           }
+       }
+
+       set_index_name()
+
+
+       function get_index_name_data(){
+         var url = "/monitor/top/data/allData"
+
+         for(var i in index_maps){
+            var index_r = post({ips:index_maps[i].join(","), name:i}, url)
+            var index_status = index_r["status"]
+            for(var j in index_status){
+               index_maps_data[j+"status"] = index_status[j]
+            }
+            var index_metric = index_r["metric"]
+            for(var j in index_metric){
+               index_maps_data[j] = i.split("|")[1]+" -- "+index_metric[j]
+            }
+         }
+
+       }
+
+      get_index_name_data();
+       
+       // 获取指标和状态数据
+       var get_data_interval = setInterval(function(){
+           get_index_name_data();
+       },8000)
+
+
        for(dataI=0;dataI<dataNodeData.length;dataI++){
           var d ;
           d = dataNodeData[dataI];
@@ -402,6 +520,11 @@ function make_top(){
           d = dataNodeData[dataI];
           if(d["showIp"]==1){
              window["nodeData"+d["key"]+d["text"].replace(/./g,"")] = textNodeF(d["text"], parseInt(d["x"]) - 20, parseInt(d["y"])-20);
+             window["nodeData"+d["key"]+d["text"].replace(/./g,"")].ip = d["text"]
+            // 点击事件
+             window["nodeData"+d["key"]].click(function () {
+                 get_server_detail(this.ip)
+             })
              scene.add(window["nodeData"+d["key"]+d["text"].replace(/./g,"")]);
           }
 
@@ -441,15 +564,43 @@ function make_top(){
               edit_top(this)
               $("#mySavedModelDelete", parent.document).val(JSON.stringify(this.editData))
           })
+
           
           if(!d["graphTypeCircle"]){
              make_metric_top(scene, d)
           }
 
-          // 点击事件
-          window["nodeData"+d["key"]].click(function () {
+
+          // 点击跳转到top图的
+          if(d["imageConnectTopId"]){
+               window["nodeData"+d["key"] + "connecttotop"]  = addNode("跳转到", "blue", parseInt(d["x"]) + 20, parseInt(d["y"])+120);    
+	       //window["nodeData"+d["key"] + "connecttotop"] = textNodeF(parseInt(d["x"]) + 20, parseInt(d["y"])+120);
+               window["nodeData"+d["key"] + "connecttotop"].imageConnectTopId = d["imageConnectTopId"]
+	       window["nodeData"+d["key"] + "connecttotop"].click(function () {
+                // 更新存储的top点开顺序的ID，做左右可点击操作
+                var old = $("#save_top_topid_data", parent.document).val()
+                var news = old + "," + this.imageConnectTopId
+                $("#save_top_topid_data", parent.document).val(news)
+                $("#save_top_topid_data_current", parent.document).val(parseInt($("#save_top_topid_data_current", parent.document).val())+1)
+
+                // 更新数据
+                url = "/monitor/top/listData?start=1&length=2&draw=1&topId="+this.imageConnectTopId
+                var tdata = post({}, url)
+                tdata = tdata["data"][0]["gsonData"]
+                $("#mySavedModel", parent.document).val(tdata)
+                // 刷新
+                $("#topIframe", parent.document).attr("src", "/monitor/top/topIframe");
+                edit_top(this)
+                $("#mySavedModelDelete", parent.document).val(JSON.stringify(this.editData))
+              })
+             scene.add(window["nodeData"+d["key"] + "connecttotop"]);
+             scene.add(new JTopo.Link( window["nodeData"+d["key"]], window["nodeData"+d["key"] + "connecttotop"],  ""));
+          }else{
+            // 点击事件
+            window["nodeData"+d["key"]].click(function () {
         	$("#top_to", parent.document).val(this.key)
-          })
+            })
+          }
 
           // 拖动事件监听
           window["nodeData"+d["key"]].mousedrag(function () {
@@ -468,23 +619,75 @@ function make_top(){
 
 
             // 数据刷新 
+        var counter_metric = 0
+        var interval_timer_metric = setInterval(function () {
+            var rand = Math.floor(Math.random()*dataNodeData.length)
+            for(dataI=0;dataI<dataNodeData.length;dataI++){
+              var d ;
+              d = dataNodeData[dataI];
+              index =  d["topLinkValue"]
+              if(!index){continue}
+              metricUpdateTime = d["metricUpdateTime"]
+              if(!metricUpdateTime){
+                metricUpdateTime = 15 // 默认15秒
+              }
+              var now = new Date().getTime() / 1000;
+              var is_check = false;
+              var check_key = "top_node_data_update_time_"+d["key"]
+              old = $("#"+check_key, parent.document).val()
+              if(!old){
+                 $("#top_node_data_update_time", parent.document).append("<input type='hidden' value="+now+" id='"+check_key+"'>")
+                is_check = true;
+              }else{
+                 if(now - parseInt(old) > parseInt(metricUpdateTime)){
+                     is_check = true;
+                 }
+              }
+              if(!is_check){
+                  continue;
+              }else{
+                 $("#"+check_key, parent.document).val(now) 
+              }
+              var index_data = index.split(",")
+              for(index_datai=0; index_datai<index_data.length;index_datai++){
+                 make_metric_top(scene, d, 1);
+              }
+  	   }
+           counter_metric += 1
+               // 10分钟后停止
+           if(counter_metric > 100 ){
+                  clearInterval(interval_timer_metric)
+                  clearInterval(get_data_interval)
+           }
+        }, 1500);
+
+
+            // 数据刷新 
         var switchColor = "57,175,72"
         var interval_timer = setInterval(function () {
             var rand = Math.floor(Math.random()*dataNodeData.length)
             for(dataI=0;dataI<dataNodeData.length;dataI++){
               var d ;
               d = dataNodeData[dataI];
-              if(rand == dataI){
+              index =  d["topLinkValue"]
+              if(!index){continue}
+              var index_data = index.split(",")
+              for(index_datai=0; index_datai<index_data.length;index_datai++){
+                var stat = get_status(index_maps_data[d["text"]+index_data[index_datai]+"status"]);
                 $("#timerintervaldata", parent.document).val(dataI)
-                if(d["graphType"] == "image"){
+                if(d["graphType"] == "image" && stat[0] != "正常" ){
                     window["nodeData"+d["key"]].alarm = "" 
-                    window["nodeData"+d["key"]].alarmColor = switchColor;
+                    window["nodeData"+d["key"]].alarmColor = stat[2];
+                }else{
+                  if(rand == dataI){
+                   window["nodeData"+d["key"]].alarmColor = switchColor;
+                  }else{
+                   window["nodeData"+d["key"]].alarmColor = '0,0,0';
+                  }
                 }
-              }else{
-                window["nodeData"+d["key"]].alarmColor = '0,0,0';
               }
   	   }
-        }, 1500);
+        }, 2500);
  
 
         for(dataI=0;dataI<linkNodeData.length;dataI++){

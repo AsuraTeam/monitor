@@ -172,8 +172,10 @@ public class FileRender {
             if (CheckUtil.checkString(last)){
                 String[] data;
                 try {
+                    System.out.println(dir);
                     data = readLastLine(dir).split(" ");
                 }catch (Exception e){
+                    e.printStackTrace();
                     data = (DateUtil.getDateStampInteter() + " 0.0").split(" ");
                 }
                 ArrayList datas = new ArrayList();

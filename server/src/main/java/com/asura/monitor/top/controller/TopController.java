@@ -65,6 +65,7 @@ public class TopController {
             model.addAttribute("imageName", topEntity.getImageName());
             model.addAttribute("topId", topId);
         }
+        model.addAttribute("tops", topService.getListData(new SearchMap(), "selectNames"));
         model.addAttribute("images", topImagesService.getListData(new SearchMap(), "selectByAll"));
         return "/monitor/top/top";
     }
@@ -130,19 +131,27 @@ public class TopController {
         return ResponseVo.responseOk(null);
     }
 
+
     /**
-     * 消息通道
      *
+     * @param draw
+     * @param start
+     * @param length
+     * @param request
+     * @param topId
      * @return
      */
     @RequestMapping(value = "listData", produces = {"application/json;charset=UTF-8"})
     @ResponseBody
-    public String recordData(int draw, int start, int length, HttpServletRequest request) {
+    public String recordData(int draw, int start, int length, HttpServletRequest request, String topId) {
         PageBounds pageBounds = PageResponse.getPageBounds(length, start);
         SearchMap searchMap = new SearchMap();
         String search = request.getParameter("search[value]");
-        if (search != null && search.length() > 1) {
+        if (CheckUtil.checkString(search)) {
             searchMap.put("search", search);
+        }
+        if (CheckUtil.checkString(topId)){
+            searchMap.put("topId", Integer.valueOf(topId));
         }
         PagingResult<MonitorTopEntity> result = topService.findAll(searchMap, pageBounds, "selectByAll");
         return PageResponse.getMap(result, draw);

@@ -50,10 +50,33 @@
       </div>
 </div>
 
+<div class="modal fade" id="show_server_detail" tabindex="-1"
+     role="dialog" style="background-color: #FfFfFf; margin-top: 0px;"
+     data-backdrop="false">
+    <div class="modal-dialog"
+         style="margin-top: 0px; width: 60%; ">
+        <div class="odal-content"
+             style=" width: 100%; border-bottom: none;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+            </div>
+            <div class="animated fadeInRight">
+                    <div class="col-md-12" id="show_server_detail_html">
+                    </div>
+                </div>
+            </div>
+         </div>
+      </div>
+</div>
+
       <div class="col-md-12">
         <span style="margin-left:10px;font-size:20px;">监控TOP图</span>
         <code>双击图像可以进行编辑和删除</code>
-        <button style="margin-left: 51%;margin-top:5px;"
+        <a ><span onclick="to_top_id('left')" class="glyphicon glyphicon-hand-left" style="font-size:17px;margin-left:10px;" aria-hidden="true">向左</span></a>
+        <a><span onclick="to_top_id('right')" class="glyphicon glyphicon-hand-right" style="font-size:17px;margin-left:10px;" aria-hidden="true">向右</span></a>
+        <button style="margin-left: 41%;margin-top:5px;"
                             onclick="full_imgage($!{topId});" class="btn btn-warning btn-outline btn-sm"
                             type="button">
                         <i class="fa fa-desktop"></i>&nbsp;<span id="delete_top_text_id">全屏显示</span>
@@ -77,13 +100,13 @@
    <form>
         <div class="col-md-12" style="margin-top:-50px;">
             <div class="form-group">
-                <div class="col-md-9 iframe-border" id="top_iframe_width_id">
+                <div class="col-md-8 iframe-border" id="top_iframe_width_id">
                     <iframe src="/monitor/top/topIframe" style="border: solid 0px black; width:100%; height:4900px" id="topIframe" scrolling="no" >
                     </iframe>
                 </div>
             <div id="edit_top_id">
                 </p>
-                <div class="col-md-3" style="border-left:1px solid #f0f0f0;margin-top:10px;">
+                <div class="col-md-4" style="border-left:1px solid #f0f0f0;margin-top:10px;">
                     <div class="form-group">
                         <label class="col-sm-4 control-label">图像名称:</label>
                         <div class="col-sm-8">
@@ -92,7 +115,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3" style="border-top:1px solid #f0f0f0; border-left:1px solid #f0f0f0;margin-top:10px;">
+                <div class="col-md-4" style="border-top:1px solid #f0f0f0; border-left:1px solid #f0f0f0;margin-top:10px;">
                     <p>
                     <div class="form-group">
                        <label class="col-sm-4 control-label">图标类型:</label>
@@ -110,7 +133,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3" style="border-left:1px solid #f0f0f0;margin-top:10px;float:left;display:block;">
+                <div class="col-md-4" style="border-left:1px solid #f0f0f0;margin-top:10px;float:left;display:block;">
                     <label class="col-sm-4 control-label">IP:</label>
                       <div class="col-sm-8">
                         <input type="text" style="float:left;width:90%;" name="ip" class="form-control" id="top_ip" value="$!{configs.ip}" onchange="$('#top_src').val('')">
@@ -120,7 +143,7 @@
                         </div>
                       </div>
                 </div>
-                <div class="col-md-3" style="border-left:1px solid #f0f0f0;margin-top:10px;display:none;">
+                <div class="col-md-4" style="border-left:1px solid #f0f0f0;margin-top:10px;display:none;">
                     <div class="form-group">
                         <label class="col-sm-4 control-label">描述:</label>
                         <div class="col-sm-8">
@@ -130,7 +153,7 @@
                     </div>
                 </div>
                 </p>
-                <div class="col-md-3" style="border-left:1px solid #f0f0f0;margin-top:10px;display:none;" id="image_type_select_text">
+                <div class="col-md-4" style="border-left:1px solid #f0f0f0;margin-top:10px;display:none;" id="image_type_select_text">
                     <div class="form-group">
                         <label class="col-sm-4 control-label">文本内容:</label>
                         <div class="col-sm-8">
@@ -139,7 +162,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3" style="border-left:1px solid #f0f0f0;margin-top:10px;display:none;"  id="image_type_select_images">
+                <div class="col-md-4" style="border-left:1px solid #f0f0f0;margin-top:10px;display:none;"  id="image_type_select_images">
                     <div class="form-group">
                         <label class="col-sm-4 control-label">图标选择:</label>
                         <div class="col-sm-8">
@@ -168,7 +191,7 @@
                     </div>
                     </div>
                 </div>
-                <div class="col-md-3" style="border-left:1px solid #f0f0f0;margin-top:10px;">
+                <div class="col-md-4" style="border-left:1px solid #f0f0f0;margin-top:10px;">
                     <div class="form-group">
                         <label class="col-sm-4 control-label">左聚焦:</label>
                         <div class="col-sm-8">
@@ -184,7 +207,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3" style="border-left:1px solid #f0f0f0;margin-top:10px;">
+                <div class="col-md-4" style="border-left:1px solid #f0f0f0;margin-top:10px;">
                         <label class="col-sm-4 control-label">环形top:</label>
                         <div class="checkbox  checkbox-inline checkbox-primary" title="圆形top图自动生成" style="float:left;">
                             <input type="checkbox" name="circleTop" id="circleTop" style="float:left;"  value="1" onChange="change_circle()">
@@ -193,7 +216,7 @@
                 </div>
 
             <div id="show_circle_top_id" style="display:none;">
-                <div class="col-md-3" style="border-left:1px solid #f0f0f0;margin-top:10px;">
+                <div class="col-md-4" style="border-left:1px solid #f0f0f0;margin-top:10px;">
                         <label class="col-sm-4 control-label">子图标选择:</label>
                         <div class="col-sm-8">
                            <div id="top_select_images_div">
@@ -210,7 +233,7 @@
                             </p>
                         </div>
                 </div>
-                <div class="col-md-3" style="border-left:1px solid #f0f0f0;margin-top:5px;">
+                <div class="col-md-4" style="border-left:1px solid #f0f0f0;margin-top:5px;">
                     <div class="form-group">
                         <label class="col-sm-4 control-label">子设备指标:</label>
                         <div class="col-sm-8">
@@ -221,27 +244,42 @@
                 </div>
             </div>
 
-                <div class="col-md-3" style="border-left:1px solid #f0f0f0;margin-top:10px;">
+                <div class="col-md-4" style="border-left:1px solid #f0f0f0;margin-top:10px;">
                     <div class="form-group">
                         <label class="col-sm-4 control-label">key:</label>
                         <div class="col-sm-8">
-                            <input type="text" name="key" title="设备的key" class="form-control" id="top_src" placeholder="设备的key"
+                            <input type="text" name="key" readonly title="设备的key" class="form-control" id="top_src" placeholder="设备的key"
                                    value="$!{configs.key}">
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3" style="border-left:1px solid #f0f0f0;margin-top:10px;">
+
+                <div class="col-md-4" style="border-left:1px solid #f0f0f0;margin-top:10px;">
                     <div class="form-group">
-                        <label class="col-sm-4 control-label">连接到:</label>
+                        <label class="col-sm-4 control-label">连接到节点:</label>
                         <div class="col-sm-8">
-                            <input type="text" name="to" title="当前设备链接的目标设备的key" class="form-control" id="top_to" placeholder="当前设备链接的目标设备的key"
+                            <input type="text" name="to" readonly title="当前设备链接的目标设备的key" class="form-control" id="top_to" placeholder="当前设备链接的目标设备的key"
                                    value="$!{configs.to}">
                         </div>
                     </div>
                 </div>
+                <div class="col-md-4" style="border-left:1px solid #f0f0f0;margin-top:10px;">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">连接到TOP图:</label>
+                        <div class="col-sm-8">
+                            <select class="selectpicker bla bla bli form-control" data-live-search="true" style="margin-top:10px;" id="imageConnectTopId">
+                                <option value="">----</option>
+                                #foreach($top in $tops)
+                                  <option value="$!{top.topId}">$!{top.imageName}</option>
+                                #end
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
            <div id="set_link" style="border-left:1px solid #f0f0f0;margin-top:10px;">
-                <div class="col-md-3"><br></div>
-                <div class="col-md-3">
+                <div class="col-md-4"><br></div>
+                <div class="col-md-4">
                     <div class="form-group">
                         <label class="col-sm-4 control-label">线条设置:</label>
                         <div class="col-sm-8">
@@ -260,7 +298,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3" style="border-left:1px solid #f0f0f0;margin-top:5px;">
+                <div class="col-md-4" style="border-left:1px solid #f0f0f0;margin-top:5px;">
                     <div class="form-group">
                         <label class="col-sm-4 control-label">线条粗细:</label>
                         <div class="col-sm-8">
@@ -269,7 +307,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3" style="border-left:1px solid #f0f0f0;margin-top:5px;">
+                <div class="col-md-4" style="border-left:1px solid #f0f0f0;margin-top:5px;">
                     <div class="form-group">
                         <label class="col-sm-4 control-label">线条值指标:</label>
                         <div class="col-sm-8">
@@ -278,11 +316,28 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3" title="只支持16进制" style="margin-top:10px;">
+
+                <div class="col-md-4" style="border-top:1px solid #f0f0f0;border-left:1px solid #f0f0f0;margin-top:15px;">
+                    <div class="form-group">
+                        <label class="col-sm-12 control-label">告警数据配置:</label>
+                    </div>
+                </div>
+
+                <div class="col-md-4" style="border-left:1px solid #f0f0f0;margin-top:5px;">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">更新间隔:</label>
+                        <div class="col-sm-8">
+                            <input type="number" title="更新间隔" class="form-control" id="metricUpdateTime" placeholder="15"
+                                   value="">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4" title="只支持16进制" style="margin-top:10px;">
                     <div class="form-group">
                              <label class="col-sm-4 control-label">文字颜色:</label>
                              <div class="col-sm-8">
-                                 <input type="text" id="topLinkTextColor"  class="form-control"  style="width:50%;float:left;" value="">
+                                 <input type="text" id="topLinkTextColor"  class="form-control"  style="width:50%;float:left;background-color:#7e7272" value="#7e7272">
                                  <button onclick="$('#pickerbasecolor').hide();" class="btn btn-outline btn-md" type="button">
                                       <i class="fa fa-eye"></i>&nbsp;隐藏 
                                  </button>
@@ -291,7 +346,7 @@
                                         $("#topLinkTextColor").click(function(){
                                            v= $("#topLinkTextColor").val()
                                            if(!v){
-                                               $("#topLinkTextColor").val("#555555")
+                                               $("#topLinkTextColor").val("#7e7272")
                                            }
                                            $('#pickerbasecolor1').farbtastic('#topLinkTextColor');
                                            $("#pickerbasecolor1").show(); 
@@ -304,11 +359,11 @@
                          </div>
                      </div>
                 </div>
-                <div class="col-md-3" title="只支持16进制" style="margin-top:10px;">
+                <div class="col-md-4" title="只支持16进制" style="margin-top:10px;">
                     <div class="form-group">
                              <label class="col-sm-4 control-label">线条颜色:</label>
                              <div class="col-sm-8">
-                                 <input type="text" id="topLinkColor"  class="form-control"  style="width:50%;float:left;" value="">
+                                 <input type="text" id="topLinkColor"  class="form-control"  style="width:50%;float:left;background-color:#abff47" value="#abff47">
                                  <button onclick="$('#pickerbasecolor').hide();" class="btn btn-outline btn-md" type="button">
                                       <i class="fa fa-eye"></i>&nbsp;隐藏 
                                  </button>
@@ -317,7 +372,7 @@
                                         $("#topLinkColor").click(function(){
                                            v= $("#topLinkColor").val()
                                            if(!v){
-                                               $("#topLinkColor").val("#ff4776")
+                                               $("#topLinkColor").val("#abff47")
                                            }
                                            $('#pickerbasecolor').farbtastic('#topLinkColor');
                                            $("#pickerbasecolor").show(); 
@@ -331,7 +386,7 @@
                      </div>
                 </div>
                 </form>
-                <div class="col-md-3" style="border-left:1px solid #f0f0f0;border-bottom:1px solid #f0f0f0;">
+                <div class="col-md-4" style="border-left:1px solid #f0f0f0;border-bottom:1px solid #f0f0f0;">
                     <button style="margin-left: 66%;margin-top: 15px;margin-bottom: 10px;" onclick="saveConfig($!{configs.topId});" class="btn btn-primary btn-md" type="button">
                         <i class="fa fa-check"></i>&nbsp; 保存
                     </button>
@@ -370,12 +425,19 @@
 <textarea id="mySavedModelDelete" style="display:none;">
 </textarea>
 
-<textarea id="check_is_set_status" ></textarea>
+<textarea id="check_is_set_status" style="display:none;" ></textarea>
+<!-- 获取每个图标数据更新的时间 -->
+<div id="top_node_data_update_time" style="display:none;">
+</div>
+
+<!-- 存放top跳转的topid按顺序排放，按顺序返回-->
+<textarea id="save_top_topid_data" style="display:none;">$!{topId}</textarea>
+<input id="save_top_topid_data_current" type="hidden" value="0">
 
 <input id="moveTopSettimeout" type="hidden">
 <input id="timerintervaldata" type="hidden">
 <input id="showFullImage" type="hidden">
-<textarea id="mySavedModel" style="width:100%;height:40px">
+<textarea id="mySavedModel" style="width:100%;height:40px;display:none;">
  #if($gsonData)
      ${gsonData}
  #else
@@ -436,10 +498,63 @@ var fullscreen=function(){
     }  
 }  
 
+function exitFullscreen(){
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.msExitFullscreen) {
+      document.msExitFullscreen();
+    } else if (document.mozCancelFullScreen) {
+      document.mozCancelFullScreen();
+    } else if(document.oRequestFullscreen){
+         document.oCancelFullScreen();
+    }else if (document.webkitExitFullscreen){
+      document.webkitExitFullscreen();
+    }else{
+     var docHtml  = document.documentElement;
+     var docBody  = document.body;
+     var videobox  = document.getElementById('videobox');
+     docHtml.style.cssText = "";
+     docBody.style.cssText = "";
+     videobox.style.cssText = "";
+     document.IsFullScreen = false;
+    }
+}
+
 $(function () { $('#add_getui_config').on('hide.bs.modal', function () {
+     exitFullscreen();
      $("#showFullImage").val(0);
  })
 });
+
+
+
+      function to_top_id(t){
+           // 更新数据
+           var old = $("#save_top_topid_data").val().split(",")
+           var current = $("#save_top_topid_data_current").val()
+           if(parseInt(current) == 0 && t == "left" ){
+                parent.layer.msg("已经是第一个TOP图啦", {icon: 2});
+                return
+           }
+           if(parseInt(current) >= old.length && t == "right" ){
+                parent.layer.msg("已经是最后一个TOP图啦", {icon: 2});
+               return
+           }
+           if(t=="left"){
+             current = parseInt(current) - 1
+           }
+           if(t=="right"){
+             current = parseInt(current) + 1
+           }
+           var topId = old[current]
+           $("#save_top_topid_data_current").val(current)
+           url = "/monitor/top/listData?start=1&length=2&draw=1&topId="+topId
+           var tdata = post({}, url)
+           tdata = tdata["data"][0]["gsonData"]
+           $("#mySavedModel", parent.document).val(tdata)
+           // 刷新
+           $("#topIframe", parent.document).attr("src", "/monitor/top/topIframe");
+      }
 
        function full_imgage(){
            $("#showFullImage").val(1);
@@ -502,6 +617,7 @@ $(function () { $('#add_getui_config').on('hide.bs.modal', function () {
             parent.layer.msg("取消操作",  {icon:2})
         });
     }
+
 
     function loadData(){
         $("#listTable").dataTable({
@@ -700,9 +816,12 @@ $(function () { $('#add_getui_config').on('hide.bs.modal', function () {
             _data["circleTopImage"] = $("#top_select_images_circle").val();
             _data["topLinkValueCircle"] = $("#topLinkValueCircle").val();
             _data["topLinkSize"] = $("#topLinkSize").val();
+            if($("#imageConnectTopId").val()){
+                _data["imageConnectTopId"] = $("#imageConnectTopId").val()
+            }
 
-
-             _data = get_value(_data, "topLinkValue",  ""); // 默认
+            _data = get_value(_data, "metricUpdateTime",  "15"); // 数据更新间隔 
+            _data = get_value(_data, "topLinkValue",  ""); // 默认
 
             var old_to = $("#top_to").val()
             if(old_to.indexOf("image") == -1 && old_to.indexOf("text") == -1){

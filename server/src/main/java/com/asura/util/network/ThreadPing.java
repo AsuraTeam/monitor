@@ -63,7 +63,9 @@ public class ThreadPing {
                         upList.add(taskIp);
                     } else {
                         if(ping.execPing(taskIp) ==0) {
-                            downList.add(taskIp);
+                            if (taskIp != null) {
+                                downList.add(taskIp);
+                            }
 //                            System.out.println("host ["+taskIp+"] is not reachable");
                         }else{
                             upList.add(taskIp);
@@ -74,8 +76,10 @@ public class ThreadPing {
 //                System.out.println("host ["+taskIp+"] permission denied");
             } catch (Exception e) {
                 if(ping.execPing(taskIp) ==0) {
-                    downList.add(taskIp);
-                    System.out.println("host ["+taskIp+"] is not reachable");
+                    if (taskIp != null) {
+                        downList.add(taskIp);
+                        System.out.println("host [" + taskIp + "] is not reachable");
+                    }
                 }else{
                     upList.add(taskIp);
                 }

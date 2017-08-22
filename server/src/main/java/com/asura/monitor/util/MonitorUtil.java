@@ -36,6 +36,7 @@ public class MonitorUtil {
 
     public static final String separator = System.getProperty("file.separator");
     public static final Logger logger = LoggerFactory.getLogger(MonitorUtil.class);
+
     /**
      *
      * @param lentity

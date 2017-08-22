@@ -13,10 +13,24 @@
             top_graph_id as topGraphId,
             image_name as imageName,
             gson_data as gsonData
-         from monitor_top 
+         from monitor_top
      </sql>
+
+    <select id="selectNames" resultType="com.asura.monitor.top.entity.MonitorTopEntity">
+        select    image_name as imageName,  top_id as topId  from monitor_top
+    </select>
+
     <select id="selectByAll" resultType="com.asura.monitor.top.entity.MonitorTopEntity">
          <include refid="baseSql" />
+        where 1=1
+        <if test="topId != null">
+            and top_id=#{topId}
+        </if>
+        <if test="search != null">
+            and ( image_name like concat("%",#{search},"%")
+            or gson_data like concat("%",#{search},"%")
+            )
+        </if>
      </select>
       <select id="findById" resultType="com.asura.monitor.top.entity.MonitorTopEntity">
                    <include refid="baseSql" />

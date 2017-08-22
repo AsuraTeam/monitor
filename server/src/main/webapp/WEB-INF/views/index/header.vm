@@ -102,6 +102,8 @@
                                 </li>
                                 <li><a href="/monitor/graph/auto/play/list">自动播放配置</a>
                                 </li>
+                                <li><a href="/monitor/top/top">监控TOP配置</a>
+                                </li>
                             </ul>
                         </li>
 

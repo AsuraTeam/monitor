@@ -29,6 +29,7 @@
 19、支持对单个主机停止报警,多时间段内<br>
 20、支持报警升级，最多5个级别的升级<br>
 21、自动结合grafana画图工具,自动可生成图像<br>
+22、可绘制网络top图
 </br>
 
 为国内用户下载方便，同步更新开源中国<br>
@@ -44,6 +45,10 @@
 <br>
 <br>
 ![image](https://raw.githubusercontent.com/AsuraTeam/monitor/master/images/img2.png)
+<br>
+<b>网络TOP绘制</b></br>
+<br>
+![image](https://raw.githubusercontent.com/AsuraTeam/monitor/master/images/top1.png)
 <br>
 <b>报警信息查看</b></br>
 <br>
@@ -110,10 +115,6 @@
 <b>报警统计</b></br>
 <br>
 ![image](https://raw.githubusercontent.com/AsuraTeam/monitor/master/images/img5.png)
-<br>
-<b>指标报警分析报表</b></br>
-<br>
-![image](https://raw.githubusercontent.com/AsuraTeam/monitor/master/images/img6.png)
 <br>
 <b>监控添加页面</b></br>
 <br>
