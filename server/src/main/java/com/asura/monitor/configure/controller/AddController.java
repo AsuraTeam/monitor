@@ -2,6 +2,7 @@ package com.asura.monitor.configure.controller;
 
 import com.asura.framework.base.paging.SearchMap;
 import com.asura.framework.dao.mybatis.paginator.domain.PageBounds;
+import com.google.gson.Gson;
 import com.asura.common.response.PageResponse;
 import com.asura.monitor.configure.entity.*;
 import com.asura.monitor.configure.service.*;
@@ -12,6 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * <p></p>
@@ -189,8 +193,11 @@ public class AddController {
         if (id > 0) {
             MonitorAlarmConfigureEntity result = alarmConfigureService.findById(id, MonitorAlarmConfigureEntity.class);
             model.addAttribute("configs", result);
+            model.addAttribute("gsonData", new Gson().fromJson(result.getGsonData(), HashMap.class));
         }
         serverController.getData(model);
+        List<MonitorItemEntity> monitorItemEntities = itemService.getDataList(new SearchMap(), "selectItemName");
+        model.addAttribute("items", monitorItemEntities);
         return "monitor/configure/alarm/add";
     }
 

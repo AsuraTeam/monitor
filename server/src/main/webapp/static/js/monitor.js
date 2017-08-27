@@ -10,3 +10,4 @@ function show_hosts(host) {
     $("#show_ip_detail_html").html(html);
     $('#show_ip_address').modal("toggle")
 }
+

@@ -6,24 +6,8 @@ import com.asura.framework.dao.mybatis.paginator.domain.PageBounds;
 import com.google.gson.Gson;
 import com.asura.common.response.PageResponse;
 import com.asura.monitor.configure.conf.MonitorCacheConfig;
-import com.asura.monitor.configure.entity.MonitorConfigureEntity;
-import com.asura.monitor.configure.entity.MonitorContactGroupEntity;
-import com.asura.monitor.configure.entity.MonitorContactsEntity;
-import com.asura.monitor.configure.entity.MonitorGroupsEntity;
-import com.asura.monitor.configure.entity.MonitorInformationEntity;
-import com.asura.monitor.configure.entity.MonitorItemEntity;
-import com.asura.monitor.configure.entity.MonitorMessageChannelEntity;
-import com.asura.monitor.configure.entity.MonitorMessagesEntity;
-import com.asura.monitor.configure.entity.MonitorScriptsEntity;
-import com.asura.monitor.configure.entity.MonitorTemplateEntity;
-import com.asura.monitor.configure.service.MonitorConfigureService;
-import com.asura.monitor.configure.service.MonitorContactGroupService;
-import com.asura.monitor.configure.service.MonitorContactsService;
-import com.asura.monitor.configure.service.MonitorGroupsService;
-import com.asura.monitor.configure.service.MonitorItemService;
-import com.asura.monitor.configure.service.MonitorMessageChannelService;
-import com.asura.monitor.configure.service.MonitorScriptsService;
-import com.asura.monitor.configure.service.MonitorTemplateService;
+import com.asura.monitor.configure.entity.*;
+import com.asura.monitor.configure.service.*;
 import com.asura.resource.entity.CmdbResourceServerEntity;
 import com.asura.resource.service.CmdbResourceServerService;
 import com.asura.util.CheckUtil;
@@ -73,6 +57,9 @@ public class ListDataController {
 
     @Autowired
     private MonitorContactsService contactsService;
+
+    @Autowired
+    private MonitorAlarmConfigureService alarmConfigureService;
 
     @Autowired
     private MonitorTemplateService templateService;
@@ -173,6 +160,29 @@ public class ListDataController {
             searchMap.put("key", search);
         }
         PagingResult<MonitorContactsEntity> result = contactsService.findAll(searchMap, pageBounds, "selectByAll");
+        return PageResponse.getMap(result, draw);
+    }
+
+
+
+    /**
+     * 额外报警配置数据 201700825
+     * @param draw
+     * @param start
+     * @param length
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "alarm/listData", produces = {"application/json;charset=UTF-8"})
+    @ResponseBody
+    public String alarmListData(int draw, int start, int length, HttpServletRequest request) {
+        PageBounds pageBounds = PageResponse.getPageBounds(length, start);
+        SearchMap searchMap = new SearchMap();
+        String search = request.getParameter("search[value]");
+        if (search != null && search.length() > 0) {
+            searchMap.put("key", search);
+        }
+        PagingResult<MonitorAlarmConfigureEntity> result = alarmConfigureService.findAll(searchMap, pageBounds, "selectByAll");
         return PageResponse.getMap(result, draw);
     }
 

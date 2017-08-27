@@ -50,6 +50,9 @@
         </select>
 
 
+
+
+
     <select id="selectMaxId"  parameterType="int" resultType="com.asura.monitor.configure.entity.MonitorScriptsEntity">
         select max(scripts_id) as scriptsId from monitor_scripts
     </select>

@@ -2,14 +2,14 @@
 <div class="modal fade" id="add_getui_config" tabindex="-1"
      style="z-index: 12050 !important;margin-top:10px;" role="dialog" data-backdrop="true">
     <div class="modal-dialog" style="width:78%;margin-top:-10px;">
-        <div class="modal-content" style="height: 780px;">
+        <div class="modal-content" style="height: 900px;">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
                         class="sr-only">Close</span></button>
                 <h4 class="modal-title">额外报警设置</h4>
             </div>
             <div class="modal-body fadeInUp">
-<form>
+        <form>
            <div class="col-md-12" style="border:1px solid #f0f0f0">
                <br>
                <div class="col-md-12" style="margin:2px;size:18px;"><b>报警条件选择</b></div>
@@ -18,67 +18,43 @@
                     <div class="form-group">
                         <label class="col-sm-3 control-label">业务线选择:</label>
                         <div class="col-sm-9">
-                            <select  class="selectpicker bla bla bli form-control"  name="groupsId" data-live-search="true">
-                                <option value="#if ($configs.groupsId)$configs.groupsId#else 0 #end">#if ($configs.groupsName) ${configs.groupsName}  #end</option>
-                                <option value="0">--</option>
+                            <select  class="selectpicker bla bla bli form-control"  name="groupsId" data-live-search="true" id="groupsId">
+                                <option value="$!{gsonData.groupsId}">$!{gsonData.groupsName}</option>
                                 #foreach( $conf in $groups )
-                                    <option
-                                            value='$!{conf.groupsId}'>
-                                        $!{conf.groupsName}
-                                    </option>
+                                    #if ($conf.groupsId != $gsonData.groupsId)
+                                        <option  value='$!{conf.groupsId}'> $!{conf.groupsName}</option>
+                                    #end
                                 #end
                             </select>
                         </div>
                     </div>
                 </div>
-
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">环境选择:</label>
-                        <div class="col-sm-9">
-                            <select  class="selectpicker bla bla bli form-control"  name="entId" data-live-search="true">
-                                <option value="#if ($configs.entId)${configs.entId}#else 0 #end">#if ($configs.entName) ${configs.entName}  #end</option>
-                                <option value="0">--</option>
-                                #foreach( $conf in $entname )
-                                    <option
-                                            value='$!{conf.entId}'>
-                                        $!{conf.entName}
-                                    </option>
-                                #end
-                            </select>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">服务选择:</label>
+                            <div class="col-sm-9">
+                                <select  class="selectpicker bla bla bli form-control"  name="serviceId" data-live-search="true" id="serviceId">
+                                    <option value="#if ($gsonData.serviceId)$gsonData.serviceId#end">#if ($gsonData.serviceName)${gsonData.serviceName}#end</option>
+                                    #foreach( $conf in $service )
+                                        <option
+                                                value='$!{conf.serviceId}'>
+                                            $!{conf.serviceName}
+                                        </option>
+                                    #end
+                                </select>
+                            </div>
                         </div>
                     </div>
-                </div>
-
                 <div class="col-md-12" style="margin-top: 5px;"></div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label class="col-sm-3 control-label">用户选择:</label>
-                        <div class="col-sm-9">
-                            <select  class="selectpicker bla bla bli form-control"  name="userId" data-live-search="true">
-                                <option value="#if ($configs.userId)${configs.userId}#else 0 #end">#if ($configs.userName) ${configs.userName}  #end</option>
-                                <option value="0">--</option>
-                                #foreach( $conf in $user )
-                                    <option
-                                            value='$!{conf.userId}'>
-                                        $!{conf.userName}
-                                    </option>
-                                #end
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                            <label class="col-sm-3 control-label">脚本名称:</label>
+                            <label class="col-sm-3 control-label">项目名称:</label>
                             <div class="col-sm-9"    >
-                                <select name="scriptId"  id="scriptId"  class="selectpicker bla bla bli form-control" ">
-                                    #if($configs.scriptId) <option value="$configs.scriptId">${configs.fileName}</option>
-                                        #else
-                                            <option value="">请选择</option>
-                                    #end
-                                    #foreach($s in $scripts)
-                                        <option title="${s.monitorName} <${s.description}>" value="${s.scriptsId}">${s.fileName}</option>
+                                <select name="itemId"  id="itemId"  class="selectpicker bla bla bli form-control">
+                                    <option value="#if ($gsonData.itemId)$gsonData.itemId#end">#if ($gsonData.itemName)${gsonData.itemName}#end</option>
+                                    <option value="">请选择</option>
+                                    #foreach($s in $items)
+                                        <option title="${s.itemId} <${s.itemName}>" value="${s.itemId}">${s.itemName}</option>
                                     #end
 
                                 </select>
@@ -101,7 +77,7 @@
                     <div class="form-group">
                         <label class="col-sm-3 control-label"></label>
                         <div class="col-sm-9">
-                              <textarea rows="6" id="hosts_id" type="text" class="form-control" name="hosts" class="style5" placeholder="请搜索服务器,或手动添加服务器">$!{hosts}</textarea>
+                              <textarea rows="6" id="hosts_id" type="text" class="form-control" name="hosts" class="style5" placeholder="请搜索服务器,或手动添加服务器">$!{gsonData.hosts}</textarea>
                         </div>
                     </div>
                 </div>
@@ -111,37 +87,81 @@
                 </div>
                 <div class="col-md-12" style=""></div>
            </div>
-           <div class="col-md-12" style=""><br></div>
-                <div class="col-md-12" style=""></div>
+
+           <div class="col-md-12" style="border:1px solid #f0f0f0;padding:10px;margin-top:10px;">
+               <div class="col-md-12">
+                   <label class="col-sm-3 control-label" style="margin-left: -12px;">报警组配置</label>
+                   <label class="col-sm-3"><input placeholder="搜索报警组"
+                                                  onkeyup="searchAlarmMember($(this).val(),'undo_contact_group_redo')"
+                                                  class="fa-border form-control"
+                                                  style="margin-top:-5px;margin-left:-40%;"></label>
+                   <label class="col-sm-3 control-label">已选报警组</label>
+               </div>
+               <div class="col-md-12" style="margin-top: 5px;"></div>
+               <div class="col-xs-5">
+                   <select name="from" id="undo_contact_group_redo" class="form-control" size="10"
+                           multiple="multiple">
+                   </select>
+               </div>
+
+               <div class="col-xs-2">
+                   <div style="margin-top: 5px;">&nbsp;</div>
+                   <button type="button" id="undo_contact_group_redo_rightSelected"
+                           class="btn btn-primary btn-block"><i
+                           class="glyphicon glyphicon-chevron-right"></i></button
+                   >
+                   <button type="button" id="undo_contact_group_redo_leftSelected"
+                           class="btn btn-warning btn-block"><i
+                           class="glyphicon glyphicon-chevron-left"></i></button>
+               </div>
+
+               <div class="col-xs-5">
+                   <select name="to" id="undo_contact_group_redo_to" class="form-control" size="10"
+                           multiple="multiple"></select>
+               </div>
+           </div>
+
+           <div class="col-md-12" style="border:1px solid #f0f0f0;padding:10px;margin-top:10px;">
+                <div class="col-md-12" style="margin-left:0px;"><H5>生效时间</H5></div>
                 <div class="col-md-12" style=""><br></div>
-                <div class="col-md-12" style="margin-left:0px;"><H5>自定义配置</H5></div>
+                <div class="col-md-12" style=""></div>
                 <div class="col-md-6" style="margin-left:-15px;">
                    <div class="form-group">
-                       <label class="col-sm-4 control-label">开始时间:</label>
-                       <div class="col-sm-8">
-                           <div class="col-sm-7">
+                       <label class="col-sm-3 control-label">开始时间:</label>
+                       <div class="col-sm-9">
+                            <div class="col-sm-7">
                                <input type="date" name="beginTime1"  class="form-control" id="beginTime1"
                                       value="">
-                           </div>
-                           <div class="col-sm-5" style="margin-left:-20px;">
+                            </div>
+                            <div class="col-sm-5" style="margin-left:-20px;">
                                <input type="time" name="beginTime2"  class="form-control" id="beginTime2"
                                       value="14:01">
-                           </div>
+                            </div>
                        </div>
                    </div>
                </div>
                <div class="col-md-6">
                    <div class="form-group">
-                       <label class="col-sm-4 control-label">维护结束时间:</label>
-                       <div class="col-sm-8">
-                           <div class="col-sm-7">
+                       <label class="col-sm-3 control-label">结束时间:</label>
+                       <div class="col-sm-9">
+                            <div class="col-sm-7">
                                <input type="date" name="endTime1"  class="form-control" id="endTime1"
                                       value="">
                            </div>
-                           <div class="col-sm-5" style="margin-left:-20px;">
+                            <div class="col-sm-5" style="margin-left:-20px;">
                                <input type="time" name="endTime2"  class="form-control" id="endTime2"
                                       value="14:01:00">
                            </div>
+                       </div>
+                   </div>
+               </div>
+               <div class="col-md-12" style="margin-top: 15px;"></div>
+               <div class="col-md-12">
+                   <div class="form-group">
+                       <label class="col-sm-4 control-label">描述信息:</label>
+                       <div class="col-sm-6" style="margin-left: -18%;">
+                           <input type="text" name="description" class="form-control"
+                                  value="$!{configs.description}">
                        </div>
                    </div>
                </div>
@@ -149,10 +169,11 @@
                    <p>
                    <p>
                </div>
+
 </form>
            </div>
                 <button style="margin-left: 88%;margin-top: 25px;margin-bottom:45px;"
-                        onclick="saveConfig();" class="btn btn-primary btn-lg"
+                        onclick="saveConfig($!{configs.configureId});" class="btn btn-primary btn-lg"
                         type="button">
                     <i class="fa fa-check"></i>&nbsp;保存
                 </button>
@@ -162,14 +183,134 @@
         </div>
     </div>
 </div>
+<textarea style="display: none" id="contact_groups_id"></textarea>
 <script>
 
     $('.selectpicker').selectpicker({
         'selectedText': 'cat'
     });
 
-   function saveConfig(){
+    function selectContactGroupss() {
+        url = "/monitor/configure/contactGroup/listData?draw=1&start=1&length=10000"
+        result = eval(post({}, url))["data"];
+        html = ""
+        select = ""
+        for (i = 0; i < result.length; i++) {
+            html += "<option value=" + result[i]["groupId"] + ">" + result[i]["groupName"] + "</option>\n"
+        }
+        $('#contact_groups_id').val(select + html)
+    }
+
+    function set_alarm_up_groups(upids, htmls){
+        var upids = upids.split("|")
+        for(upi = 1; upi<(upids.length+1);upi++){
+            updatas = upids[upi]
+            if(!updatas){break}
+            $("#alarm_up_add_id").show();
+            $("#alarm_up").prop("checked", "true")
+            var updata = updatas.split(";")
+            set_alarm_up('', 1);
+            $("#undo_contact_all_alarm_up_"+upi+"_redo").html(htmls)
+            setAlarmTo(updata[1], "undo_contact_all_alarm_up_"+upi+"_redo_to", 1)
+            $("#alarmCount"+upi).val(updata[0])
+            $("#undo_contact_all_alarm_up_"+upi+"_redo").multiselect({
+               keepRenderingSort: true
+            });
+        }
+    }
+
+    jQuery(document).ready(function ($) {
+         $('#undo_contact_group_redo').multiselect({
+              keepRenderingSort: true
+         });
+    });
+
+    // 设置所有报警组的选择项
+    function setAlarmTo(ids, html_id, upadd) {
+        if(!upadd){
+           set_alarm_up_groups(ids, htmls)
+        }
+        var ids = ids.split("|")[0]
+        html = ""
+        url = "/monitor/configure/contactGroup/listData?draw=1&start=1&length=10000"
+        result = eval(post({groupsId: ids}, url))["data"];
+        html = ""
+        select = ""
+        for (i = 0; i < result.length; i++) {
+            html += "<option value=" + result[i]["groupId"] + ">" + result[i]["groupName"] + "</option>\n"
+        }
+        $('#' + html_id).html(html)
+    }
+
+    selectContactGroupss(); 
+    htmls = $('#contact_groups_id').val()
+    $('#undo_contact_group_redo').html(htmls)
+    setAlarmTo("${configs.allGroups}", "undo_contact_group_redo_to");
+
+    // 报警人搜索
+    function searchAlarmMember(val, id) {
+        console.log(id)
+        console.log(val)
+        temp = ""
+        data = $('#contact_groups_id').val().split("\n")
+        for (i = 0; i < data.length; i++) {
+            if (data[i].indexOf(val) != -1) {
+                temp += data[i]
+            }
+        }
+        $('#' + id).html(temp)
+    }
+
+
+   function set_ip(ip){
+       old = $("#hosts_id").val()
+       old = old.split("\n")
+       news = true; 
+       for (i=0;i<old.length;i++){
+           if(old[i]==ip){
+               news = false; 
+           } 
+       }
+       if(news){old.push(ip)}
+       ips = old.join("\n")
+       $("#hosts_id").val(ips)
+   }
+
+
+    /**
+     * 获取多选的值
+     */
+    function getMutilSelect(id,t) {
+        to = $('#'+id).html().replace(/<option value="/g,"");
+        to = to.replace(/<\/option>/g," ");
+        to = to.replace(/"/g,"")
+        to = to.replace(/>/g," ")
+        to_hosts = to.split(" ")
+        hosts_ip = ""
+        hosts = ""
+        for(i=0;i<to_hosts.length;i++){
+            if(t) {
+                if (to_hosts[i].indexOf(".") != -1) {
+                    hosts_ip += to_hosts[i] + ",";
+                } else {
+                    hosts += to_hosts[i] + ",";
+                }
+            }else{
+                if(!isNaN(to_hosts[i])) {
+                    hosts += to_hosts[i] + ",";
+                }
+            }
+        }
+        hosts_ip = hosts_ip.substring(0,hosts_ip.length-1)
+        hosts = hosts.substring(0,hosts.length-2)
+        return [hosts.replace(/[\r\n]/g,"").trim().replace(/[ ]/g,"").replace(/\ +/), hosts_ip]
+    }
+
+   function saveConfig(id){
        data = get_form_data();
+       if (id){
+           data["configureId"] = id
+       }
        len = 0
        for(var key in data){
           if(key.indexOf("Id") != -1){
@@ -181,13 +322,9 @@
           }
 
        }
-       if(len > 1){
-           parent.layer.msg("只能选择一个项目",  {icon:2});
-           return 
-       }
-       if(len == 0){
+       if(len == 0 && data["hosts"].trim().length < 10){
            parent.layer.msg("请选择一个项目",  {icon:2});
-           return 
+           return
        }
        value =  $("input[name='pauseTime']:checked").val()
        if(!value){
@@ -200,7 +337,12 @@
            parent.layer.msg("暂停时间必须选择",  {icon:2});
            return 
        }
-       url = "/monitor/" + site + "/save";
+       data["itemName"] = $('#itemId option:selected').text();
+       data["groupsName"] = $('#groupsId option:selected').text();
+       data["serviceName"] = $('#serviceId option:selected').text();
+       data["allGroups"] = getMutilSelect("undo_contact_group_redo_to")[0]
+       url = "/monitor/configure/alarm/save";
+       data["gsonData"] = JSON.stringify(data).replace(/ /g,"")
        result = post(data, url);
        parent.layer.msg(JSON.stringify(result),  {icon:1});
        $('#listTable').dataTable().fnReloadAjax();
@@ -225,8 +367,7 @@
             if(data && data["ipAddress"]){
                 ip = data["ipAddress"]
                 id = data["serverId"]
-                html = "<div onclick='$(\"#select_"+html_id+"_id\").val("+id+");$(\"#search_"+html_id+"_ip\").hide()'>"+ip+"</div>"
-console.log(html)
+                html = "<div onclick='set_ip(\""+ip+"\");$(\"#search_"+html_id+"_ip\").hide()'>"+ip+"</div>"
                 $('#search_'+html_id+'_ip').html(html).css('display','block');
               }
             }
@@ -253,15 +394,33 @@ console.log(html)
         var s=myDate.getSeconds();
 
 
-            if(parseInt(h) < 10 ){
-                h = "0"+h
-            }
-            if(parseInt(m) < 10 ){
-                m = "0"+m
-            }
-            $("#beginTime1").val(year+"-"+p(month)+"-"+p(str_date))
-            $("#beginTime2").val(h+":"+m+":00")
-            $("#endTime1").val(year+"-"+p(month)+"-"+p(str_date))
-            $("#endTime2").val(h+":"+m+":00")
+        if(parseInt(h) < 10 ){
+            h = "0"+h
+        }
+        if(parseInt(m) < 10 ){
+            m = "0"+m
+        }
+        $("#beginTime1").val(year+"-"+p(month)+"-"+p(str_date))
+        $("#beginTime2").val(h+":"+m+":00")
+        $("#endTime1").val(year+"-"+p(month)+"-"+p(str_date))
+        $("#endTime2").val(h+":"+m+":00")
 
+    setAlarmTo("$!{gsonData.allGroups}", "undo_contact_all_redo_to");
+
+    // 设置所有报警组的选择项
+    function setAlarmTo(ids, html_id, upadd) {
+        if(!upadd){
+            set_alarm_up_groups(ids, htmls)
+        }
+        var ids = ids.split("|")[0]
+        html = ""
+        url = "/monitor/configure/contactGroup/listData?draw=1&start=1&length=10000"
+        result = eval(post({groupsId: ids}, url))["data"];
+        html = ""
+        select = ""
+        for (i = 0; i < result.length; i++) {
+            html += "<option value=" + result[i]["groupId"] + ">" + result[i]["groupName"] + "</option>\n"
+        }
+        $('#' + html_id).html(html)
+    }
 </script>

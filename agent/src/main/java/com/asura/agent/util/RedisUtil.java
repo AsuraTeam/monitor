@@ -104,7 +104,7 @@ public class RedisUtil {
      */
     public String get(String key) {
         Jedis jedis = getJedis();
-        String r = "";
+        String r;
         try {
             LOGGER.info("get "+ app + "_" + key);
             r = jedis.get(app + "_" + key);

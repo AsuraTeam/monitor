@@ -43,6 +43,12 @@
          where a.script_id = b.scripts_id
          </sql>
 
+    <select id="selectItemName" resultType="com.asura.monitor.configure.entity.MonitorItemEntity">
+select
+        a.item_id as itemId, a.item_name as itemName,        a.description as description from monitor_item a
+
+    </select>
+
     <select id="selectByAll" resultType="com.asura.monitor.configure.entity.MonitorItemEntity">
         <include refid="baseSql"/>
         <if test="items != null">

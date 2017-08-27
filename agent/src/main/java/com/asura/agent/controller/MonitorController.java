@@ -83,13 +83,14 @@ import static com.asura.agent.util.RedisUtil.app;
  *          20170607 agent的ping监控空地址不报警
  *          20170618 增加安全服务端配置,每30分钟检查一次
  *          20170701 添加报警升级功能
+ *          20170827 添加报警附加报警人功能 1.0.0.30
  */
 @RestController
 @EnableAutoConfiguration
 public class MonitorController {
 
     // 版本号
-    private final String VERSION = "1.0.0.29";
+    private final String VERSION = "1.0.0.30";
 
     private static final Logger logger = LoggerFactory.getLogger(MonitorController.class);
 
@@ -2579,10 +2580,21 @@ public class MonitorController {
             message = "报警啦";
         }
 
+        //
+
         MonitorConfigureEntity configureEntity = CONFIGS.get(pushEntity.getConfigId());
 
         // 在项目中配置发送给管理员的项目全部发报警给管理员
         String adminGroup = getAdminGroup(itemEntity);
+
+        // 获取额外配置的组
+        logger.info("获取监控配置额外的组 start");
+        String alarmGroup = MonitorUtil.getAlarmGroups(itemEntity.getItemId()+"", entity.getIp());
+        logger.info("获取监控配置额外的组 end " + alarmGroup);
+        if (alarmGroup.length() > 1){
+            adminGroup = adminGroup + alarmGroup;
+            info("获取到额外配置的监控主:" + alarmGroup);
+        }
         String mobileGroups = configureEntity.getMobileGroups() + "," + adminGroup;
         String emailGroups = configureEntity.getEmailGroups() + "," + adminGroup;
         String dingGroups = configureEntity.getDingGroups() + "," + adminGroup;

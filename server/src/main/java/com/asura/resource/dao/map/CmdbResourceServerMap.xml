@@ -347,6 +347,7 @@
     <select id="selectAllIp" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
         select server_id as serverId,
         ip_address as ipAddress,
+        service_id as serviceId,
         a.groups_id as groupsId
         from cmdb_resource_server a
         where 1=1

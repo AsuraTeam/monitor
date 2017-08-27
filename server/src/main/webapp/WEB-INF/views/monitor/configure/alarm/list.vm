@@ -11,52 +11,6 @@
         #include("/index/header.vm")
 <div id="addConfig"></div>
 <body>
-<div class="modal fade" id="show_cache" tabindex="-1"
-     role="dialog" style="background-color: #FfFfFf; margin-top: 16px;"
-     data-backdrop="false">
-    <div class="modal-dialog"
-         style="margin-top: 0px; width: 50%; ">
-        <div class="modal-content"
-             style="height: auto; overflow-y:scroll;width: 100%; ">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">
-                    <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
-                </button>
-                <h4 class="modal-title" id="show_cache_title">&nbsp;&nbsp;缓存数据查看</h4>
-            </div>
-            <div  id="show_cache_detail_html"  rows="15" style="margin-bottom: 0px;width: 100%;">
-                加载中...
-            </div>
-            <div style="margin-top:12px;">&nbsp;</div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="show_import_item_data" tabindex="-1"
-     role="dialog" style="background-color: #FfFfFf; margin-top: 16px;"
-     data-backdrop="false">
-    <div class="modal-dialog"
-         style="margin-top: 0px; width: 50%; ">
-        <div class="modal-content"
-             style="height: auto; width: 100%; ">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">
-                    <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
-                </button>
-                <h4 class="modal-title" id="show_cache_title">&nbsp;&nbsp;导入数据模板</h4>
-            </div>
-            <div  id="show_cache_detail_html"  rows="15" style="margin-bottom: 0px;width: 100%;padding: 15px;">
-                <textarea rows="25" cols="" style='width: 100%;' id="import_item_data">请将模板内容粘贴过来</textarea>
-            </div>
-            <div style="margin-top:12px;">&nbsp;</div>
-            <button style="margin-left: 80%;margin-top: 5px;margin-bottom: 10px;"
-                    onclick="import_item();" class="btn btn-primary btn-lg" type="button">
-                <i class="fa fa-check"></i>&nbsp;导入
-            </button>
-        </div>
-    </div>
-</div>
-
 
 <div class=" animated fadeInRight">
     <div class="row">
@@ -76,21 +30,22 @@
                         <i class="fa fa-group"></i>&nbsp;&nbsp;<span class="bold">组配置</span>
                     </button>
                     <button class="btn btn-outline btn-primary " type="button"
-                            onclick="window.location='/monitor/configure/configure/list'">
-                    <i class="fa fa-eye"></i>&nbsp;&nbsp;<span class="bold">监控配置</span>
-                    </button>
-                    <button class="btn btn-outline btn-primary " type="button"
                             onclick="window.location='/monitor/configure/template/list'">
                         <i class="fa fa-object-group"></i>&nbsp;&nbsp;<span class="bold">模板配置</span>
                     </button>
                     <button class="btn btn-outline btn-primary " type="button"
-                            onclick="window.location='/monitor/configure/item/setCache'">
-                        <i class="fa fa-heart-o"></i>&nbsp;&nbsp;<span class="bold">生成缓存</span>
+                            onclick="window.location='/monitor/configure/item/list'">
+                        <i class="fa fa-gg"></i>&nbsp;&nbsp;<span class="bold">项目配置</span>
                     </button>
                     <button class="btn btn-outline btn-primary " type="button"
-                            onclick="$('#show_import_item_data').modal('toggle')">
-                        <i class="fa fa-angle-double-up"></i>&nbsp;&nbsp;<span class="bold">导入项目模板</span>
+                            onclick="window.location='/monitor/configure/configure/list'">
+                        <i class="fa fa-eye"></i>&nbsp;&nbsp;<span class="bold">监控配置</span>
                     </button>
+                    <button class="btn btn-outline btn-primary " type="button"
+                            onclick="window.location='/monitor/configure/alarm/setCache'">
+                        <i class="fa fa-heart-o"></i>&nbsp;&nbsp;<span class="bold">生成缓存</span>
+                    </button>
+
                 </div>
                 <div class="ibox-content" style="overflow:scroll;">
                     <table id="listTable"
@@ -98,16 +53,11 @@
                         <thead>
                         <tr nowrap="nowrap" role="rows">
                             <th>项目名称</th>
-                            <th>脚本名称</th>
-                            <th>检查间隔(秒)</th>
-                            <th>报警次数</th>
-                            <th>报警间隔(分)</th>
-                            <th>重试次数</th>
-                            <th>恢复消息</th>
-                            <th>报警合并</th>
+                            <th>业务线</th>
+                            <th>服务类型</th>
+                            <th>服务器</th>
                             <th>描述信息</th>
-                            <th>缓存查看</th>
-                            <th>编辑/删除/导出模板</th>
+                            <th>编辑/删除</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -120,7 +70,7 @@
 </div>
 
 <script>
-    var site = "item"
+    var site = "alarm"
     function addConfig(id){
         if(!id){
             id=0;
@@ -131,30 +81,6 @@
         $('#add_getui_config').modal('toggle');
     }
 
-    function export_item(id) {
-        url = "/monitor/configure/"+site+"/export";
-        html = post({id:id}, url);
-        $('#show_cache_detail_html').html("<textarea rows='30' style='width: 100%;' readonly>" + html + "</textarea>");
-        $('#show_cache_title').html("项目模板导出")
-        $('#show_cache').modal('toggle');
-    }
-
-    function import_item() {
-        data = $('#import_item_data').val();
-        url = "/monitor/configure/"+site+"/importSave";
-        html = post({data:data}, url);
-        parent.layer.msg(JSON.stringify(html),  {icon:1})
-        $('#listTable').dataTable().fnReloadAjax();
-    }
-
-    // 查看模板的缓存信息
-    function show_cache(name){
-        url = "/monitor/configure/"+site+"/getCache";
-        html = post({name:name}, url);
-        $('#show_cache_detail_html').html(syntaxHighlight(JSON.stringify(html)));
-        $('#show_cache_title').html("缓存数据查看")
-        $('#show_cache').modal("toggle")
-    }
 
     function deleteConfig(id){
         url = "/monitor/configure/"+site+"/deleteSave";
@@ -170,51 +96,24 @@
         });
 
     }
-    function saveConfig(id){
-        data = get_form_data();
-        if(id){
-            data["itemId"] = id;
+  
+    /**
+     *
+     * @param data
+     * @param key
+     * @returns {*}
+     */
+    function getGsonData(data, key, default_value) {
+        if (data) {
+            data = JSON.parse(data)
+            return data[key]
         }
-        if (!data["description"]) {
-            parent.layer.msg("描述信息填写", {icon: 2});
-            return;
+        if (default_value) {
+            return default_value;
         }
-        if (!data["scriptId"]) {
-            parent.layer.msg("脚本必须选择", {icon: 2});
-            return;
-        }
-        if (!data["alarmCount"]) {
-            parent.layer.msg("报警次数必须填写", {icon: 2});
-            return;
-        }
-        if (!data["itemName"]) {
-            parent.layer.msg("项目名称填写", {icon: 2});
-            return;
-        }
-        if (!data["checkInterval"]) {
-            parent.layer.msg("检查间隔填写", {icon: 2});
-            return;
-        }
-        if (!data["retry"]) {
-            parent.layer.msg("重试次数必须填写", {icon: 2});
-            return;
-        }
-        if(!data["isAdmin"])
-        {
-          data["isAdmin"] = 0;
-       }
-
-        if(!data["isDefault"])
-        {
-            data["isDefault"] = 0;
-        }
-
-        url = "/monitor/configure/"+site+"/save";
-        result = post(data, url);
-        parent.layer.msg(JSON.stringify(result),  {icon:1});
-        //$('#add_getui_config').modal('toggle');
-        $('#listTable').dataTable().fnReloadAjax();
+        return ""
     }
+
     function loadData(){
         $("#listTable").dataTable({
             "filter": true,//去掉搜索框
@@ -231,39 +130,43 @@
             },
 
             "columns": [ // 数据映射
-                {"data": "itemName"},
-                {"data": "fileName"},
-                {"data": "checkInterval"},
-                {"data": "alarmCount"},
-                {"data": "alarmInterval"},
-                {"data": "retry"},
-                {"data": "isRecover","mRender":function (data) {
-                    if(data==1){
-                        return "是"
-                    }
-                    return "否"
-                }},
-                {"data": "isMerge","mRender":function (data) {
-                    if(data==1){
-                        return "是"
-                    }
-                    return "否"
-                }},
-                {"data": "description","mRender":function (data) {
-                    if (data.length>30){
-                        return "<span title='"+data+"'>"+data.substring(0,30)+"</span>"
-                    }
-                    return data;
-                }},
-                {"data": "itemId", "mRender": function(data, type, full) {
-                    return '<a  onclick="show_cache(\''+data+'\',\'item\')"><i style="margin-left: 25px;" class="fa fa-heart-o"></i></a>';
+                {
+                    "data": "gsonData", "mRender": function (data, type, full) {
+                        if (getGsonData(data,"itemId")) {
+                            return getGsonData(data, "itemName", "");
+                        }
                 }
                 },
-                {"data": "itemId", "mRender": function(data, type, full) {
-                    return '<button type="button" onclick="addConfig('+data+')" class="btn btn-sm btn-warning">编辑</button>&nbsp;'+
-                           '<button type="button" onClick="deleteConfig('+data+')" class="btn btn-sm btn-danger">删除</button>&nbsp;'+
-                           '<button type="button" onClick="export_item('+data+')" class="btn btn-sm btn-success">导出</button>'
+                {
+                    "data": "gsonData", "mRender": function (data, type, full) {
+                    if (getGsonData(data,"groupsId")) {
+                        return getGsonData(data, "groupsName", "");
+                    }
                 }
+                },
+                {
+                    "data": "gsonData", "mRender": function (data, type, full) {
+                    if (getGsonData(data,"serviceId")) {
+                        return getGsonData(data, "serviceName", "");
+                    }
+                }
+                },
+                {
+                    "data": "gsonData", "mRender": function (data, type, full) {
+                    hosts = getGsonData(data, "hosts", "");
+                    if(hosts.length>30){return "<span title='"+hosts+"'>"+nosts.substring(0,30)+"</span>"}
+                    return hosts
+                }
+                },
+                {
+                    "data": "description", "mRender": function (data, type, full) {
+                    return data 
+                }
+                },
+                {"data": "configureId", "mRender": function(data, type, full) {
+                    return '<button type="button" onclick="addConfig('+data+')" class="btn btn-sm btn-warning">编辑</button>&nbsp;'+
+                           '<button type="button" onClick="deleteConfig('+data+')" class="btn btn-sm btn-danger">删除</button>&nbsp;';
+                    }
                 },
             ],
             "fnRowCallback": function (row, data) { // 每行创建完毕的回调

@@ -7,22 +7,8 @@ import com.google.gson.Gson;
 import com.asura.common.controller.IndexController;
 import com.asura.common.response.PageResponse;
 import com.asura.monitor.configure.conf.MonitorCacheConfig;
-import com.asura.monitor.configure.entity.MonitorConfigureEntity;
-import com.asura.monitor.configure.entity.MonitorContactGroupEntity;
-import com.asura.monitor.configure.entity.MonitorContactsEntity;
-import com.asura.monitor.configure.entity.MonitorGroupsEntity;
-import com.asura.monitor.configure.entity.MonitorItemEntity;
-import com.asura.monitor.configure.entity.MonitorMessageChannelEntity;
-import com.asura.monitor.configure.entity.MonitorScriptsEntity;
-import com.asura.monitor.configure.entity.MonitorTemplateEntity;
-import com.asura.monitor.configure.service.MonitorConfigureService;
-import com.asura.monitor.configure.service.MonitorContactGroupService;
-import com.asura.monitor.configure.service.MonitorContactsService;
-import com.asura.monitor.configure.service.MonitorGroupsService;
-import com.asura.monitor.configure.service.MonitorItemService;
-import com.asura.monitor.configure.service.MonitorMessageChannelService;
-import com.asura.monitor.configure.service.MonitorScriptsService;
-import com.asura.monitor.configure.service.MonitorTemplateService;
+import com.asura.monitor.configure.entity.*;
+import com.asura.monitor.configure.service.*;
 import com.asura.monitor.configure.util.ConfigureUtil;
 import com.asura.monitor.graph.util.FileRender;
 import com.asura.monitor.graph.util.FileWriter;
@@ -117,9 +103,12 @@ public class CacheController {
     @Autowired
     private CmdbResourceGroupsService resourceGroupsService;
 
+    @Autowired
+    private MonitorAlarmConfigureService alarmConfigureService;
+
     private final Gson gson = new Gson();
     private final RedisUtil redisUtil = new RedisUtil();
-    final SearchMap searchMap = new SearchMap();
+
     final PageBounds pageBounds = PageResponse.getPageBounds(10000,1);
 
     /**
@@ -310,9 +299,7 @@ public class CacheController {
 
     /**
      * 获取组机组的IP地址
-     *
      * @param m
-     *
      * @return
      */
     public String getHosts(MonitorGroupsEntity m) {
@@ -419,13 +406,15 @@ public class CacheController {
         for (MonitorConfigureEntity m : result.getRows()) {
             String[] hosts = null;
             if(CheckUtil.checkString(m.getHosts()) && m.getMonitorHostsTp().equals("host")) {
-
                 hosts = m.getHosts().split(",");
             }
             // 设置组的信息
             if(CheckUtil.checkString(m.getGname()) && m.getMonitorHostsTp().equals("groups")){
                 hosts = redisUtil.get(MonitorCacheConfig.cacheGroupsKey.concat(m.getGname())).split(",");
                 logger.info("获取到组配置信息 " + gson.toJson(hostIds));
+            }
+            if (null == hosts){
+                continue;
             }
 
             for (String s : hosts) {
@@ -537,6 +526,7 @@ public class CacheController {
      * 缓冲机房信息
      */
     public void cacheFloor(){
+        SearchMap searchMap = new SearchMap();
        PagingResult<CmdbResourceFloorEntity> list = floorService.findAll(searchMap, pageBounds);
        for (CmdbResourceFloorEntity floorEntity: list.getRows()){
            redisUtil.set(MonitorCacheConfig.cacheFloorInfo+floorEntity.getFloorId()+"", floorEntity.getFloorAddress());
@@ -547,6 +537,7 @@ public class CacheController {
      * 缓冲环境
      */
     public void cacheEntname(){
+        SearchMap searchMap = new SearchMap();
         PagingResult<CmdbResourceEntnameEntity> list = entnameService.findAll(searchMap, pageBounds);
         for (CmdbResourceEntnameEntity entity: list.getRows()){
             redisUtil.set(MonitorCacheConfig.cacheEntnameInfo+entity.getEntId()+"", entity.getEntName());
@@ -557,6 +548,7 @@ public class CacheController {
      * 缓冲负责人信息
      */
     public void cacheUsers(){
+        SearchMap searchMap = new SearchMap();
         PagingResult<CmdbResourceUserEntity> list = userService.findAll(searchMap, pageBounds);
         for (CmdbResourceUserEntity entity: list.getRows()){
             redisUtil.set(MonitorCacheConfig.cacheUserInfo+entity.getUserId()+"", entity.getUserName());
@@ -567,6 +559,7 @@ public class CacheController {
      * 缓冲业务线数据
      */
     public void cacheGroups(){
+        SearchMap searchMap = new SearchMap();
         PagingResult<CmdbResourceGroupsEntity> list = resourceGroupsService.findAll(searchMap, pageBounds);
         for (CmdbResourceGroupsEntity entity: list.getRows()){
             redisUtil.set(MonitorCacheConfig.cacheGroupsInfo+entity.getGroupsId()+"", entity.getGroupsName());
@@ -577,6 +570,7 @@ public class CacheController {
      * 缓冲机柜数据
      */
     public void cacheCabinet(){
+        SearchMap searchMap = new SearchMap();
         PagingResult<CmdbResourceCabinetEntity> list = cabinetService.findAll(searchMap, pageBounds);
         for (CmdbResourceCabinetEntity entity: list.getRows()){
             redisUtil.set(MonitorCacheConfig.cacheCabinetInfo+entity.getCabinetId()+"", entity.getCabinetName());
@@ -587,9 +581,364 @@ public class CacheController {
      * 脚本信息缓冲
      */
     public void cacheScript(){
+        SearchMap searchMap = new SearchMap();
         PagingResult<MonitorScriptsEntity> list = scriptsService.findAll(searchMap, pageBounds, "selectByAll");
         for (MonitorScriptsEntity entity: list.getRows()){
             redisUtil.set(MonitorCacheConfig.cacheCabinetInfo+entity.getScriptsId()+"", entity.getFileName());
+        }
+    }
+
+    /**
+     *
+     * @param itemMap
+     * @param key
+     * @param redisUtil
+     */
+    void makeRedisCache( Map<String, ArrayList> itemMap, String key, RedisUtil redisUtil){
+        for (Map.Entry<String, ArrayList> entry:itemMap.entrySet()){
+            logger.info("获取到循环key" + key + " " + gson.toJson(entry));
+            redisUtil.set(key+entry.getKey().trim(), gson.toJson(entry.getValue()));
+        }
+    }
+
+    /**
+     *
+     * @param map
+     * @param itemMap
+     * @param key
+     */
+    void setAlarmMap(Map<String,String> map,  Map<String, ArrayList> itemMap, String key){
+        ArrayList itemList = new ArrayList();
+        String itemId = map.get(key);
+        String allGroups = map.get("allGroups");
+        if (CheckUtil.checkString(itemId)) {
+            if (itemMap.containsKey(itemId)){
+                itemList = itemMap.get(itemId);
+            }
+            if (CheckUtil.checkString(allGroups)) {
+                for (String host:allGroups.split(",")) {
+                    if (!itemList.contains(host)) {
+                        itemList.add(host);
+                    }
+                }
+            }
+            itemMap.put(itemId, itemList);
+        }
+    }
+
+    /**
+     * 检查map里面的数据是否有
+     * @param map
+     * @param keys
+     */
+    boolean checkMdata(Map<String,String> map, String keys){
+        for (String key:keys.split(",")){
+            logger.info("检查key" + key + " " + map.get(key)) ;
+            if (!CheckUtil.checkString(map.get(key))){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 任何一个存在就为false
+     * @param map
+     * @param keys
+     * @param isReverse
+     * @return
+     */
+    boolean checkMdata(Map<String,String> map, String keys, boolean isReverse){
+        for (String key:keys.split(",")){
+            logger.info("检查key" + key + " " + map.get(key)) ;
+            if (CheckUtil.checkString(map.get(key))){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     *
+     * @param allGroups
+     * @param itemList
+     */
+    void setGroups(String allGroups , ArrayList itemList){
+        for (String group:allGroups.split("\n")) {
+            if (!itemList.contains(group)) {
+                itemList.add(group);
+            }
+        }
+    }
+
+    /**
+     *
+     * @param map
+     * @param key
+     */
+    void deleteAlarm(Map<String, String> map,  String key, boolean isHosts){
+        if (CheckUtil.checkString(map.get("hosts")) && !isHosts) {
+            for (String host : map.get("hosts").split(",")) {
+                redisUtil.del(key.concat(host.trim()));
+            }
+        }else {
+            redisUtil.del(key);
+        }
+        cacheAlarmConfigure();
+    }
+
+    /**
+     *
+     * @param map
+     * @param item
+     * @param itemMap
+     */
+    void setHostsAlarm(Map<String,String> map, String item, Map<String, ArrayList> itemMap) {
+        ArrayList itemList = new ArrayList();
+        String allGroups = map.get("allGroups");
+        if (!CheckUtil.checkString(allGroups)){
+            return;
+        }
+        if (CheckUtil.checkString(map.get("hosts"))) {
+            String[] hosts = map.get("hosts").split("\n");
+            for (String host : hosts) {
+                if (!CheckUtil.checkString(host)){continue;}
+                    String itemId = item + host;
+                    if (itemMap.containsKey(itemId)) {
+                        itemList = itemMap.get(itemId);
+                    }
+                    setGroups(allGroups,itemList);
+                    itemMap.put(itemId, itemList);
+                }
+            return;
+        }
+        if (itemMap.containsKey(item)) {
+            itemList = itemMap.get(item);
+        }
+        setGroups(allGroups,itemList);
+        itemMap.put(item, itemList);
+    }
+
+    /**
+     *
+     * @param entity
+     */
+    @RequestMapping("alarm/setCacheSave")
+    @ResponseBody
+    public void deleteAlarmConfigure(MonitorAlarmConfigureEntity entity, HttpServletRequest request){
+       Map<String,String> map = gson.fromJson(entity.getGsonData(), HashMap.class);
+       String key;
+        // 四选一
+        if (checkMdata(map, "itemId,groupsId,serviceId,hosts")){
+            key = map.get("itemId") +"_" + map.get("groupsId") + "_" + map.get("serviceId") + "_" ;
+            logger.info("key1 " + key);
+            deleteAlarm(map, MonitorCacheConfig.cacheAlarmItem + key, false);
+            return;
+        }
+        if (checkMdata(map, "itemId,groupsId,serviceId")){
+            key = map.get("itemId") +"_" + map.get("groupsId") + "_" + map.get("serviceId") ;
+            logger.info("key2 " + key);
+            deleteAlarm(map, MonitorCacheConfig.cacheAlarmItem +key, false);
+            return;
+        }
+        if (checkMdata(map, "itemId,groupsId,hosts")){
+            key = map.get("itemId") +"_" + map.get("groupsId") + "_"  ;
+            deleteAlarm(map, MonitorCacheConfig.cacheAlarmItem +key, false);
+
+            return;
+        }
+        if (checkMdata(map, "itemId,serviceId,hosts")){
+            key = map.get("itemId") +"_" + map.get("serviceId") + "_"  ;
+            logger.info("key4 " + key);
+            deleteAlarm(map, MonitorCacheConfig.cacheAlarmItem +key, false);
+
+            return;
+        }
+        if (checkMdata(map, "groupsId,serviceId,hosts")){
+            key = map.get("itemId")  + map.get("serviceId")+"_" ;
+            logger.info("key8 " + key);
+            deleteAlarm(map, MonitorCacheConfig.cacheAlarmItem +"groups_"+key, false);
+            return;
+
+        }
+        if (checkMdata(map, "itemId,groupsId")){
+            key = map.get("itemId") +"_" + map.get("groupsId");
+            logger.info("key5 " + key);
+            deleteAlarm(map, MonitorCacheConfig.cacheAlarmItem +key, false);
+            return;
+
+        }
+        if (checkMdata(map, "itemId,hosts")){
+            key = map.get("itemId") +"_";
+            logger.info("key6 " + key);
+            deleteAlarm(map, MonitorCacheConfig.cacheAlarmItem +key, false);
+            return;
+        }
+        if (checkMdata(map, "itemId,serviceId")){
+            key = map.get("itemId")  + map.get("serviceId") ;
+            logger.info("key7 " + key);
+            deleteAlarm(map, MonitorCacheConfig.cacheAlarmItem +key, false);
+            return;
+        }
+
+        if (checkMdata(map, "groupsId,serviceId")){
+            key = MonitorCacheConfig.cacheAlarmItem + "groups_"+ map.get("groupsId") + "_" + map.get("serviceId") ;
+            deleteAlarm(map, key, false);
+            return;
+        }
+        if (checkMdata(map, "groupsId,hosts")){
+            key = MonitorCacheConfig.cacheAlarmItem+"groups_"+ map.get("groupsId")+"_";
+            logger.info("key10 " + key);
+            deleteAlarm(map, key, false);
+            return;
+        }
+        if (checkMdata(map, "serviceId,hosts")){
+            key = MonitorCacheConfig.cacheAlarmItem+"service_" + map.get("serviceId")+"_";
+            deleteAlarm(map, key, false);
+            return;
+        }
+        if (CheckUtil.checkString(map.get("itemId"))) {
+            key = MonitorCacheConfig.cacheAlarmItem+map.get("itemId");
+            deleteAlarm(map, key, false);
+            return;
+        }
+        if (CheckUtil.checkString(map.get("groupsId"))) {
+            key = MonitorCacheConfig.cacheAlarmGroups + map.get("groupsId");
+            deleteAlarm(map, key, false);
+            return;
+        }
+        if (CheckUtil.checkString(map.get("serviceId"))) {
+            key = MonitorCacheConfig.cacheAlarmService + map.get("serviceId");
+            deleteAlarm(map, key, false);
+            return;
+        }
+        if (CheckUtil.checkString(map.get("hosts"))) {
+            String[] hosts = map.get("hosts").split(",");
+            for (String host:hosts){
+                key = MonitorCacheConfig.cacheAlarmServer+host.trim();
+                deleteAlarm(map, key, true);
+                return;
+            }
+        }
+        logSave.logSave(request, "生成监控缓存");
+    }
+
+    /**
+     * 缓存额外配的的监控报警方式
+     */
+    public void cacheAlarmConfigure(){
+        List<MonitorAlarmConfigureEntity> entitys = alarmConfigureService.getListData(new SearchMap(), "selectByAll");
+        Map<String, ArrayList> itemMap = new HashMap();
+        Map<String, ArrayList> groupsMap = new HashMap();
+        Map<String, ArrayList> serverMap = new HashMap();
+        Map<String, ArrayList> serviceMap = new HashMap();
+        Gson gson = new Gson();
+        Map<String,String> map;
+        String key;
+        for (MonitorAlarmConfigureEntity entity: entitys){
+            map = gson.fromJson(entity.getGsonData(), HashMap.class);
+            // 四选一
+            if (checkMdata(map, "itemId,groupsId,serviceId,hosts")){
+                key = map.get("itemId") +"_" + map.get("groupsId") + "_" + map.get("serviceId") + "_" ;
+                logger.info("key1 " + key);
+                setHostsAlarm(map, key, itemMap);
+                continue;
+            }
+            if (checkMdata(map, "itemId,groupsId,serviceId")){
+                key = map.get("itemId") +"_" + map.get("groupsId") + "_" + map.get("serviceId") ;
+                logger.info("key2 " + key);
+                setHostsAlarm(map, key, itemMap);
+                continue;
+            }
+            if (checkMdata(map, "itemId,groupsId,hosts")){
+                key = map.get("itemId") +"_" + map.get("groupsId") + "_"  ;
+                logger.info("key3 " + key);
+                setHostsAlarm(map, key, itemMap);
+                continue;
+            }
+            if (checkMdata(map, "itemId,serviceId,hosts")){
+                key = map.get("itemId") +"_" + map.get("serviceId") + "_"  ;
+                logger.info("key4 " + key);
+                setHostsAlarm(map, key, itemMap);
+                continue;
+            }
+            if (checkMdata(map, "groupsId,serviceId,hosts")){
+                key = "groups_" + map.get("itemId")  + map.get("serviceId")+"_" ;
+                logger.info("key8 " + key);
+                setHostsAlarm(map, key, itemMap);
+                continue;
+            }
+            if (checkMdata(map, "itemId,groupsId")){
+                key = map.get("itemId") +"_" + map.get("groupsId");
+                logger.info("key5 " + key);
+                setHostsAlarm(map, key, itemMap);
+                continue;
+            }
+            if (checkMdata(map, "itemId,hosts")){
+                key = map.get("itemId") +"_";
+                logger.info("key6 " + key);
+                setHostsAlarm(map, key, itemMap);
+                continue;
+            }
+            if (checkMdata(map, "itemId,serviceId")){
+                key = map.get("itemId")  + map.get("serviceId") ;
+                logger.info("key7 " + key);
+                setHostsAlarm(map, key, itemMap);
+                continue;
+            }
+
+            if (checkMdata(map, "groupsId,serviceId")){
+                key = "groups_" + map.get("groupsId") + "_" + map.get("serviceId") ;
+                logger.info("key9 " + key);
+                setHostsAlarm(map, key, itemMap);
+                continue;
+            }
+            if (checkMdata(map, "groupsId,hosts")){
+                key = "groups_" + map.get("groupsId")+"_";
+                logger.info("key10 " + key);
+                setHostsAlarm(map, key, itemMap);
+                continue;
+            }
+            if (checkMdata(map, "serviceId,hosts")){
+                key = "service_" + map.get("serviceId")+"_";
+                logger.info("key11 " + key);
+                setHostsAlarm(map, key, itemMap);
+                continue;
+            }
+            if (CheckUtil.checkString(map.get("itemId")) && checkMdata(map, "groupsId,serviceId,hosts", true)) {
+                setAlarmMap(map, itemMap, "itemId");
+            }
+            if (CheckUtil.checkString(map.get("groupsId")) && checkMdata(map, "itemId,serviceId,hosts", true) ) {
+                setAlarmMap(map, groupsMap, "groupsId");
+            }
+            if (CheckUtil.checkString(map.get("serviceId")) && checkMdata(map, "groupsId,itemId,hosts", true) ) {
+                setAlarmMap(map, serviceMap, "serviceId");
+            }
+            if (CheckUtil.checkString(map.get("hosts")) && checkMdata(map, "groupsId,serviceId,itemId", true) ) {
+                String[] hosts = map.get("hosts").split(",");
+                for (String host:hosts){
+                    if (!CheckUtil.checkString(host)){
+                        continue;
+                    }
+                    logger.info("获取到服务器" + host);
+                    map.put("host", host);
+                    setAlarmMap(map, serverMap, "host");
+                    logger.info("获取到服务器map"+ gson.toJson(serverMap));
+                }
+            }
+        }
+        RedisUtil redisUtil = new RedisUtil();
+        if (itemMap.size() > 0 ) {
+            makeRedisCache(itemMap, MonitorCacheConfig.cacheAlarmItem, redisUtil);
+        }
+        if (groupsMap.size() > 0) {
+            makeRedisCache(groupsMap, MonitorCacheConfig.cacheAlarmGroups, redisUtil);
+        }
+        if (serverMap.size() > 0 ) {
+            makeRedisCache(serverMap, MonitorCacheConfig.cacheAlarmServer, redisUtil);
+        }
+        if (serviceMap.size() > 0 ) {
+            makeRedisCache(serviceMap, MonitorCacheConfig.cacheAlarmService, redisUtil);
         }
     }
 

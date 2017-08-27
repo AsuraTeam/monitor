@@ -115,12 +115,14 @@ public class SocketThread extends Thread {
 
     public void run(){
         Gson gson = new Gson();
+
         if (data.length() > 65534){
+            int split = (data.length() / 50000)+2;
             List<PushEntity> newList = new ArrayList<>();
             List<PushEntity> list = getPushEntity(data);
             int counter = 0;
             for (int i=0; i<list.size(); i++){
-                if (i % 10 == 0) {
+                if (i % (Integer.valueOf(list.size() / split)) == 0) {
                     sendSplitData(newList, gson);
                     counter = i;
                     newList = new ArrayList<>();

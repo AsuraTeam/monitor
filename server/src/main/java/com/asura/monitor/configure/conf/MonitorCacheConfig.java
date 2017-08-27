@@ -188,4 +188,25 @@ public class MonitorCacheConfig {
     // 缓冲脚本
     public static final String cacheScriptInfo = "cache_stop_script_info_";
 
+    // 缓存单独配置的监控信息,由agent获取，减少server端计算压力
+    //    cache_alarm_item_itemId
+    // 里面是一个map，里面存放用户，生效时间, key为用户名
+    public static final String cacheAlarmItem = "cache_alarm_item_";
+
+    // 缓存某个业务线的
+    // 里面是一个map，里面存放用户，生效时间, key为用户名
+    public static final String cacheAlarmGroups = "cache_alarm_groups_";
+
+    // 缓存某种服务的
+    // 里面是一个map，里面存放用户，生效时间, key为用户名
+    public static final String cacheAlarmService = "cache_alarm_service_";
+
+    // 缓存某个服务器的
+    // 里面是一个map，里面存放用户，生效时间, key为用户名
+    public static final String cacheAlarmServer = "cache_alarm_server_";
+
+    // 存储每个主机的serviceId _ ip地址
+    public static final String cacheHostServiceId = "cache_host_service_id_";
+
+
 }

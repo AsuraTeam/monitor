@@ -84,8 +84,8 @@
                     <div class="col-md-12">
                     </div>
                     <div class="col-md-12">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">是否是管理员:</label>
+                        <div class="form-group" title="开启后，所有系统的报警都会收到">
+                            <label class="col-sm-3 control-label">接收所有系统报警:</label>
                             <div class="col-sm-4">
                                 <div class="checkbox checkbox-primary checkbox-inline">
                                     <input type="checkbox" onchange="change(this)" name="isAdmin" id="checkbox6"

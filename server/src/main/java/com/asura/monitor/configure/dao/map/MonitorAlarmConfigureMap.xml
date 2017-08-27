@@ -18,6 +18,7 @@
      </sql>
     <select id="selectByAll" resultType="com.asura.monitor.configure.entity.MonitorAlarmConfigureEntity">
          <include refid="baseSql" />
+        ORDER  by last_modify_time desc
      </select>
       <select id="findById" resultType="com.asura.monitor.configure.entity.MonitorAlarmConfigureEntity">
                    <include refid="baseSql" />

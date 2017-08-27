@@ -25,10 +25,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.asura.monitor.configure.conf.MonitorCacheConfig.cacheGroupsKey;
 import static com.asura.monitor.configure.conf.MonitorCacheConfig.cacheHostCnfigureKey;
@@ -388,8 +385,6 @@ public class SaveController {
     @ResponseBody
     public ResponseVo importSave(String data, HttpServletRequest request) {
         try {
-            Type type = new TypeToken<Map<String, String>>() {
-            }.getType();
             Map<String, String>  map = GSON.fromJson(data, Map.class);
             String script = map.get("scripts");
             String item = map.get("item");
@@ -453,7 +448,7 @@ public class SaveController {
     }
 
     /**
-     * 项目配置删除
+     * 添加额外报警监控
      * @param request
      * @return
      */
@@ -464,11 +459,14 @@ public class SaveController {
         entity.setLastModifyUser(user);
         entity.setLastModifyTime(DateUtil.getDate(DateUtil.TIME_FORMAT));
         if (entity.getConfigureId() != null) {
+            MonitorAlarmConfigureEntity oldEntiry = alarmConfigureService.findById(entity.getConfigureId(), MonitorAlarmConfigureEntity.class);
+            cacheController.deleteAlarmConfigure(oldEntiry);
             alarmConfigureService.update(entity);
         } else {
             alarmConfigureService.save(entity);
         }
         indexController.logSave(request, "添加监控报警信息" + GSON.toJson(entity));
+        cacheController.cacheAlarmConfigure();
         return ResponseVo.responseOk(null);
     }
 
@@ -484,6 +482,7 @@ public class SaveController {
     public ResponseVo alarmDelete(int id, HttpServletRequest request) {
         MonitorAlarmConfigureEntity entity = alarmConfigureService.findById(id, MonitorAlarmConfigureEntity.class);
         alarmConfigureService.delete(entity);
+        cacheController.deleteAlarmConfigure(entity);
         indexController.logSave(request, "删除监控报警信息");
         return ResponseVo.responseOk(null);
     }
@@ -556,14 +555,14 @@ public class SaveController {
         entity.setLastModifyTime(DateUtil.getTimeStamp());
         String[] hosts;
         try {
-            entity.setArg1(entity.getArg1().replace("\n", ""));
-            entity.setArg2(entity.getArg2().replace("\n", ""));
-            entity.setArg3(entity.getArg3().replace("\n", ""));
-            entity.setArg4(entity.getArg4().replace("\n", ""));
-            entity.setArg5(entity.getArg5().replace("\n", ""));
-            entity.setArg6(entity.getArg6().replace("\n", ""));
-            entity.setArg7(entity.getArg7().replace("\n", ""));
-            entity.setArg8(entity.getArg8().replace("\n", ""));
+            entity.setArg1(entity.getArg1().trim());
+            entity.setArg2(entity.getArg2().trim());
+            entity.setArg3(entity.getArg3().trim());
+            entity.setArg4(entity.getArg4().trim());
+            entity.setArg5(entity.getArg5().trim());
+            entity.setArg6(entity.getArg6().trim());
+            entity.setArg7(entity.getArg7().trim());
+            entity.setArg8(entity.getArg8().trim());
         }catch (Exception e){
         }
         if (entity.getConfigureId() != null && entity.getConfigureId() > 0 ) {

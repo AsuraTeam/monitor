@@ -10,7 +10,6 @@ import com.asura.agent.entity.MonitorScriptsEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
-import sun.net.util.IPAddressUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -342,13 +341,65 @@ public class MonitorUtil {
 
     /**
      * 检查字符串是否为空
+     *
      * @param str
      * @return
      */
     public static boolean checkString(String str) {
-        if ( null != str && str.length() > 0) {
+        if (null != str && str.length() > 0) {
             return true;
         }
         return false;
     }
+
+    /**
+     * @param list
+     * @param key
+     */
+    static void setAlarmList(ArrayList list, String key, boolean defKey) {
+        if (defKey) {
+            key = MonitorCacheConfig.cacheAlarmItem + key;
+        }
+        list.add(key);
+    }
+
+    /**
+     * @param itemId
+     * @param host
+     */
+    public static String getAlarmGroups(String itemId, String host) {
+        String groupsId = redisUtil.get(MonitorCacheConfig.getCacheHostGroupsKey + host);
+        String serviceId = redisUtil.get(MonitorCacheConfig.cacheHostServiceId+ host);
+        ArrayList<String> list = new ArrayList();
+        setAlarmList(list, itemId + "_" + groupsId + "_" + serviceId + "_" + host, true);
+        setAlarmList(list, itemId + "_" + groupsId + "_" + serviceId, true);
+        setAlarmList(list, itemId + "_" + groupsId + "_" + host, true);
+        setAlarmList(list, itemId + "_" + serviceId + "_" + host, true);
+        setAlarmList(list, "groups_" + groupsId + "_" + serviceId + "_" + host, true);
+        setAlarmList(list, itemId + "_" + groupsId, true);
+        setAlarmList(list, itemId + "_" + host, true);
+        setAlarmList(list, itemId + "_" + serviceId, true);
+        setAlarmList(list, "groups_" + groupsId + "_" + serviceId, true);
+        setAlarmList(list, "groups_" + groupsId + "_" + host, true);
+        setAlarmList(list, "service_" + serviceId + "_" + host, true);
+        setAlarmList(list, MonitorCacheConfig.cacheAlarmItem + itemId, false);
+        setAlarmList(list, MonitorCacheConfig.cacheAlarmGroups + groupsId, false);
+        setAlarmList(list, MonitorCacheConfig.cacheAlarmService + serviceId, false);
+        setAlarmList(list, MonitorCacheConfig.cacheAlarmServer + host, false);
+        String r = "";
+        info("获取到信息" + gson.toJson(list));
+        for (String k:list){
+            r = redisUtil.get(k);
+            if (r != null && r.length() > 0) break;
+        }
+        String result = "";
+        if (r.length() >0 ){
+            ArrayList<String> groupList = gson.fromJson(r, ArrayList.class);
+            for (String g:groupList){
+                result += g + ",";
+            }
+        }
+        return ","+result;
+    }
+
 }

@@ -96,6 +96,9 @@ public class RedisUtil  {
                 LOGGER.info(app + "_cache_hosts_id_"+c.getIpAddress());
                 // 主机的id
                 jedis.set(app + "_cache_hosts_id_"+c.getIpAddress() , c.getServerId()+"");
+                // 设置每个主机的服务类型ID
+                LOGGER.info(app+"_"+MonitorCacheConfig.cacheHostServiceId + c.getIpAddress());
+                jedis.set(app+"_"+MonitorCacheConfig.cacheHostServiceId + c.getIpAddress(), c.getServiceId());
                 // 主机的业务线
                 jedis.set(app +"_" +MonitorCacheConfig.getCacheHostGroupsKey+c.getIpAddress() , c.getGroupsId()+"");
                 // 获取每个id对应的ip地址
@@ -103,6 +106,7 @@ public class RedisUtil  {
             }
             jedis.close();
         } catch (Exception e) {
+            LOGGER.error("setHostId error", e);
             r = "";
         }
         return r;

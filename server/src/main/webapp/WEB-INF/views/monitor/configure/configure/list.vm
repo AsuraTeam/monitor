@@ -87,6 +87,10 @@
                             onclick="window.location='/monitor/configure/contacts/list'">
                         <i class="fa fa-user"></i>&nbsp;&nbsp;<span class="bold">联系人配置</span>
                     </button>
+                    <button class="btn btn-outline btn-primary " type="button"
+                            onclick="window.location='/monitor/configure/alarm/list'">
+                        <i class="fa fa-users"></i>&nbsp;&nbsp;<span class="bold">附加报警人配置</span>
+                    </button>
                     <div class="col-md-2 multiple pull-right">
                         <select class="btn selectpicker bla bla bli form-control"  data-live-search="true" onchange="loadData($(this).val())" >
                             <option value="">请选择业务线</option>

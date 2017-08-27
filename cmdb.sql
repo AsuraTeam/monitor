@@ -393,7 +393,7 @@ UNLOCK TABLES;
 DROP TABLE IF EXISTS `cmdb_resource_server`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `cmdb_resource_server` (
+ CREATE TABLE `cmdb_resource_server` (
   `server_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '服务器ID',
   `groups_id` int(11) DEFAULT NULL COMMENT '业务线组',
   `type_id` int(11) DEFAULT NULL COMMENT '服务器类型',
@@ -419,15 +419,21 @@ CREATE TABLE `cmdb_resource_server` (
   `expire` varchar(32) DEFAULT NULL COMMENT '过期时间',
   `asset_coding` varchar(132) DEFAULT NULL COMMENT '资产编码',
   `status` int(11) DEFAULT NULL COMMENT '简单测试连通性,ping，检查是否活着',
-  `switch_id` varchar(32) DEFAULT NULL COMMENT '交换机id',
+  `buy_user` varchar(32) DEFAULT NULL COMMENT '购买人',
+  `buy_user_history` varchar(32) DEFAULT NULL COMMENT '原始购买者',
+  `buy_time` varchar(32) DEFAULT NULL COMMENT '购买时间',
+  `use_user` varchar(32) DEFAULT NULL COMMENT '使用人',
+  `use_time` varchar(32) DEFAULT NULL COMMENT '开始使用时间',
+  `resource_code` varchar(64) DEFAULT NULL COMMENT '资产编码',
+  `resource_price` varchar(64) DEFAULT NULL COMMENT '资产价格',
   `switch_port` varchar(32) DEFAULT NULL COMMENT '交换机端口',
+  `switch_id` varchar(32) DEFAULT NULL COMMENT '交换机',
   PRIMARY KEY (`server_id`),
   UNIQUE KEY `uid_ip_address` (`ip_address`),
   UNIQUE KEY `uidx_cabinet_levelcabinet_id` (`cabinet_id`,`cabinet_level`),
   KEY `uidx_server_id` (`server_id`),
   KEY `uidx_manager_ip` (`manager_ip`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `cmdb_resource_server`
