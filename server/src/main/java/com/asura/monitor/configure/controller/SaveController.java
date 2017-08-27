@@ -460,7 +460,7 @@ public class SaveController {
         entity.setLastModifyTime(DateUtil.getDate(DateUtil.TIME_FORMAT));
         if (entity.getConfigureId() != null) {
             MonitorAlarmConfigureEntity oldEntiry = alarmConfigureService.findById(entity.getConfigureId(), MonitorAlarmConfigureEntity.class);
-            cacheController.deleteAlarmConfigure(oldEntiry);
+            cacheController.deleteAlarmConfigure(oldEntiry, request);
             alarmConfigureService.update(entity);
         } else {
             alarmConfigureService.save(entity);
@@ -482,7 +482,7 @@ public class SaveController {
     public ResponseVo alarmDelete(int id, HttpServletRequest request) {
         MonitorAlarmConfigureEntity entity = alarmConfigureService.findById(id, MonitorAlarmConfigureEntity.class);
         alarmConfigureService.delete(entity);
-        cacheController.deleteAlarmConfigure(entity);
+        cacheController.deleteAlarmConfigure(entity, request);
         indexController.logSave(request, "删除监控报警信息");
         return ResponseVo.responseOk(null);
     }
