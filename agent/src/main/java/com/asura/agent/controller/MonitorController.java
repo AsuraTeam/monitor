@@ -90,7 +90,7 @@ import static com.asura.agent.util.RedisUtil.app;
 public class MonitorController {
 
     // 版本号
-    private final String VERSION = "1.0.0.30";
+    private final String VERSION = "1.0.0.32";
 
     private static final Logger logger = LoggerFactory.getLogger(MonitorController.class);
 
@@ -205,7 +205,7 @@ public class MonitorController {
      * 初始化系统变量
      */
     void init() {
-        logger.info("初始化系统变量.....");
+        logger.info("初始化系统变量......");
         checkAgentRedis();
         // 设置安全服务器
         setSecurityServer(true);
@@ -925,12 +925,12 @@ public class MonitorController {
                 StringBuilder command = new StringBuilder();
                 command.append(tempDir).append(scriptId).append(SCRIPT_ARGV.get(id));
 
+                boolean isOk = true;
                 logger.info("checkMonitorAlarm " + command.toString() + " " + alarmId + " retry -> " + value);
                 List<PushEntity> pushEntities = run(command.toString(), getTimeout(scriptId));
                 for (PushEntity pushEntity : pushEntities) {
                     if (null != pushEntity ) {
                         pushEntity.setAlarmId(alarmId);
-                        setStatus(pushEntity, alarmId);
                         pushEntity.setScriptId(scriptId);
                         pushEntity.setConfigId(configId);
                         // 脚本数据如果没有指定IP参数,就为本机的脚本内容
@@ -940,16 +940,20 @@ public class MonitorController {
                             pushEntity.setServer(getServerId(pushEntity));
                         }
                         if(Integer.valueOf(pushEntity.getStatus()) > 1) {
+                            isOk = false;
                             ALARM_MAP.put(alarmId, value + 1);
-                        }else{
-                            logger.info("成功退出重试" + " " + alarmId + " retry put time break ");
-                            ALARM_MAP.remove(alarmId);
                         }
                         ALARM_INTERVAL.put(alarmIdTime, DateUtil.getCurrTime());
                         info(isDebug ? "ALARM_INTERVAL " + command.toString() + " " + alarmId + " retry put time -> " + DateUtil.getCurrTime() : null);
                         SCRIPT_STATUS.put(alarmId, pushEntity);
                     }
-
+                }
+                if (isOk){
+                    PushEntity pushEntity = new PushEntity();
+                    pushEntity.setStatus("1");
+                    setStatus(pushEntity, alarmId);
+                    logger.info("成功退出重试" + " " + alarmId + " retry put time break ");
+                    ALARM_MAP.remove(alarmId);
                 }
             } else {
 

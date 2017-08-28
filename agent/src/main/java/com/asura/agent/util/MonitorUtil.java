@@ -392,14 +392,18 @@ public class MonitorUtil {
             r = redisUtil.get(k);
             if (r != null && r.length() > 0) break;
         }
-        String result = "";
-        if (r.length() >0 ){
-            ArrayList<String> groupList = gson.fromJson(r, ArrayList.class);
-            for (String g:groupList){
-                result += g + ",";
+        try {
+            String result = "";
+            if (r != null && r.length() > 0) {
+                ArrayList<String> groupList = gson.fromJson(r, ArrayList.class);
+                for (String g : groupList) {
+                    result += g + ",";
+                }
             }
+            return "," + result;
+        }catch (Exception e){
+            return "";
         }
-        return ","+result;
     }
 
 }
