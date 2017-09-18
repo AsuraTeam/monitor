@@ -2,6 +2,7 @@ package com.asura.monitor.graph.quartz;
 
 import com.asura.monitor.configure.conf.MonitorCacheConfig;
 import com.asura.monitor.graph.thread.MergerThread;
+import com.asura.monitor.util.ToElasticsearchUtil;
 import com.asura.resource.entity.CmdbResourceServerEntity;
 import com.asura.util.RedisUtil;
 import org.slf4j.Logger;
@@ -48,6 +49,11 @@ public class MergerDataQuartz {
                     LOGGER.info("添加 " + file.getName() + "到合并队列");
                     jedis.lpush(RedisUtil.app+"_"+MonitorCacheConfig.mergerDataQueue, file.getName());
                 }
+            }
+            try {
+                ToElasticsearchUtil.makeEsAlias();
+            }catch (Exception e){
+                LOGGER.error("生成es别名错误", e);
             }
         }else {
             startQuartz(redisUtil);

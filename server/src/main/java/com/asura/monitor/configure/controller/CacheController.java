@@ -279,6 +279,25 @@ public class CacheController {
         return "ok";
     }
 
+
+    /**
+     * 将模板的数据写入到cache
+     * @return
+     */
+    @RequestMapping("server/cacheServerInfo")
+    @ResponseBody
+    public String cacheServerInfo(String ip) {
+        SearchMap searchMap = new SearchMap();
+        if (CheckUtil.checkString(ip)){
+            searchMap.put("ipAddress", ip);
+        }
+        PagingResult<CmdbResourceServerEntity> result = service.findAll(searchMap, PageResponse.getPageBounds(10000000, 1), "selectByAll");
+        for (CmdbResourceServerEntity m : result.getRows()) {
+            redisUtil.set(MonitorCacheConfig.cacheIpHostInfo + m.getIpAddress(), gson.toJson(m));
+        }
+        return "ok";
+    }
+
     /**
      * 将模板的数据写入到cache
      *
@@ -950,6 +969,7 @@ public class CacheController {
     public String allCache(){
         makeAllHostKey(null, null);
         setConfigureCache(null);
+        cacheServerInfo(null);
         setServerCache(service, null);
         setServerInfoCache(service, null, null);
         setItemCache(itemService, null);

@@ -47,6 +47,7 @@
     }
     function setIpAddress(value, select) {
         old = $('#select_all_ip_textarea').val();
+        old = old .replace(/ /g,"")
         olds = old.split("\n")
         news = ""
         is_exists = false
@@ -63,6 +64,7 @@
         if(!is_exists){
             news += value.trim()
         }
+        news = news.replace(/ /g,"")
         $('#select_all_ip_textarea').val(news);
         $.cookie("select_all_ip_textarea", news);
     }

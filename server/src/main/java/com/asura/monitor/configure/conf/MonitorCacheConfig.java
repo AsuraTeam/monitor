@@ -175,6 +175,9 @@ public class MonitorCacheConfig {
     // 存放某个服务器的信息,环境，机柜,物理机等信息 _serverId, Map 类型
     public static final String cacheServerInfo = "cache_stop_server_info_";
 
+    // 缓存每个IP地址的服务器信息 _ip map
+    public static final String cacheIpHostInfo = "cache_ip_host_info_";
+
     // 缓冲环境信息 _entId
     public static final String cacheEntnameInfo = "cache_stop_entname_info_";
     // 缓冲机柜信息

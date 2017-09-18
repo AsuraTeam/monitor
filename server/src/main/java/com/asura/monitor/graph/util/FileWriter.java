@@ -1,6 +1,7 @@
 package com.asura.monitor.graph.util;
 
 import com.asura.monitor.graph.entity.PushEntity;
+import com.asura.monitor.util.ToElasticsearchUtil;
 import com.asura.util.DateUtil;
 import org.apache.log4j.Logger;
 
@@ -130,6 +131,11 @@ public class FileWriter {
         // 将值组装成固定的时间和数据
         String content = DateUtil.getDateStampInteter() + "000 " + value.trim();
         writeFile(dir, content, true);
+        try {
+            ToElasticsearchUtil.pushQueue(type, ip, name, value);
+        }catch (Exception e){
+            logger.error("写入ES失败", e);
+        }
     }
 
 
@@ -175,10 +181,12 @@ public class FileWriter {
 
         String content = DateUtil.dateToStamp(entity.getTime()) + " ";
         if(entity.getMessages() != null) {
-            content += "[" + entity.getMessages().replaceAll("(\r\n|\r|\n|\n\r)", "") + "]";
+            content += "[" + entity.getMessages().trim() + "]";
+//            content += "[" + entity.getMessages().replaceAll("(\r\n|\r|\n|\n\r)", "") + "]";
         }
-        content = content.replaceAll("(\\r\\n|\\r|\\n|\\n\\r)", "");
-        content = content.replaceAll("(\r\n|\r|\n|\n\r)", "");
+        content = content.trim();
+//        content = content.replaceAll("(\\r\\n|\\r|\\n|\\n\\r)", "");
+//        content = content.replaceAll("(\r\n|\r|\n|\n\r)", "");
         writeFile(file, content, false);
     }
 

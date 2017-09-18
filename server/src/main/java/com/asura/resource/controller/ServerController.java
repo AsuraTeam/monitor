@@ -277,7 +277,8 @@ public class ServerController {
                            String ipAddress,
                            String domain,
                            String cabinetId,
-                           String switchId
+                           String switchId,
+                           String switchPort
     ) {
         PageBounds pageBounds;
         if (hostIp == null) {
@@ -332,6 +333,9 @@ public class ServerController {
             searchMap.put("typeName", typeName);
         }
 
+        if (CheckUtil.checkString(switchPort)){
+            searchMap.put("switchPort", switchPort);
+        }
         if (CheckUtil.checkString(groupsName)) {
             searchMap.put("groupsName", groupsName);
         }
@@ -466,6 +470,7 @@ public class ServerController {
         redisUtil.set(MonitorCacheConfig.getCacheHostGroupsKey + entity.getIpAddress(), entity.getGroupsId() + "");
         redisUtil.set(MonitorCacheConfig.cacheHostIdToIp + entity.getServerId(), entity.getIpAddress());
         redisUtil.set(MonitorCacheConfig.hostsIdKey + entity.getIpAddress(), entity.getServerId() + "");
+        cacheController.cacheServerInfo(entity.getIpAddress());
         indexController.logSave(request, "保存资产数据 " + entity.getIpAddress() + gson.toJson(entity));
         return ResponseVo.responseOk(null);
     }

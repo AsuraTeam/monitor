@@ -138,6 +138,11 @@
             and a.switch_id=#{switchId}
         </if>
 
+        <if test="switchPort != null">
+            and a.switch_port=#{switchPort}
+        </if>
+
+
         <!-- 获取域名相关 -->
         <if test="domain != null">
             and ( a.domain_name=#{domain} or a.domain_name LIKE concat("%", #{domain}, "%")
@@ -172,7 +177,11 @@
 
         <!-- 获取IP地址 -->
         <if test="ipAddress != null">
-            and a.ip_address=#{ipAddress}
+            and (
+            a.ip_address=#{ipAddress}
+            or
+            a.manager_ip=#{ipAddress}
+            )
         </if>
 
         <!-- 获取机房的数据 -->
@@ -221,10 +230,6 @@
             <foreach collection="hosts" item="item" separator="," open="(" close=")"  index="index">
                 #{item}
             </foreach>
-        </if>
-        <!-- 按Ip地址查看 -->
-        <if test="ipAddress != null">
-            and a.ip_address=#{ipAddress}
         </if>
 
         <!-- 多个组的数据 -->

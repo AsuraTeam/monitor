@@ -163,24 +163,24 @@
  
 <h4> 安装步骤:</h4><br>
    1、安装mysql数据库<br>
-   2、安装jdk7<br>
+   2、安装java8<br>
    3、安装redis服务<br>
    4、安装tomcat<br>
    5、安装mvn<br>
    Mysql库请使用utf8字符集<br>
-   其中redis, tomcat, mvn，jdk7 可以直接使用tools里面的包， 安装程序统一部署到 /home/runtime 目录<br>
+   其中redis, tomcat, mvn，java8可以直接使用tools里面的包， 安装程序统一部署到 /home/runtime 目录<br>
    详情查看deploy.sh脚本
    
    目录结构:<br>
    #ls /home/runtime<br>
-    jdk7 tomcat_8081 redis maven 数据库自行配置即可<br>
+    java8 tomcat_8081 redis maven 数据库自行配置即可<br>
 
     
 <h1>agent安装配置</h1>
 <h3>6、安装agent</h3><br>
       1、使用mvn打包, 打包完成后,将target/agent.jar 记录，稍后会用到<br>
       2、程序运行环境在tools/monitor.tar.bz2, 解压到 /home/runtime/目录<br>
-      3、将tools里面的jdk7解压并改名为 /home/runtime/monitor/java/ 目录<br>
+      3、将tools里面的java8解压并改名为 /home/runtime/monitor/java/ 目录<br>
       4、修改agent配置文件，将所有v.asura.com替换为你的服务端的地址，为方便后期负载,尽量使用nginx等负载设备, 使用域名形式配置<br>
          修改redis.server 和server端使用的redis一致<br>
       5、将刚才的 agent.jar 复制到 /home/runtime/monitor/lib/ 目录<br>

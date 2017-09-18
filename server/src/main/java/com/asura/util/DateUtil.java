@@ -235,4 +235,6 @@ public class DateUtil {
 		cal.add(Calendar.DATE,-number);
 		return new SimpleDateFormat("yyyy-MM-dd").format(cal.getTime());
 	}
+
+
 }
