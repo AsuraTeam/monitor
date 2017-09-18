@@ -138,9 +138,10 @@
    4、mysql数据库<br>
    5、mvn<br>
    6、agent<br>
+   7、elsticsearch 5.2 (可选)<br>
    
  运行系统 Centos 6.5 <br>
- 为方便使用,软件包tools/下面已集成mvn, java, redis,tomcat工具，直接可以使用, 无需自行下载<br>
+ 为方便使用,软件包tools/下面已集成mvn, java, redis,tomcat工具，直接可以使用, 无需自行下载, elsticsearch5.2 grafana 自行下载<br>
  
 
 <h3>准备工作:</h3><br>
