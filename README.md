@@ -66,6 +66,8 @@
 <br>
 ![image](https://raw.githubusercontent.com/AsuraTeam/monitor/master/images/20.png)
 <br>
+![image](https://raw.githubusercontent.com/AsuraTeam/monitor/master/images/grafana.png)
+<br>
 ![image](https://raw.githubusercontent.com/AsuraTeam/monitor/master/images/21.png)
 <br>
 ![image](https://raw.githubusercontent.com/AsuraTeam/monitor/master/images/22.png)
@@ -132,7 +134,7 @@
 <br>
 
 <h3>系统组成部分:</h3><br>
-   1、java环境， jdk1.7<br>
+   1、java环境， jdk1.8<br>
    2、tomcat<br>
    3、redis<br>
    4、mysql数据库<br>
