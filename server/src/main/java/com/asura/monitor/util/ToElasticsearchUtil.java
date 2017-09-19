@@ -125,6 +125,7 @@ public class ToElasticsearchUtil {
         }
     }
 
+
     public static void setParam() {
         if (server != null) {
             return;
@@ -186,53 +187,11 @@ public class ToElasticsearchUtil {
      * 生成别名和索引
      */
     public static void makeEsAlias() throws Exception {
-
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss" + "+08:00");
-        String time = sdf.format(new Date());
         TransportClient client = transportClient();
-        BulkRequestBuilder bulkRequest = client.prepareBulk();
         IndicesAliasesRequestBuilder response = client.admin().indices()
                 .prepareAliases();
         LOGGER.info("开始生成 别名");
-        Long now = System.currentTimeMillis();
-        for (int i = 1; i < 2; i++) {
-            try {
-                String day = DateUtil.timeStamp2Date(now + (3600 * 24 * i * 1000) + "", "yyyy-MM-dd");
-                bulkRequest.add(client.prepareIndex("monitor-" + day, "monitor")
-                        .setSource(jsonBuilder()
-                                .startObject()
-                                .field("@type", "test")
-                                .field("@name", "test")
-                                .field("@value", 0.01)
-                                .field("@timestamp", time)
-                                .field("@groups", "test")
-                                .field("@cabinet", "test")
-                                .field("@entname", "test")
-                                .field("@username", "test")
-                                .field("@domain", "test")
-                                .field("@ip", "test")
-                                .endObject()
-                        )
-                );
-                bulkRequest.execute().get();
-                XContentBuilder mapping = jsonBuilder()
-                        .startObject()
-                        .startObject("properties")
-                        .startObject("@name").field("type", "text").field("fielddata", true).endObject()
-                        .startObject("@groups").field("type", "text").field("fielddata", true).endObject()
-                        .startObject("@entname").field("type", "text").field("fielddata", true).endObject()
-                        .startObject("@usernam").field("type", "text").field("fielddata", true).endObject()
-                        .startObject("@domain").field("type", "text").field("fielddata", true).endObject()
-                        .startObject("@ip").field("type", "text").field("fielddata", true).endObject()
-                        .endObject().endObject();
-                PutMappingRequest mappingRequest = Requests.putMappingRequest("monitor-" + day).type("monitor").source(mapping);
-                client.admin().indices().putMapping(mappingRequest).actionGet();
-                LOGGER.info("生成索引别名 " + day);
-                response.addAlias("monitor-" + day, "asura");
-            } catch (Exception e) {
-                LOGGER.error("生成别名失败", e);
-            }
-        }
+        response.addAlias("monitor-*", "asura");
         response.execute().actionGet();
         client.close();
     }
@@ -269,7 +228,6 @@ public class ToElasticsearchUtil {
                                     .field("@value", map.get("value"))
                                     .field("@timestamp", map.get("time"))
                                     .field("@groups", map.get("groups"))
-                                    .field("@cabinet", map.get("cabinet"))
                                     .field("@entname", map.get("entname"))
                                     .field("@username", map.get("username"))
                                     .field("@domain", map.get("domain"))
