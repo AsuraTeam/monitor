@@ -142,4 +142,8 @@ public class MonitorCacheConfig {
 
     // 存储每个主机的serviceId _ ip地址
     public static final String cacheHostServiceId = "cache_host_service_id_";
+
+    // 缓存每个IP地址的服务器信息 _ip map
+    public static final String cacheIpHostInfo = "cache_ip_host_info_";
+
 }

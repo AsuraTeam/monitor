@@ -84,13 +84,14 @@ import static com.asura.agent.util.RedisUtil.app;
  *          20170618 增加安全服务端配置,每30分钟检查一次
  *          20170701 添加报警升级功能
  *          20170827 添加报警附加报警人功能 1.0.0.30
+ *          20170920 报警添加 业务线 设备类型 环境信息 1.0.0.31
  */
 @RestController
 @EnableAutoConfiguration
 public class MonitorController {
 
     // 版本号
-    private final String VERSION = "1.0.0.32";
+    private final String VERSION = "1.0.0.31";
 
     private static final Logger logger = LoggerFactory.getLogger(MonitorController.class);
 
@@ -939,7 +940,7 @@ public class MonitorController {
                         } else {
                             pushEntity.setServer(getServerId(pushEntity));
                         }
-                        if(Integer.valueOf(pushEntity.getStatus()) > 1) {
+                        if(Integer.valueOf(pushEntity.getStatus()) == 2) {
                             isOk = false;
                             ALARM_MAP.put(alarmId, value + 1);
                         }
@@ -2536,7 +2537,7 @@ public class MonitorController {
         entity.setIndexName(pushEntity.getName());
 
         // 报警服务器设置
-        int serverId = 0;
+        int serverId;
         serverId = Integer.valueOf(HOST_IDS);
         StringBuilder alarmBuilder = new StringBuilder();
         alarmBuilder.append(pushEntity.getConfigId()).append("_")
@@ -2655,6 +2656,22 @@ public class MonitorController {
         if (upList.size() > 0){
             message = message + "->报警已升级为第" + upList.get(0)+ "级别";
             logger.info("获取到报警升级信息" + message);
+        }
+
+        // 报警信息中添加业务线和设备类型
+        try {
+            if (null != entity.getIp()) {
+                RedisUtil redisUtil = new RedisUtil();
+                String hostInfo = redisUtil.get(MonitorCacheConfig.cacheIpHostInfo.concat(entity.getIp()));
+                if (MonitorUtil.checkString(hostInfo) && hostInfo.length() > 10) {
+                    Map map = gson.fromJson(hostInfo, HashMap.class);
+                    if (null != map) {
+                        message += " \n业务线:" + map.get("groupsName") + " \n类型:" + map.get("typeName") + " \n环境:" + map.get("entName") + " \n负责人:" + map.get("userName");
+                    }
+                }
+            }
+        }catch (Exception e){
+            logger.error("报警获取业务线信息失败:" + e);
         }
 
         if (status == 1) {
