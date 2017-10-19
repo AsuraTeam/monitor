@@ -31,15 +31,15 @@ public class Configure {
 
     public Configure(){
 
-        if(this.path==null){
+        if(null == path){
             logger.info("设置配置文件路径");
             this.setPath();
         }
 
         // 设置api接口url
-        if(this.getUrl()==null) {
+        if(getUrl()==null) {
             logger.info("设置url参数");
-            this.setUrl(get("url"));
+            setUrl(get("url"));
         }
 
 

@@ -98,18 +98,12 @@ public class MonitorController {
     private static final RedisUtil redisUtil = new RedisUtil();
     private static final Gson gson = new Gson();
 
-    // 获取临时文件目录
-    public static final String separator = System.getProperty("file.separator");
-    private static final String tempDir = System.getProperty("java.io.tmpdir") + separator + "monitor" + separator;
-    // 存放使用udp发送数据开关
+    public static final String SEPARATOR = System.getProperty("file.separator");
+    private static final String tempDir = System.getProperty("java.io.tmpdir") + SEPARATOR + "monitor" + SEPARATOR;
     private static Long udpSendNumber;
-    // 报警的开关
     private static boolean IS_MONITOR = false;
-    // 存放本机的IP地址
     private static HashSet<String> LOCAL_IP; //IpUtil.getHostIP();
-    // 全局的本机拥有的hostID
     private static String HOST_IDS;
-    // 全局拥有的组的ID, 存放主机所属的监控组
     private static HashSet<String> GROUPS_IDS;
 
     // 存放本机的监控配置数据
@@ -458,7 +452,7 @@ public class MonitorController {
             result = (String) REAL_TIME_CACHE.get(id).get("data");
         } else {
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append(tempDir).append(separator).append(String.valueOf(scriptId));
+            stringBuilder.append(tempDir).append(SEPARATOR).append(String.valueOf(scriptId));
             result = gson.toJson(run(stringBuilder.toString(), 10));
             dataMap.put("time", DateUtil.getCurrTime());
             dataMap.put("data", result);
@@ -568,7 +562,7 @@ public class MonitorController {
      * 每一分钟检查是否加到组里，主要防止没有加到cmdb的机器
      */
     void checkIsMonitor() {
-        if (null == LOCAL_IP ) {
+        if (null == LOCAL_IP) {
             return;
         }
         initTimeMap("checkIsMonitor");
@@ -593,7 +587,7 @@ public class MonitorController {
      * 20170618
      */
     public static void setSecurityServer(boolean init) {
-        if (null == SECURITY_SERVER){
+        if (null == SECURITY_SERVER) {
             SECURITY_SERVER = new HashSet<>();
         }
         initTimeMap("setSecurityServer");
@@ -601,7 +595,7 @@ public class MonitorController {
             info(isDebug ? "检查安全服务器:" : null);
             putTimeMap("setSecurityServer");
             String result = HttpUtil.sendGet(Configure.get("updateUrl").concat(".servers"));
-            info(isDebug ? "检查安全服务器为:"+ result : null);
+            info(isDebug ? "检查安全服务器为:" + result : null);
             if (result != null && result.length() > 10) {
                 String[] servers = result.split("\n");
                 for (String server : servers) {
@@ -610,7 +604,7 @@ public class MonitorController {
                     }
                 }
             }
-            info(isDebug ? "检查安全服务器为:"+ gson.toJson(SECURITY_SERVER) : null);
+            info(isDebug ? "检查安全服务器为:" + gson.toJson(SECURITY_SERVER) : null);
         }
     }
 
@@ -667,7 +661,7 @@ public class MonitorController {
      * 主要是监控默认的配置
      */
     void checkConfigChange() {
-        if (null == LOCAL_IP ) {
+        if (null == LOCAL_IP) {
             return;
         }
         if (timeMap.containsKey("checkConfigChange")) {
@@ -713,7 +707,7 @@ public class MonitorController {
         }
 
         // 如果没有开启监控，则不执行任何东西
-        if (!IS_MONITOR ||null == SCRIPT_TIME ) {
+        if (!IS_MONITOR || null == SCRIPT_TIME) {
             logger.error("没有监控项目退出监控2");
             return;
         }
@@ -730,7 +724,7 @@ public class MonitorController {
                 executor = Executors.newFixedThreadPool(20);
                 putTimeMap("threadStartTime");
                 logger.info("重新生成线程池");
-            }catch (Exception e){
+            } catch (Exception e) {
             }
         }
 
@@ -859,9 +853,9 @@ public class MonitorController {
 
         info(isDebug ? "报警发送检查...." : null);
         String alarmMapString = gson.toJson(ALARM_MAP);
-        Map<String, Double> ALARM_NEW_MAP = gson.fromJson(alarmMapString, HashMap.class);
-        info(isDebug ? "alarmMapString " + gson.toJson(ALARM_NEW_MAP) : null);
-        for (Map.Entry<String, Double> entits : ALARM_NEW_MAP.entrySet()) {
+        Map<String, Double> alarmNewMap = gson.fromJson(alarmMapString, HashMap.class);
+        info(isDebug ? "alarmMapString " + gson.toJson(alarmNewMap) : null);
+        for (Map.Entry<String, Double> entits : alarmNewMap.entrySet()) {
             if (null == entits.getKey()) {
                 info(isDebug ? "ALARM_MAP key is null ... " : null);
                 continue;
@@ -930,7 +924,7 @@ public class MonitorController {
                 logger.info("checkMonitorAlarm " + command.toString() + " " + alarmId + " retry -> " + value);
                 List<PushEntity> pushEntities = run(command.toString(), getTimeout(scriptId));
                 for (PushEntity pushEntity : pushEntities) {
-                    if (null != pushEntity ) {
+                    if (null != pushEntity) {
                         pushEntity.setAlarmId(alarmId);
                         pushEntity.setScriptId(scriptId);
                         pushEntity.setConfigId(configId);
@@ -940,7 +934,7 @@ public class MonitorController {
                         } else {
                             pushEntity.setServer(getServerId(pushEntity));
                         }
-                        if(Integer.valueOf(pushEntity.getStatus()) == 2) {
+                        if (Integer.valueOf(pushEntity.getStatus()) == 2) {
                             isOk = false;
                             ALARM_MAP.put(alarmId, value + 1);
                         }
@@ -949,7 +943,7 @@ public class MonitorController {
                         SCRIPT_STATUS.put(alarmId, pushEntity);
                     }
                 }
-                if (isOk){
+                if (isOk) {
                     PushEntity pushEntity = new PushEntity();
                     pushEntity.setStatus("1");
                     setStatus(pushEntity, alarmId);
@@ -973,7 +967,7 @@ public class MonitorController {
                     MonitorItemEntity itemEntity = (MonitorItemEntity) SCRIPT_RETRY_MAP.get(id);
                     alarmInterval = itemEntity.getAlarmInterval() * 60;
                 }
-                if (null == ALARM_COUNT|| ALARM_COUNT.size() < 1) {
+                if (null == ALARM_COUNT || ALARM_COUNT.size() < 1) {
                     info(isDebug ? "没有ALARM_COUNT, 退出ALARM_COUNT" : null);
                     return;
                 }
@@ -994,14 +988,7 @@ public class MonitorController {
                         continue;
                     }
                 }
-//                currTime = DateUtil.getCurrTime();
-//                lastSendTime = ALARM_INTERVAL.get(alarmId);
-//                if (currTime - lastSendTime > alarmInterval) {
-//                    info(isDebug ? "初始化时间报警记数器:" + alarmId : null);
-//                    ALARM_INTERVAL.put(alarmId, currTime);
-//                }
-//
-                // 报警次数记数, 每次加一
+
                 if (ALARM_COUNT.containsKey(alarmId) && ALARM_COUNT.get(alarmId) >= 1) {
                     info(isDebug ? "ALARM_COUNT add number " + ALARM_COUNT.get(alarmId) : null);
                     ALARM_COUNT.put(alarmId, ALARM_COUNT.get(alarmId) + 1);
@@ -1029,7 +1016,7 @@ public class MonitorController {
                     }
                 }
 
-                if (0 == retry  && alarmCount > 0) {
+                if (0 == retry && alarmCount > 0) {
                     logger.info("获取到重试次数为0，删除ALARM_COUNT,跳出检查");
                     ALARM_COUNT.remove(alarmId);
                     continue;
@@ -1617,7 +1604,7 @@ public class MonitorController {
                 // 配置文件按id存放
                 CONFIGS.put(configId, configureEntity);
                 // 主机的所属业务线
-                if (null != configureEntity  && configureEntity.getGroupsId().length() > 0) {
+                if (null != configureEntity && configureEntity.getGroupsId().length() > 0) {
                     HOST_GROUP = configureEntity.getGroupsId();
                 }
 
@@ -1687,7 +1674,7 @@ public class MonitorController {
         for (Map.Entry<String, HashSet<MonitorConfigureEntity>> entry : map.entrySet()) {
             HashSet<MonitorConfigureEntity> entities = entry.getValue();
             for (MonitorConfigureEntity monitorConfigureEntity : entities) {
-                if ( null != monitorConfigureEntity ) {
+                if (null != monitorConfigureEntity) {
                     int configId = monitorConfigureEntity.getConfigureId();
                     // 添加未使用模板的项目
                     String configType = monitorConfigureEntity.getMonitorConfigureTp();
@@ -1993,7 +1980,7 @@ public class MonitorController {
     static Integer getTimeout(String id) {
         info(isDebug ? "开始获取到超时时间; 脚本id " + id : null);
         MonitorScriptsEntity entity = SCRIPT_CONFIGS.get(id);
-        if (null != entity  &&  null != entity.getTimeOut() && entity.getTimeOut().length() > 0) {
+        if (null != entity && null != entity.getTimeOut() && entity.getTimeOut().length() > 0) {
             try {
                 info(isDebug ? "获取到超时时间" + entity.getTimeOut() : null);
                 int timeOut = Integer.valueOf(entity.getTimeOut());
@@ -2112,7 +2099,7 @@ public class MonitorController {
                                         ALARM_LAST_TIME.put(alarmId, DateUtil.getCurrTime());
                                     }
                                     //  发送报警信息, 报警后40秒内恢复,不发送恢复信息, 去掉多余的报警
-                                    if (null != ALARM_LAST_TIME  && DateUtil.getCurrTime() - ALARM_LAST_TIME.get(alarmId) > 40) {
+                                    if (null != ALARM_LAST_TIME && DateUtil.getCurrTime() - ALARM_LAST_TIME.get(alarmId) > 40) {
                                         MonitorItemEntity monitorItemEntity = SCRIPT_TO_ITEM.get(s + "_" + ids[0]);
                                         if (null != monitorItemEntity) {
                                             if (monitorItemEntity.getIsRecover() == 1) {
@@ -2141,7 +2128,7 @@ public class MonitorController {
 
                                 }
                                 if (ALARM_COUNT.get(alarmId) == 0) {
-                                    info(isDebug ? "获取到报警状态为 " + entity.getStatus() + " init ALARM_COUNT 2 " + alarmId +" " + gson.toJson(ALARM_COUNT): null);
+                                    info(isDebug ? "获取到报警状态为 " + entity.getStatus() + " init ALARM_COUNT 2 " + alarmId + " " + gson.toJson(ALARM_COUNT) : null);
                                     ALARM_COUNT.put(alarmId, 1);
                                 }
                                 SCRIPT_STATUS.put(alarmId, entity);
@@ -2192,7 +2179,7 @@ public class MonitorController {
      */
     static int getAlarmCount(String id) {
         if (null == ALARM_COUNT.get(id)) {
-            info(isDebug ? "getAlarmCount: " + id + ",  count:" + ALARM_COUNT.get(id) + " " + gson.toJson(ALARM_COUNT): null);
+            info(isDebug ? "getAlarmCount: " + id + ",  count:" + ALARM_COUNT.get(id) + " " + gson.toJson(ALARM_COUNT) : null);
             ALARM_COUNT.put(id, 0);
         }
         return ALARM_COUNT.get(id);
@@ -2389,42 +2376,45 @@ public class MonitorController {
                     contactSet.add(contactsEntity.getNo());
                 }
                 break;
+            default:
+                break;
         }
         return contactSet;
     }
 
     /**
      * 报警升级
+     *
      * @param groups
      * @param alarmCount
      * @param type
      * @return
      */
-    String getAlarmUpGroups(String groups, int alarmCount, String type, String oldData, ArrayList upList){
+    String getAlarmUpGroups(String groups, int alarmCount, String type, String oldData, ArrayList upList) {
 
         String[] oldGroups = groups.split("\\|");
         String groupsData = "";
-        if (oldGroups.length > 1){
-            for (int i=1;i<oldGroups.length;i++){
+        if (oldGroups.length > 1) {
+            for (int i = 1; i < oldGroups.length; i++) {
                 String[] datas = oldGroups[i].split(";");
-                logger.info("获取到报警次数为 "+ (alarmCount -1) + " 报警升级次数为: " + datas[0]);
-                if ((alarmCount-1) >= Integer.valueOf(datas[0])) {
+                logger.info("获取到报警次数为 " + (alarmCount - 1) + " 报警升级次数为: " + datas[0]);
+                if ((alarmCount - 1) >= Integer.valueOf(datas[0])) {
                     groupsData = getContact(datas[1], type);
                     upList.add(i);
                 }
             }
         }
         HashSet<String> set = new HashSet();
-        String[] data = (oldData +"," + groupsData).split(",");
-        for (String g:data){
+        String[] data = (oldData + "," + groupsData).split(",");
+        for (String g : data) {
             set.add(g);
         }
         String r = "";
-        for (String g:set){
-            r += g+",";
+        for (String g : set) {
+            r += g + ",";
         }
-        if (r.length() > 1){
-            r = r.substring(0, r.length()-1);
+        if (r.length() > 1) {
+            r = r.substring(0, r.length() - 1);
         }
         logger.info("获取到报警联系人" + r);
         return r;
@@ -2432,6 +2422,7 @@ public class MonitorController {
 
     /**
      * 获取联系人
+     *
      * @return
      */
     static String getContact(String groups, String type) {
@@ -2466,12 +2457,12 @@ public class MonitorController {
             if (MonitorUtil.checkString(result)) {
                 entity = gson.fromJson(result, MonitorContactsEntity.class);
             }
-            if ( null != entity) {
+            if (null != entity) {
                 contactSet = getContact(entity, type, contactSet);
             }
         }
         String result = "";
-        for (String c:contactSet) {
+        for (String c : contactSet) {
             result += c.concat(",");
         }
 
@@ -2547,8 +2538,8 @@ public class MonitorController {
                 .append("_")
                 .append(pushEntity.getName());
         String alarmId = alarmBuilder.toString();
-        info(isDebug ? "pushMessages 获取到ALARM_COUNT id: " + alarmId +" " + gson.toJson(ALARM_COUNT) : null);
-        if (MonitorUtil.checkString(pushEntity.getAlarmId())){
+        info(isDebug ? "pushMessages 获取到ALARM_COUNT id: " + alarmId + " " + gson.toJson(ALARM_COUNT) : null);
+        if (MonitorUtil.checkString(pushEntity.getAlarmId())) {
             alarmId = pushEntity.getAlarmId();
             info(isDebug ? "pushMessages 获取到ALARM_COUNT id pushEntity: " + alarmId : null);
         }
@@ -2560,7 +2551,7 @@ public class MonitorController {
         }
         MonitorItemEntity itemEntity = gson.fromJson(SCRIPT_ITEM.get(scriptId + ""), MonitorItemEntity.class);
 
-        if (entity.getAlarmCount() < 1 && entity.getSevertityId() > 1){
+        if (entity.getAlarmCount() < 1 && entity.getSevertityId() > 1) {
             entity.setAlarmCount(1);
         }
 
@@ -2594,9 +2585,9 @@ public class MonitorController {
 
         // 获取额外配置的组
         logger.info("获取监控配置额外的组 start");
-        String alarmGroup = MonitorUtil.getAlarmGroups(itemEntity.getItemId()+"", entity.getIp());
+        String alarmGroup = MonitorUtil.getAlarmGroups(itemEntity.getItemId() + "", entity.getIp());
         logger.info("获取监控配置额外的组 end " + alarmGroup);
-        if (alarmGroup.length() > 1){
+        if (alarmGroup.length() > 1) {
             adminGroup = adminGroup + alarmGroup;
             info("获取到额外配置的监控主:" + alarmGroup);
         }
@@ -2652,9 +2643,9 @@ public class MonitorController {
             entity.setEmail(email);
         }
         // 添加报警升级信息
-        logger.info("获取到报警升级"+ upList.size());
-        if (upList.size() > 0){
-            message = message + "->报警已升级为第" + upList.get(0)+ "级别";
+        logger.info("获取到报警升级" + upList.size());
+        if (upList.size() > 0) {
+            message = message + "->报警已升级为第" + upList.get(0) + "级别";
             logger.info("获取到报警升级信息" + message);
         }
 
@@ -2670,7 +2661,7 @@ public class MonitorController {
                     }
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error("报警获取业务线信息失败:" + e);
         }
 
@@ -2758,7 +2749,7 @@ public class MonitorController {
      */
     static void setGroupsData(String type, ArrayList<String> ids) {
         initTimeMap("setGroupsData");
-        if (!checkTimeMap("setGroupsData", 60)){
+        if (!checkTimeMap("setGroupsData", 60)) {
             return;
         }
         putTimeMap("setGroupsData");

@@ -239,8 +239,6 @@ public class ToElasticsearchUtil {
 
                 BulkResponse bulkResponse = bulkRequest.get();
                 if (bulkResponse.hasFailures()) {
-                    client.close();
-                    client = transportClient();
                     LOGGER.error("上传ES数据失败", bulkResponse.hasFailures());
                     // process failures by iterating through each bulk response item
                 }

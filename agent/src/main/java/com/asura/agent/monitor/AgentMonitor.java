@@ -31,7 +31,7 @@ import java.util.List;
 
 public class AgentMonitor {
 
-    private static final DecimalFormat df = new DecimalFormat("######0.00");
+    private static final DecimalFormat DF = new DecimalFormat("######0.00");
 
     /**
      * 获取线程数
@@ -88,9 +88,9 @@ public class AgentMonitor {
      * @param committed
      */
      static void setMemroryUsed(List<PushEntity> list, String ip, String name, long used, long committed, String groups){
-        list.add(getPushEntity(ip, name.concat(".committed"), df.format(committed / 1024.0 /1024), groups));
-        list.add(getPushEntity(ip, name.concat(".used"), df.format(used / 1024.0 / 1024 ), groups));
-        list.add(getPushEntity(ip, name.concat(".percent"), df.format((double) used / committed * 100 ), groups));
+        list.add(getPushEntity(ip, name.concat(".committed"), DF.format(committed / 1024.0 /1024), groups));
+        list.add(getPushEntity(ip, name.concat(".used"), DF.format(used / 1024.0 / 1024 ), groups));
+        list.add(getPushEntity(ip, name.concat(".percent"), DF.format((double) used / committed * 100 ), groups));
     }
 
     /**

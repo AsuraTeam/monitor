@@ -171,6 +171,9 @@ public class CacheController {
         if (null == result) {
             result = configureService.findAll(searchMap, PageResponse.getPageBounds(10000000, 1), "selectByAll");
         }
+        if (null == result){
+            return "";
+        }
         for (MonitorConfigureEntity m : result.getRows()) {
             redisUtil.set(MonitorCacheConfig.cacheConfigureKey + m.getConfigureId(), gson.toJson(m));
             try {
@@ -190,6 +193,7 @@ public class CacheController {
         redisUtil.set(cacheConfigureHostsListKey, gson.toJson(hostSet));
         return "ok";
     }
+
     /**
      * 将脚本的数据写入到cache
      *

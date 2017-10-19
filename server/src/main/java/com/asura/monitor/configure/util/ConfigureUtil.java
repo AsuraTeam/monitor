@@ -86,6 +86,9 @@ public class ConfigureUtil {
         String server = "";
         String url = "";
         String portData = REDIS_UTIL.get(MonitorCacheConfig.cacheAgentServerInfo + hostId);
+        if (null == portData){
+            return;
+        }
         if (portData.length() > 5) {
             Map serverMap = GSON.fromJson(portData, HashMap.class);
             server = REDIS_UTIL.get(MonitorCacheConfig.cacheHostIdToIp + hostId);

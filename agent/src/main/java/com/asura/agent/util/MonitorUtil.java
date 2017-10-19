@@ -35,11 +35,10 @@ import java.util.Map;
 public class MonitorUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(MonitorUtil.class);
-    public static final RedisUtil redisUtil = new RedisUtil();
-    public static final Gson gson = new Gson();
-    public static final String separator = System.getProperty("file.separator");
-    // 获取临时文件目录
-    private static final String tempDir = System.getProperty("java.io.tmpdir") + separator + "monitor" + separator;
+    public static final RedisUtil REDIS_UTIL = new RedisUtil();
+    public static final Gson GSON = new Gson();
+    public static final String SEPARATOR = System.getProperty("file.separator");
+    private static final String TEMP_DIR = System.getProperty("java.io.tmpdir") + SEPARATOR + "monitor" + SEPARATOR;
 
     /**
      * 打印日志
@@ -50,7 +49,8 @@ public class MonitorUtil {
         if (null == messages) {
             return;
         }
-        if (Configure.get("DEBUG").equals("true")) {
+        String string = "true";
+        if (string.equals(Configure.get("DEBUG"))) {
             logger.info(messages);
         }
     }
@@ -63,10 +63,11 @@ public class MonitorUtil {
      * @return
      */
     public static boolean checkCacheFileTime(String name, long interval) {
-        String fileName = tempDir + separator + name;
+        String fileName = TEMP_DIR + SEPARATOR + name;
         File file = new File(fileName);
+        long t = 1000;
         if (file.exists()) {
-            if (System.currentTimeMillis() / 1000 - file.lastModified() / 1000 > interval) {
+            if (System.currentTimeMillis() / t - file.lastModified() / t > interval) {
                 return true;
             } else {
                 return false;
@@ -82,14 +83,14 @@ public class MonitorUtil {
      * @return
      */
     public static HashSet<String> getGroupsHosts(String groupsId) {
-        String fileName = tempDir + separator + "cache_groups_hosts_" + groupsId;
+        String fileName = TEMP_DIR + SEPARATOR + "cache_groups_hosts_" + groupsId;
         if (checkCacheFileTime("cache_groups_hosts_" + groupsId, 1800)) {
-            String result = redisUtil.get(MonitorCacheConfig.cacheGroupsHosts + groupsId);
+            String result = REDIS_UTIL.get(MonitorCacheConfig.cacheGroupsHosts + groupsId);
             FileIoUtil.writeFile(fileName, result, false);
         }
         String result = FileIoUtil.readFile(fileName);
         if (result != null && result.length() > 0) {
-            return gson.fromJson(result, HashSet.class);
+            return GSON.fromJson(result, HashSet.class);
         }
         return new HashSet<>();
     }
@@ -113,7 +114,7 @@ public class MonitorUtil {
             count += 1;
         }
         if (strings.length > 0) {
-            Jedis jedis = redisUtil.getJedis();
+            Jedis jedis = REDIS_UTIL.getJedis();
             List<String> result = jedis.mget(strings);
             return result;
         }
@@ -140,16 +141,16 @@ public class MonitorUtil {
      */
     public static Map<String, String> getGroups() {
         String groups = "";
-        String fileName = tempDir + separator + "cache_groups_name";
+        String fileName = TEMP_DIR + SEPARATOR + "cache_groups_name";
         if (checkCacheFileTime("cache_groups_name", 1800)) {
-            groups = redisUtil.get(MonitorCacheConfig.cacheGroupName);
+            groups = REDIS_UTIL.get(MonitorCacheConfig.cacheGroupName);
             FileIoUtil.writeFile(fileName, groups, false);
         }
         groups = FileIoUtil.readFile(fileName);
         logger.info("获取到grous " + groups);
         Map<String, String> groupsMap = new HashMap<>();
         if (groups != null) {
-            groupsMap = gson.fromJson(groups, HashMap.class);
+            groupsMap = GSON.fromJson(groups, HashMap.class);
         }
         return groupsMap;
     }
@@ -158,7 +159,7 @@ public class MonitorUtil {
      * @return
      */
     public static String getAdminGroup() {
-        String adminGroup = redisUtil.get(MonitorCacheConfig.cacheIsAdmin);
+        String adminGroup = REDIS_UTIL.get(MonitorCacheConfig.cacheIsAdmin);
         if (adminGroup == null) {
             adminGroup = "";
         }
@@ -190,7 +191,7 @@ public class MonitorUtil {
         for (int i = 0; i < 5; i++) {
             String script = HttpSendUtil.sendPost("monitor/scripts/api/scripts", "scriptsId=" + scriptsId);
             if (script != null && script.length() > 1) {
-                MonitorScriptsEntity scriptsEntity = gson.fromJson(script, MonitorScriptsEntity.class);
+                MonitorScriptsEntity scriptsEntity = GSON.fromJson(script, MonitorScriptsEntity.class);
                 return scriptsEntity;
             }
             info("获取脚本重试" + i);
@@ -251,6 +252,8 @@ public class MonitorUtil {
                     warningData.remove(id);
                     okData.remove(id);
                     break;
+                default:
+                        break;
             }
         }
         map.put("ok", okData);
@@ -266,7 +269,7 @@ public class MonitorUtil {
      * @param messages
      */
     public static void sendPostMessages(String messages, String url) {
-        MonitorMessagesEntity entity = gson.fromJson(messages, MonitorMessagesEntity.class);
+        MonitorMessagesEntity entity = GSON.fromJson(messages, MonitorMessagesEntity.class);
         String mess = "alarmCount=" + entity.getAlarmCount() +
                 "&serverId=" + entity.getServerId() +
                 "&groupsId=" + entity.getGroupsId() +
@@ -296,13 +299,13 @@ public class MonitorUtil {
      */
     public static String getIpHostName(String server) {
         String serverId;
-        serverId = redisUtil.get(MonitorCacheConfig.hostsIdKey + server);
+        serverId = REDIS_UTIL.get(MonitorCacheConfig.hostsIdKey + server);
         if (serverId == null) {
             return "";
         }
-        String portData = redisUtil.get(MonitorCacheConfig.cacheAgentServerInfo + serverId);
+        String portData = REDIS_UTIL.get(MonitorCacheConfig.cacheAgentServerInfo + serverId);
         if (portData != null && portData.length() > 10) {
-            Map<String, String> map = gson.fromJson(portData, HashMap.class);
+            Map<String, String> map = GSON.fromJson(portData, HashMap.class);
             if (map != null) {
                 try {
                     return map.get("hostname");
@@ -320,9 +323,9 @@ public class MonitorUtil {
      */
     public static HashSet getIsValidHosts() {
         // 获取自己是否有监控项目
-        String allHosts = redisUtil.get(MonitorCacheConfig.cacheAllHostIsValid);
+        String allHosts = REDIS_UTIL.get(MonitorCacheConfig.cacheAllHostIsValid);
         info("get is configure host " + allHosts);
-        HashSet hosts = gson.fromJson(allHosts, HashSet.class);
+        HashSet hosts = GSON.fromJson(allHosts, HashSet.class);
         return hosts;
     }
 
@@ -332,10 +335,11 @@ public class MonitorUtil {
      * @param filePath
      */
     public static void setFileExec(String filePath) {
-        if (separator.equals("/")) {
+        if (SEPARATOR.equals("/")) {
             File file = new File(filePath);
-            if (file.exists())
+            if (file.exists()) {
                 file.setExecutable(true);
+            }
         }
     }
 
@@ -368,8 +372,8 @@ public class MonitorUtil {
      * @param host
      */
     public static String getAlarmGroups(String itemId, String host) {
-        String groupsId = redisUtil.get(MonitorCacheConfig.getCacheHostGroupsKey + host);
-        String serviceId = redisUtil.get(MonitorCacheConfig.cacheHostServiceId+ host);
+        String groupsId = REDIS_UTIL.get(MonitorCacheConfig.getCacheHostGroupsKey + host);
+        String serviceId = REDIS_UTIL.get(MonitorCacheConfig.cacheHostServiceId+ host);
         ArrayList<String> list = new ArrayList();
         setAlarmList(list, itemId + "_" + groupsId + "_" + serviceId + "_" + host, true);
         setAlarmList(list, itemId + "_" + groupsId + "_" + serviceId, true);
@@ -387,15 +391,17 @@ public class MonitorUtil {
         setAlarmList(list, MonitorCacheConfig.cacheAlarmService + serviceId, false);
         setAlarmList(list, MonitorCacheConfig.cacheAlarmServer + host, false);
         String r = "";
-        info("获取到信息" + gson.toJson(list));
+        info("获取到信息" + GSON.toJson(list));
         for (String k:list){
-            r = redisUtil.get(k);
-            if (r != null && r.length() > 0) break;
+            r = REDIS_UTIL.get(k);
+            if (r != null && r.length() > 0) {
+                break;
+            }
         }
         try {
             String result = "";
             if (r != null && r.length() > 0) {
-                ArrayList<String> groupList = gson.fromJson(r, ArrayList.class);
+                ArrayList<String> groupList = GSON.fromJson(r, ArrayList.class);
                 for (String g : groupList) {
                     result += g + ",";
                 }

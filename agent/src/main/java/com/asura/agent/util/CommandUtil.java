@@ -33,14 +33,14 @@ import static org.aspectj.bridge.MessageUtil.info;
 public class CommandUtil {
 
     public static final Logger logger = LoggerFactory.getLogger(CommandUtil.class);
-    private static final Runtime runtime = Runtime.getRuntime();
+    private static final Runtime RUNTIME = Runtime.getRuntime();
 
     /**
      * 上报cpu个数
      * @return
      */
     public static String getCpuNumber(){
-        return  String.valueOf(runtime.availableProcessors());
+        return  String.valueOf(RUNTIME.availableProcessors());
     }
 
     /**
@@ -75,7 +75,7 @@ public class CommandUtil {
         String line;
         try {
             MonitorUtil.info("run 获取到脚本 " + command);
-            Process process = runtime.exec(command);
+            Process process = RUNTIME.exec(command);
             InputStream is = process.getInputStream();
             InputStreamReader isr = new InputStreamReader(is);
             BufferedReader br = new BufferedReader(isr);

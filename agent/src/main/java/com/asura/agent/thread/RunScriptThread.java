@@ -16,10 +16,8 @@ import java.util.HashSet;
  */
 public class RunScriptThread extends Thread {
     private static final Logger logger = LoggerFactory.getLogger(RunScriptThread.class);
-    // 存放成功的接口
-    private static final String successApiUrl = "/monitor/api/success";
-    // 存放失败的接口
-    private static final String faildApiUrl = "/monitor/api/faild";
+    private static final String SUCCESS_API_URL = "/monitor/api/success";
+    private static final String FAILD_API_URL = "/monitor/api/faild";
     private boolean isDebug;
 
     private HashSet<String> SCRIPT_TIME;
@@ -40,11 +38,11 @@ public class RunScriptThread extends Thread {
             MonitorController.runScript(time, success, faild);
         }
         if (faild.size() > 0) {
-            logger.info("获取到失败状态".concat(gson.toJson(faild)).concat(faildApiUrl));
-            MonitorController.pushMonitor(faild, faildApiUrl, false);
+            logger.info("获取到失败状态".concat(gson.toJson(faild)).concat(FAILD_API_URL));
+            MonitorController.pushMonitor(faild, FAILD_API_URL, false);
         }
         if (success.size() > 0) {
-            MonitorController.pushMonitor(success, successApiUrl, true);
+            MonitorController.pushMonitor(success, SUCCESS_API_URL, true);
         }
     }
 }

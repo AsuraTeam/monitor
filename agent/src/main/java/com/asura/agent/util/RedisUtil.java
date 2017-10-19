@@ -127,7 +127,7 @@ public class RedisUtil {
             LOGGER.info("del "+ app + "_" + key);
             r = jedis.del(app + "_" + key);
         } catch (Exception e) {
-            r = 0l;
+            r = 0L;
         }
         jedis.close();
         return r;

@@ -113,6 +113,7 @@ public class SocketThread extends Thread {
         MonitorUtil.info("通过数据切割发送数据 " + list.size());
     }
 
+    @Override
     public void run(){
         Gson gson = new Gson();
 
