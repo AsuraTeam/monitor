@@ -10,16 +10,15 @@ import com.asura.monitor.configure.entity.MonitorMessagesSendReportEntity;
 import com.asura.monitor.configure.service.MonitorMessagesService;
 import com.asura.util.CheckUtil;
 import com.asura.util.DateUtil;
+import org.apache.commons.collections.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <p></p>
@@ -52,6 +51,16 @@ public class MonitorReportController {
         return "/monitor/report/messages/list";
     }
 
+    /**
+     * 报警趋势统计
+     * @return
+     */
+    @RequestMapping("alarmCount")
+    public String alarmCount(ModelMap modelMap,String startTime, String endTime) {
+        modelMap.addAttribute("startTime", startTime);
+        modelMap.addAttribute("endTime", endTime);
+        return "/monitor/report/messages/alarmCount";
+    }
 
     /**
      *
@@ -119,6 +128,86 @@ public class MonitorReportController {
      *
      * @param startTime
      * @param endTime
+     * @param scripts
+     * @return
+     */
+    @RequestMapping(value = "selectMessagesCountDetail", produces = {"application/json;charset=UTF-8"})
+    @ResponseBody
+    public String messagesData( String startTime, String endTime, String scripts) {
+        if (CheckUtil.checkString(endTime)){
+            endTime = endTime + " 23:59:59";
+        }
+        SearchMap searchMap = getSearchMap(startTime, endTime);
+        if (CheckUtil.checkString(scripts)) {
+            searchMap.put("scriptsId", scripts.split(","));
+        }
+        HashSet<String> names = new HashSet();
+        ArrayList<Long> dates = new ArrayList<>();
+        Map<String, String> dataMap = new HashedMap();
+        Map map;
+        ArrayList arrayList = new ArrayList();
+        List<MonitorMessagesEntity> data = messagesService.getDataList(searchMap,"selectMessagesCountDetail");
+        for (MonitorMessagesEntity entity:data){
+            names.add(entity.getMonitorName());
+            if (!arrayList.contains(entity.getTime())) {
+                dates.add(entity.getTime());
+            }
+            dataMap.put(entity.getMonitorName()+entity.getTime(), entity.getCnt());
+        }
+        ArrayList dataList;
+        ArrayList tempList;
+        for (String name:names){
+            map = new HashedMap();
+            map.put("name", name);
+            dataList = new ArrayList();
+            for (long date:dates){
+                tempList = new ArrayList();
+                tempList.add(date);
+                if (dataMap.containsKey(name+date)){
+                    tempList.add(Integer.valueOf(dataMap.get(name+date).toString()));
+                }else{
+                    tempList.add(0);
+                }
+                dataList.add(tempList);
+            }
+            map.put("data", dataList);
+            arrayList.add(map);
+        }
+        return new Gson().toJson(arrayList);
+    }
+
+    /**
+     *  报警趋势图表数据
+     * @param startTime
+     * @param endTime
+     * @return
+     */
+    @RequestMapping(value = "selectCountMessagesGraph", produces = {"application/json;charset=UTF-8"})
+    @ResponseBody
+    public String selectCountMessagesGraph(String startTime, String endTime, String scripts){
+        if (CheckUtil.checkString(endTime)){
+            endTime = endTime + " 23:59:59";
+        }
+        SearchMap searchMap = getSearchMap(startTime, endTime);
+        if (CheckUtil.checkString(scripts)) {
+            searchMap.put("scriptsId", scripts.split(","));
+        }
+        ArrayList arrayList = new ArrayList();
+        ArrayList dataList ;
+        List<MonitorMessagesEntity> data = messagesService.getDataList(searchMap, "selectCountMessagesGraph");
+        for (MonitorMessagesEntity monitorMessagesEntity:data){
+            dataList = new ArrayList();
+            dataList.add( monitorMessagesEntity.getTime());
+            dataList.add(Integer.valueOf(monitorMessagesEntity.getCnt()));
+            arrayList.add(dataList);
+        }
+        return new Gson().toJson(arrayList);
+    }
+
+    /**
+     *
+     * @param startTime
+     * @param endTime
      * @return
      */
     @RequestMapping(value = "messagesGroupsData", produces = {"application/json;charset=UTF-8"})
@@ -150,9 +239,10 @@ public class MonitorReportController {
         return searchMap;
     }
 
-    /**
-     * @return
-     */
+
+        /**
+         * @return
+         */
     @RequestMapping(value = "messagesData", produces = {"application/json;charset=UTF-8"})
     @ResponseBody
     public String messagesData(int start, int length, String startTime, String endTime, int draw) {
@@ -204,6 +294,8 @@ public class MonitorReportController {
                     case "weixin":
                         reportEntity.setWeixinCount(cnt);
                         break;
+                    default:
+                            break;
                 }
             }
             if (!list.contains(reportEntity)) {

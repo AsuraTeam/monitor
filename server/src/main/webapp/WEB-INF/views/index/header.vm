@@ -51,6 +51,8 @@
                                 </li>
                                 <li><a href="/monitor/report/auto/list">性能指标自动通知</a>
                                 </li>
+                                <li><a href="/monitor/report/alarmCount">报警趋势图表</a>
+                                </li>
                             </ul>
                         </li>
 

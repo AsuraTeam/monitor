@@ -66,9 +66,10 @@
     }
 
     list = new Array();
-        #foreach($id in $ids)
+    #foreach($id in $ids)
         list.push("autoloaddiv$id")
-        #end
+    #end
+console.log(list)
 
 
     setInterval(function() {
@@ -80,7 +81,7 @@
             }else{
                 t = $("#loadid").val()
                 if( new Date().getTime() - parseInt($("#loadidtime").val()) >= parseInt(src_time[i]) * 1000 * 60 ) {
-                    if(parseInt(t) < src_url.length-1 ){
+                    if(parseInt(t) <= src_url.length-1 ){
                         $("#loadid").val(i+1);
                         $("#iframepage").prop("src", src_url[i+1]);
                         $("#loadidtime").val(new Date().getTime());
@@ -92,7 +93,7 @@
                 }
             }
         }
-    }, list.length * 6000);
+    }, 6000);
 
     setTimeout(function(){
                 location.reload()}

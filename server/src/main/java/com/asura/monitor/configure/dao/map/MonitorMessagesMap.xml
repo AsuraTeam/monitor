@@ -162,6 +162,39 @@
     order by 3,1 desc
     </select>
 
+    <!-- 算计关注的报警趋势和总的报警趋势  (14,8,16,23,66,15,36,35,11,57,19) -->
+    <select id="selectCountMessagesGraph" resultType="com.asura.monitor.configure.entity.MonitorMessagesEntity">
+    select count(*) as cnt, concat(substring(unix_timestamp(concat(substring(messages_time,1, 11)," 00:00:00")),1,10),"000") as time
+     from monitor_messages where 1=1
+        <if test="scriptsId != null">
+            and scripts_id in
+            <foreach collection="scriptsId" item="item" separator="," open="(" close=")"  index="index">
+                #{item}
+            </foreach>
+        </if>
+        <if test="start != null">
+            and messages_time &gt;= #{start} and messages_time &lt;= #{end}
+        </if>
+       group by substring(messages_time,1, 11)
+    </select>
+
+    <select id="selectMessagesCountDetail" resultType="com.asura.monitor.configure.entity.MonitorMessagesEntity">
+        select count(*) as cnt,
+        b.monitor_name as monitorName, concat(substring(unix_timestamp(concat(substring(a.messages_time,1, 11)," 00:00:00")),1,10),"000")  as time
+        from monitor_messages a,
+        monitor_scripts b where a.scripts_id=b.scripts_id
+            <if test="scriptsId != null">
+                and b.scripts_id in
+                <foreach collection="scriptsId" item="item" separator="," open="(" close=")"  index="index">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="start != null">
+                and messages_time &gt;= #{start} and messages_time &lt;= #{end}
+            </if>
+        group by monitor_name,substring(messages_time,1, 11) order by 3
+    </select>
+
     <!--  获取各种信息的统计 -->
     <select id="selectMonitorMessagesReport" resultType="com.asura.monitor.configure.entity.MonitorMessagesEntity">
         select count(*) as cnt , b.monitor_name as monitorName,

@@ -1,0 +1,244 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>报警趋势分析</title>
+
+    #include("/index/include.vm")
+
+    <style>
+        table th {
+            word-break: keep-all;
+            white-space: nowrap;
+        }
+
+        table td {
+            word-break: keep-all;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body class="top-navigation">
+
+<script src="/static/js/highcharts.js"></script>
+<script src="/static/js/highstock.js"></script>
+<div id="wrapp11er">
+    <div id="page-wrapp1er" class="gray-bg">
+        #include("/index/header.vm")
+        <div class="w1rapper" style="padding: 0px;">
+        </div>
+        <div style="margin-left: 30%;"><h2><strong>报警趋势分析</strong></h2></div>
+        <div class="input-group col-md-6 pull-right" style="margin-top:-40px;margin-right: 90px;">
+            <span class="input-group-addon">时间选择：</span>
+            <input type="text" class="form-control" id="startSendTime" name="startSendTime">
+            <span class="input-group-addon">-</span>
+            <input type="text"  class="form-control" id="endSendTime" name="endSendTime">
+        </div>
+        <button class="btn btn-primary pull-right" id="queryBtn" type="button" style="float:left;margin-left: 15px;margin-top:-40px;">
+            <i class="fa fa-search"></i>&nbsp;&nbsp;<span class="bold" onClick="load_page()">查询</span>
+        </button>
+        <div class=" wrapper-content" style="padding:0px;">
+            <div class="col-md-12" style="padding: 5px;">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title1">
+                        <span class="label label-primary pull-right"></span>
+                        <h5>&nbsp;&nbsp;&nbsp;异常趋势</h5>
+                    </div>
+                    <div id="container" style="width: 100%;height: 400px;"></div>
+                </div>
+            </div>
+
+
+            <div class="col-md-12" style="padding: 5px;">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title1">
+                        <span class="label label-primary pull-right"></span>
+                        <h5>&nbsp;&nbsp;&nbsp;异常趋势详情</h5>
+                    </div>
+                    <div id="container_1" style="width: 100%;height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <script>
+        function loadData(){
+           var start = $('#startSendTime').val()
+           var end = $('#endSendTime').val()
+            if (!start) {
+                start = ""
+            }
+            if (!end) {
+                end = ""
+            }
+            $("#listTable").dataTable({
+                "filter": true,//去掉搜索框
+                "ordering": false, // 是否允许排序
+                "paginationType": "full_numbers", // 页码类型
+                "destroy": true,
+                "processing": true,
+                "serverSide": true,
+                "scrollX": true, // 是否允许左右滑动
+                "displayLength": 10, // 默认长度
+                "ajax": { // 请求地址
+                        "url": "/monitor/report/selectMessagesCountDetail?t=" + new Date().getTime()+"&startTime=$!{startTime}&endTime=$!{endTime}&scripts=14,8,16,23,66,15,36,35,11,57,19",
+                    "type": 'post'
+                },
+
+                "columns": [ // 数据映射
+                    {"data": "monitorName"},
+                    {"data": "cnt"},
+                    {"data": "messagesTime","mRender":function (data) {
+                        var date2 = new Date(data);
+                        var localeString = date2.toLocaleString();
+                        return localeString.split(" ")[0];
+                    }},
+                ],
+                "fnRowCallback": function (row, data) { // 每行创建完毕的回调
+                    $(row).data('recordId', data.recordId);
+                }
+            });
+        }
+
+//        loadData();
+
+        function load_page() {
+            var startTime = $('#startSendTime').val()
+            var endTime = $('#endSendTime').val()
+            window.location.href = "/monitor/report/alarmCount?startTime="+startTime+"&endTime="+endTime;
+        }
+        $(function () {
+
+            $(document).ready(function () {
+                Highcharts.setOptions({
+                    global: {
+                        useUTC: false
+                    }
+                });
+
+                $('#container_1').highcharts({
+                    chart: {
+                        type: 'spline',
+                        animation: Highcharts.svg, // don't animate in old IE
+                        marginRight: 10,
+                    },
+//                    colors:["#1ab394","#f96a74"],
+                    title: {
+                        text: ''
+                    },
+                    xAxis: {
+                        type: 'datetime',
+                        tickPixelInterval: 50
+                    },
+                    yAxis: {
+                        title: {
+                            text: '异常次数'
+                        },
+                        plotLines: [{
+                            value: 0,
+                            width: 1,
+                            color: '#1ab394'
+                        }]
+                    },
+                    tooltip: {
+                        formatter: function () {
+                            return '<b>' + this.series.name + '</b><br/>' +
+                                    Highcharts.dateFormat('%Y-%m-%d', this.x) + '<br/>' +
+                                    Highcharts.numberFormat(this.y, 2);
+                        }
+                    },
+                    legend: {
+                        enabled:true 
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    series: post({start:1,draw:1,length:1000}, "/monitor/report/selectMessagesCountDetail?t=" + new Date().getTime()+"&startTime=$!{startTime}&endTime=$!{endTime}&scripts=14,8,16,23,66,15,36,35,11,57,19,0"),
+                });
+            });
+
+
+            $(document).ready(function () {
+                Highcharts.setOptions({
+                    global: {
+                        useUTC: false
+                    }
+                });
+
+                $('#container').highcharts({
+                    chart: {
+                        type: 'spline',
+                        animation: Highcharts.svg, // don't animate in old IE
+                        marginRight: 10,
+                    },
+                    colors:["#1ab394","#f96a74"],
+                    title: {
+                        text: ''
+                    },
+                    xAxis: {
+                        type: 'datetime',
+                        tickPixelInterval: 50
+                    },
+                    yAxis: {
+                        title: {
+                            text: '异常次数'
+                        },
+                        plotLines: [{
+                            value: 0,
+                            width: 1,
+                            color: '#1ab394'
+                        }]
+                    },
+                    tooltip: {
+                        formatter: function () {
+                            return '<b>' + this.series.name + '</b><br/>' +
+                                    Highcharts.dateFormat('%Y-%m-%d', this.x) + '<br/>' +
+                                    Highcharts.numberFormat(this.y, 2);
+                        }
+                    },
+                    legend: {
+                        enabled:true 
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    series: [
+                     {
+                        name: '报警趋势所有',
+                        data: eval(post({},"/monitor/report/selectCountMessagesGraph?startTime=$!{startTime}&endTime=$!{endTime}")),
+                     },
+                     {
+                        name: '报警趋势紧急',
+                        data: eval(post({scripts:"14,8,16,23,66,15,36,35,11,57,19,0"},"/monitor/report/selectCountMessagesGraph?startTime=$!{startTime}&endTime=$!{endTime}")),
+                     },
+                    ]
+                });
+            });
+        });
+        var startSendTime = {
+            elem: '#startSendTime',
+            choose: function (data) {
+                if ($('#endSendTime').val()) {
+                    loadData();
+                }
+            }
+        }
+
+        var endSendTime = {
+            elem: '#endSendTime',
+            choose: function (data) {
+                if ($('#startSendTime').val()) {
+                    loadData();
+                }
+            }
+        }
+        laydate(startSendTime);
+        laydate(endSendTime);
+    </script>
+</body>
+</div>
+</div>
+    #include("/index/footer.vm")
+</html>
+
