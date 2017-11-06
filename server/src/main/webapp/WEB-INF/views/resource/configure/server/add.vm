@@ -20,433 +20,446 @@
                         <p>
                         <p>
                     </div>
-       <div class="col-md-11"
+                    <div class="col-md-11"
                          style="border: 1px solid #f0f0f0;margin-left: 50px;margin-right: 130px;margin-top: 10px;">
                         <span style="position:fixed;margin-top: -10px;margin-left: 25px;">常规信息</span>
                         <p>&nbsp;</p>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">业务线选择:</label>
-                            <div class="col-sm-9">
-                                <select class="form-control" name="groupsId">
-                                    <option value="#if ($configs.groupsId)$configs.groupsId#else 0 #end">#if ($configs.groupsName) ${configs.groupsName}  #end</option>
-                                    <option value="0">--</option>
-                                    #foreach( $conf in $groups )
-                                        <option
-                                                value='$!{conf.groupsId}'>
-                                            $!{conf.groupsName}
-                                        </option>
-                                    #end
-                                </select>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">业务线选择:</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control" name="groupsId">
+                                        <option value="#if ($configs.groupsId)$configs.groupsId#else 0 #end">#if ($configs.groupsName) ${configs.groupsName}  #end</option>
+                                        <option value="0">--</option>
+                                        #foreach( $conf in $groups )
+                                            <option
+                                                    value='$!{conf.groupsId}'>
+                                                $!{conf.groupsName}
+                                            </option>
+                                        #end
+                                    </select>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">环境选择:</label>
-                            <div class="col-sm-9">
-                                <select class="form-control" name="entId">
-                                    <option value="#if ($configs.entId)${configs.entId}#else 0 #end">#if ($configs.entName) ${configs.entName}  #end</option>
-                                    <option value="0">--</option>
-                                    #foreach( $conf in $entname )
-                                        <option
-                                                value='$!{conf.entId}'>
-                                            $!{conf.entName}
-                                        </option>
-                                    #end
-                                </select>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">环境选择:</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control" name="entId">
+                                        <option value="#if ($configs.entId)${configs.entId}#else 0 #end">#if ($configs.entName) ${configs.entName}  #end</option>
+                                        <option value="0">--</option>
+                                        #foreach( $conf in $entname )
+                                            <option
+                                                    value='$!{conf.entId}'>
+                                                $!{conf.entName}
+                                            </option>
+                                        #end
+                                    </select>
+                                </div>
                             </div>
+                        </div>
+                        <div class="col-md-12">
+                            <p>
+                            <p>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">服务器类型选择:</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control" name="typeId">
+                                        <option value="#if ($configs.typeId)${configs.typeId}#else 0 #end">#if ($configs.typeName) ${configs.typeName}  #end</option>
+                                        <option value="0">--</option>
+                                        #foreach( $conf in $types )
+                                            <option
+                                                    value='$!{conf.typeId}'>
+                                                $!{conf.typeName}
+                                            </option>
+                                        #end
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">系统类型选择:</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control" name="osId">
+                                        <option value="#if ($configs.osId)${configs.osId}#else 0 #end">#if ($configs.osName) ${configs.osName}  #end</option>
+                                        <option value="0">--</option>
+                                        #foreach( $conf in $os )
+                                            <option
+                                                    value='$!{conf.osId}'>
+                                                $!{conf.osName}
+                                            </option>
+                                        #end
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <p>
+                            <p>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">服务选择:</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control" name="serviceId">
+                                        <option value="#if ($configs.serviceId)$configs.serviceId#else 0 #end">#if ($configs.serviceName) ${configs.serviceName}  #end</option>
+                                        <option value="0">--</option>
+                                        #foreach( $conf in $service )
+                                            <option
+                                                    value='$!{conf.serviceId}'>
+                                                $!{conf.serviceName}
+                                            </option>
+                                        #end
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">用户选择:</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control" name="userId">
+                                        <option value="#if ($configs.userId)${configs.userId}#else 0 #end">#if ($configs.userName) ${configs.userName}  #end</option>
+                                        <option value="0">--</option>
+                                        #foreach( $conf in $user )
+                                            <option
+                                                    value='$!{conf.userId}'>
+                                                $!{conf.userName}
+                                            </option>
+                                        #end
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <p>
+                            <p>
                         </div>
                     </div>
                     <div class="col-md-12">
                         <p>
                         <p>
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">服务器类型选择:</label>
-                            <div class="col-sm-9">
-                                <select class="form-control" name="typeId">
-                                    <option value="#if ($configs.typeId)${configs.typeId}#else 0 #end">#if ($configs.typeName) ${configs.typeName}  #end</option>
-                                    <option value="0">--</option>
-                                    #foreach( $conf in $types )
-                                        <option
-                                                value='$!{conf.typeId}'>
-                                            $!{conf.typeName}
-                                        </option>
-                                    #end
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">系统类型选择:</label>
-                            <div class="col-sm-9">
-                                <select class="form-control" name="osId">
-                                    <option value="#if ($configs.osId)${configs.osId}#else 0 #end">#if ($configs.osName) ${configs.osName}  #end</option>
-                                    <option value="0">--</option>
-                                    #foreach( $conf in $os )
-                                        <option
-                                                value='$!{conf.osId}'>
-                                            $!{conf.osName}
-                                        </option>
-                                    #end
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <p>
-                        <p>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">服务选择:</label>
-                            <div class="col-sm-9">
-                                <select class="form-control" name="serviceId">
-                                    <option value="#if ($configs.serviceId)$configs.serviceId#else 0 #end">#if ($configs.serviceName) ${configs.serviceName}  #end</option>
-                                    <option value="0">--</option>
-                                    #foreach( $conf in $service )
-                                        <option
-                                                value='$!{conf.serviceId}'>
-                                            $!{conf.serviceName}
-                                        </option>
-                                    #end
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-
-
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">用户选择:</label>
-                            <div class="col-sm-9">
-                                <select class="form-control" name="userId">
-                                    <option value="#if ($configs.userId)${configs.userId}#else 0 #end">#if ($configs.userName) ${configs.userName}  #end</option>
-                                    <option value="0">--</option>
-                                    #foreach( $conf in $user )
-                                        <option
-                                                value='$!{conf.userId}'>
-                                            $!{conf.userName}
-                                        </option>
-                                    #end
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <p>
-                        <p>
-                    </div>
-             </div>
-                    <div class="col-md-12">
-                        <p>
-                        <p>
-                    </div>
-       <div class="col-md-11"
+                    <div class="col-md-11"
                          style="border: 1px solid #f0f0f0;margin-left: 50px;margin-right: 130px;margin-top: 10px;">
                         <span style="position:fixed;margin-top: -10px;margin-left: 25px;">硬件信息</span>
                         <p>&nbsp;</p>
 
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">内存(GB):</label>
-                            <div class="col-sm-9">
-                                <input type="text" name="memory" class="form-control"
-                                       value="$!{configs.memory}">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">内存(GB):</label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="memory" class="form-control"
+                                           value="$!{configs.memory}">
+                                </div>
                             </div>
                         </div>
-                    </div>
 
 
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">cpu(个):</label>
-                            <div class="col-sm-9">
-                                <input type="text" name="cpu" class="form-control"
-                                       value="$!{configs.cpu}">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">cpu(个):</label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="cpu" class="form-control"
+                                           value="$!{configs.cpu}">
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-12">
-                        <p>
-                        <p>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">硬盘大小(GB):</label>
-                            <div class="col-sm-9">
-                                <input type="text" name="diskSize" class="form-control"
-                                       value="$!{configs.diskSize}">
+                        <div class="col-md-12">
+                            <p>
+                            <p>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">硬盘大小(GB):</label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="diskSize" class="form-control"
+                                           value="$!{configs.diskSize}">
+                                </div>
                             </div>
                         </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">服务器型号:</label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="openPort" class="form-control"
+                                           value="$!{configs.openPort}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12"><p>
+                            <p></div>
                     </div>
-                    <div class="col-md-12"><p><p></div>
-             </div>
-       <div class="col-md-11"
+                    <div class="col-md-11"
                          style="border: 1px solid #f0f0f0;margin-left: 50px;margin-right: 130px;margin-top: 10px;">
                         <span style="position:fixed;margin-top: -10px;margin-left: 25px;">网络信息</span>
                         <p>&nbsp;</p>
 
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">域名:</label>
-                            <div class="col-sm-9">
-                                <input type="text" name="domainName" class="form-control"
-                                       value="$!{configs.domainName}">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">域名:</label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="domainName" class="form-control"
+                                           value="$!{configs.domainName}">
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-12"><p><p></div>
+                        <div class="col-md-12"><p>
+                            <p></div>
 
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">ip地址:</label>
-                            <div class="col-sm-9">
-                                <input type="text" name="ipAddress" class="form-control"
-                                       value="$!{configs.ipAddress}">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">ip地址:</label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="ipAddress" class="form-control"
+                                           value="$!{configs.ipAddress}">
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">远程管理卡地址:</label>
-                            <div class="col-sm-9">
-                                <input type="text" name="managerIp" class="form-control"
-                                       value="$!{configs.managerIp}">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">远程管理卡地址:</label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="managerIp" class="form-control"
+                                           value="$!{configs.managerIp}">
+                                </div>
                             </div>
                         </div>
-                    </div>
 
+                        <div class="col-md-12">
+                            <p>
+                            <p>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">宿主机选择:</label>
+                                <div class="col-sm-9 multiple">
+                                    <select id="id_select" class="selectpicker bla bla bli form-control" name="hostId"
+                                            data-live-search="true">
+                                        <option value="#if ($configs.hostId)${configs.hostId}#else 0 #end">#if ($configs.hostIpAddress) ${configs.hostIpAddress}  #end</option>
+                                        <option value="0">--</option>
+                                        #foreach( $conf in $hosts )
+                                            <option
+                                                    value='$!{conf.serverId}'>
+                                                $!{conf.hostIpAddress}
+                                            </option>
+                                        #end
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <p>
+                            <p>
+                        </div>
+                    </div>
                     <div class="col-md-12">
                         <p>
                         <p>
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">宿主机选择:</label>
-                            <div class="col-sm-9 multiple">
-                                <select id="id_select" class="selectpicker bla bla bli form-control" name="hostId" data-live-search="true">
-                                    <option value="#if ($configs.hostId)${configs.hostId}#else 0 #end">#if ($configs.hostIpAddress) ${configs.hostIpAddress}  #end</option>
-                                    <option value="0">--</option>
-                                    #foreach( $conf in $hosts )
-                                        <option
-                                                value='$!{conf.serverId}'>
-                                            $!{conf.hostIpAddress}
-                                        </option>
-                                    #end
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <p>
-                        <p>
-                    </div>
-             </div>
-                    <div class="col-md-12">
-                        <p>
-                        <p>
-                    </div>
-       <div class="col-md-11"
+                    <div class="col-md-11"
                          style="border: 1px solid #f0f0f0;margin-left: 50px;margin-right: 130px;margin-top: 10px;">
                         <span style="position:fixed;margin-top: -10px;margin-left: 25px;">机柜信息</span>
                         <p>&nbsp;</p>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">机柜选择:</label>
-                            <div class="col-sm-9">
-                                <select class="form-control" name="cabinetId" onchange="getLevel($(this).val())">
-                                    <option value="#if ($configs.cabinetId)$configs.cabinetId#else 1 #end">#if ($configs.cabinetName) ${configs.cabinetName}  #end</option>
-                                    <option value="1">--</option>
-                                    #foreach( $conf in $cabinet )
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">机柜选择:</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control" name="cabinetId" onchange="getLevel($(this).val())">
+                                        <option value="#if ($configs.cabinetId)$configs.cabinetId#else 1 #end">#if ($configs.cabinetName) ${configs.cabinetName}  #end</option>
+                                        <option value="1">--</option>
+                                        #foreach( $conf in $cabinet )
+                                            <option
+                                                    value='$!{conf.cabinetId}'>
+                                                $!{conf.cabinetName}
+                                            </option>
+                                        #end
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">机柜层级:</label>
+                                <div class="col-sm-9">
+                                    <input class="form-control" style="width:50%;float:left;" id="cabinetLevel"
+                                           type="text" readonly name="cabinetLevel" class="form-control"
+                                           value="$!{configs.cabinetLevel}">
+                                    <select class="form-control" style="width:50%;float:left;" id="selectCabinetLevel"
+                                            onchange="$('#cabinetLevel').val($(this).val())">
                                         <option
-                                                value='$!{conf.cabinetId}'>
-                                            $!{conf.cabinetName}
+                                                value='$!{configs.cabinetLevel}'>
+                                            $!{configs.cabinetLevel}
                                         </option>
-                                    #end
-                                </select>
+                                    </select>
+                                </div>
                             </div>
                         </div>
-                    </div>
-
-
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">机柜层级:</label>
-                            <div class="col-sm-9">
-                                <input class="form-control" style="width:50%;float:left;" id="cabinetLevel" type="text" readonly name="cabinetLevel" class="form-control"
-                                       value="$!{configs.cabinetLevel}">
-                                <select class="form-control" style="width:50%;float:left;" id="selectCabinetLevel" onchange="$('#cabinetLevel').val($(this).val())">
-                                    <option
-                                            value='$!{configs.cabinetLevel}'>
-                                        $!{configs.cabinetLevel}
-                                    </option>
-                                </select>
+                        <div class="col-md-12">
+                            <p>
+                            <p>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">交换机选择:</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control" name="switchId">
+                                        <option value="#if ($configs.switchId)$configs.switchId#else 1 #end">#if ($configs.switchId) ${configs.switchId}  #end</option>
+                                        <option value="1">--</option>
+                                        #foreach( $conf in $switchs )
+                                            <option value='$!{conf.ipAddress}'>
+                                                $!{conf.ipAddress}
+                                            </option>
+                                        #end
+                                    </select>
+                                </div>
                             </div>
                         </div>
-                    </div>
-           <div class="col-md-12">
-               <p>
-               <p>
-           </div>
-           <div class="col-md-6">
-               <div class="form-group">
-                   <label class="col-sm-3 control-label">交换机选择:</label>
-                   <div class="col-sm-9">
-                       <select class="form-control" name="switchId" >
-                           <option value="#if ($configs.switchId)$configs.switchId#else 1 #end">#if ($configs.switchId) ${configs.switchId}  #end</option>
-                           <option value="1">--</option>
-                           #foreach( $conf in $switchs )
-                               <option value='$!{conf.ipAddress}'>
-                                   $!{conf.ipAddress}
-                               </option>
-                           #end
-                       </select>
-                   </div>
-               </div>
-           </div>
-           <div class="col-md-6">
-               <div class="form-group">
-                   <label class="col-sm-3 control-label">交换机端口:</label>
-                   <div class="col-sm-9">
-                       <input type="text" name="switchPort" class="form-control"
-                              value="$!{configs.switchPort}">
-                   </div>
-               </div>
-           </div>
-           <div class="col-md-12">
-                        <p>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">描述信息:</label>
-                            <div class="col-sm-9">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">交换机端口:</label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="switchPort" class="form-control"
+                                           value="$!{configs.switchPort}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <p>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">描述信息:</label>
+                                <div class="col-sm-9">
                                 <textarea type="text" name="description" class="form-control"
-                                       >$!{configs.description}</textarea>
+                                >$!{configs.description}</textarea>
+                                </div>
                             </div>
+                        </div>
+                        <div class="col-md-12">
+                            <p>
                         </div>
                     </div>
                     <div class="col-md-12">
                         <p>
                     </div>
-       </div>
-                    <div class="col-md-12">
-                        <p>
-                    </div>
-       <div class="col-md-11"
+                    <div class="col-md-11"
                          style="border: 1px solid #f0f0f0;margin-left: 50px;margin-right: 130px;margin-top: 10px;">
                         <span style="position:fixed;margin-top: -10px;margin-left: 25px;">设备使用信息</span>
                         <p>&nbsp;</p>
 
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">过保时间:</label>
-                            <div class="col-sm-9">
-                                <input type="date" name="expire" class="form-control"
-                                       value="$!{configs.expire}">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">过保时间:</label>
+                                <div class="col-sm-9">
+                                    <input type="date" name="expire" class="form-control"
+                                           value="$!{configs.expire}">
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">SN:</label>
-                            <div class="col-sm-9">
-                                <input type="text" name="assetCoding" class="form-control"
-                                       value="$!{configs.assetCoding}">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">SN:</label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="assetCoding" class="form-control"
+                                           value="$!{configs.assetCoding}">
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-12">
-                        <p>
-                        </p>
-                    </div>
-           <div class="col-md-6">
-               <div class="form-group">
-                   <label class="col-sm-3 control-label">购买业务线:</label>
-                   <div class="col-sm-9">
-                       <select class="form-control" name="buyUser">
-                           <option value="#if ($buyUserId)${buyUserId}#else 0 #end">#if ($configs.buyUser) ${configs.buyUser}  #end</option>
-                           <option value="0">--</option>
-                           #foreach( $conf in $groups )
-                               <option value='$!{conf.groupsId}'>
-                                   $!{conf.groupsName}
-                               </option>
-                           #end
-                       </select>
-                   </div>
-               </div>
-           </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">购买时间:</label>
-                            <div class="col-sm-9">
-                                <input type="date" name="buyTime" class="form-control"
-                                       value="$!{configs.buyTime}">
+                        <div class="col-md-12">
+                            <p>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">购买业务线:</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control" name="buyUser">
+                                        <option value="#if ($buyUserId)${buyUserId}#else 0 #end">#if ($configs.buyUser) ${configs.buyUser}  #end</option>
+                                        <option value="0">--</option>
+                                        #foreach( $conf in $groups )
+                                            <option value='$!{conf.groupsId}'>
+                                                $!{conf.groupsName}
+                                            </option>
+                                        #end
+                                    </select>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-12">
-                        <p>
-                        </p>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">资产编码:</label>
-                            <div class="col-sm-9">
-                                <input type="text" name="resourceCode" class="form-control"
-                                       value="$!{configs.resourceCode}">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">购买时间:</label>
+                                <div class="col-sm-9">
+                                    <input type="date" name="buyTime" class="form-control"
+                                           value="$!{configs.buyTime}">
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">设备价格(元):</label>
-                            <div class="col-sm-9">
-                                <input type="number" name="resourcePrice" class="form-control"
-                                       value="$!{configs.resourcePrice}">
+                        <div class="col-md-12">
+                            <p>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">资产编码:</label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="resourceCode" class="form-control"
+                                           value="$!{configs.resourceCode}">
+                                </div>
                             </div>
                         </div>
-                    </div>
-          <div class="col-md-12"><p></p></div>
-           <div class="col-md-6">
-               <div class="form-group">
-                   <label class="col-sm-3 control-label">使用业务线:</label>
-                   <div class="col-sm-9">
-                       <select class="form-control" name="useUser">
-                           <option value="#if ($useUserId)${useUserId}#else 0 #end">#if ($configs.useUser) ${configs.useUser}  #end</option>
-                           <option value="0">--</option>
-                           #foreach( $conf in $groups )
-                               <option
-                                       value='$!{conf.groupsId}'>
-                                   $!{conf.groupsName}
-                               </option>
-                           #end
-                       </select>
-                   </div>
-               </div>
-           </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">使用时间:</label>
-                            <div class="col-sm-9">
-                                <input type="date" name="useTime" class="form-control"
-                                       value="$!{configs.useTime}">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">设备价格(元):</label>
+                                <div class="col-sm-9">
+                                    <input type="number" name="resourcePrice" class="form-control"
+                                           value="$!{configs.resourcePrice}">
+                                </div>
                             </div>
                         </div>
+                        <div class="col-md-12"><p></p></div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">使用业务线:</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control" name="useUser">
+                                        <option value="#if ($useUserId)${useUserId}#else 0 #end">#if ($configs.useUser) ${configs.useUser}  #end</option>
+                                        <option value="0">--</option>
+                                        #foreach( $conf in $groups )
+                                            <option
+                                                    value='$!{conf.groupsId}'>
+                                                $!{conf.groupsName}
+                                            </option>
+                                        #end
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">使用时间:</label>
+                                <div class="col-sm-9">
+                                    <input type="date" name="useTime" class="form-control"
+                                           value="$!{configs.useTime}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <p>
+                            </p>
+                        </div>
                     </div>
-                    <div class="col-md-12">
-                        <p>
-                        </p>
-                    </div>
-               </div>
                     <div class="col-md-12">
                         <p>
                     </div>
@@ -468,14 +481,14 @@
     </div>
 </div>
 <script>
-    function getLevel(cabinetId){
+    function getLevel(cabinetId) {
         url = "/resource/configure/server/selectUseCabinetLevel"
-        result = post({cabinetId:cabinetId},url)
+        result = post({cabinetId: cabinetId}, url)
         html = ""
         html += "<option value=''>--</option>"
-        for(i=0;i<result.length;i++){
+        for (i = 0; i < result.length; i++) {
             $('#cabinetLevel').val(result[i])
-            html+= "<option value="+result[i]+">"+result[i]+"</option>"
+            html += "<option value=" + result[i] + ">" + result[i] + "</option>"
         }
         $('#selectCabinetLevel').html(html)
 
