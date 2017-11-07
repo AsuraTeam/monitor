@@ -26,6 +26,16 @@ public class MonitorMessagesEntity extends BaseEntity{
     private String ip;
     private String groupsName;
     private String stime;
+    private Long time;
+
+
+    public Long getTime() {
+        return time;
+    }
+
+    public void setTime(Long time) {
+        this.time = time;
+    }
 
     public String getGroupsName() {
         return groupsName;
