@@ -1042,6 +1042,7 @@ CREATE TABLE `monitor_scripts` (
   `arg1comm` varchar(100) DEFAULT NULL COMMENT '参数4描述',
   `anew` int(11) DEFAULT NULL COMMENT '多长时间重新发送',
   `isrecover` varchar(10) DEFAULT NULL COMMENT '是否发送恢复',
+  `time_out` int comment "脚本超时时间",
   PRIMARY KEY (`scripts_id`),
   UNIQUE KEY `uidx_file_name_monitor_name` (`monitor_name`,`file_name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8;
