@@ -101,11 +101,11 @@ public class FileWriter {
                 .append(separator)
                 .append(type)
                 .append(separator)
-                .append( dateUtil.getDate("yyyy"))
+                .append( DateUtil.getDate("yyyy"))
                 .append(separator)
-                .append(dateUtil.getDate("MM"))
+                .append(DateUtil.getDate("MM"))
                 .append(separator)
-                .append(dateUtil.getDate("dd") )
+                .append(DateUtil.getDate("dd") )
                 .append(separator)
                 .append(name);
         return dir.toString();
@@ -134,6 +134,7 @@ public class FileWriter {
         try {
             ToElasticsearchUtil.pushQueue(type, ip, name, value);
         }catch (Exception e){
+
             logger.error("写入ES失败", e);
         }
     }
@@ -182,11 +183,8 @@ public class FileWriter {
         String content = DateUtil.dateToStamp(entity.getTime()) + " ";
         if(entity.getMessages() != null) {
             content += "[" + entity.getMessages().trim() + "]";
-//            content += "[" + entity.getMessages().replaceAll("(\r\n|\r|\n|\n\r)", "") + "]";
         }
         content = content.trim();
-//        content = content.replaceAll("(\\r\\n|\\r|\\n|\\n\\r)", "");
-//        content = content.replaceAll("(\r\n|\r|\n|\n\r)", "");
         writeFile(file, content, false);
     }
 
@@ -203,11 +201,11 @@ public class FileWriter {
                 .append(separator)
                 .append("sysinfo")
                 .append(separator)
-                .append( dateUtil.getDate("yyyy"))
+                .append( DateUtil.getDate("yyyy"))
                 .append(separator)
-                .append(dateUtil.getDate("MM"))
+                .append(DateUtil.getDate("MM"))
                 .append(separator)
-                .append(dateUtil.getDate("dd") )
+                .append(DateUtil.getDate("dd") )
                 .append(separator);
         return file.toString();
     }

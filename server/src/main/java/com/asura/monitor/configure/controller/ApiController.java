@@ -36,6 +36,7 @@ import com.asura.util.email.MailEntity;
 import com.asura.util.weixin.WeixinUtil;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -771,4 +772,5 @@ public class ApiController {
         entity.setIp(ipAddr);
         MonitorUtil.pushMonitorData(entity, writeType, ipAddr);
     }
+
 }

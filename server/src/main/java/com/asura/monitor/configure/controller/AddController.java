@@ -210,6 +210,7 @@ public class AddController {
      */
     @RequestMapping("configure/add")
     public String configureAdd(int id, Model model, String copy) {
+        model.addAttribute("copy","0");
         if (id > 0) {
             MonitorConfigureEntity result = configureService.findById(id, MonitorConfigureEntity.class);
             if (result.getScriptId() != null) {
@@ -217,6 +218,7 @@ public class AddController {
                 model.addAttribute("fileName", scriptsEntity.getFileName());
             }
             if (CheckUtil.checkString(copy)){
+                model.addAttribute("copy","1");
                 result.setConfigureId(0);
             }
             model.addAttribute("configs", result);

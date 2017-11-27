@@ -375,7 +375,7 @@
                 },
                 {"data": "description", "mRender":function (data) {
                     if (data.length>30){
-                        return  "<span title='"+data+"'>"+data.substring(1,30)+"</span>"
+                        return  "<span title='"+data+"'>"+data.substring(0,30)+"</span>"
                     }
                     return data;
                 }},

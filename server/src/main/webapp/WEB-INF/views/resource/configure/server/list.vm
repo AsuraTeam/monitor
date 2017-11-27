@@ -244,6 +244,11 @@
                                         #end
                                     </select>
                                 </div>
+                                <div style="float:left;width: 100px;margin-left: 5px;margin-top: -10px;">
+                                    <button class="btn btn-primary " id="queryBtn" type="button" style="float:left;margin-left: 15px;">
+                                            <i class="fa fa-link"></i>&nbsp;&nbsp;<span class="bold" onClick="load_page()">TOP</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -291,6 +296,12 @@
                 $('#add_getui_config').modal('toggle');
             }
 
+            function load_page(ip) {
+                if(!ip){
+                    ip = "";
+                }
+                window.open("/resource/configure/server/top?ip="+ip)
+            }
             /**
              * 启动停止监控
              */
@@ -464,8 +475,8 @@
                         {"data": "cpu"},
                         {"data": "diskSize"},
                         {"data": "domainName", "mRender": function (data, type, full) {
-                            if(data && data.length > 15){
-                                return "<span title='"+data+"'>" + data.substring(1, 15) +"</span>";
+                            if(data && data.length > 10){
+                                return "<span title='"+data+"'>" + data.substring(0, 10) +"</span>";
                             }
                             return data;
                         }
@@ -473,8 +484,8 @@
                         {"data": "userName"},
                         {"data": "typeName"},
                         {"data": "description", "mRender": function (data, type, full) {
-                            if(data && data.length > 30){
-                                return "<span title='"+data+"'>" + data.substring(1, 30) +"</span>";
+                            if(data && data.length > 10){
+                                return "<span title='"+data+"'>" + data.substring(0, 10) +"</span>";
                             }
                             return data;
                         }
@@ -492,7 +503,8 @@
                         {"data": "serverId", "mRender": function (data, type, full) {
                             return '<button type="button" onclick="updateConfig(' + data + ')" class="btn btn-sm btn-success">编辑</button>&nbsp;' +
                                     '<button type="button" onClick="deleteConfig(' + data + ')" class="btn btn-sm btn-danger">删除</button>&nbsp;'+
-                                    '<button type="button" onClick="monitorConfig(' + data + ')" class="btn btn-sm btn-warning">启停监控</button>';
+                                    '<button type="button" onClick="monitorConfig(' + data + ')" class="btn btn-sm btn-warning">启停监控</button>&nbsp;'+
+                                    '<button type="button" onClick="load_page(\'' + full["ipAddress"] + '\')" class="btn btn-sm btn-master">TOP</button>';
                            }
                         },
                     ],

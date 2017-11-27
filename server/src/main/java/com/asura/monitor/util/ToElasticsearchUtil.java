@@ -44,12 +44,14 @@ public class ToElasticsearchUtil {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ToElasticsearchUtil.class);
     private static String server;
+    private static ArrayList<String> esServers;
     private static int port;
+    private static int serversSize;
     private static String clusterName;
     private static int pushSize;
     private static LinkedTransferQueue<Map> linkedTransferQueue;
     private static Map<String, Map> hostMap;
-    private static boolean esSwitch = false;
+    private static boolean esSwitch = true;
     private static TransportClient client;
 
     /**
@@ -59,10 +61,7 @@ public class ToElasticsearchUtil {
     static void pushMap(CmdbResourceServerEntity entity, Map hostMap) {
         Map tempMap = new HashedMap();
         tempMap.put("groups", entity.getGroupsName());
-        tempMap.put("cabinet", entity.getCabinetName());
         tempMap.put("entname", entity.getEntName());
-        tempMap.put("username", entity.getUserName());
-        tempMap.put("domain", entity.getDomainName());
         hostMap.put(entity.getIpAddress(), tempMap);
     }
 
@@ -98,24 +97,18 @@ public class ToElasticsearchUtil {
 
             if (!hostMap.containsKey(ip)) {
                 CmdbResourceServerEntity entity = new CmdbResourceServerEntity();
-                entity.setDomainName("未知");
                 entity.setIpAddress(ip);
                 entity.setGroupsName("未知");
-                entity.setCabinetName("未知");
-                entity.setUserName("未知");
                 entity.setEntName("未知");
                 pushMap(entity, hostMap);
             }
         }
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss" + "+08:00");
         String time = sdf.format(new Date());
-        Map tempMap = hostMap.get(ip);
         map.put("time", time);
+        Map tempMap = hostMap.get(ip);
         map.put("groups", tempMap.get("groups"));
-        map.put("cabinet", tempMap.get("cabinet"));
         map.put("entname", tempMap.get("entname"));
-        map.put("username", tempMap.get("username"));
-        map.put("domain", tempMap.get("domain"));
         linkedTransferQueue.add(map);
         try {
             pushToEs();
@@ -130,16 +123,35 @@ public class ToElasticsearchUtil {
         if (server != null) {
             return;
         }
+        if (!esSwitch){
+            return;
+        }
         linkedTransferQueue = new LinkedTransferQueue();
         Resource resource;
         Properties props;
         resource = new ClassPathResource("/system.properties");
         try {
+            esServers = new ArrayList();
             props = PropertiesLoaderUtils.loadProperties(resource);
-            server = (String) props.get("es.server");
-            server = server.trim();
-            if (CheckUtil.checkString(server)) {
+            String esServer = (String) props.get("es.server");
+            if (CheckUtil.checkString(esServer)) {
+                esServer = esServer.trim();
+
+                String[] es = esServer.split(",");
+
+                for (int i = 0; i < es.length; i++) {
+                    if (CheckUtil.checkString(es[i])) {
+                        esServers.add(es[i].trim());
+                        LOGGER.info("获取到es服务器"+es[i]);
+                    }
+                }
+                server = esServers.get(0);
+                LOGGER.info("当前ES服务器设置为"+ server);
                 esSwitch = true;
+            } else {
+                esSwitch = false;
+                LOGGER.info("没有配置es服务器");
+                return;
             }
             clusterName = (String) props.get("es.cluster.name");
             clusterName = clusterName.trim();
@@ -178,6 +190,13 @@ public class ToElasticsearchUtil {
                     .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(server), Integer.valueOf(port)));
             return client;
         } catch (Exception e) {
+            if (serversSize < esServers.size()-1){
+                for (int i=serversSize; i<esServers.size();i++){
+                    server = esServers.get(i);
+                    serversSize = i;
+                    LOGGER.info("重试设置ES为"+server);
+                }
+            }
             LOGGER.error("ES服务连接失败", e);
             return null;
         }
@@ -201,11 +220,6 @@ public class ToElasticsearchUtil {
      * name 监控指标名称
      * value 监控值
      * time 数据上报时间
-     * groups 业务线
-     * cabinet 机柜
-     * entname 环境名称
-     * username 负责名称
-     * domain 域名
      * ip 服务器IP地址
      *
      * @throws Exception
@@ -227,11 +241,9 @@ public class ToElasticsearchUtil {
                                     .field("@name", map.get("name"))
                                     .field("@value", map.get("value"))
                                     .field("@timestamp", map.get("time"))
+                                    .field("@ip", map.get("ip"))
                                     .field("@groups", map.get("groups"))
                                     .field("@entname", map.get("entname"))
-                                    .field("@username", map.get("username"))
-                                    .field("@domain", map.get("domain"))
-                                    .field("@ip", map.get("ip"))
                                     .endObject()
                             )
                     );
@@ -240,7 +252,6 @@ public class ToElasticsearchUtil {
                 BulkResponse bulkResponse = bulkRequest.get();
                 if (bulkResponse.hasFailures()) {
                     LOGGER.error("上传ES数据失败", bulkResponse.hasFailures());
-                    // process failures by iterating through each bulk response item
                 }
             } catch (Exception e) {
                 client.close();

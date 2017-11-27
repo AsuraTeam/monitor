@@ -43,7 +43,8 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">业务线选择:</label>
                             <div class="col-md-8 multiple">
-                                <select id="selectGroupsId" class="selectpicker bla bla bli form-control" name="groupsId" data-live-search="true" onchange="changeGroupsId()">
+                                <select id="selectGroupsId" class="selectpicker bla bla bli form-control"
+                                        name="groupsId" data-live-search="true" onchange="changeGroupsId()">
                                     <option value="">请选择</option>
                                 </select>
                             </div>
@@ -55,7 +56,8 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">主机方式选择:</label>
                             <div class="col-sm-8" style="float: left">
-                                <select name="monitorHostsTp" style="margin-left: 0px;"  id="host_select_type" class="form-control" onchange="changeHosts($(this).val())">
+                                <select name="monitorHostsTp" style="margin-left: 0px;" id="host_select_type"
+                                        class="form-control" onchange="changeHosts($(this).val())">
                                     #if($configs.monitorHostsTp)
                                         <option value="${configs.monitorHostsTp}">
                                             #if($configs.monitorHostsTp.equals("host"))单机配置 #else 组配置 #end</option>
@@ -128,9 +130,10 @@
                         <div class="col-md-6">
                             <label class="col-sm-4 control-label">可选择监控项目</label>
                             <div class="col-md-8 multiple">
-                                    <select id="undo_redo" class="selectpicker bla bla bli form-control" name="itemId" data-live-search="true" onchange="changeItem($(this).val())" >
-                                         <option value="">请选择</option>
-                                    </select>
+                                <select id="undo_redo" class="selectpicker bla bla bli form-control" name="itemId"
+                                        data-live-search="true" onchange="changeItem($(this).val())">
+                                    <option value="">请选择</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -464,8 +467,8 @@
                         <label class="col-sm-4 control-label">报警升级:</label>
                         <div class="col-sm-4">
                             <div class="checkbox checkbox-primary checkbox-inline">
-                                <input type="checkbox" onchange="set_alarm_up(this)" name="alarm_up" 
-                                       id="alarm_up" class="form-control" value="" >
+                                <input type="checkbox" onchange="set_alarm_up(this)" name="alarm_up"
+                                       id="alarm_up" class="form-control" value="">
                                 <label for="checkbox5 control-label">&nbsp;</label></strong>
                             </div>
                         </div>
@@ -535,8 +538,8 @@
 
     // 设置所有报警组的选择项
     function setAlarmTo(ids, html_id, upadd) {
-        if(!upadd){
-           set_alarm_up_groups(ids, htmls)
+        if (!upadd) {
+            set_alarm_up_groups(ids, htmls)
         }
         var ids = ids.split("|")[0]
         html = ""
@@ -550,20 +553,22 @@
         $('#' + html_id).html(html)
     }
 
-    function set_alarm_up_groups(upids, htmls){
+    function set_alarm_up_groups(upids, htmls) {
         var upids = upids.split("|")
-        for(upi = 1; upi<(upids.length+1);upi++){
+        for (upi = 1; upi < (upids.length + 1); upi++) {
             updatas = upids[upi]
-            if(!updatas){break}
+            if (!updatas) {
+                break
+            }
             $("#alarm_up_add_id").show();
             $("#alarm_up").prop("checked", "true")
             var updata = updatas.split(";")
             set_alarm_up('', 1);
-            $("#undo_contact_all_alarm_up_"+upi+"_redo").html(htmls)
-            setAlarmTo(updata[1], "undo_contact_all_alarm_up_"+upi+"_redo_to", 1)
-            $("#alarmCount"+upi).val(updata[0])
-            $("#undo_contact_all_alarm_up_"+upi+"_redo").multiselect({
-               keepRenderingSort: true
+            $("#undo_contact_all_alarm_up_" + upi + "_redo").html(htmls)
+            setAlarmTo(updata[1], "undo_contact_all_alarm_up_" + upi + "_redo_to", 1)
+            $("#alarmCount" + upi).val(updata[0])
+            $("#undo_contact_all_alarm_up_" + upi + "_redo").multiselect({
+                keepRenderingSort: true
             });
         }
     }
@@ -572,41 +577,41 @@
 
     // 所有的
         #if($configs.allGroups.length()>0)
-          setAlarmTo("${configs.allGroups}", "undo_contact_all_redo_to");
-          $('#undo_contact_all_redo').html(htmls)
-          $('#undo_contact_all_redo_to').show()
+        setAlarmTo("${configs.allGroups}", "undo_contact_all_redo_to");
+        $('#undo_contact_all_redo').html(htmls)
+        $('#undo_contact_all_redo_to').show()
         #end
 
     // 微信的
         #if($configs.weixinGroups.length()>0)
-            setAlarmTo("${configs.weixinGroups}", "undo_contact_weixin_mobile_redo_to");
-            $('#undo_contact_weixin_mobile_redo').html(htmls)
-            $('#show_weixin_contact_id').show()
-            $('#show_all_contact_id').hide()
+        setAlarmTo("${configs.weixinGroups}", "undo_contact_weixin_mobile_redo_to");
+        $('#undo_contact_weixin_mobile_redo').html(htmls)
+        $('#show_weixin_contact_id').show()
+        $('#show_all_contact_id').hide()
         #end
 
     // 手机的
         #if($configs.mobileGroups.length()>0)
-            $('#show_mobile_contact_id').show()
-            $('#undo_contact_group_mobile_redo').html(htmls)
-            $('#show_all_contact_id').hide()
-            setAlarmTo("${configs.mobileGroups}", "undo_contact_group_mobile_redo_to");
+        $('#show_mobile_contact_id').show()
+        $('#undo_contact_group_mobile_redo').html(htmls)
+        $('#show_all_contact_id').hide()
+        setAlarmTo("${configs.mobileGroups}", "undo_contact_group_mobile_redo_to");
         #end
 
     // 钉钉的
         #if($configs.dingGroups.length()>0)
-           $('#show_ding_contact_id').show()
-           $('#show_all_contact_id').hide()
-           $('#undo_contact_ding_mobile_redo').html(htmls)
-           setAlarmTo("${configs.dingGroups}", "undo_contact_ding_mobile_redo_to");
+        $('#show_ding_contact_id').show()
+        $('#show_all_contact_id').hide()
+        $('#undo_contact_ding_mobile_redo').html(htmls)
+        setAlarmTo("${configs.dingGroups}", "undo_contact_ding_mobile_redo_to");
         #end
 
     // 邮件的
         #if($configs.emailGroups.length()>0)
-            $('#show_email_contact_id').show()
-            $('#show_all_contact_id').hide()
-            $('#undo_contact_group_redo').html(htmls)
-            setAlarmTo("${configs.emailGroups}", "undo_contact_group_redo_to");
+        $('#show_email_contact_id').show()
+        $('#show_all_contact_id').hide()
+        $('#undo_contact_group_redo').html(htmls)
+        setAlarmTo("${configs.emailGroups}", "undo_contact_group_redo_to");
         #end
 
     function changeAlarmType() {
@@ -683,12 +688,12 @@
         html = ""
         select = ""
         for (i = 0; i < data.length; i++) {
-            if(id==data[i]["itemId"]){
+            if (id == data[i]["itemId"]) {
                 select = '<option value=' + data[i]["itemId"] + '>' + data[i]["itemName"] + "</option>";
             }
             html += '<option value=' + data[i]["itemId"] + '>' + data[i]["itemName"] + "</option>";
-       }
-       $('#' + html_id).html(select +"<option>--请选择--</option>"+ html);
+        }
+        $('#' + html_id).html(select + "<option>--请选择--</option>" + html);
     }
 
 
@@ -701,8 +706,8 @@
         if (!groupsName) {
             return;
         }
-        if (hosts){
-            if(hosts.indexOf(",") == -1 ){
+        if (hosts) {
+            if (hosts.indexOf(",") == -1) {
                 hosts += ","
             }
         }
@@ -764,11 +769,11 @@
     }
 
     // 修改选项为模板配置时的数据设置
-    #if($configs.monitorConfigureTp.equals("template"))
+        #if($configs.monitorConfigureTp.equals("template"))
         $('#is_template_configure').show();
         setFromTemplate("", "undo2_redo")
         setFromTemplate('$configs.template_id', "undo2_redo_to")
-    #end
+        #end
 
 
     function changeHosts(value) {
@@ -787,25 +792,25 @@
 
     // 修改业务线
     function changeGroupsId() {
-        type = $('#host_select_type').val();
-        if(!type){
+        var type = $('#host_select_type').val();
+        if (!type) {
             return;
         }
-        if(type=="host"){
-            groupsName = $('#selectGroupsId option:selected').text();
+        if (type == "host") {
+            var groupsName = $('#selectGroupsId option:selected').text();
             getIp(groupsName)
         }
-        if(type=="groups"){
-            groupsName = $('#selectGroupsId option:selected').val();
+        if (type == "groups") {
+            var groupsName = $('#selectGroupsId option:selected').val();
             getIp(groupsName)
         }
     }
 
     function selectGroupsName() {
-        url = "/monitor/configure/groups/listData?draw=1&start=1&length=10000"
-        result = eval(post({}, url))["data"];
-        html = ""
-        select = ""
+        var url = "/monitor/configure/groups/listData?draw=1&start=1&length=10000"
+        var result = eval(post({}, url))["data"];
+        var html = ""
+        var select = ""
 
         html += "<option value=''>--</option>"
         for (i = 0; i < result.length; i++) {
@@ -820,40 +825,44 @@
     }
 
     function selectGroups() {
-        url = "/resource/configure/groups/listData?draw=1&start=1&length=10000"
-        result = eval(post({}, url))["data"];
-        html = ""
-        select = ""
+        var url = "/resource/configure/groups/listData?draw=1&start=1&length=10000"
+        var result = eval(post({}, url))["data"];
+        var html = ""
+        var select = ""
         html += "<option value=''>--</option>"
         for (i = 0; i < result.length; i++) {
             if (result[i]["groupsId"] == "$!{configs.groupsId}") {
-                select = "<option value=" + result[i]["groupsId"] + ">" + result[i]["groupsName"] + "</option>"
-                $('#groups_hidden').val(result[i]["groupsName"]);
+                #if($copy=="0")
+                    select = "<option value=" + result[i]["groupsId"] + ">" + result[i]["groupsName"] + "</option>"
+                    $('#groups_hidden').val(result[i]["groupsName"]);
+                #end
             }
             html += "<option value=" + result[i]["groupsId"] + ">" + result[i]["groupsName"] + "</option>"
         }
         #if($configs.groupsId)
-            $('#selectGroupsId').html(select)
-            return;
+            #if($copy=="0")
+                $('#selectGroupsId').html(select)
+                return;
+            #end
         #end
         $('#selectGroupsId').html(select + html)
     }
 
-    #if($configs.gname)
-      selectGroupsName()
-    #end
+        #if($configs.gname)
+        selectGroupsName()
+        #end
 
-##    #if($configs.groupsId)
-        selectGroups();
-##    #end
+    ##    #if($configs.groupsId)
+    selectGroups();
+    ##    #end
 
 
     // 设置选择的主机数据
-    #if($configs.hosts.length()>0)
-         getIp($('#selectGroupsId option:selected').text())
-         getIp($('#selectGroupsId option:selected').text(),"",1,"${configs.hosts.replace("\n","")}");
-         $('#groups_show_id').show()
-    #end
+        #if($configs.hosts.length()>0)
+        getIp($('#selectGroupsId option:selected').text())
+        getIp($('#selectGroupsId option:selected').text(), "", 1, "${configs.hosts.replace("\n","")}");
+        $('#groups_show_id').show()
+        #end
 
     function change(obj) {
         value = $(obj).val();
@@ -896,7 +905,7 @@
     }
 
 
-//    setTo("undo_redo_to", "item");
+    //    setTo("undo_redo_to", "item");
     setTo("undo2_redo_to", "template")
 
     function search(value, type) {
@@ -956,7 +965,7 @@
                         '             <label class="col-sm-4 control-label">参数' + arg + ':</label>' +
                         '             <div class="col-sm-8">' +
                         '                 <textarea type="text" name="arg' + arg + '" class="form-control" placeholder="给脚本传递的第' + arg + '个参数"' +
-                        '                        >'+data[i]+'</textarea>' +
+                        '                        >' + data[i] + '</textarea>' +
                         '             </div>' +
                         '         </div>' +
                         '     </div>' +
@@ -989,7 +998,7 @@
                     '             <label class="col-sm-4 control-label">参数' + i + ':</label>' +
                     '             <div class="col-sm-8">' +
                     '                 <textarea type="text" name="arg' + i + '" class="form-control" placeholder="给脚本传递的第二个参数"' +
-                    '                        value="' + data["arg" + i] + '">'+data["arg"+i]+'</textarea>' +
+                    '                        value="' + data["arg" + i] + '">' + data["arg" + i] + '</textarea>' +
                     '             </div>' +
                     '         </div>' +
                     '     </div>' +
@@ -1010,14 +1019,14 @@
 
     // 选择为项目时的数据设置
         #if($configs.monitorConfigureTp.equals("item"))
-           setFrom("${configs.itemId}", "undo_redo");
-           changeScript("${configs.itemId}", 1, 1);
-            $('#is_host_configure').show()
+        setFrom("${configs.itemId}", "undo_redo");
+        changeScript("${configs.itemId}", 1, 1);
+        $('#is_host_configure').show()
         #end
 
 
     function changeItem(id) {
-        if(!id){
+        if (!id) {
             return;
         }
 //        id = $('#undo_redo').val()
@@ -1035,115 +1044,115 @@
     $('.selectpicker').selectpicker({
         'selectedText': 'cat'
     });
-   
-   function set_alarm_up_add(i){
-       html = '<div class="col-md-12" id="delete_alarm_up_"'+i+'>'+
-        '<div class="col-md-12" style="margin-left:-30px;">'+
-        '    <div class="form-group">'+
-        '        <label class="col-sm-4 control-label">报警超过几次升级:</label>'+
-        '        <div class="col-sm-3" style="margin-left: -13%;">'+
-        '            <input type="number" name="alarmCount'+i+'" class="form-control" id="alarmCount'+i+'"'+
-        '                   value="0">'+
-        '        </div>'+
-        '    </div>'+
-        '</div>'+
-        '<div class="col-md-12" style="margin-top: 15px;"></div>'+
-        '<div class="col-md-12">'+
-        '    <label class="col-sm-3 control-label" style="margin-left: -32px;">升级成员配置->'+i+'</label>'+
-        '    <label class="col-sm-3"><input placeholder="搜索报警组"'+
-        '                                   onkeyup="searchAlarmMember($(this).val(),\'undo_contact_all_alarm_up_'+i+'_redo\')"'+
-        '                                   class="fa-border form-control"'+
-        '                                   style="margin-top:-5px;margin-left:-19%;"></label>'+
-        '    <label class="col-sm-3 control-label">已选报警组</label>'+
-        '</div>'+
-        '<div class="col-md-12" style="margin-top: 5px;"></div>'+
-        '<div class="col-xs-5">'+
-        '    <select name="from" id="undo_contact_all_alarm_up_'+i+'_redo" class="form-control" size="5"'+
-        '            multiple="multiple">'+
-        '    </select>'+
-        '</div>'+
-        '<div class="col-xs-2">'+
-        '    <div style="margin-top: 8px;">&nbsp;</div>'+
-        '    <button type="button" id="undo_contact_all_alarm_up_'+i+'_redo_rightSelected"'+
-        '            class="btn btn-primary btn-block"><i'+
-        '            class="glyphicon glyphicon-chevron-right"></i></button'+
-        '    >'+
-        '    <button type="button" id="undo_contact_all_alarm_up_'+i+'_redo_leftSelected"'+
-        '            class="btn btn-warning btn-block"><i'+
-        '            class="glyphicon glyphicon-chevron-left"></i></button>'+
-        '</div>'+
-        '<div class="col-xs-5">'+
-        '    <select name="to" id="undo_contact_all_alarm_up_'+i+'_redo_to" class="form-control" size="5"'+
-        '            multiple="multiple"></select>'+
-        '</div>'+
-        '</div>'+
-        '</div>'+
-        '<div class="col-md-12" style="margin-left:-30px;" id="set_alarm_up_add_'+i+'">'+
-        '    <div class="form-group">'+
-        '        <div class="col-sm-2" >'+
-        '       <button style="margin-left: 25%;margin-top: 5px;margin-bottom: 10px;"'+
-        '               onclick="set_alarm_up(0,1);" class="btn btn-danger btn-sm" type="button">'+
-        '           <i class="fa fa-upload"></i>&nbsp;还要升级'+
-        '      <span style="width:10%;">&nbsp;</span>'+
-        '      </button>  </div>'+
-        '    </div>'+
-        '</div>'+
-        '<div class="col-md-12" style="margin-top: 10px;">&nbsp;</div>'
+
+    function set_alarm_up_add(i) {
+        html = '<div class="col-md-12" id="delete_alarm_up_"' + i + '>' +
+                '<div class="col-md-12" style="margin-left:-30px;">' +
+                '    <div class="form-group">' +
+                '        <label class="col-sm-4 control-label">报警超过几次升级:</label>' +
+                '        <div class="col-sm-3" style="margin-left: -13%;">' +
+                '            <input type="number" name="alarmCount' + i + '" class="form-control" id="alarmCount' + i + '"' +
+                '                   value="0">' +
+                '        </div>' +
+                '    </div>' +
+                '</div>' +
+                '<div class="col-md-12" style="margin-top: 15px;"></div>' +
+                '<div class="col-md-12">' +
+                '    <label class="col-sm-3 control-label" style="margin-left: -32px;">升级成员配置->' + i + '</label>' +
+                '    <label class="col-sm-3"><input placeholder="搜索报警组"' +
+                '                                   onkeyup="searchAlarmMember($(this).val(),\'undo_contact_all_alarm_up_' + i + '_redo\')"' +
+                '                                   class="fa-border form-control"' +
+                '                                   style="margin-top:-5px;margin-left:-19%;"></label>' +
+                '    <label class="col-sm-3 control-label">已选报警组</label>' +
+                '</div>' +
+                '<div class="col-md-12" style="margin-top: 5px;"></div>' +
+                '<div class="col-xs-5">' +
+                '    <select name="from" id="undo_contact_all_alarm_up_' + i + '_redo" class="form-control" size="5"' +
+                '            multiple="multiple">' +
+                '    </select>' +
+                '</div>' +
+                '<div class="col-xs-2">' +
+                '    <div style="margin-top: 8px;">&nbsp;</div>' +
+                '    <button type="button" id="undo_contact_all_alarm_up_' + i + '_redo_rightSelected"' +
+                '            class="btn btn-primary btn-block"><i' +
+                '            class="glyphicon glyphicon-chevron-right"></i></button' +
+                '    >' +
+                '    <button type="button" id="undo_contact_all_alarm_up_' + i + '_redo_leftSelected"' +
+                '            class="btn btn-warning btn-block"><i' +
+                '            class="glyphicon glyphicon-chevron-left"></i></button>' +
+                '</div>' +
+                '<div class="col-xs-5">' +
+                '    <select name="to" id="undo_contact_all_alarm_up_' + i + '_redo_to" class="form-control" size="5"' +
+                '            multiple="multiple"></select>' +
+                '</div>' +
+                '</div>' +
+                '</div>' +
+                '<div class="col-md-12" style="margin-left:-30px;" id="set_alarm_up_add_' + i + '">' +
+                '    <div class="form-group">' +
+                '        <div class="col-sm-2" >' +
+                '       <button style="margin-left: 25%;margin-top: 5px;margin-bottom: 10px;"' +
+                '               onclick="set_alarm_up(0,1);" class="btn btn-danger btn-sm" type="button">' +
+                '           <i class="fa fa-upload"></i>&nbsp;还要升级' +
+                '      <span style="width:10%;">&nbsp;</span>' +
+                '      </button>  </div>' +
+                '    </div>' +
+                '</div>' +
+                '<div class="col-md-12" style="margin-top: 10px;">&nbsp;</div>'
         return html
-   }
+    }
 
-   function set_alarm_up(obj, add){
-        
-       var retry = $("#retry").val()
-       if(retry && parseInt(retry) == 0){
-          parent.layer.msg("重试次数为0不能触发报警升级",  {icon:2})
-          return
-       } 
+    function set_alarm_up(obj, add) {
 
-       if($(obj).prop("checked") || add){
-               var oldcount = $("#alarmCount").val().trim()
-               if(!oldcount){
-                 parent.layer.msg("报警次数没有配置",  {icon:2})
-                 return
-               }
-               if(oldcount <= 1){
-                 parent.layer.msg("报警次数太小,不可进行报警升级",  {icon:2})
-                 return
-               }
-               $("#alarm_up").val(1)
-               $("#alarm_up_add_id").show();
-               var old_html = $("#alarm_up_add_id").html()
-               for(i=1;i<6;i++){
-                  if(old_html.indexOf("undo_contact_all_alarm_up_"+i+"_redo") == -1){
-                       var groups = $('#contact_groups_id').val()
-                       var maxcount = parseInt($("#alarmCount"+(i-1)).val())
-                       if(maxcount <= 1){
-                           parent.layer.msg("不可升级了",  {icon:2})
-                           return
-                       }
-                       $("#alarm_up_add_id").append(set_alarm_up_add(i))
-                       var id = "undo_contact_all_alarm_up_"+i+"_redo"
-                       $("#"+id).html(groups)
-                       $('#' +id).multiselect({
-                	  keepRenderingSort: true
-                       });
-                       if(i==1){
-                         oldcount = $("#alarmCount").val().trim()
-                         $("#alarmCount"+i).val(parseInt(oldcount) -1)
-                       }else{
-                         $("#alarmCount"+i).val(parseInt($("#alarmCount"+(i-1)).val()) - 1)
-                       }
-                       break;
-                  } else{
-                    $("#set_alarm_up_add_"+i).remove()
-                  }
-               } 
-      }else{
-          $("#alarm_up").val(0)
-          $("#alarm_up_add_id").hide();
-          $("#alarm_up_add_id").html("<span></span>")
-      }
-   }
+        var retry = $("#retry").val()
+        if (retry && parseInt(retry) == 0) {
+            parent.layer.msg("重试次数为0不能触发报警升级", {icon: 2})
+            return
+        }
+
+        if ($(obj).prop("checked") || add) {
+            var oldcount = $("#alarmCount").val().trim()
+            if (!oldcount) {
+                parent.layer.msg("报警次数没有配置", {icon: 2})
+                return
+            }
+            if (oldcount <= 1) {
+                parent.layer.msg("报警次数太小,不可进行报警升级", {icon: 2})
+                return
+            }
+            $("#alarm_up").val(1)
+            $("#alarm_up_add_id").show();
+            var old_html = $("#alarm_up_add_id").html()
+            for (i = 1; i < 6; i++) {
+                if (old_html.indexOf("undo_contact_all_alarm_up_" + i + "_redo") == -1) {
+                    var groups = $('#contact_groups_id').val()
+                    var maxcount = parseInt($("#alarmCount" + (i - 1)).val())
+                    if (maxcount <= 1) {
+                        parent.layer.msg("不可升级了", {icon: 2})
+                        return
+                    }
+                    $("#alarm_up_add_id").append(set_alarm_up_add(i))
+                    var id = "undo_contact_all_alarm_up_" + i + "_redo"
+                    $("#" + id).html(groups)
+                    $('#' + id).multiselect({
+                        keepRenderingSort: true
+                    });
+                    if (i == 1) {
+                        oldcount = $("#alarmCount").val().trim()
+                        $("#alarmCount" + i).val(parseInt(oldcount) - 1)
+                    } else {
+                        $("#alarmCount" + i).val(parseInt($("#alarmCount" + (i - 1)).val()) - 1)
+                    }
+                    break;
+                } else {
+                    $("#set_alarm_up_add_" + i).remove()
+                }
+            }
+        } else {
+            $("#alarm_up").val(0)
+            $("#alarm_up_add_id").hide();
+            $("#alarm_up_add_id").html("<span></span>")
+        }
+    }
 
 </script>
 </body>
