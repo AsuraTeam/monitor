@@ -33,7 +33,7 @@
 </br>
 
 为国内用户下载方便，同步更新开源中国<br>
-请到 https://git.oschina.net/asuramonitor/monitor 下载代码<br>
+请到 https://gitee.com/asuramonitor/monitor  下载代码<br>
 欢迎加入 阿修罗监控系统 QQ群 149469467<br>
 <br>
 <b>整体架构</b>
