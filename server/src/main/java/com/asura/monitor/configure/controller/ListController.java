@@ -4,6 +4,7 @@ import com.asura.monitor.configure.conf.MonitorCacheConfig;
 import com.asura.util.RedisUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
@@ -137,7 +138,8 @@ public class ListController {
      * @return
      */
     @RequestMapping("configure/list")
-    public String configureList(){
+    public String configureList(String itemId, ModelMap modelMap){
+        modelMap.addAttribute("itemId", itemId);
         return "monitor/configure/configure/list";
     }
 

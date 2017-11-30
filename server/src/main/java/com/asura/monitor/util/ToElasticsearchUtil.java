@@ -53,6 +53,7 @@ public class ToElasticsearchUtil {
     private static Map<String, Map> hostMap;
     private static boolean esSwitch = true;
     private static TransportClient client;
+    private static String lock = null;
 
     /**
      * @param entity
@@ -83,7 +84,6 @@ public class ToElasticsearchUtil {
         map.put("value", Double.valueOf(value));
         if (hostMap == null) {
             hostMap = new HashedMap();
-            client = transportClient();
         }
         if (!hostMap.containsKey(ip)) {
             // 重新初始化一次
@@ -114,7 +114,7 @@ public class ToElasticsearchUtil {
             pushToEs();
         } catch (Exception e) {
             LOGGER.info("map ", new Gson().toJson(map));
-            LOGGER.error("pushToEs错误", e);
+            e.printStackTrace();
         }
     }
 
@@ -168,11 +168,13 @@ public class ToElasticsearchUtil {
                 // 默认打包3000个指标上报到es
                 pushSize = 3000;
             }
+
             try {
                 makeEsAlias();
             } catch (Exception e) {
 
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -182,30 +184,50 @@ public class ToElasticsearchUtil {
      * @return
      */
     static TransportClient transportClient() {
+        if (null != lock){
+            return null;
+        }else{
+            lock = "1";
+        }
         LOGGER.info("开始连接ES服务 transportClient");
+        if (null != client){
+           return client;
+        }
+        TransportClient client1 = null;
         try {
             Settings settings = Settings.builder()
                     .put("cluster.name", clusterName).build();
-            TransportClient client = new PreBuiltTransportClient(settings)
+             client1 = new PreBuiltTransportClient(settings)
                     .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(server), Integer.valueOf(port)));
-            return client;
+             lock = null;
+            return client1;
         } catch (Exception e) {
+            if (null != client1){
+                client1.close();
+            }
             if (serversSize < esServers.size()-1){
                 for (int i=serversSize; i<esServers.size();i++){
                     server = esServers.get(i);
                     serversSize = i;
                     LOGGER.info("重试设置ES为"+server);
+                    if (serversSize >= esServers.size()){
+                        serversSize = 0;
+                    }
+                    break;
                 }
             }
             LOGGER.error("ES服务连接失败", e);
+            lock = null;
             return null;
         }
+
     }
 
     /**
      * 生成别名和索引
      */
     public static void makeEsAlias() throws Exception {
+
         TransportClient client = transportClient();
         IndicesAliasesRequestBuilder response = client.admin().indices()
                 .prepareAliases();
@@ -227,14 +249,15 @@ public class ToElasticsearchUtil {
     public static void pushToEs() throws Exception {
 
         if (linkedTransferQueue.size() >= pushSize) {
-            BulkRequestBuilder bulkRequest = client.prepareBulk();
+            String key  = "monitor-" + DateUtil.getDate("yyyy-MM-dd");
             try {
+                BulkRequestBuilder bulkRequest = client.prepareBulk();
                 for (int i = 0; i < pushSize; i++) {
                     Map map = linkedTransferQueue.poll();
                     if (map == null) {
                         continue;
                     }
-                    bulkRequest.add(client.prepareIndex("monitor-" + DateUtil.getDate("yyyy-MM-dd"), "monitor")
+                    bulkRequest.add(client.prepareIndex(key, "monitor")
                             .setSource(jsonBuilder()
                                     .startObject()
                                     .field("@type", map.get("type"))
@@ -248,13 +271,12 @@ public class ToElasticsearchUtil {
                             )
                     );
                 }
-
-                BulkResponse bulkResponse = bulkRequest.get();
-                if (bulkResponse.hasFailures()) {
-                    LOGGER.error("上传ES数据失败", bulkResponse.hasFailures());
-                }
             } catch (Exception e) {
-                client.close();
+                LOGGER.error("上传ES数据失败", e);
+                try{
+                    client.close();
+                }catch (Exception e1){
+                }
                 client = transportClient();
             }
         }

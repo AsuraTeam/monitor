@@ -231,7 +231,9 @@
             },
 
             "columns": [ // 数据映射
-                {"data": "itemName"},
+                {"data": "itemName","mRender":function (data, type ,full) {
+                        return "<span title='跳转到使用该项目的监控配置'><a href='/monitor/configure/configure/list?itemId="+full["itemId"]+"'>"+data+"</a></span>"
+                }},
                 {"data": "fileName"},
                 {"data": "checkInterval"},
                 {"data": "alarmCount"},
@@ -273,6 +275,8 @@
     }
 
     loadData();
+
+
 
 </script>
 </body>

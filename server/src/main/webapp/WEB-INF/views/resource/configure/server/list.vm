@@ -296,11 +296,14 @@
                 $('#add_getui_config').modal('toggle');
             }
 
-            function load_page(ip) {
+            function load_page(ip, groupsName) {
                 if(!ip){
                     ip = "";
                 }
-                window.open("/resource/configure/server/top?ip="+ip)
+                if(!groupsName){
+                    groupsName = ""
+                }
+                window.open("/resource/configure/server/top?ip="+ip+"&groupsName="+groupsName)
             }
             /**
              * 启动停止监控
@@ -503,7 +506,7 @@
                         {"data": "serverId", "mRender": function (data, type, full) {
                             return '<button type="button" onclick="updateConfig(' + data + ')" class="btn btn-sm btn-success">编辑</button>&nbsp;' +
                                     '<button type="button" onClick="deleteConfig(' + data + ')" class="btn btn-sm btn-danger">删除</button>&nbsp;'+
-                                    '<button type="button" onClick="monitorConfig(' + data + ')" class="btn btn-sm btn-warning">启停监控</button>&nbsp;'+
+                                    '<button type="button" onClick="load_page(\'\',\''+full["groupsName"]+'\')"class="btn btn-sm btn-primary">组TOP</button>&nbsp;'+
                                     '<button type="button" onClick="load_page(\'' + full["ipAddress"] + '\')" class="btn btn-sm btn-master">TOP</button>';
                            }
                         },

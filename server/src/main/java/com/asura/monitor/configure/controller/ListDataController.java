@@ -12,6 +12,7 @@ import com.asura.resource.entity.CmdbResourceServerEntity;
 import com.asura.resource.service.CmdbResourceServerService;
 import com.asura.util.CheckUtil;
 import com.asura.util.RedisUtil;
+import org.apache.commons.collections.IterableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -524,11 +525,14 @@ public class ListDataController {
      */
     @RequestMapping(value = "configure/listData", produces = {"application/json;charset=UTF-8"})
     @ResponseBody
-    public String configureList(int draw, int start, int length, String groupsName, HttpServletRequest request) {
+    public String configureList(int draw, int start, int length, String groupsName, String itemId, HttpServletRequest request) {
         PageBounds pageBounds = PageResponse.getPageBounds(length, start);
         SearchMap searchMap = new SearchMap();
-        if (groupsName != null && groupsName.length() > 1) {
+        if (CheckUtil.checkString(groupsName)) {
             searchMap.put("groupsName", groupsName);
+        }
+        if (CheckUtil.checkString(itemId)){
+            searchMap.put("itemId", itemId);
         }
         String description = request.getParameter("search[value]");
         List<String> ips = new ArrayList<>();
@@ -543,7 +547,6 @@ public class ListDataController {
             }
         }
         PagingResult<MonitorConfigureEntity> result = configureService.findAll(searchMap, pageBounds, "selectByAll");
-        boolean isData;
         List<MonitorConfigureEntity> list = new ArrayList<>();
         if (result.getTotal() < 1) {
             for (String ip : ips) {

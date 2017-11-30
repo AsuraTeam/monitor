@@ -72,6 +72,9 @@
         <if test="gname != null">
             and a.gname = #{gname}
         </if>
+        <if test="itemId != null">
+            and a.item_id = #{itemId}
+        </if>
         ORDER BY a.last_modify_time desc
     </select>
 

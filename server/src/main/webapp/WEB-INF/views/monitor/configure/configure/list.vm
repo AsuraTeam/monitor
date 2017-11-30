@@ -325,7 +325,7 @@
             "scrollX": true, // 是否允许左右滑动
             "displayLength": 10, // 默认长度
             "ajax": { // 请求地址
-                "url": "/monitor/configure/"+site+"/listData?t=" + new Date().getTime()+"&groupsName="+groupsName,
+                "url": "/monitor/configure/"+site+"/listData?t=" + new Date().getTime()+"&groupsName="+groupsName+"&itemId=$!{itemId}",
                 "type": 'post'
             },
 

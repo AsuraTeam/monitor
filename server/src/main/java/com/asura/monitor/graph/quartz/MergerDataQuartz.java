@@ -55,6 +55,7 @@ public class MergerDataQuartz {
             }catch (Exception e){
                 LOGGER.error("生成es别名错误", e);
             }
+
         }else {
             startQuartz(redisUtil);
         }

@@ -65,7 +65,7 @@
         return ip
     }
     var treedatas = new Array();
-    var data = post({ip:"$!{ip}"}, "/resource/configure/server/topData")
+    var data = post({ip:"$!{ip}","groupsName":"$!{groupsName}"}, "/resource/configure/server/topData")
     for (i = 0; i < data.length; i++) {
         d = data[i]
         if(!d["color"]){
@@ -123,7 +123,7 @@
                                                 $(go.TextBlock, {margin: 3},
                                                         new go.Binding("text", "",
                                                                 function (d) {
-                                                                    return "IP:" +get_attr(d.ip, d.switchIp)+ "\n类型: " + d.typename + "\n环境: " + d.entname +"\n负责人:"+d.username+"\n机柜:"+d.cabinet+"\n交换机:"+d.switchIp;
+                                                                    return "域名:" +d.domainName+ "\nIP:" +get_attr(d.ip, d.switchIp)+ "\n类型: " + d.typename + "\n环境: " + d.entname +"\n负责人:"+d.username+"\n机柜:"+d.cabinet+"\n交换机:"+d.switchIp;
                                                                 }))
                                         )
                                     }

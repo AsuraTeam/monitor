@@ -93,43 +93,85 @@
     <!--交换机top图数据-->
     <select id="selectSwitchTop" parameterType="map" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
         select  concat(g.cabinet_scope,"->", g.cabinet_name)  as cabinetName, a.server_id as k1, b.server_id as k2 ,
-        a.ip_address as ipAddress, a.switch_id as switchId ,         c.type_name as typeName,
+        a.ip_address as ipAddress, a.domain_name as domainName, a.switch_id as switchId ,         c.type_name as typeName,
         e.user_name as userName,         f.ent_name as entName,
         a.switch_port as switchPort from cmdb_resource_server a,         cmdb_resource_server b ,
         cmdb_resource_server_type c , cmdb_resource_user e,
-        cmdb_resource_entname f, cmdb_resource_cabinet g
+        cmdb_resource_entname f, cmdb_resource_cabinet g, cmdb_resource_groups h
         where  a.cabinet_id=g.cabinet_id and         a.user_id = e.user_id
         and a.ent_id = f.ent_id         and a.switch_id is not null and a.switch_port
         is not null and a.switch_port != "" and a.switch_port != "null"
-        and a.switch_id=b.ip_address     and a.type_id = c.type_id
+        and a.switch_id=b.ip_address     and a.type_id = c.type_id and a.groups_id=h.groups_id
         <if test="ip != null">
             and (a.ip_address=#{ip} or b.ip_address=#{ip})
         </if>
+        <if test="groupsName != null">
+            and (h.groups_name=#{groupsName} or c.type_name like concat("%","交换机","%"))
+        </if>
+        <if test="vms != null">
+            and (a.ip_address in
+            <foreach collection="vms" item="item" separator="," open="(" close=")" index="index">
+                #{item}
+            </foreach>
+           or b.ip_address in
+            <foreach collection="vms" item="item" separator="," open="(" close=")" index="index">
+                #{item}
+            </foreach>
+            )
+        </if>
+        <if test="hostId != null">
+            and (
+            a.host_id in
+            <foreach collection="hostId" item="item" separator="," open="(" close=")" index="index">
+            #{item}
+        </foreach>
+            or b.host_id in
+            <foreach collection="hostId" item="item" separator="," open="(" close=")" index="index">
+            #{item}
+        </foreach>
+            )
+        </if>
         order by convert(a.switch_port,SIGNED)
+    </select>
+
+    <!-- 查询物理机地址 -->
+    <select id="selectTopHostsId" parameterType="map" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
+        select  host_id as hostId from cmdb_resource_server where
+            ip_address in
+            <foreach collection="vms" item="item" separator="," open="(" close=")" index="index">
+                #{item}
+            </foreach>
+        order by convert(switch_port,SIGNED)
     </select>
 
 
     <!--top获取交换机的IP地址-->
     <select id="selectSwitchIp" parameterType="map" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
     select a.switch_id as switchId from cmdb_resource_server a,
-    cmdb_resource_server b  where (a.ip_address=#{ip} or b.ip_address=#{ip} )
+    cmdb_resource_server b  where 1=1
+    <if test="ip != null">
+       and (a.ip_address=#{ip} or b.ip_address=#{ip} )
+    </if>
     and a.server_id=b.host_id
     </select>
-    <select id="selectSwitchIp2" parameterType="map" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
-        select a.switch_id as switchId from cmdb_resource_server a  where a.ip_address=#{ip}
 
+    <select id="selectSwitchIp2" parameterType="map" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
+        select a.switch_id as switchId from cmdb_resource_server a  where 1=1
+         <if test="ip != null">
+            and a.ip_address=#{ip}
+         </if>
     </select>
 
 
     <select id="selectVmTop" parameterType="map" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
-        select concat(g.cabinet_scope,"->", g.cabinet_name)  as cabinetName,c.type_name as typeName, a.server_id as k1, b.server_id as k2 , a.ip_address as ipAddress,
+        select concat(g.cabinet_scope,"->", g.cabinet_name)  as cabinetName,  a.domain_name as domainName,c.type_name as typeName, a.server_id as k1, b.server_id as k2 , a.ip_address as ipAddress,
         c.type_name as typeName,
         e.user_name as userName,
         f.ent_name as entName,
         b.ip_address as hostIpAddress,
         b.switch_id as switchId
         from cmdb_resource_server a ,cmdb_resource_server b , cmdb_resource_server_type c , cmdb_resource_user e, cmdb_resource_cabinet g,
-        cmdb_resource_entname f where a.host_id=b.server_id
+        cmdb_resource_entname f, cmdb_resource_groups h  where a.host_id=b.server_id
         <if test="ip != null">
             and (a.ip_address=#{ip} or b.ip_address=#{ip} or b.switch_id=#{ip})
         </if>
@@ -138,9 +180,12 @@
         and a.ent_id = f.ent_id
         and a.ip_address != b.ip_address
         and a.type_id = c.type_id
+        and a.groups_id=h.groups_id
+        <if test="groupsName != null">
+            and (h.groups_name=#{groupsName} or c.type_name like concat("%","交换机","%"))
+        </if>
         order by a.ip_address
     </select>
-
 
     <select id="selectByIp" parameterType="map" resultType="com.asura.resource.entity.CmdbResourceServerEntity">
         select server_id as serverId from cmdb_resource_server

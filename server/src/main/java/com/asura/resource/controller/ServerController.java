@@ -112,8 +112,9 @@ public class ServerController {
      * @return
      */
     @RequestMapping("top")
-    public String top(ModelMap modelMap, String ip){
+    public String top(ModelMap modelMap, String ip,String groupsName){
         modelMap.put("ip",ip);
+        modelMap.put("groupsName", groupsName);
         return "/resource/configure/server/top";
     }
 
@@ -129,6 +130,7 @@ public class ServerController {
         topEntity.setUsername(entity.getUserName());
         topEntity.setCabinet(entity.getCabinetName());
         topEntity.setSwitchIp(entity.getSwitchId());
+        topEntity.setDomainName(entity.getDomainName());
         return topEntity;
     }
 
@@ -139,10 +141,13 @@ public class ServerController {
      */
     @RequestMapping(value = "topData", produces = {"application/json;charset=UTF-8"})
     @ResponseBody
-    public String topData(String ip){
+    public String topData(String ip, String groupsName){
         SearchMap searchMap = new SearchMap();
         if (CheckUtil.checkString(ip)){
             searchMap.put("ip", ip);
+        }
+        if (CheckUtil.checkString(groupsName)){
+            searchMap.put("groupsName", groupsName);
         }
         String[] colorData = colors.split(",");
         Map<String,String> switchInfo = new HashMap();
@@ -155,6 +160,31 @@ public class ServerController {
         Random random = new Random();
         List<CmdbResourceServerEntity> serverEntities = service.getDataList(searchMap, "selectSwitchTop");
         List<CmdbResourceServerEntity> selectVmTops = service.getDataList(searchMap, "selectVmTop");
+
+        if (searchMap.containsKey("groupsName")){
+            ArrayList vmName = new ArrayList();
+            for (CmdbResourceServerEntity entity:selectVmTops){
+                vmName.add(entity.getIpAddress());
+            }
+            searchMap.remove("groupsName");
+            searchMap.put("vms", vmName);
+            List<CmdbResourceServerEntity> serverEntitiesVm = service.getDataList(searchMap, "selectSwitchTop");
+            for (CmdbResourceServerEntity entity:serverEntitiesVm){
+                serverEntities.add(entity);
+            }
+            List<CmdbResourceServerEntity> hostIds = service.getDataList(searchMap, "selectTopHostsId");
+            ArrayList hosts = new ArrayList();
+            for (CmdbResourceServerEntity entity:hostIds){
+                hosts.add(entity.getHostId());
+            }
+            searchMap.remove("vms");
+            searchMap.put("hostId", hosts);
+            List<CmdbResourceServerEntity> hostServer = service.getDataList(searchMap, "selectSwitchTop");
+            for (CmdbResourceServerEntity entity:hostServer){
+                serverEntities.add(entity);
+            }
+        }
+
         if(searchMap.containsKey("ip")){
             // 查询宿主机或虚拟机的交换机地址
             List<CmdbResourceServerEntity> selectSwitchIp = service.getDataList(searchMap, "selectSwitchIp");
@@ -180,8 +210,6 @@ public class ServerController {
                 }
             }
         }
-
-
 
         for (CmdbResourceServerEntity entity:serverEntities){
             switchInfo.put(entity.getSwitchId(), entity.getK2());

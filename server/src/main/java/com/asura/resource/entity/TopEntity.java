@@ -15,6 +15,15 @@ public class TopEntity {
     private String username;
     private String cabinet;
     private String switchIp;
+    private String domainName;
+
+    public String getDomainName() {
+        return domainName;
+    }
+
+    public void setDomainName(String domainName) {
+        this.domainName = domainName;
+    }
 
     public String getSwitchIp() {
         return switchIp;
