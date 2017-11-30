@@ -250,6 +250,9 @@ public class ToElasticsearchUtil {
 
         if (linkedTransferQueue.size() >= pushSize) {
             String key  = "monitor-" + DateUtil.getDate("yyyy-MM-dd");
+            if (null == client){
+                client = transportClient();
+            }
             try {
                 BulkRequestBuilder bulkRequest = client.prepareBulk();
                 for (int i = 0; i < pushSize; i++) {
@@ -271,7 +274,9 @@ public class ToElasticsearchUtil {
                             )
                     );
                 }
+                bulkRequest.get();
             } catch (Exception e) {
+                e.printStackTrace();
                 LOGGER.error("上传ES数据失败", e);
                 try{
                     client.close();
