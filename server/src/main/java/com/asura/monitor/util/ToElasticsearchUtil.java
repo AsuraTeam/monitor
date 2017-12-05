@@ -168,7 +168,7 @@ public class ToElasticsearchUtil {
                 // 默认打包3000个指标上报到es
                 pushSize = 3000;
             }
-
+            client = transportClient();
             try {
                 makeEsAlias();
             } catch (Exception e) {
@@ -190,9 +190,6 @@ public class ToElasticsearchUtil {
             lock = "1";
         }
         LOGGER.info("开始连接ES服务 transportClient");
-        if (null != client){
-           return client;
-        }
         TransportClient client1 = null;
         try {
             Settings settings = Settings.builder()
@@ -202,6 +199,7 @@ public class ToElasticsearchUtil {
              lock = null;
             return client1;
         } catch (Exception e) {
+            e.printStackTrace();
             if (null != client1){
                 client1.close();
             }
@@ -276,17 +274,14 @@ public class ToElasticsearchUtil {
                 }
                 bulkRequest.get();
             } catch (Exception e) {
-                e.printStackTrace();
                 LOGGER.error("上传ES数据失败", e);
                 try{
-                    client.close();
+                    client = transportClient();
                 }catch (Exception e1){
                 }
-                client = transportClient();
             }
         }
     }
-
 
 }
 

@@ -7,6 +7,7 @@ import com.asura.common.response.PageResponse;
 import com.asura.common.response.ResponseVo;
 import com.asura.monitor.graph.entity.CmdbQuartzEntity;
 import com.asura.monitor.graph.service.CmdbQuartzService;
+import com.asura.util.DateUtil;
 import com.asura.util.PermissionsCheck;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -82,6 +83,7 @@ public class QuartzController {
     public ResponseVo save(CmdbQuartzEntity entity, HttpSession session){
         String user = permissionsCheck.getLoginUser(session);
         entity.setLastModifyUser(user);
+        entity.setLastModifyTime(DateUtil.getTimeStamp());
         if(entity.getQuartzId()!=null){
             service.update(entity);
         }else {
