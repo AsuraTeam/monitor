@@ -433,8 +433,12 @@ public class CacheController {
             }
             // 设置组的信息
             if(CheckUtil.checkString(m.getGname()) && m.getMonitorHostsTp().equals("groups")){
-                hosts = redisUtil.get(MonitorCacheConfig.cacheGroupsKey.concat(m.getGname())).split(",");
-                logger.info("获取到组配置信息 " + gson.toJson(hostIds));
+                String hostData = redisUtil.get(MonitorCacheConfig.cacheGroupsKey.concat(m.getGname()));
+                if (CheckUtil.checkString(hostData)) {
+                    MonitorGroupsEntity entity = gson.fromJson(hostData, MonitorGroupsEntity.class);
+                    hosts = entity.getHosts().split(",");
+                    logger.info("获取到组配置信息 " + gson.toJson(hostIds));
+                }
             }
             if (null == hosts){
                 continue;
@@ -442,8 +446,10 @@ public class CacheController {
 
             for (String s : hosts) {
                 if(s.length() < 1){continue;}
-                hostIds.add(s);
-                hostMap = setGroupHostConfig(hostMap, m.getConfigureId()+"", s);
+                if (!hostIds.contains(s)) {
+                    hostIds.add(s);
+                    hostMap = setGroupHostConfig(hostMap, m.getConfigureId() + "", s);
+                }
             }
 
             for (Map.Entry<String, HashSet> entry : hostMap.entrySet()) {

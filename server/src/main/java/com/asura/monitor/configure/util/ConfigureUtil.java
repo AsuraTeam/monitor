@@ -182,11 +182,15 @@ public class ConfigureUtil {
         if (null != entity.getHostId() || null != entity.getGname() ) {
             // 监控的组
             String groups = entity.getGname();
-            String[] hosts;
+            String[] hosts = new String[0];
             if (CheckUtil.checkString(groups)){
                 try {
-                    hosts = REDIS_UTIL.get(MonitorCacheConfig.cacheGroupsKey.concat(groups)).split(",");
-                    logger.info("获取到组的成员信息" + GSON.toJson(hosts));
+                    String result =  REDIS_UTIL.get(MonitorCacheConfig.cacheGroupsKey.concat(groups));
+                    if (CheckUtil.checkString(result)) {
+                        MonitorGroupsEntity groupsEntity = GSON.fromJson(result, MonitorGroupsEntity.class);
+                        hosts = groupsEntity.getHosts().split(",");
+                        logger.info("获取到组的成员信息" + GSON.toJson(hosts));
+                    }
                 }catch (Exception e){
                     hosts = "".split(",");
                 }
