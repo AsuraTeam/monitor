@@ -68,12 +68,16 @@ public class MessagesChannelUtil {
      * @return
      */
    public static boolean sendEmail(boolean send, MailEntity mailEntity){
-        for (int i = 0; i < 5; i++) {
-            if (sendMail(mailEntity)) {
-                send = true;
-                break;
-            }
-        }
+       try {
+           for (int i = 0; i < 5; i++) {
+               if (sendMail(mailEntity)) {
+                   send = true;
+                   break;
+               }
+           }
+       }catch (Exception e){
+           e.printStackTrace();
+       }
        return send;
     }
 

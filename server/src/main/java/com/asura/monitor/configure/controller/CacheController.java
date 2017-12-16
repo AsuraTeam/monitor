@@ -390,12 +390,10 @@ public class CacheController {
      * @param hostId
      * @return
      */
-    public Map<String, HashSet> setGroupHostConfig(Map<String, HashSet> hostMap, String configId, String hostId){
-        HashSet conf ;
+    Map<String, HashSet>  setGroupHostConfig(Map<String, HashSet> hostMap, String configId, String hostId){
+        HashSet conf = new HashSet();
         // 将每个host拥有的配置写入到redis
-        if(!hostMap.containsKey(hostId)){
-            conf = new HashSet();
-        }else {
+        if(hostMap.containsKey(hostId)){
             conf = hostMap.get(hostId);
         }
         conf.add(configId);
@@ -412,19 +410,22 @@ public class CacheController {
         Jedis jedis = redisUtil.getJedis();
         SearchMap searchMap = new SearchMap();
         searchMap.put("isValid",1);
-        HashSet hostIds = new HashSet();
-
+        HashSet<String> hostIds = new HashSet();
+        HashSet<String> conf;
         // 存放每个主机拥有的所有配置文件id
         Map<String, HashSet> hostMap = new HashMap();
         // 存放每个组拥有的所有配置文件的ID
 
-        if (null == result) {
-            try {
+        if (null == result && monitorConfigureService == null) {
+            if (monitorConfigureService != null){
                 result = monitorConfigureService.findAll(searchMap, PageResponse.getPageBounds(1000000, 1), "selectByAll");
-            } catch (Exception e) {
+            } else{
                 result = configureService.findAll(searchMap, PageResponse.getPageBounds(1000000, 1), "selectByAll");
             }
+        }else{
+            result = configureService.findAll(searchMap, PageResponse.getPageBounds(1000000, 1), "selectByAll");
         }
+
 
         for (MonitorConfigureEntity m : result.getRows()) {
             String[] hosts = null;
@@ -446,19 +447,24 @@ public class CacheController {
 
             for (String s : hosts) {
                 if(s.length() < 1){continue;}
-                if (!hostIds.contains(s)) {
-                    hostIds.add(s);
-                    hostMap = setGroupHostConfig(hostMap, m.getConfigureId() + "", s);
+                hostIds.add(s);
+                conf = new HashSet();
+                // 将每个host拥有的配置写入到redis
+                if(hostMap.containsKey(s)){
+                    conf = hostMap.get(s);
                 }
+                conf.add(String.valueOf(m.getConfigureId()));
+                hostMap.put(s , conf);
             }
-
-            for (Map.Entry<String, HashSet> entry : hostMap.entrySet()) {
-                try {
-                    jedis.set(RedisUtil.app + "_" + MonitorCacheConfig.cacheHostConfigKey + entry.getKey(), gson.toJson(entry.getValue()));
-                }catch (Exception e){
-                    jedis = redisUtil.getJedis();
-                    jedis.set(RedisUtil.app + "_" + MonitorCacheConfig.cacheHostConfigKey + entry.getKey(), gson.toJson(entry.getValue()));
-                }
+        }
+        for (Map.Entry<String, HashSet> entry : hostMap.entrySet()) {
+            try {
+                String data =  gson.toJson(entry.getValue());
+                logger.info("保存主机信息"+entry.getKey() + data);
+                jedis.set(RedisUtil.app + "_" + MonitorCacheConfig.cacheHostConfigKey + entry.getKey(),data);
+            }catch (Exception e){
+                jedis = redisUtil.getJedis();
+                jedis.set(RedisUtil.app + "_" + MonitorCacheConfig.cacheHostConfigKey + entry.getKey(), gson.toJson(entry.getValue()));
             }
         }
         String allHost = gson.toJson(hostIds);

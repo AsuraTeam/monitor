@@ -95,7 +95,8 @@ public class MailUtil {
             logger.info("Sent message successfully....");
             return true;
 
-        }catch (MessagingException mex) {
+        }catch (Exception mex) {
+            mex.printStackTrace();
             logger.error(mex);
             return false;
         }
@@ -125,6 +126,7 @@ class MyAuthenticator extends Authenticator {
         this.strPwd = password;
     }
 
+    @Override
     protected PasswordAuthentication getPasswordAuthentication() {
         return new PasswordAuthentication(strUser, strPwd);
     }
