@@ -19,7 +19,6 @@ import com.asura.resource.entity.report.ServerReportEntity;
 import com.asura.resource.service.*;
 import com.asura.util.*;
 import com.asura.util.network.ThreadPing;
-import org.apache.logging.log4j.core.jmx.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

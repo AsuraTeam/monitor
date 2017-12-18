@@ -569,7 +569,7 @@ public class SaveController {
             MonitorConfigureEntity configureEntity = configureService.findById(entity.getConfigureId(), MonitorConfigureEntity.class);
             hosts = configureEntity.getHosts().split(",");
             // 删除老的机器的监控配置
-            CONFIGURE_UTIL.deleteOldConfigure(entity.getConfigureId() + "", hosts);
+            CONFIGURE_UTIL.deleteOldConfigure(String.valueOf(entity.getConfigureId()), hosts);
             configureService.update(entity);
         } else {
             List<MonitorConfigureEntity> r = configureService.getDataList(null, "selectMaxId");

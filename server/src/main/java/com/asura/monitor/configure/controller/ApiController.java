@@ -458,6 +458,7 @@ public class ApiController {
                     MonitorMessagesEntity messagesEntity = gson.fromJson(queueData, MonitorMessagesEntity.class);
                     sendMonitorMessages(messagesEntity);
                 } catch (Exception e) {
+                    e.printStackTrace();
                     logger.error("发送报警失败:", e);
                 }
             }
