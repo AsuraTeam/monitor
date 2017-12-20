@@ -364,7 +364,7 @@ public class MonitorController {
                 // 上报版本和cpu数量
                 redisUtil.set(MonitorCacheConfig.cacheAgentVersion.concat(ip), VERSION);
                 redisUtil.set(MonitorCacheConfig.cacheAgentCpu.concat(ip), CommandUtil.getCpuNumber());
-                if (hosts.contains(result)) {
+                if (hosts != null && hosts.contains(result)) {
                     IS_DEFAULT = true;
                 }
             }
