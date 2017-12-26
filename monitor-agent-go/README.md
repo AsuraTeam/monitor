@@ -19,5 +19,8 @@ cp -v configure/monitor.conf configure/ <br>
 
 
 # 程序启动
+# 不要使用root
+nohup /home/你的用户/runtime/monitor/bin/monitor.daemon /home/你的用户/runtime/monitor/configure/monitor.conf &
+
 # 程序分发
 # 将 /home/runtime/ 
