@@ -23,4 +23,4 @@ cp -v configure/monitor.conf configure/ <br>
 nohup /home/你的用户/runtime/monitor/bin/monitor.daemon /home/你的用户/runtime/monitor/configure/monitor.conf &
 
 # 程序分发
-# 将 /home/runtime/ 
+# 将 /home/你的用户/runtime/  目录下打包分发到其他可以运行的机器启动即可
