@@ -204,9 +204,13 @@ public class AllGraphController {
             logger.info("获取到grafana url " + url);
             model.addAttribute("grafanaServer", url.trim());
         }catch (Exception e){
-            // 使用环境变量
-            logger.info("获取到grafana url " + System.getenv("grafanaServer").trim());
-            model.addAttribute("grafanaServer", System.getenv("grafanaServer").trim());
+            try {
+                // 使用环境变量
+                logger.info("获取到grafana url " + System.getenv("grafanaServer").trim());
+                model.addAttribute("grafanaServer", System.getenv("grafanaServer").trim());
+            }catch (Exception e1){
+                logger.error("获取到grafana url 失败" ,e1);
+            }
         }
     }
 

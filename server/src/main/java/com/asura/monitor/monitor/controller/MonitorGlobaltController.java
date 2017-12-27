@@ -78,7 +78,6 @@ public class MonitorGlobaltController {
      * 监控入口
      *
      * @param searchMap
-     *
      * @return
      */
     public ArrayList<CheckCountEntity> getIndexData(SearchMap searchMap) {
@@ -132,7 +131,6 @@ public class MonitorGlobaltController {
     }
 
 
-
     /**
      * 监控系统数据默认入口
      *
@@ -148,7 +146,6 @@ public class MonitorGlobaltController {
      * 获取指定业务组的告警信息
      *
      * @param draw
-     *
      * @return
      */
     @RequestMapping(value = "selectGroupsMonitorInfo", produces = {"application/json;charset=utf-8"})
@@ -177,7 +174,6 @@ public class MonitorGlobaltController {
      *
      * @param jedis
      * @param scriptId
-     *
      * @return
      */
     public String getScriptName(Jedis jedis, String scriptId) {
@@ -192,7 +188,6 @@ public class MonitorGlobaltController {
 
     /**
      * @param strings
-     *
      * @return
      */
     String getMessages(String[] strings) {
@@ -211,7 +206,6 @@ public class MonitorGlobaltController {
      * @param status
      * @param length
      * @param start
-     *
      * @return
      */
     public static Map getAgentMessages(String status, int length, int start) {
@@ -257,7 +251,6 @@ public class MonitorGlobaltController {
 
     /**
      * @param hostId
-     *
      * @return
      */
     static String getMessagesIp(String hostId) {
@@ -281,7 +274,6 @@ public class MonitorGlobaltController {
     /**
      * @param messagesEntities
      * @param dataMap
-     *
      * @return
      */
     static Map getMessagesMap(ArrayList<MessagesEntity> messagesEntities, Map dataMap) {
@@ -299,7 +291,6 @@ public class MonitorGlobaltController {
     }
 
     /**
-     *
      * @param groupsName
      * @param groupsId
      * @param status
@@ -307,10 +298,10 @@ public class MonitorGlobaltController {
      * @param messagesEntities
      * @return
      */
-    ArrayList<MessagesEntity> getMessagesList(String groupsName, String groupsId, String status, String server, ArrayList<MessagesEntity> messagesEntities){
+    ArrayList<MessagesEntity> getMessagesList(String groupsName, String groupsId, String status, String server, ArrayList<MessagesEntity> messagesEntities) {
         Jedis jedis = redisUtil.getJedis();
         String datas = FileRender.readLastLine(tempDir.concat("groupsMap_").concat(groupsId).concat("_").concat(status));
-        if (! CheckUtil.checkString(datas)) {
+        if (!CheckUtil.checkString(datas)) {
             IndexData("");
         }
         Map<String, String> dataMap = gson.fromJson(datas, HashMap.class);
@@ -323,7 +314,9 @@ public class MonitorGlobaltController {
         String[] messagesData;
         MessagesEntity messagesEntity;
 
-        if (dataMap == null || dataMap.size() < 1 ) { return  messagesEntities;  }
+        if (dataMap == null || dataMap.size() < 1) {
+            return messagesEntities;
+        }
         // 获取到该组的hostId和脚本Id，拼接出来日志路径
         for (Map.Entry<String, String> entry : dataMap.entrySet()) {
             data = entry.getKey().split("_");
@@ -346,6 +339,7 @@ public class MonitorGlobaltController {
             if (messages == null) {
                 continue;
             }
+            System.out.println("获取监控信息 " + messages);
             messagesData = messages.split(" ");
             messagesEntity.setGroupsName(groupsName);
             messagesEntity.setMessages(getMessages(messagesData));
@@ -371,7 +365,6 @@ public class MonitorGlobaltController {
      * @param groupsName
      * @param start
      * @param length
-     *
      * @return
      */
     @RequestMapping(value = "messages", produces = {"application/json;charset=utf-8"})
@@ -393,28 +386,28 @@ public class MonitorGlobaltController {
         }
         groupsId = FileRender.replace(groupsId);
         server = FileRender.replace(server);
-        ArrayList<MessagesEntity>  messagesEntities = new ArrayList<>();
-        if (CheckUtil.checkString(status)){
-            getMessagesList(groupsName, groupsId, status, server, messagesEntities );
-        }else{
+        ArrayList<MessagesEntity> messagesEntities = new ArrayList<>();
+        if (CheckUtil.checkString(status)) {
+            getMessagesList(groupsName, groupsId, status, server, messagesEntities);
+        } else {
             List<String> strings = new ArrayList<>();
             strings.add("2");
             strings.add("1");
             strings.add("3");
             strings.add("4");
-            for (String sta: strings) {
+            for (String sta : strings) {
                 getMessagesList(groupsName, groupsId, sta, server, messagesEntities);
             }
         }
         Map sizeMap = new HashMap();
         ArrayList<MessagesEntity> datas = new ArrayList<>();
         int count = 0;
-        for (MessagesEntity entity: messagesEntities) {
+        for (MessagesEntity entity : messagesEntities) {
             count += 1;
             sizeMap.put(count, 1);
             // 分页检查
             if (!PageResponse.checkPaging(start, length, count)) {
-                    continue;
+                continue;
             }
             datas.add(entity);
         }
@@ -424,7 +417,6 @@ public class MonitorGlobaltController {
 
 
     /**
-     *
      * @param temp
      * @param oldMap
      * @param okMap
@@ -453,12 +445,13 @@ public class MonitorGlobaltController {
             case "unknown":
                 temp.setUnknownMap(oldMap);
                 break;
+            default:
+                break;
         }
         return temp;
     }
 
     /**
-     *
      * @param temp
      * @param type
      * @param okMap
@@ -485,13 +478,14 @@ public class MonitorGlobaltController {
                 temp.setUnknown(temp.getUnknown() + okMap.size());
                 temp = getTempData(temp, temp.getUnknownMap(), okMap, "unknown");
                 break;
+            default:
+                break;
         }
         return temp;
     }
 
     /**
      * @param exclude
-     *
      * @return
      */
     public ArrayList getExclude(String exclude) {
@@ -601,7 +595,6 @@ public class MonitorGlobaltController {
      * 获取每个组里的所有host的数据状态
      *
      * @param hosts
-     *
      * @return
      */
     List<Map<String, Map<String, String>>> getHostStatus(List<String> hosts, Jedis jedis, HashSet hostCount) {
@@ -637,7 +630,6 @@ public class MonitorGlobaltController {
     /**
      * @param faildCheck
      * @param data
-     *
      * @return
      */
     ArrayList<CheckCountEntity> getCheckCount(ArrayList<CheckCountEntity> faildCheck, ArrayList<CheckCountEntity> data) {
@@ -667,21 +659,22 @@ public class MonitorGlobaltController {
 
     /**
      * 获取管理员
+     *
      * @param gid
      * @return
      */
-    CheckCountEntity getGroupsAdmin(String gid, CheckCountEntity temp, Jedis jedis){
+    CheckCountEntity getGroupsAdmin(String gid, CheckCountEntity temp, Jedis jedis) {
         SearchMap searchMap = new SearchMap();
         searchMap.put("groupsId", gid);
         String key = RedisUtil.app.concat("_").concat(MonitorCacheConfig.cacheServerAdmin.concat(gid));
         String admin = jedis.get(key);
-        if (CheckUtil.checkString(admin)){
+        if (CheckUtil.checkString(admin)) {
             temp.setUser(admin);
             return temp;
         }
         String admins = "";
         List<CmdbResourceServerEntity> data = resourceServerService.getDataList(searchMap, "selectAdmin");
-        for (CmdbResourceServerEntity entity:data){
+        for (CmdbResourceServerEntity entity : data) {
             admins += entity.getUserName().concat(",");
         }
         redisUtil.setex(key, 1200, admins);
@@ -754,23 +747,24 @@ public class MonitorGlobaltController {
                         temp = setIndexDataMap(temp, "warning", map.get("warning"));
                         temp = setIndexDataMap(temp, "unknown", map.get("unknown"));
                         temp.setId(Integer.valueOf(entry.getKey()));
-                        if (! CheckUtil.checkString(temp.getUser()))
+                        if (!CheckUtil.checkString(temp.getUser())) {
                             temp = getGroupsAdmin(groupsId, temp, jedis);
                         }
                     }
                 }
+            }
 
-                // 2017-03-30 添加主机数和管理员
-                temp.setHostSize(hostCount.size());
-                if (temp.getDanger() > 0 || temp.getUnknown() > 0 || temp.getWarning() > 0) {
-                    if (!faildCheck.contains(temp)) {
-                        faildCheck.add(temp);
-                    }
-                } else {
-                    if (!check.contains(temp)) {
-                        check.add(temp);
-                    }
+            // 2017-03-30 添加主机数和管理员
+            temp.setHostSize(hostCount.size());
+            if (temp.getDanger() > 0 || temp.getUnknown() > 0 || temp.getWarning() > 0) {
+                if (!faildCheck.contains(temp)) {
+                    faildCheck.add(temp);
                 }
+            } else {
+                if (!check.contains(temp)) {
+                    check.add(temp);
+                }
+            }
         }
 
         ArrayList<CheckCountEntity> data = new ArrayList<>();
@@ -798,7 +792,6 @@ public class MonitorGlobaltController {
      * 获取监控信息
      *
      * @param draw
-     *
      * @return
      */
     @RequestMapping(value = "indexData", produces = {"application/json;charset=utf-8"})
@@ -835,7 +828,6 @@ public class MonitorGlobaltController {
      * 清除无效的服务器
      *
      * @param server
-     *
      * @return
      */
     @RequestMapping("clearServer")

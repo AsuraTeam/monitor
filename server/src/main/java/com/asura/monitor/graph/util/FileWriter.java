@@ -154,12 +154,6 @@ public class FileWriter {
                 .append(separator)
                 .append(ip)
                 .append(separator)
-//                .append( dateUtil.getDate("yyyy"))
-//                .append(separator)
-//                .append(dateUtil.getDate("MM"))
-//                .append(separator)
-//                .append(dateUtil.getDate("dd") )
-//                .append(separator)
                 .append(name);
 
         return file.toString();
@@ -176,7 +170,7 @@ public class FileWriter {
 
         // 拼接文件目录
         String file = getMonitorFile(ip, name);
-        if (entity.getTime() == null) {
+        if (entity.getTime() == null || entity.getTime().length() < 10 ) {
             entity.setTime(DateUtil.getDate("yyyy-MM-dd HH:mm:ss"));
         }
 
