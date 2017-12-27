@@ -124,6 +124,9 @@ func checkMonitorUpdate() {
 	groupsCount = 0
 	for _, result := range groupsData {
 		Debug("开始检查agent是否存活"+ result)
+		if len(groupsList) <= groupsCount {
+			continue
+		}
 		groupsId := groupsList[groupsCount]
 		groupsCount += 1
 		CACHE_CHECK_MONITOR_LOCK = false

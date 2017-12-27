@@ -13,8 +13,23 @@ const APP = "monitor"
 
 var (
 	URL string = ""
+	pool *redis.Pool
 )
 
+func newPool() *redis.Pool {
+	return &redis.Pool{
+		MaxIdle: 80,
+		MaxActive: 12000, // max number of connections
+		Dial: func() (redis.Conn, error) {
+			c, err := redis.Dial("tcp", URL)
+			if err != nil {
+				panic(err.Error())
+			}
+			return c, err
+		},
+	}
+
+}
 /**
 * connect redis
  */
@@ -30,14 +45,10 @@ func getC() redis.Conn {
 			port = "6379"
 		}
 		URL = server + ":" + port
+		pool = newPool()
 	}
-	c, err := redis.Dial("tcp", URL)
-	if err == nil {
-		return c
-	} else {
-		commonUtil.Error("连接redis失败")
-	}
-	return nil
+	c := pool.Get()
+	return c
 }
 
 /**
@@ -48,7 +59,7 @@ func Get_del(action string, key string) string {
 		r, err := redis.String(c.Do(action, APP+"_"+key))
 		commonUtil.Info("get " + APP + "_" + key)
 		if err != nil {
-			c.Close()
+		//	c.Close()
 			return ""
 		}
 		return r
@@ -60,7 +71,7 @@ func Get(key string, c redis.Conn) string {
 	if c != nil {
 		r, err := redis.String(c.Do("get", APP+"_"+key))
 		if err != nil {
-			c.Close()
+		//	c.Close()
 			return ""
 		}
 		return r
@@ -86,7 +97,7 @@ func Llen(key string) int64 {
 		commonUtil.Info("llen " + APP + "_" + key)
 		if err == nil {
 			v, _ := json.Marshal(data)
-			c.Close()
+		//	c.Close()
 			return commonUtil.ToInt64(string(v))
 		}
 	}
@@ -100,7 +111,7 @@ func Set(key string, value string) string {
 		commonUtil.Info("set " + APP + "_" + key)
 		if err != nil {
 			return "ok"
-			c.Close()
+		//	c.Close()
 		}
 	}
 	return "err"
@@ -109,11 +120,8 @@ func Set(key string, value string) string {
 func Setex(key string, expired int, value string) {
 	c := getC()
 	if c != nil {
-		_, err := c.Do("setex", APP+"_"+key, expired, value)
+		c.Do("setex", APP+"_"+key, expired, value)
 		commonUtil.Info("setex " + APP + "_" + key + " " + value)
-		if err != nil {
-			c.Close()
-		}
 	}
 }
 
@@ -123,7 +131,7 @@ func Rpop(key string) string {
 		data, err := c.Do("rpop", APP+"_"+key)
 		commonUtil.Info("rpop " + APP + "_" + key)
 		if err != nil {
-			c.Close()
+		//	c.Close()
 			d, err := json.Marshal(data)
 			if err == nil {
 				return string(d)
@@ -139,7 +147,7 @@ func Lpush(key string, value string) string {
 		data, err := c.Do("lpush", APP+"_"+key, value)
 		commonUtil.Info("lpush " + APP + "_" + key)
 		if err == nil {
-			c.Close()
+		//	c.Close()
 			d, err := json.Marshal(data)
 			if err == nil {
 				return string(d)

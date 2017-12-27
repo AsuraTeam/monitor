@@ -139,7 +139,7 @@
    3、redis<br>
    4、mysql数据库<br>
    5、mvn<br>
-   6、agent<br>
+   6、agent 有java版和go版2个,后期都维护go版<br>
    7、elsticsearch 5.2 (可选)<br>
    
  运行系统 Centos 6.5 <br>
@@ -178,8 +178,12 @@
    #ls /home/runtime<br>
     java8 tomcat_8081 redis maven 数据库自行配置即可<br>
 
+<h1>agent安装配置 go版 </h1>
+1、安装go
+2、cd monitor-agent-go 目录
+3、查看README.md 文件
     
-<h1>agent安装配置</h1>
+<h1>agent安装配置 java版 </h1>
 <h3>6、安装agent</h3><br>
       1、使用mvn打包, 打包完成后,将target/agent.jar 记录，稍后会用到<br>
       2、程序运行环境在tools/monitor.tar.bz2, 解压到 /home/runtime/目录<br>

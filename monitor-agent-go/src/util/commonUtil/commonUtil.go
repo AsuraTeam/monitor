@@ -13,17 +13,14 @@ import (
 	"io"
 )
 
-
-
 var (
-	IsDebug bool = true
+	IsDebug     bool = true
 	CONFIG_PATH string
-	LOG_SIZE int64
-	FUNC_LOCK = MapLockString{}
+	LOG_SIZE    int64
+	FUNC_LOCK   = MapLockString{}
 )
 
-
-func SetConfigPath(conf string)  {
+func SetConfigPath(conf string) {
 	CONFIG_PATH = conf
 }
 
@@ -58,9 +55,8 @@ func ListExistsString(arr []string, value string) bool {
 	return false
 }
 
-
 func ToString(v interface{}) string {
-	if _,ok := FUNC_LOCK.Get("ToString");ok{
+	if _, ok := FUNC_LOCK.Get("ToString"); ok {
 		return ""
 	}
 	FUNC_LOCK.Set("ToString", "1")
@@ -142,7 +138,7 @@ func Configure(key string) string {
 	data, err := ioutil.ReadFile(CONFIG_PATH)
 	log.Println(CONFIG_PATH)
 	if err != nil {
-	    Error("配置文件读取错误 " + err.Error())
+		Error("配置文件读取错误 " + err.Error())
 		os.Exit(1)
 	}
 	strData := string(data)
@@ -159,16 +155,16 @@ func Configure(key string) string {
 	return ""
 }
 
-func ClearLog(LOG_PATH string){
-	file,err := os.Stat(LOG_PATH)
+func ClearLog(LOG_PATH string) {
+	file, err := os.Stat(LOG_PATH)
 	if err != nil {
 		return
 	}
 	if LOG_SIZE == 0 {
 		size := Configure("log.size")
-		if CheckString(size){
+		if CheckString(size) {
 			LOG_SIZE = ToInt64(size)
-		}else{
+		} else {
 			LOG_SIZE = 100000000
 		}
 		log.Println("获取到日志文件大小设置为:" + ToStr64(LOG_SIZE))
@@ -176,15 +172,15 @@ func ClearLog(LOG_PATH string){
 
 	logSize := os.FileInfo(file).Size()
 	if logSize >= LOG_SIZE {
-		os.Truncate(LOG_PATH,0)
+		os.Truncate(LOG_PATH, 0)
 		log.Println("清空日志文件")
 	}
 }
 
-func GetMd5ByFile(file string) string  {
+func GetMd5ByFile(file string) string {
 	f, err := os.Open(file)
 	if err != nil {
-		Error("Open"  +  err.Error())
+		Error("Open" + err.Error())
 		return ""
 	}
 
@@ -198,11 +194,11 @@ func GetMd5ByFile(file string) string  {
 	return string(r[:])
 }
 
-func DownloadNet(url string ,file string)  {
+func DownloadNet(url string, file string) {
 	res, err := http.Get(url)
 	if err == nil {
-		f,err := os.Create(file)
-		if err != nil{
+		f, err := os.Create(file)
+		if err != nil {
 			io.Copy(f, res.Body)
 		}
 	}
