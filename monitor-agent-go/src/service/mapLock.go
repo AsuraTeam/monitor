@@ -24,6 +24,11 @@ type MapLockPushEntity struct {
 	Lock sync.RWMutex
 }
 
+type MapLockMonitorScriptEntity struct {
+	Data map[string]MonitorScriptsEntity
+	Lock sync.RWMutex
+}
+
 type MapLockMonitorItemEntity struct {
 	Data map[string]MonitorItemEntity
 	Lock sync.RWMutex
@@ -70,6 +75,26 @@ func (m *MapLockMonitorConfigureEntity) GetData() (map[string]MonitorConfigureEn
 	md := m.Data
 	defer m.Lock.RUnlock()
 	return md
+}
+
+func (m *MapLockMonitorScriptEntity) Set(k string, v MonitorScriptsEntity) {
+	m.Lock.Lock()
+	if len(m.Data) < 1 {
+		m.Data = make(map[string]MonitorScriptsEntity)
+	}
+	m.Data[k] = v
+	defer m.Lock.Unlock()
+}
+
+func (m *MapLockMonitorScriptEntity) Get(k string) (MonitorScriptsEntity, bool) {
+	m.Lock.RLock()
+	if _, ok := m.Data[k]; ok {
+		defer m.Lock.RUnlock()
+		return m.Data[k], true
+	} else {
+		defer m.Lock.RUnlock()
+	}
+	return MonitorScriptsEntity{}, false
 }
 
 func (m *MapLockMonitorConfigureEntity) Set(k string, v MonitorConfigureEntity) {

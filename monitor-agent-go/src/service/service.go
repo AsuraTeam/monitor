@@ -44,7 +44,7 @@ var (
 	HOST_CONFIGS_DATA     = make(map[string][]MonitorConfigureEntity)
 	GROUP_CONFIGS_DATA    = make(map[string][]MonitorConfigureEntity)
 	ITEM_CONFIGS          = make(map[string][]MonitorItemEntity)
-	SCRIPT_CONFIGS        = make(map[string]MonitorScriptsEntity)
+	SCRIPT_CONFIGS        = MapLockMonitorScriptEntity{}
 	CONFIGS               = MapLockMonitorConfigureEntity{}
 	SCRIPT_ITEM_CONFIG    = MapLockMonitorConfigureEntity{}
 	ALARM_LAST_TIME       = MapLockInt64{}
@@ -582,7 +582,7 @@ func setScriptConfigs() {
 		monitorScriptsEntity = getScripts(id)
 		if monitorScriptsEntity.ScriptsId > 0 {
 			file = filepath.Join(tempDir, id)
-			SCRIPT_CONFIGS[id] = monitorScriptsEntity
+			SCRIPT_CONFIGS.Set(id, monitorScriptsEntity)
 			Info(file)
 			ioutil.WriteFile(file, []byte(monitorScriptsEntity.Content), 0755)
 		} else {

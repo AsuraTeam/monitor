@@ -353,7 +353,7 @@ func pushCmdb() {
  */
 func getTimeout(id string) int64 {
 	Info("开始获取到超时时间; 脚本id " + id)
-	entity := SCRIPT_CONFIGS[id]
+	entity,_ := SCRIPT_CONFIGS.Get(id)
 	if monitorUtil.CheckString(commonUtil.ToString(entity.TimeOut)) {
 
 		Info("获取到超时时间" + commonUtil.ToString(entity.TimeOut))
