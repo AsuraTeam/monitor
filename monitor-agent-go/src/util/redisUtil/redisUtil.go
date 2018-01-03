@@ -23,7 +23,7 @@ func newPool() *redis.Pool {
 		Dial: func() (redis.Conn, error) {
 			c, err := redis.Dial("tcp", URL)
 			if err != nil {
-				panic(err.Error())
+				log.Println(err.Error())
 			}
 			return c, err
 		},

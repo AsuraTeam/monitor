@@ -81,7 +81,7 @@ func GetServer(address string) string {
 	} else {
 		serverList = make([]string, 0)
 		setServerList()
-		return GetServer("")
+		return ""
 	}
 	return ""
 }

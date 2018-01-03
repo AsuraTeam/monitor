@@ -136,7 +136,7 @@ func runScriptPush(timeS string, success []PushEntity, faild []PushEntity) ([]Pu
 	scriptTime, _ := SCRIPT_TIME_MAP.Get(timeS)
 
 	// 获取这个时间保护的时间
-	Info("runScript " + timeS + " " + commonUtil.ToString(SCRIPT_TIME_MAP))
+	Info("runScript " + timeS )
 	var lockKey string
 	var checkInterval int64
 	for _, id := range scriptTime {
