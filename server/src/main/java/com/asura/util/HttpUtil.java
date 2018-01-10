@@ -121,11 +121,12 @@ public class HttpUtil {
     public static String  httpPostJson(String url, String content, String method) throws IOException{
         URL console = new URL(url);
         HttpURLConnection conn = (HttpURLConnection) console.openConnection();
-        //conn.setHostnameVerifier(new TrustAnyHostnameVerifier());
         conn.setDoOutput(true);
         conn.setAllowUserInteraction(true);
         conn.setRequestMethod(method);
         conn.setUseCaches(false);
+        conn.setConnectTimeout(2000);
+        conn.setReadTimeout(3000);
         conn.setRequestProperty("Content-Type", "application/json");
         conn.setRequestProperty("Charset", "UTF-8");
         conn.connect();

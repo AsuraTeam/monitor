@@ -36,7 +36,7 @@ public class RedisUtil  {
             url = url.trim();
             String redisPass = (String) props.get("redis.password");
             if (CheckUtil.checkString(redisPass)) {
-                redisPassword = redisPassword.trim();
+                redisPassword = redisPass.trim();
             }
             String cport = (String) props.get("redis.port");
             if(CheckUtil.checkString(cport)){

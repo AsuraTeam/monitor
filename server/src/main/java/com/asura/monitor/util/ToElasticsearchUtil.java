@@ -5,6 +5,7 @@ import com.asura.monitor.configure.conf.MonitorCacheConfig;
 import com.asura.resource.entity.CmdbResourceServerEntity;
 import com.asura.util.CheckUtil;
 import com.asura.util.DateUtil;
+import com.asura.util.HttpUtil;
 import com.asura.util.RedisUtil;
 import org.apache.commons.collections.map.HashedMap;
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequestBuilder;
@@ -54,6 +55,9 @@ public class ToElasticsearchUtil {
     private static boolean esSwitch = true;
     private static TransportClient client;
     private static String lock = null;
+    private static int counter = 0;
+    private static int faildCounter = 0;
+    private static Gson GSON;
 
     /**
      * @param entity
@@ -148,6 +152,7 @@ public class ToElasticsearchUtil {
                 server = esServers.get(0);
                 LOGGER.info("当前ES服务器设置为"+ server);
                 esSwitch = true;
+                GSON = new Gson();
             } else {
                 esSwitch = false;
                 LOGGER.info("没有配置es服务器");
@@ -184,10 +189,17 @@ public class ToElasticsearchUtil {
      * @return
      */
     static TransportClient transportClient() {
+        if (!esSwitch){
+            return null;
+        }
         if (null != lock){
             return null;
         }else{
             lock = "1";
+        }
+        if (counter > 10){
+            esSwitch = false;
+            return null;
         }
         LOGGER.info("开始连接ES服务 transportClient");
         TransportClient client1 = null;
@@ -214,6 +226,7 @@ public class ToElasticsearchUtil {
                     break;
                 }
             }
+            counter += 1;
             LOGGER.error("ES服务连接失败", e);
             lock = null;
             return null;
@@ -234,6 +247,41 @@ public class ToElasticsearchUtil {
         response.execute().actionGet();
         client.close();
     }
+
+//
+//    public static void pushToEsHttp(){
+//        if (linkedTransferQueue.size() >= pushSize) {
+//            Map map;
+//            Map maps;
+//            StringBuilder data = new StringBuilder();
+//            String key = "monitor-" + DateUtil.getDate("yyyy-MM-dd");
+//            String index = "{ \" index \":{\" _index\":\" %s\",\"_type\":\"monitor\"}}\n".replace("%s", key);
+//            for (int i = 0; i < pushSize; i++) {
+//                map = linkedTransferQueue.poll();
+//                if (map == null) {
+//                    continue;
+//                }
+//                try {
+//                    maps = new HashMap();
+//                    maps.put("@type", map.get("type"));
+//                    maps.put("@name", map.get("name"));
+//                    maps.put("@value", map.get("value"));
+//                    maps.put("@timestamp", map.get("time"));
+//                    maps.put("@ip", map.get("ip"));
+//                    data.append(index + GSON.toJson(maps) + "\n");
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//
+//            }
+//            String url = "http://".concat(server).concat(":") + port + "/_bulk";
+//            try {
+//                HttpUtil.httpPostJson(url, data.toString(), "POST");
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 
     /**
      * type 监控组对应监控数据的groups
@@ -274,10 +322,12 @@ public class ToElasticsearchUtil {
                 }
                 bulkRequest.get();
             } catch (Exception e) {
-                LOGGER.error("上传ES数据失败", e);
-                try{
+                faildCounter += 1;
+                if (faildCounter > 30 ){
+                    client.close();
                     client = transportClient();
-                }catch (Exception e1){
+                    LOGGER.error("上传ES数据失败", e);
+                    faildCounter = 0;
                 }
             }
         }
