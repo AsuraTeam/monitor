@@ -346,6 +346,9 @@
         <if test="buyNumber != null">
             and a.buy_user in
             <include refid="groups"/>
+            and a.type_id in (
+            select type_id from cmdb_resource_server_type where type_name in ("应用物理机", "物理机","数据库物理机", "KVM宿主机", "VMware物理机", "docker服务器")
+            )
         </if>
 
         <!-- 获取物理机库存 -->

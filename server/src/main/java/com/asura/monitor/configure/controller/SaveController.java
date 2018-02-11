@@ -2,7 +2,6 @@ package com.asura.monitor.configure.controller;
 
 import com.asura.framework.base.paging.SearchMap;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.asura.common.controller.IndexController;
 import com.asura.common.response.ResponseVo;
 import com.asura.monitor.configure.conf.MonitorCacheConfig;
@@ -24,7 +23,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.lang.reflect.Type;
 import java.util.*;
 
 import static com.asura.monitor.configure.conf.MonitorCacheConfig.cacheGroupsKey;
@@ -564,6 +562,30 @@ public class SaveController {
             entity.setArg7(entity.getArg7().trim());
             entity.setArg8(entity.getArg8().trim());
         }catch (Exception e){
+        }
+        if (entity.getArg1()!= null){
+            entity.setArg1(entity.getArg1().replace("\n", ""));
+        }
+        if (entity.getArg2()!= null){
+            entity.setArg2(entity.getArg2().replace("\n", ""));
+        }
+        if (entity.getArg3()!= null){
+            entity.setArg3(entity.getArg3().replace("\n", ""));
+        }
+        if (entity.getArg4()!= null){
+            entity.setArg4(entity.getArg4().replace("\n", ""));
+        }
+        if (entity.getArg5()!= null){
+            entity.setArg5(entity.getArg5().replace("\n", ""));
+        }
+        if (entity.getArg6()!= null){
+            entity.setArg6(entity.getArg6().replace("\n", ""));
+        }
+        if (entity.getArg7()!= null){
+            entity.setArg7(entity.getArg7().replace("\n", ""));
+        }
+        if (entity.getArg8()!= null){
+            entity.setArg8(entity.getArg8().replace("\n", ""));
         }
         if (entity.getConfigureId() != null && entity.getConfigureId() > 0 ) {
             MonitorConfigureEntity configureEntity = configureService.findById(entity.getConfigureId(), MonitorConfigureEntity.class);

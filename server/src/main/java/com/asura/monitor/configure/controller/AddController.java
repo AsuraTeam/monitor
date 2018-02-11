@@ -221,6 +221,30 @@ public class AddController {
                 model.addAttribute("copy","1");
                 result.setConfigureId(0);
             }
+            if (result.getArg1() != null) {
+                result.setArg1(result.getArg1().replace("\n", ""));
+            }
+            if (result.getArg2() != null) {
+                result.setArg2(result.getArg2().replace("\n", ""));
+            }
+            if (result.getArg3() != null) {
+                result.setArg3(result.getArg3().replace("\n", ""));
+            }
+            if (result.getArg4() != null) {
+                result.setArg4(result.getArg4().replace("\n", ""));
+            }
+            if (result.getArg5() != null) {
+                result.setArg5(result.getArg5().replace("\n", ""));
+            }
+            if (result.getArg6() != null) {
+                result.setArg6(result.getArg6().replace("\n", ""));
+            }
+            if (result.getArg7() != null) {
+                result.setArg7(result.getArg7().replace("\n", ""));
+            }
+            if (result.getArg8() != null) {
+                result.setArg8(result.getArg8().replace("\n", ""));
+            }
             model.addAttribute("configs", result);
         }
         model.addAttribute("scripts", scriptsService.findAll(searchMapNull, pageBoundsNull, "selectByAll").getRows());
