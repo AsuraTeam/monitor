@@ -543,6 +543,10 @@ public class MonitorGlobaltController {
             String isOk = jedis.get(app + "_" + key + "_" + entry.getKey());
             if (CheckUtil.checkString(isOk)) {
                 Map<String, String> map = gson.fromJson(isOk, HashMap.class);
+                if( null == map){
+                    System.out.println(isOk);
+                    continue;
+                }
                 for (Map.Entry<String, String> ok : map.entrySet()) {
                     okMap.put(ok.getKey(), ok.getValue());
                 }
