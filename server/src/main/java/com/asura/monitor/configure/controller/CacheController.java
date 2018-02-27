@@ -171,7 +171,7 @@ public class CacheController {
         if (null == result) {
             result = configureService.findAll(searchMap, PageResponse.getPageBounds(10000000, 1), "selectByAll");
         }
-        if (null == result){
+        if (null == result || null == result.getRows() ){
             return "";
         }
         for (MonitorConfigureEntity m : result.getRows()) {
