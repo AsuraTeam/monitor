@@ -134,7 +134,7 @@
                                 return html;
                             }},
                             {"data": "lastModifyTime","mRender":function (data) {
-                                return data;
+                                 return data?laydate.now(data, "YYYY-MM-DD hh:mm:ss"):"--";
                             }},
                         ],
                         "fnRowCallback": function (row, data) { // 每行创建完毕的回调
