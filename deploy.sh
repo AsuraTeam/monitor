@@ -13,6 +13,7 @@
 # 2、准备一个redis服务
 # 3、修改对应的环境变量
 # 4、本系统强制依赖时间，请保证所有服务器时间一致
+# 5、jdk8 需手动下载安装
 
 
 ## 以上配置完成后修改下面的变量
@@ -32,13 +33,11 @@ chkconfig --add tomcat_8081d
 chkconfig tomcat_8081d on
 
 tar xjf m2.tar.bz2
-tar xjf jdk7.tar.bz2
 tar xjf redis.tar.bz2
 tar xzf maven.tar.gz
 tar xjf tomcat_8081.tar.bz2
 
 rsync -arz redis/ $RUNPATH/redis/
-rsync -arz jdk7/ $RUNPATH/jdk7/
 rsync -arz maven/ $RUNPATH/maven/
 rsync -arz tomcat_8081/ $RUNPATH/tomcat_8081/
 rsync -arz .m2/ ~/.m2/
