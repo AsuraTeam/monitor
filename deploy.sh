@@ -27,6 +27,7 @@ export redis_server=127.0.0.1
 RUNPATH="/home/runtime/"
 mkdir $RUNPATH 
 
+# 请自己下载
 cd tools
 rsync -var tomcat_8081d /etc/init.d/
 chkconfig --add tomcat_8081d
