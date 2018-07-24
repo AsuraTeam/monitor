@@ -46,7 +46,8 @@
 <br>
 <span>大家可以赞助点,1毛不嫌少，1万不嫌多,您乐意就行,当然有问题可以联系，提供更多服务!</span>
 <br>
-![image](https://raw.githubusercontent.com/AsuraTeam/monitor/master/images/sponsorship.jpg)
+<br>
+![image](https://raw.githubusercontent.com/AsuraTeam/monitor/master/images/sponsorship-1.jpg)
 <br>
 
 <b>监控大盘</b>
