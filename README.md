@@ -128,9 +128,13 @@
 ![image](https://raw.githubusercontent.com/AsuraTeam/monitor/master/images/img8.png)
 <br>
 <br>
-<b>有（友）情(钱)赞助</b>
+<b>所有安装按照文档即可完成,如需辅助安装,服务费100元/次</b>
 <br>
-<span>大家可以赞助点,1毛不嫌少，1万不嫌多,您乐意就行,有问题也可以联系，为您提供更多的服务!</span>
+<br>
+![image](https://raw.githubusercontent.com/AsuraTeam/monitor/master/images/QQ图片20190124100348.jpg)
+<br>
+<br>
+<span>大家也可以赞助点,1毛不嫌少，1万不嫌多,您乐意就行,有问题也可以联系，为您提供更多的服务!</span>
 <br>
 <br>
 ![image](https://raw.githubusercontent.com/AsuraTeam/monitor/master/images/img-1.png)
